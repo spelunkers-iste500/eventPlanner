@@ -1,13 +1,13 @@
 name: Release
 permissions:
-  contents: write 
+  contents: write
   pull-requests: write
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'API Platform core tag'
+        description: "API Platform core tag"
         required: true
 
 concurrency:
@@ -19,14 +19,11 @@ jobs:
     name: Update api-platform/core
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v4
-      -
-        name: Set up Docker Buildx
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      -
-        name: Build Docker images
+      - name: Build Docker images
         uses: docker/bake-action@v5
         with:
           pull: true
@@ -41,14 +38,12 @@ jobs:
             pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
             pwa.cache-from=type=gha,scope=pwa-refs/heads/main
             pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
-      -
-        name: Update API Platform
+      - name: Update API Platform
         run: docker compose run php composer update api-platform/core:${{ inputs.tag }}
-      -
-        name: Create Pull Request
+      - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
-          commit-message: 'chore: api-platform ${{ inputs.tag }}'
+          commit-message: "chore: api-platform ${{ inputs.tag }}"
           branch: api-platform-core
-          title: 'chore: api-platform ${{ inputs.tag }}'
-          body: 'Updates api-platform/core to ${{ inputs.tag }}'
+          title: "chore: api-platform ${{ inputs.tag }}"
+          body: "Updates api-platform/core to ${{ inputs.tag }}"
