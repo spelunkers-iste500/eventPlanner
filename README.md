@@ -32,3 +32,7 @@ docker compose exec php bin/console doctrine:migrations:diff
 docker compose exec php bin/console doctrine:migrations:migrate
 ```
 Answer yes to the second command to proceed.
+
+## Development boxes
+
+Our development boxes are managed using ansible. Your user is named `dev` and has the password `SuperS3cretPassword!`. Change this at your leisure, should only be needed to install your ssh key.
