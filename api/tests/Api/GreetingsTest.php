@@ -8,7 +8,7 @@ class GreetingsTest extends ApiTestCase
 {
     public function testHomePage(): void
     {
-        static::createClient()->request('get', '/');
+        static::createClient()->request('GET', '/');
 
         $this->assertResponseStatusCodeSame(200);
     }
