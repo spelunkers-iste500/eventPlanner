@@ -15,7 +15,7 @@ security:
             security: false
         main:
             stateless: true
-            providor: users
+            provider: users
             lazy: true
             json_login:
                 check_path: auth
