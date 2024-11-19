@@ -46,3 +46,10 @@ docker compose exec php sh -c '
     setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
 '
 ```
+
+## Provisioning a container using the devbox template
+
+Run this:
+```
+pacman -Sy --noconfirm; pacman-key --init; pacman-key --populate; pacman -S archlinux-keyring --noconfirm; pacman -S python --noconfirm; rm -rf /etc/ssh/ssh_host_*; ssh-keygen -A; systemctl enable --now sshd
+```
