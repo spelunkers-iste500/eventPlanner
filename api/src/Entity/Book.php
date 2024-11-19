@@ -6,10 +6,11 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\ApiProperty;
 
 /** A book. */
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(security: "is_granted('ROLE_USER')")]
 class Book
 {
     /** The ID of this book. */

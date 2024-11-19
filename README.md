@@ -10,13 +10,8 @@ Buckle up, this is going to be a long one. Originally this was developed on Arch
    1. To make your life easier when you're running docker commands, run ``sudo usermod -aG docker `whoami` `` then logout or restart your dev container.
 2. Clone this repository.
 3. Run `docker compose build --no-cache`
-4. Edit the `.env` file and change it to look like the following, replacing the hostname where appropriate:
-   ```bash
-    SERVER_NAME="devbox1:80"
-    HTTP_PORT=8080
-    TRUSTED_HOSTS="devbox1|php"
-   ```
-5. Run `docker compose up -d` to start the containers.
+4. Run `docker compose up -d` to start the containers.
+5. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
 
 Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `http://devbox1:8080/`. This should show 3 different tools for the API that one can use.
 
@@ -36,3 +31,18 @@ Answer yes to the second command to proceed.
 ## Development boxes
 
 Our development boxes are managed using ansible. Your user is named `dev` and has the password `SuperS3cretPassword!`. Change this at your leisure, should only be needed to install your ssh key.
+
+## Authentication to the app
+
+We'll be using JWT authentication with [this](https://api-platform.com/docs/core/jwt/) being the base. To summarize, you have to require the module in the php container by running:
+```
+docker compose exec php \
+    composer require lexik/jwt-authentication-bundle
+docker compose exec php sh -c '
+    set -e
+    apt-get install openssl
+    php bin/console lexik:jwt:generate-keypair
+    setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+    setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+'
+```
