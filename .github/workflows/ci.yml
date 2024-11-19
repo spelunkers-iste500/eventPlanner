@@ -37,6 +37,8 @@ jobs:
             pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
       - name: Start services
         run: docker compose up --wait --no-build
+      - name: Wait for containers to be ready
+        run: "sleep 10s"
       - name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost
       - name: Check API reachability
