@@ -53,3 +53,7 @@ Run this:
 ```
 pacman -Sy --noconfirm; pacman-key --init; pacman-key --populate; pacman -S archlinux-keyring --noconfirm; pacman -S python --noconfirm; rm -rf /etc/ssh/ssh_host_*; ssh-keygen -A; systemctl enable --now sshd
 ```
+
+## The rest of the documentation
+
+The rest of our documentation can be found under docs.
