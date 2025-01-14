@@ -70,7 +70,7 @@ Host devbox
 Optional: specify private key for authentication:
 ```
 Host devbox
-	HostName devbox01.spelunkers.rit.edu
+	HostName <devbox>.spelunkers.rit.edu
 	User dev
 	IdentityFile ~/.ssh/id_rsa
 ```
