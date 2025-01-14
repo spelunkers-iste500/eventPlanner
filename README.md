@@ -49,7 +49,6 @@ docker compose exec php sh -c '
 
 ## DevBox Assignments
 
-|---|---|
 |Dev|Box|
 |---|---|
 |Casey|devbox01|
