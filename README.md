@@ -59,6 +59,22 @@ docker compose exec php sh -c '
 |Eddie|devbox06|
 |Stef|devbox07|
 
+### Development Procedure
+
+We're going to be using VSCode's remote development features. This means that you're going to have to install the `Remote Development` extension collection, among other ones. You will then need to open your ~/.ssh/config file and add the following, replacing things where necessary:
+```
+Host devbox
+	HostName <devbox>.spelunkers.rit.edu
+	User dev
+```
+Optional: specify private key for authentication:
+```
+Host devbox
+	HostName devbox01.spelunkers.rit.edu
+	User dev
+	IdentityFile ~/.ssh/id_rsa
+```
+
 ## The rest of the documentation
 
 The rest of our documentation can be found under docs.
