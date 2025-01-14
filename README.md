@@ -47,12 +47,18 @@ docker compose exec php sh -c '
 '
 ```
 
-## Provisioning a container using the devbox template
+## DevBox Assignments
 
-Run this:
-```
-pacman -Sy --noconfirm; pacman-key --init; pacman-key --populate; pacman -S archlinux-keyring --noconfirm; pacman -S python --noconfirm; rm -rf /etc/ssh/ssh_host_*; ssh-keygen -A; systemctl enable --now sshd
-```
+|---|---|
+|Dev|Box|
+|---|---|
+|Casey|devbox01|
+|Gavin|devbox02|
+|George|devbox03|
+|Noelle|devbox04|
+|Logue|devbox05|
+|Eddie|devbox06|
+|Stef|devbox07|
 
 ## The rest of the documentation
 
