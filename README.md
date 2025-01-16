@@ -4,16 +4,42 @@ So right now this is only just a boilerplate project from [here](https://api-pla
 
 ## Setting up the development environment
 
-Buckle up, this is going to be a long one. Originally this was developed on Arch Linux, so I'm going to assume that's what you're on.
+Buckle up, this is going to be a long one. We're going to be using VSCode's remote development features. This means that you're going to have to install the `Remote Development` extension collection, among other ones. 
+1. Install the `Remote Development` extension collection, as well as the php and next.js ones 
+2. Open your ~/.ssh/config file and add the following, replacing things where necessary:
+```
+Host devbox
+	HostName <devbox>.spelunkers.rit.edu
+	User dev
+```
+Optional: specify private key for authentication:
+```
+Host devbox
+	HostName <devbox>.spelunkers.rit.edu
+	User dev
+	IdentityFile ~/.ssh/id_rsa
+```
+3. Add the devbox public ssh key to your github account.
+    1. Click on your profile, then settings
+    2. Click on `SSH and GPG keys`
+    3. ...
+    4. Profit
+4. Clone this repository.
+5. Run `docker compose build --no-cache`
+6. Run `docker compose up -d` to start the containers.
+7. Provision the JWT public and private keys to allow authentication to work:
+```
+docker compose exec php sh -c '
+    set -e
+    apt-get install openssl
+    php bin/console lexik:jwt:generate-keypair
+    setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+    setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+'
+```
+6. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
 
-1. Make sure that docker is installed: `sudo pacman -Syu --no-confirm && sudo pacman -S docker --no-confirm`
-   1. To make your life easier when you're running docker commands, run ``sudo usermod -aG docker `whoami` `` then logout or restart your dev container.
-2. Clone this repository.
-3. Run `docker compose build --no-cache`
-4. Run `docker compose up -d` to start the containers.
-5. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
-
-Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `http://devbox1:8080/`. This should show 3 different tools for the API that one can use.
+Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `http://devbox/`. This should show 3 different tools for the API that one can use.
 
 ## Database stuff
 
@@ -32,21 +58,6 @@ Answer yes to the second command to proceed.
 
 Our development boxes are managed using ansible. Your user is named `dev` and has the password `SuperS3cretPassword!`. Change this at your leisure, should only be needed to install your ssh key.
 
-## Authentication to the app
-
-We'll be using JWT authentication with [this](https://api-platform.com/docs/core/jwt/) being the base. To summarize, you have to require the module in the php container by running:
-```
-docker compose exec php \
-    composer require lexik/jwt-authentication-bundle
-docker compose exec php sh -c '
-    set -e
-    apt-get install openssl
-    php bin/console lexik:jwt:generate-keypair
-    setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
-    setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
-'
-```
-
 ## DevBox Assignments
 
 |Dev|Box|
@@ -61,19 +72,7 @@ docker compose exec php sh -c '
 
 ### Development Procedure
 
-We're going to be using VSCode's remote development features. This means that you're going to have to install the `Remote Development` extension collection, among other ones. You will then need to open your ~/.ssh/config file and add the following, replacing things where necessary:
-```
-Host devbox
-	HostName <devbox>.spelunkers.rit.edu
-	User dev
-```
-Optional: specify private key for authentication:
-```
-Host devbox
-	HostName <devbox>.spelunkers.rit.edu
-	User dev
-	IdentityFile ~/.ssh/id_rsa
-```
+
 
 ## The rest of the documentation
 
