@@ -27,7 +27,8 @@ Host devbox
 4. Clone this repository.
 5. Run `docker compose build --no-cache`
 6. Run `docker compose up -d` to start the containers.
-7. Provision the JWT public and private keys to allow authentication to work:
+7. Forward the application port (443) to your local device. In VSCode this can be done at the bottom, under ports. If it doesn't forward automatically, enter 443 and that should be it.
+8. Provision the JWT public and private keys to allow authentication to work:
 ```
 docker compose exec php sh -c '
     set -e
