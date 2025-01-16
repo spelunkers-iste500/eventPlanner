@@ -11,9 +11,19 @@ Buckle up, this is going to be a long one. Originally this was developed on Arch
 2. Clone this repository.
 3. Run `docker compose build --no-cache`
 4. Run `docker compose up -d` to start the containers.
-5. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
+5. Provision the JWT public and private keys to allow authentication to work:
+```
+docker compose exec php sh -c '
+    set -e
+    apt-get install openssl
+    php bin/console lexik:jwt:generate-keypair
+    setfacl -R -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+    setfacl -dR -m u:www-data:rX -m u:"$(whoami)":rwX config/jwt
+'
+```
+6. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
 
-Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `http://devbox1:8080/`. This should show 3 different tools for the API that one can use.
+Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `http://devbox/`. This should show 3 different tools for the API that one can use.
 
 ## Database stuff
 
