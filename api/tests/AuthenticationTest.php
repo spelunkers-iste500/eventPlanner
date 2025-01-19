@@ -4,27 +4,26 @@
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Factory\UserFactory;
+use Zenstruck\Foundry\Test\Factories;
+use Zenstruck\Foundry\Test\ResetDatabase;
 use App\Entity\User;
-use Hautelook\AliceBundle\PhpUnit\ReloadDatabaseTrait;
 
 class AuthenticationTest extends ApiTestCase
 {
-    use ReloadDatabaseTrait;
+    use Factories;
+    use ResetDatabase;
 
     public function testLogin(): void
     {
         $client = self::createClient();
         $container = self::getContainer();
 
-        $user = new User();
-        $user->setEmail('test@example.com');
-        $user->setPassword(
-            $container->get('security.user_password_hasher')->hashPassword($user, '$3CR3T')
-        );
-
-        $manager = $container->get('doctrine')->getManager();
-        $manager->persist($user);
-        $manager->flush();
+        // Create a user using Foundry
+        $user = UserFactory::createOne([
+            'email' => 'test@example.com',
+            'password' => $container->get('security.user_password_hasher')->hashPassword(new User(), '$3CR3T')
+        ]);
 
         // retrieve a token
         $response = $client->request('POST', '/auth', [
@@ -40,11 +39,11 @@ class AuthenticationTest extends ApiTestCase
         $this->assertArrayHasKey('token', $json);
 
         // test not authorized
-        $client->request('GET', '/greetings');
+        $client->request('GET', '/books');
         $this->assertResponseStatusCodeSame(401);
 
         // test authorized
-        $client->request('GET', '/greetings', ['auth_bearer' => $json['token']]);
+        $client->request('GET', '/books', ['auth_bearer' => $json['token']]);
         $this->assertResponseIsSuccessful();
     }
 }
