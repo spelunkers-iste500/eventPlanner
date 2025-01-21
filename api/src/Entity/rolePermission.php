@@ -9,23 +9,14 @@ use ApiPlatform\Metadata\ApiResource;
 #[ApiResource]
 class rolePermission
 {
-    // #[ORM\Id]
-    // #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermissions')]
-    // #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
-    // public Role $roleID;
-
-    // #[ORM\Id]
-    // #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermissions')]
-    // #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', onDelete: 'CASCADE', nullable: false)]
-    // public Permission $permissionID;
+    #[ORM\Id]
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermissions')]
+    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
+    public Role $roleID;
 
     #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
-    public int $roleID;
-
-    #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
-    public int $permissionID;
+    #[ORM\ManyToOne( mappedBy: 'permissionID', targetEntity: Permission::class)]
+    public Permission $permissionID;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;

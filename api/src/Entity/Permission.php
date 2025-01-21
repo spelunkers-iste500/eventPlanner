@@ -14,8 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Permission
 {
     /** The unique identifier of this permission. */
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(name: 'permissionID', type: 'integer')]
-    public ?int $permissionID = null;
+    
+    //public ?int $permissionID = null;
 
     /** The name of this permission. */
     #[ORM\Column(length: 255)]
@@ -31,6 +31,14 @@ class Permission
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    #[ORM\Id, ORM\GeneratedValue, ORM\Column(name: 'permissionID', type: 'integer')]
+
+    //Relationships 
+    //One to Many with RolePermissions
+    #[ORM\OneToMany(targetEntity: rolePermission::class, mappedBy:'permissionID')]
+    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
+    public rolePermission $permissionID;
 
     public function __construct()
     {
