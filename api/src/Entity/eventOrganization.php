@@ -7,70 +7,30 @@ use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
 #[ApiResource]
-class EventOrganization
+class eventOrganization
 {
     #[ORM\Id]
     #[ORM\Column(name: 'eventID', type: 'integer')]
-    private int $eventID;
+    public int $eventID;
 
     #[ORM\Id]
     #[ORM\Column(type: 'integer')]
-    private int $orgID;
+    public int $orgID;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $field1;
+    public \DateTimeInterface $field1;
 
     #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $field2;
+    public \DateTimeInterface $field2;
 
     // Relationships
-    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventOrganization')]
-    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: false)]
-    private ?Event $event = null;
-    
-    // Getters and Setters
+    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventOrganization')]
+    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: false)]
+    // public ?Event $event = null;
 
-    public function getEventID(): int
+    public function __construct()
     {
-        return $this->eventID;
-    }
-
-    public function setEventID(int $eventID): self
-    {
-        $this->eventID = $eventID;
-        return $this;
-    }
-
-    public function getOrgID(): int
-    {
-        return $this->orgID;
-    }
-
-    public function setOrgID(int $orgID): self
-    {
-        $this->orgID = $orgID;
-        return $this;
-    }
-
-    public function getField1(): \DateTimeInterface
-    {
-        return $this->field1;
-    }
-
-    public function setField1(\DateTimeInterface $field1): self
-    {
-        $this->field1 = $field1;
-        return $this;
-    }
-
-    public function getField2(): \DateTimeInterface
-    {
-        return $this->field2;
-    }
-
-    public function setField2(\DateTimeInterface $field2): self
-    {
-        $this->field2 = $field2;
-        return $this;
+        $this->lastModified = new \DateTimeInterface();
+        $this->createdDate = new \DateTimeInterface();
     }
 }

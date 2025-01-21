@@ -7,37 +7,37 @@ use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
 #[ApiResource]
-class Organization
+class userFlight
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'orgID', type: 'integer')]
-    public ?int $orgID = null;
+    #[ORM\Column(type: 'integer')]
+    public ?int $userFlightID = null;
+
+    #[ORM\Column(type: 'integer')]
+    public int $userID;
+
+    #[ORM\Column(length: 20)]
+    public string $flightNumber;
+
+    #[ORM\Column(length: 10)]
+    public string $seatNumber;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    public string $cost;
 
     #[ORM\Column(length: 55)]
-    public string $name;
-
-    #[ORM\Column(length: 255)]
-    public string $description;
-
-    #[ORM\Column(length: 255)]
-    public string $address;
+    public string $tsaPreCheckNumber;
 
     #[ORM\Column(length: 55)]
-    public string $primaryEmail;
-
-    #[ORM\Column(length: 55)]
-    public string $secondaryEmail;
-
-    #[ORM\Column(length: 55)]
-    public string $industry;
+    public string $frequentFlyerNumber;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $lastModified;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $createdDate;
-    
+
     public function __construct()
     {
         $this->lastModified = new \DateTimeInterface();
