@@ -1,71 +1,115 @@
 <?php
-// api/src/Entity/User.php
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiFilter;
-use ApiPlatform\Metadata\ApiProperty;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\UserRepository;
-use App\State\UserPasswordHasher;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Metadata\ApiResource;
 
-#[ApiResource(
-    operations: [
-        new GetCollection(),
-        new Post(processor: UserPasswordHasher::class, validationContext: ['groups' => ['Default', 'user:create']]),
-        new Get(),
-        new Put(processor: UserPasswordHasher::class),
-        new Patch(processor: UserPasswordHasher::class),
-        new Delete(),
-    ],
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:create', 'user:update']],
-)]
-#[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ORM\Table(name: '`user`')]
-#[UniqueEntity('email')]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+/**
+ * Represents a User entity.
+ */
+#[ORM\Entity]
+#[ApiResource]
+class User
 {
-    #[Groups(['user:read'])]
+    /**
+     * The unique identifier for the user.
+     */
     #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
     #[ORM\GeneratedValue]
-    private ?int $id = null;
+    #[ORM\Column(name: 'userID', type: 'integer')]
+    private ?int $userID = null;
 
-    #[Assert\NotBlank]
-    #[Assert\Email]
-    #[Groups(['user:read', 'user:create', 'user:update'])]
-    #[ORM\Column(length: 180, unique: true)]
-    private ?string $email = null;
+    /**
+     * The first name of the user.
+     */
+    #[ORM\Column(length: 55)]
+    private string $firstName;
 
-    #[ORM\Column]
-    private ?string $password = null;
+    /**
+     * The last name of the user.
+     */
+    #[ORM\Column(length: 55)]
+    private string $lastName;
 
-    #[Assert\NotBlank(groups: ['user:create'])]
-    #[Groups(['user:create', 'user:update'])]
-    private ?string $plainPassword = null;
+    /**
+     * The email address of the user.
+     */
+    #[ORM\Column(length: 55, unique: true)]
+    private string $email;
 
-    #[ORM\Column(type: 'json')]
-    private array $roles = [];
+    /**
+     * The hashed password for the user.
+     */
+    #[ORM\Column(length: 255)]
+    private string $password;
+
+    /**
+     * Indicates if the user is a VIP.
+     */
+    #[ORM\Column(type: 'boolean')]
+    private bool $vip = false;
+
+    /**
+     * Indicates if the user's account is enabled.
+     */
+    #[ORM\Column(type: 'boolean')]
+    private bool $accountEnabled = true;
+
+    /**
+     * The MFA token key (optional).
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $mfaTokenKey = null;
+
+    /**
+     * The date the user was last modified.
+     */
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $lastModified;
+
+    /**
+     * The date the user was created.
+     */
+    #[ORM\Column(type: 'datetime')]
+    private \DateTimeInterface $createdDate;
+
+    public function __construct()
+    {
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
+
+    // Getters and Setters
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getEmail(): string
     {
         return $this->email;
     }
@@ -73,13 +117,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
-    /**
-     * @see PasswordAuthenticatedUserInterface
-     */
     public function getPassword(): string
     {
         return $this->password;
@@ -88,56 +128,55 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
 
-    public function getPlainPassword(): ?string
+    public function isVip(): bool
     {
-        return $this->plainPassword;
+        return $this->vip;
     }
 
-    public function setPlainPassword(?string $plainPassword): self
+    public function setVip(bool $vip): self
     {
-        $this->plainPassword = $plainPassword;
-
+        $this->vip = $vip;
         return $this;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function getRoles(): array
+    public function isAccountEnabled(): bool
     {
-        $roles = $this->roles;
-
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return $this->accountEnabled;
     }
 
-    public function setRoles(array $roles): self
+    public function setAccountEnabled(bool $accountEnabled): self
     {
-        $this->roles = $roles;
-
+        $this->accountEnabled = $accountEnabled;
         return $this;
     }
 
-    /**
-     * A visual identifier that represents this user.
-     *
-     * @see UserInterface
-     */
-    public function getUserIdentifier(): string
+    public function getMfaTokenKey(): ?string
     {
-        return (string) $this->email;
+        return $this->mfaTokenKey;
     }
 
-    /**
-     * @see UserInterface
-     */
-    public function eraseCredentials(): void
+    public function setMfaTokenKey(?string $mfaTokenKey): self
     {
-        $this->plainPassword = null;
+        $this->mfaTokenKey = $mfaTokenKey;
+        return $this;
+    }
+
+    public function getLastModified(): \DateTimeInterface
+    {
+        return $this->lastModified;
+    }
+
+    public function setLastModified(\DateTimeInterface $lastModified): self
+    {
+        $this->lastModified = $lastModified;
+        return $this;
+    }
+
+    public function getCreatedDate(): \DateTimeInterface
+    {
+        return $this->createdDate;
     }
 }
