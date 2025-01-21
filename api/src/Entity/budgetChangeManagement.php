@@ -38,6 +38,11 @@ class BudgetChangeManagement
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $createdDate;
 
+    // Relationships
+    #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetChangeManagement')]
+    #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: false)]
+    private ?Budget $budget = null;
+
     // Getters and Setters
 
     public function getChangeID(): ?int

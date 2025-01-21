@@ -42,6 +42,13 @@ class Budget
     #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Event::class, cascade: ['persist', 'remove'])]
     private Collection $event;
 
+    #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetChangeManagement::class, cascade: ['persist', 'remove'])]
+    private Collection $budgetChangeManagement;
+    
+    // no clue if this is how one to many should be done
+    //#[ORM\OneToOne(mappedBy: 'budget', targetEntity: User::class, cascade: ['persist', 'remove'])]
+    //private Collection $user;
+
     public function __construct()
     {
         $this->events = new ArrayCollection();

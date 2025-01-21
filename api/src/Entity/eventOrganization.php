@@ -23,6 +23,11 @@ class EventOrganization
     #[ORM\Column(type: 'datetime')]
     private \DateTimeInterface $field2;
 
+    // Relationships
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventOrganization')]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: false)]
+    private ?Event $event = null;
+    
     // Getters and Setters
 
     public function getEventID(): int

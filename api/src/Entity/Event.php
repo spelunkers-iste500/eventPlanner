@@ -41,6 +41,9 @@ class Event
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: false)]
     private ?Budget $budget = null;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventOrganization::class, cascade: ['persist', 'remove'])]
+    private Collection $eventOrganization;
+
     // Getters and Setters
     public function getEventID(): ?int
     {
