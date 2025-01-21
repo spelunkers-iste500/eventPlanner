@@ -17,20 +17,15 @@ class eventOrganization
     #[ORM\Column(type: 'integer')]
     public int $orgID;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $field1;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $field2;
-
-    // Relationships
-    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventOrganization')]
-    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: false)]
-    // public ?Event $event = null;
+    #[ORM\Column(type: 'datetime',nullable: true)]
+    public \DateTimeInterface $createdDate;
 
     public function __construct()
     {
-        $this->lastModified = new \DateTimeInterface();
-        $this->createdDate = new \DateTimeInterface();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
     }
 }

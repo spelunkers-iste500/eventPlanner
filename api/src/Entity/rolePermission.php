@@ -27,15 +27,15 @@ class rolePermission
     #[ORM\Column(type: 'integer')]
     public int $permissionID;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $createdDate;
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
-    private \DateTimeInterface $lastModified;
+    #[ORM\Column(type: 'datetime',nullable: true)]
+    public \DateTimeInterface $createdDate;
 
     public function __construct()
     {
-        $this->createdDate = new \DateTime();
         $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
     }
 }

@@ -30,18 +30,16 @@ class Event
     #[ORM\Column(type: 'integer')]
     public int $maxAttendees;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    // Relationships
-    // #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'event')]
-    // #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: false)]
-    // public ?Budget $budget = null;
-
-    // #[ORM\OneToMany(mappedBy: 'event', targetEntity: EventOrganization::class, cascade: ['persist', 'remove'])]
-    // public Collection $eventOrganization;
+    public function __construct()
+    {
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
 
 }

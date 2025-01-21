@@ -32,14 +32,15 @@ class budgetChangeManagement
     #[ORM\Column(type: 'json')]
     public array $afterChanges;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    // Relationships
-    // #[ORM\ManyToOne(targetEntity: Budget::class, inversedBy: 'budgetChangeManagement')]
-    // #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: false)]
-    // public ?Budget $budget = null;
+    public function __construct()
+    {
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
 }

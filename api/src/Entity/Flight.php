@@ -37,15 +37,15 @@ class Flight
     #[ORM\Column(length: 255, nullable: true)]
     public ?string $flightTracker;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
     public function __construct()
     {
-        $this->lastModified = new \DateTimeInterface();
-        $this->createdDate = new \DateTimeInterface();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
     }
 }

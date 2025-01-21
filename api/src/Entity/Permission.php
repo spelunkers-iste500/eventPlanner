@@ -26,21 +26,15 @@ class Permission
     #[ORM\Column(type: 'text', nullable: true)]
     public ?string $description = null;
 
-    /** The date this permission was last modified. */
     #[ORM\Column(type: 'datetime', nullable: true)]
-    public ?\DateTimeInterface $lastModified = null;
+    public \DateTimeInterface $lastModified;
 
-    /** The date this permission was last modified. */
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public ?\DateTimeInterface $creationDate = null;
-
-    // //Relations
-    // #[ORM\OneToMany(mappedBy: 'permission', targetEntity: RolePermission::class, cascade: ['persist', 'remove'])]
-    // public Collection $rolePermissions;
+    #[ORM\Column(type: 'datetime',nullable: true)]
+    public \DateTimeInterface $createdDate;
 
     public function __construct()
     {
-        $this->lastModified = new \DateTimeInterface();
-        $this->createdDate = new \DateTimeInterface();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
     }
 }
