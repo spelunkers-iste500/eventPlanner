@@ -14,16 +14,19 @@ const Nav: React.FC<NavProps> = ({  }) => {
             icon: <LayoutDashboard />
         },
         {
-            title: 'About',
-            link: '/about'
+            title: 'Preferences',
+            content: <Welcome />,
+            icon: <LayoutDashboard />
         },
         {
-            title: 'Contact',
-            link: '/contact'
+            title: 'Contact Us',
+            content: <Welcome />,
+            icon: <LayoutDashboard />
         },
         {
-            title: 'Login',
-            link: '/login'
+            title: 'FAQ',
+            content: <Welcome />,
+            icon: <LayoutDashboard />
         }
     ];
 
