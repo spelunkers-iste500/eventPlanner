@@ -15,7 +15,10 @@ class Permission
 {
     /** The unique identifier of this permission. */
     
-    //public ?int $permissionID = null;
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'permissionID', type: 'integer')]
+    private ?int $permissionID = null;
 
     /** The name of this permission. */
     #[ORM\Column(length: 255)]
@@ -32,13 +35,8 @@ class Permission
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    #[ORM\Id, ORM\GeneratedValue, ORM\Column(name: 'permissionID', type: 'integer')]
-
-    //Relationships 
-    //One to Many with RolePermissions
-    #[ORM\OneToMany(targetEntity: rolePermission::class, mappedBy:'permissionID')]
-    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
-    public rolePermission $permissionID;
+    #[ORM\OneToMany(targetEntity: RolePermissions::class, mappedBy: 'permission', cascade: ['persist', 'remove'])]
+    public Collection $rolePermissions;
 
     public function __construct()
     {
