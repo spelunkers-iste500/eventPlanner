@@ -57,8 +57,6 @@ jobs:
         run: docker compose exec -T php bin/phpunit
       - name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
-      - name: stop services
-        run: docker compose up
   lint:
     name: Docker Lint
     runs-on: self-hosted
