@@ -6,7 +6,7 @@ import type { DehydratedState } from "react-query"
 import { SessionProvider } from "next-auth/react"
 import { Session } from "next-auth"
 
-function Root({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session; dehydratedState: DehydratedState }>) {
+function Root({ Component, pageProps: { session, ...pageProps } }: AppProps<{ session: Session, dehydratedState: DehydratedState }>) {
   return <Layout dehydratedState={pageProps.dehydratedState}>
     <SessionProvider session={session}>
       <Component {...pageProps} />
