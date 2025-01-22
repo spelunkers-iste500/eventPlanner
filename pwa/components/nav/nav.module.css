@@ -42,28 +42,30 @@
     background-color: var(--blue-400);
 }
 
-.nav-link.active,
-.nav-link:hover {
-    background-color: var(--blue-600);
-    border-radius: 0 8px 8px 0;
+.nav-link::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: -16px;
+    width: calc(100% + 16px);
+    height: 100%;
+    border-radius: 8px;
+    background-color: none;
+    transition: all 0.3s;
 }
 
 .nav-link.active::before,
 .nav-link:hover::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -16px;
-    width: 16px;
-    height: 100%;
-    border-radius: 8px 0 0 8px;
     background-color: var(--blue-600);
 }
 
-.nav-link:hover:not(.active),
-.nav-link:hover:not(.active)::before {
-    background-color: rgba(51, 92, 150, 0.3);
+.nav-link:hover {
     cursor: pointer;
+
+    &:not(.active)::before {
+        background-color: rgba(51, 92, 150, 0.3); /* var(--blue-600); but 30% opacity */
+    }
 }
 
 .nav-link.active::after,
