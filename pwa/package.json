@@ -20,7 +20,8 @@
     "postcss": "^8.4.41",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-query": "^3.39.3"
+    "react-query": "^3.39.3",
+    "lucide-react": "^0.473.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

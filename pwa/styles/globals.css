@@ -1,28 +1,51 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-@layer base {
-    * {
-        font-family: Poppins;
-    }
-
-    a {
-        @apply no-underline text-cyan-700;
-    }
+:root {
+    font-family: 'Inter', sans-serif;
+    --black: #000;
+    --white: #fff;
+    --gray: #858585;
+    --blue-700: #003173;
+    --blue-600: #335C96;
+    --blue-500: #4778BD;
+    --blue-400: #709BD8;
+    --blue-300: #E5F0FF;
 }
 
-@layer utilities {
-    .bg-spider-cover {
-        @apply bg-cyan-700 bg-center bg-no-repeat;
-        background-image: url("../public/api-platform/web.svg");
-        background-size: 110%;
-    }
-    .ribbon {
-        position: absolute;
-        top: 0;
-        right: 0;
-        transform: translate(13.397459%, -100%) rotate(30deg); /* translateX: 100%*(1-cos(angleRotation) */
-        transform-origin: bottom left;
-  }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+h1, .h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+h2, .h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+h3, .h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+h4, .h4 {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+h5, .h5 {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--gray);
+}
+
+p {
+    font-size: 1rem;
+    font-weight: 500;
 }
