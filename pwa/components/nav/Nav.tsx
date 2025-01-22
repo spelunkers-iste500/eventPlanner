@@ -1,6 +1,6 @@
 import React from 'react';
 import Welcome from '../../pages/welcome';
-import { LayoutDashboard, Settings2, Send, CircleHelp } from 'lucide-react';
+import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut } from 'lucide-react';
 import styles from './nav.module.css';
 
 interface NavProps {
@@ -9,10 +9,12 @@ interface NavProps {
 
 const Nav: React.FC<NavProps> = ({  }) => {
 
+    const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
     const [activeContent, setActiveContent] = React.useState<{ name: string, content: React.ReactNode }>({
         name: 'Dashboard',
         content: <Welcome />
     });
+
 
     const navLinks = [
         {
@@ -38,11 +40,18 @@ const Nav: React.FC<NavProps> = ({  }) => {
     ];
 
     return (
-        <div className={styles.navContainer}>
+        <div className={`${styles.navContainer} ${navCollapsed ? styles.collapsed : ''}`}>
             <div className={styles.navHeader}>
-                {/* Home */}
-                {/* Notifs */}
-                {/* COllapse */}
+                <div className={styles.navHeaderIcon}><House size={28} /></div>
+                <div className={styles.navHeaderRight}>
+                    <div className={styles.navHeaderIcon}><Bell size={28} /></div>
+                    <div
+                        className={styles.navHeaderIcon}
+                        onClick={() => setNavCollapsed(!navCollapsed)}
+                    >
+                        <Menu size={28} />
+                    </div>
+                </div>
             </div>
             <ul className={styles.navBody}>
                 {navLinks.map((link, index) => (
@@ -57,7 +66,10 @@ const Nav: React.FC<NavProps> = ({  }) => {
                 ))}
             </ul>
             <div className={styles.navFooter}>
-                {/* Logout */}
+                <div className={styles.logout}>
+                    <LogOut size={28} />
+                    <span>Logout</span>
+                </div>
             </div>
         </div>
     );
