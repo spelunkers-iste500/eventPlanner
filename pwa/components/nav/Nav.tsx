@@ -1,25 +1,25 @@
-import React from 'react';
+import React, { ReactElement } from 'react';
 import Welcome from '../../pages/welcome';
-import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { Session } from 'next-auth';
+import { ContentState } from '../../pages';
+import Dashboard from '../dashboard/Dashboard';
 import styles from './nav.module.css';
 
 interface NavProps {
-    // Props
+    session: Session;
+    state: ContentState;
+    setContent: (name: string, content: ReactElement) => void;
 }
 
-const Nav: React.FC<NavProps> = ({  }) => {
-
+const Nav: React.FC<NavProps> = ({ session, state, setContent }) => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
-    const [activeContent, setActiveContent] = React.useState<{ name: string, content: React.ReactNode }>({
-        name: 'Dashboard',
-        content: <Welcome />
-    });
-
 
     const navLinks = [
         {
             name: 'Dashboard',
-            content: <Welcome />,
+            content: <Dashboard />,
             icon: <LayoutDashboard size={28} />
         },
         {
@@ -44,7 +44,16 @@ const Nav: React.FC<NavProps> = ({  }) => {
             <div className={styles.navHeader}>
                 <div className={styles.navHeaderIcon}><House size={28} /></div>
                 <div className={styles.navHeaderRight}>
-                    <div className={styles.navHeaderIcon}><Bell size={28} /></div>
+                    <div className={styles.navHeaderIcon}>
+                        <Bell size={28} />
+                    </div>
+                    <div className={styles.navHeaderIcon}>
+                        {session?.user?.image ? (
+                            <img className={styles.profileIcon} src={session.user.image} alt="profile" />
+                        ) : (
+                            <CircleUserRound size={28} />
+                        )}
+                    </div>
                     <div
                         className={styles.navHeaderIcon}
                         onClick={() => setNavCollapsed(!navCollapsed)}
@@ -57,8 +66,8 @@ const Nav: React.FC<NavProps> = ({  }) => {
                 {navLinks.map((link, index) => (
                     <li
                         key={index}
-                        className={`${styles.navLink} ${activeContent.name === link.name ? styles.active : ''}`}
-                        onClick={() => setActiveContent({ name: link.name, content: link.content })}
+                        className={`${styles.navLink} ${state.name === link.name ? styles.active : ''}`}
+                        onClick={() => setContent(link.name, link.content)}
                     >
                         {link.icon}
                         <span>{link.name}</span>
@@ -66,7 +75,7 @@ const Nav: React.FC<NavProps> = ({  }) => {
                 ))}
             </ul>
             <div className={styles.navFooter}>
-                <div className={styles.logout}>
+                <div className={styles.logout} onClick={() => signOut()}>
                     <LogOut size={28} />
                     <span>Logout</span>
                 </div>

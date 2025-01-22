@@ -1,5 +1,4 @@
 import React, { Component, useState } from 'react';
-import { useRouter } from 'next/router';
 import { useSession, signIn, signOut } from "next-auth/react"
 import styles from './login.module.css';
 
@@ -16,17 +15,20 @@ const LoginPage: React.FC = () => {
                         {session ? (
                             <>Signed in as <span>{session.user?.email}</span></>
                         ) : (
-                            <>Not signed in</>
+                            <>Sign in using one of the options:</>
                         )}
                     </p>
                     <div className={styles.signoutContainer}>
                         {session ? (
-                            <>
+                        <>
                             <span>Not you?</span>
                             <button className={styles.signoutBtn} onClick={() => signOut()}>Logout</button>
-                            </>
+                        </>
                         ) : (
-                            <button className={styles.signinBtn} onClick={() => signIn()}>Sign in</button>
+                        <div className={styles.signinOptions}>
+                            <button className={styles.signinBtn} onClick={() => signIn('google', { callbackUrl: '/' })}>Sign in with Google</button>
+                            <button className={styles.signinBtn} onClick={() => signIn('github', { callbackUrl: '/' })}>Sign in with GitHub</button>
+                        </div>
                         )}
                     </div>
                 </div>
