@@ -42,11 +42,20 @@
 .signout-container {
     display: flex;
     justify-content: center;
+    align-items: center;
     gap: 0.5rem;
 
     &> span {
         color: var(--gray);
     }
+}
+
+.signin-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .signin-btn {
