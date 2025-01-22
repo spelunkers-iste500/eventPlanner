@@ -10,6 +10,8 @@
     --blue-500: #4778BD;
     --blue-400: #709BD8;
     --blue-300: #E5F0FF;
+    --shadow-400: 0px 16px 32px -4px rgba(12, 12, 13, 0.1),
+                  0px 4px 4px -4px rgba(12, 12, 13, 0.05);
 }
 
 * {
@@ -48,4 +50,22 @@ h5, .h5 {
 p {
     font-size: 1rem;
     font-weight: 500;
+}
+
+button,
+.btn {
+    appearance: none;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--white);
+    background-color: var(--blue-400);
+}
+
+button:hover,
+.btn:hover {
+    background-color: var(--blue-500);
 }
