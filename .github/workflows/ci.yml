@@ -60,6 +60,7 @@ jobs:
       - name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
       - name: Stop services
+        if: always()
         run: docker compose down
   lint:
     name: Docker Lint
