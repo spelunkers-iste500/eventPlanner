@@ -26,3 +26,5 @@ api_platform:
     # change this to true if you use controllers
     use_symfony_listeners: false
     keep_legacy_inflector: false
+    validator:
+        query_parameter_validation: false
