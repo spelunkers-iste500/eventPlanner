@@ -27,7 +27,7 @@ jobs:
       - name: Stop existing services
         run: docker compose down
       - name: Build Docker images
-        uses: docker/bake-action@v5
+        uses: docker/bake-action@v6
         with:
           pull: true
           load: true
