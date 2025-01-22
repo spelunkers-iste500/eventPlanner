@@ -24,6 +24,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Stop existing services
+        run: docker compose down
       - name: Build Docker images
         uses: docker/bake-action@v5
         with:
@@ -57,6 +59,8 @@ jobs:
         run: docker compose exec -T php bin/phpunit
       - name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+      - name: Stop services
+        run: docker compose down
   lint:
     name: Docker Lint
     runs-on: self-hosted
