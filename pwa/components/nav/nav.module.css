@@ -1,0 +1,78 @@
+.nav-container {
+    background-color: var(--blue-500);
+    width: 100%;
+    max-width: 300px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+}
+
+.nav-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    list-style: none;
+}
+
+.nav-link {
+    color: var(--blue-300);
+    font-weight: 600;
+    font-size: 1.25rem;
+    padding: 1rem 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-link:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    border-radius: 50px;
+    background-color: var(--blue-400);
+}
+
+.nav-link.active,
+.nav-link:hover {
+    background-color: var(--blue-600);
+    border-radius: 0 8px 8px 0;
+}
+
+.nav-link.active::before,
+.nav-link:hover::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -16px;
+    width: 16px;
+    height: 100%;
+    border-radius: 8px 0 0 8px;
+    background-color: var(--blue-600);
+}
+
+.nav-link:hover:not(.active),
+.nav-link:hover:not(.active)::before {
+    background-color: rgba(51, 92, 150, 0.3);
+    cursor: pointer;
+}
+
+.nav-link.active::after,
+.nav-link:has(+ .nav-link.active)::after,
+.nav-link:hover::after,
+.nav-link:has(+ .nav-link:hover)::after {
+    display: none;
+}
+
+.nav-link.active svg {
+    fill: var(--blue-300);
+}

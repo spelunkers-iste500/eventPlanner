@@ -1,46 +1,62 @@
 import React from 'react';
 import Welcome from '../../pages/welcome';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, Settings2, Send, CircleHelp } from 'lucide-react';
+import styles from './nav.module.css';
 
 interface NavProps {
+    // Props
 }
 
 const Nav: React.FC<NavProps> = ({  }) => {
 
+    const [activeContent, setActiveContent] = React.useState<{ name: string, content: React.ReactNode }>({
+        name: 'Dashboard',
+        content: <Welcome />
+    });
+
     const navLinks = [
         {
-            title: 'Dashboard',
+            name: 'Dashboard',
             content: <Welcome />,
-            icon: <LayoutDashboard />
+            icon: <LayoutDashboard size={28} />
         },
         {
-            title: 'Preferences',
+            name: 'Preferences',
             content: <Welcome />,
-            icon: <LayoutDashboard />
+            icon: <Settings2 size={28} />
         },
         {
-            title: 'Contact Us',
+            name: 'Contact Us',
             content: <Welcome />,
-            icon: <LayoutDashboard />
+            icon: <Send size={28} />
         },
         {
-            title: 'FAQ',
+            name: 'FAQ',
             content: <Welcome />,
-            icon: <LayoutDashboard />
+            icon: <CircleHelp size={28} />
         }
     ];
 
     return (
-        <div className='nav-container'>
-            <div className='nav-header'>
+        <div className={styles.navContainer}>
+            <div className={styles.navHeader}>
                 {/* Home */}
                 {/* Notifs */}
                 {/* COllapse */}
             </div>
-            <div className='nav-body'>
-                {/* Links */}
-            </div>
-            <div className='nav-footer'>
+            <ul className={styles.navBody}>
+                {navLinks.map((link, index) => (
+                    <li
+                        key={index}
+                        className={`${styles.navLink} ${activeContent.name === link.name ? styles.active : ''}`}
+                        onClick={() => setActiveContent({ name: link.name, content: link.content })}
+                    >
+                        {link.icon}
+                        <span>{link.name}</span>
+                    </li>
+                ))}
+            </ul>
+            <div className={styles.navFooter}>
                 {/* Logout */}
             </div>
         </div>
