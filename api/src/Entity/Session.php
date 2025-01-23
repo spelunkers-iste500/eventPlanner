@@ -20,8 +20,8 @@ class Session
     #[ORM\Column(type: 'integer')]
     public int $userId;
 
-    #[ORM\Column(type: 'datetimetz')]
-    public \DateTimeInterface $expires;
+    #[ORM\Column(type: 'datetime')]
+    public ?\DateTimeInterface $expires;
 
     #[ORM\Column(type: 'string', length: 255)]
     public string $sessionToken;

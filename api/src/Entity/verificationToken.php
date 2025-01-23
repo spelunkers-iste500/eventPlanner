@@ -20,8 +20,8 @@ class verificationToken
     #[ORM\Column(type: 'text')]
     public string $token;
 
-    #[ORM\Column(type: 'datetimetz')]
-    public \DateTimeInterface $expires;
+    #[ORM\Column(type: 'datetime')]
+    public ?\DateTimeInterface $expires;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $lastModified = null;
