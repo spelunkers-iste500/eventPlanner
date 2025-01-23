@@ -52,6 +52,9 @@ class Budget
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+
     }
 
 }

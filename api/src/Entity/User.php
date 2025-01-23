@@ -31,6 +31,12 @@ class User
     #[Assert\Email]
     public string $email;
 
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public \DateTimeInterface $emailVerified;
+
+    #[ORM\Column(length: 55, nullable: true)]
+    public string $image;
+
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 8)]
@@ -42,9 +48,6 @@ class User
     #[ORM\Column(type: 'boolean')]
     public bool $accountEnabled = true;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    public ?string $mfaTokenKey = null;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -55,6 +58,5 @@ class User
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
-        $this->mfaTokenKey = null;
     }
 }
