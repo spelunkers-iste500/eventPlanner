@@ -1,6 +1,6 @@
 import React from 'react';
 import Container from '../common/Container';
-import styles from './Dashboard.module.css';
+// import styles from './Dashboard.module.css';
 
 type DashboardProps = {
 };
