@@ -1,7 +1,8 @@
 <?php
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+namespace App\Entity;
+
+
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
@@ -26,31 +27,31 @@ class Account
     #[ORM\Column(type: 'string', length: 255)]
     public string $providerAccountId;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    public ?string $refresh_token = null;
+    #[ORM\Column(name: 'refresh_token', type: 'string', length: 255, nullable: true)]
+    public ?string $refreshToken = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    public ?string $access_token = null;
+    #[ORM\Column(name: 'access_token', type: 'string', length: 255, nullable: true)]
+    public ?string $accessToken = null;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public ?\DateTimeInterface $expires_at = null;
+    #[ORM\Column(name: 'expires_at', type: 'datetime', nullable: true)]
+    public ?\DateTimeInterface $expiresAt = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    public ?string $id_token = null;
+    #[ORM\Column(name: 'id_token', type: 'string', length: 255, nullable: true)]
+    public ?string $idToken = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     public ?string $scope = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    public ?string $session_state = null;
+    #[ORM\Column(name: 'session_state', type: 'string', length: 255, nullable: true)]
+    public ?string $sessionState = null;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    public ?string $token_type = null;
+    #[ORM\Column(name: 'token_type', type: 'string', length: 255, nullable: true)]
+    public ?string $tokenType = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     public function __construct()
