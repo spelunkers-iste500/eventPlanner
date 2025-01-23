@@ -82,3 +82,12 @@ img {
     height: 100vh;
     color: var(--blue-500);
 }
+
+.app-container {
+    display: flex;
+}
+
+.content-container {
+    width: 100%;
+    padding: 2rem;
+}
