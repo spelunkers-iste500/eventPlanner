@@ -15,7 +15,8 @@ class Budget
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'budgetID', type: 'integer')]
-    public ?int $budgetID = null;
+    public ?int $budgetID; //DON'T USE THIS IT MAKES ME ERROR -Gavin
+    //public int $budgetID;
 
     #[ORM\Column(type: 'integer')]
     public int $financialPlannerID;
@@ -39,8 +40,9 @@ class Budget
     public \DateTimeInterface $createdDate;
 
     // Relationships
-    // #[ORM\OneToMany(mappedBy: 'budget', targetEntity: Event::class, cascade: ['persist', 'remove'])]
-    // public Collection $event;
+    //budgets for events
+    //#[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'budget', cascade: ['persist', 'remove'])]
+    //public iterable $event;
 
     // #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetChangeManagement::class, cascade: ['persist', 'remove'])]
     // public Collection $budgetChangeManagement;

@@ -25,6 +25,11 @@ class rolePermissions
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
+    /**the permissions for this tole permissions*/
+    /**#[ORM\ManyToOne(inversedBy:'permissions')]
+    #[Asser\NotNull]
+    public ?rolePermissions $rolePermissions = null;*/
+
     public function __construct()
     {
         $this->lastModified = new \DateTime();

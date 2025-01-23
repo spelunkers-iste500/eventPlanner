@@ -35,8 +35,12 @@ class Permission
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    #[ORM\OneToMany(targetEntity: RolePermissions::class, mappedBy: 'permission', cascade: ['persist', 'remove'])]
-    public Collection $rolePermissions;
+    /**#[ORM\OneToMany(targetEntity: RolePermissions::class, mappedBy: 'permission', cascade: ['persist', 'remove'])]
+    public Collection $rolePermissions;*/
+
+    /**relationship */
+    /**#[ORM\OneToMany(targetEntity: rolePermissions::class, mappedBy: 'rolePermissions', cascade: ['persist', 'remove'])]
+    public iterable $permissions;*/
 
     public function __construct()
     {
