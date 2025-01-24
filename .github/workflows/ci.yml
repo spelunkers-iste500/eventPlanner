@@ -66,10 +66,12 @@ jobs:
         if: always()
         run: docker compose down
   lint:
-    name: Docker Lint
+    name: Super-Linter
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Super-Linter
         uses: super-linter/super-linter@v7.2.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
