@@ -12,46 +12,30 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'userID', type: 'integer')]
-    public ?int $userID = null;
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
+    #[ORM\Column(name: 'id', type: 'integer')]
+    public int $id;
 
-    #[ORM\Column(length: 55)]
+    #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Assert\Length(max: 55)]
-    public string $firstName;
+    #[Assert\Length(max: 255)]
+    public string $name;
 
-    #[ORM\Column(length: 55)]
-    #[Assert\NotBlank]
-    #[Assert\Length(max: 55)]
-    public string $lastName;
-
-    #[ORM\Column(length: 55, unique: true)]
+    #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     public string $email;
 
-    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[ORM\Column(name: '"emailVerified"', type: 'datetime', nullable: true)]
     public \DateTimeInterface $emailVerified;
 
-    #[ORM\Column(length: 55, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true)]
     public string $image;
-
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
-    #[Assert\Length(min: 8)]
-    public string $password;
-
-    #[ORM\Column(type: 'boolean')]
-    public bool $vip = false;
-
-    #[ORM\Column(type: 'boolean')]
-    public bool $accountEnabled = true;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     public function __construct()

@@ -51,24 +51,29 @@ jobs:
         run: curl -vk --fail-with-body https://localhost
       - name: Check PWA reachability
         run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/welcome"
-#      - name: Create test database
-#        run: docker compose exec -T php bin/console -e test doctrine:database:create
-      - name: Run migrations
-        run: docker compose exec -T php bin/console -e test doctrine:migrations:migrate --no-interaction
+      - name: Create database
+        run: docker compose exec -T php bin/console -e test doctrine:database:create
+      - name: Install Schema
+        run: docker compose exec -T php bin/console -e test doctrine:schema:create
       - name: Run PHPUnit
         run: docker compose exec -T php bin/phpunit
       - name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+      - name: Remove database
+        if: always()
+        run: docker compose exec -T php bin/console -e test doctrine:database:drop --force
       - name: Stop services
         if: always()
         run: docker compose down
   lint:
-    name: Docker Lint
+    name: Super-Linter
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
         with:
-          recursive: true
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: super-linter/super-linter@v7.2.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

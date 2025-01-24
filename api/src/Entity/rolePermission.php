@@ -22,7 +22,7 @@ class rolePermissions
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     /**the permissions for this tole permissions*/

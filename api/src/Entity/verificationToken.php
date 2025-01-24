@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
 #[ApiResource]
+#[ORM\Table(name: 'verification_token')]
 class verificationToken
 {
     #[ORM\Id]
@@ -32,6 +33,6 @@ class verificationToken
     public function __construct()
     {
         $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        $this->creationDate = new \DateTime();
     }
 }
