@@ -65,7 +65,7 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down
-  docker-lint:
+  lint:
     name: Docker Lint
     runs-on: self-hosted
     steps:
