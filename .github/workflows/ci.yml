@@ -65,13 +65,11 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down
-  lint:
+  docker-lint:
     name: Docker Lint
     runs-on: self-hosted
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Lint Dockerfiles
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          recursive: true
+      - name: Super-Linter
+        uses: super-linter/super-linter@v7.2.1
