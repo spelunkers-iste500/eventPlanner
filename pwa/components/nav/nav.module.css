@@ -7,7 +7,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    position: fixed;
+    position: sticky;
+    z-index: 100;
     top: 0;
     left: 0;
     height: 100vh;
@@ -138,6 +139,7 @@
 
 .nav-link.active::before {
     background-color: var(--blue-600);
+    /* box-shadow: inset 0 0 8px 0 var(--blue-700); */
 }
 
 .nav-link:hover {
@@ -155,9 +157,9 @@
     display: none;
 }
 
-.nav-link.active svg {
+/* .nav-link.active svg {
     fill: var(--blue-300);
-}
+} */
 
 .nav-footer {
     width: 100%;

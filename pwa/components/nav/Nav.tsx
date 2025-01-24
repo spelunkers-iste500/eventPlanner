@@ -1,10 +1,12 @@
 import React, { ReactElement } from 'react';
-import Welcome from '../../pages/welcome';
 import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { Session } from 'next-auth';
 import { ContentState } from '../../pages';
 import Dashboard from '../dashboard/Dashboard';
+import Preferences from '../preferences/Preferences';
+import Contact from '../contact/Contact';
+import FAQ from '../faq/FAQ';
 import styles from './nav.module.css';
 
 interface NavProps {
@@ -24,17 +26,17 @@ const Nav: React.FC<NavProps> = ({ session, state, setContent }) => {
         },
         {
             name: 'Preferences',
-            content: <Welcome />,
+            content: <Preferences />,
             icon: <Settings2 size={28} />
         },
         {
             name: 'Contact Us',
-            content: <Welcome />,
+            content: <Contact />,
             icon: <Send size={28} />
         },
         {
             name: 'FAQ',
-            content: <Welcome />,
+            content: <FAQ />,
             icon: <CircleHelp size={28} />
         }
     ];

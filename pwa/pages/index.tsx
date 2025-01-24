@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Nav from "../components/nav/Nav";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
-import Welcome from "./welcome";
+import Dashboard from "../components/dashboard/Dashboard";
 
 export interface ContentState {
 	name: string;
@@ -23,9 +23,15 @@ const App: React.FC = () => {
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
 	const [state, setState] = useState<ContentState>({
+<<<<<<< HEAD
 		name: 'Dashboard',
 		content: <Welcome />,
 	});
+=======
+        name: 'Dashboard',
+        content: <Dashboard />,
+    });
+>>>>>>> e3a9a3094802e825dd49b1247a428606c631e668
 
 	// Function to update the content state from the Nav component
 	const setContent = (newName: string, newContent: JSX.Element) => {
@@ -41,10 +47,17 @@ const App: React.FC = () => {
 	}
 
 	return (
+<<<<<<< HEAD
 		<>
 			<Nav session={session} state={state} setContent={setContent} />
 			{state.content}
 		</>
+=======
+		<div className="app-container">
+			<Nav session={session} state={state} setContent={setContent} />
+			{state.content}
+		</div>
+>>>>>>> e3a9a3094802e825dd49b1247a428606c631e668
 	);
 };
 
