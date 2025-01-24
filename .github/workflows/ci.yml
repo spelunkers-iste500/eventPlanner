@@ -51,8 +51,8 @@ jobs:
         run: curl -vk --fail-with-body https://localhost
       - name: Check PWA reachability
         run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/welcome"
-      - name: Create test database
-        run: docker compose exec -T php bin/console -e test doctrine:database:create
+      - name: Recreate database
+        run: docker compose exec -T php bin/console -e test doctrine:database:drop --force; docker compose exec -T php bin/console -e test doctrine:database:create
       - name: Install Schema
         run: docker compose exec -T php bin/console -e test doctrine:schema:create
       - name: Run PHPUnit
