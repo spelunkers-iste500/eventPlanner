@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Session
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(type: 'integer')]
     public int $id;
 
