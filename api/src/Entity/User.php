@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class User
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column(name: 'id', type: 'integer')]
     public int $id;
 
