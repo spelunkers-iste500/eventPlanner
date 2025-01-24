@@ -5,17 +5,19 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use DateTime;
 
 #[ORM\Entity]
 #[ApiResource]
+#[ORM\Table(name: 'accounts')]
 class Account
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(type: 'integer')]
     public int $id;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'integer', name: '"userId"')]
     public int $userId;
 
     #[ORM\Column(type: 'string', length: 255)]
@@ -24,7 +26,7 @@ class Account
     #[ORM\Column(type: 'string', length: 255)]
     public string $provider;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(type: 'string', length: 255, name: '"providerAccountId"')]
     public string $providerAccountId;
 
     #[ORM\Column(name: 'refresh_token', type: 'string', length: 255, nullable: true)]
@@ -36,7 +38,7 @@ class Account
     #[ORM\Column(name: 'expires_at', type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $expiresAt = null;
 
-    #[ORM\Column(name: 'id_token', type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(name: 'id_token', type: 'string', length: 2048, nullable: true)]
     public ?string $idToken = null;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]

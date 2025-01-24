@@ -10,20 +10,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
 #[ApiResource]
+#[ORM\Table(name: 'sessions')]
 class Session
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(type: 'integer')]
     public int $id;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(name: '"userId"', type: 'integer', nullable: false)]
     public int $userId;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: false)]
     public ?\DateTimeInterface $expires;
 
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(name: '"sessionToken"', type: 'string', length: 255, nullable: false)]
     public string $sessionToken;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -35,6 +36,6 @@ class Session
     public function __construct()
     {
         $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        $this->creationDate = new \DateTime();
     }
 }
