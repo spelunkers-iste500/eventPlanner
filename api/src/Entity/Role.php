@@ -37,7 +37,7 @@ class Role
     public function __construct()
     {
         $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        $this->creationDate = new \DateTime();
         $this->rolePermissions = new ArrayCollection();
     }
 }
