@@ -32,10 +32,12 @@ Host devbox
     3. ...
     4. Profit
 2. Clone this repository.
-3. Run `docker compose build --no-cache`
-4. Run `docker compose up -d` to start the containers.
-5. Forward the application port (443) to your local device. In VSCode this can be done at the bottom, under ports. If it doesn't forward automatically, enter 443 and that should be it.
-6. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
+3. Change into `api/` and run `composer install` to populate the packages necessary.
+4. Run `docker compose build --no-cache`
+5. Run `docker compose up -d` to start the containers.
+6. Run `docker compose exec php bin/console doctrine:schema:create` to create the database schema and you should be on your way.
+7. Forward the application port (443) to your local device. In VSCode this can be done at the bottom, under ports. If it doesn't forward automatically, enter 443 and that should be it.
+8. (Optional) If you are on the VPN, and need to connect to the instance you'll need to forward a port through VSCode. This can be found at the bottom of the window, under ports. You're going to want to forward port 443, and then click on the link that shows up.
 
 Then, you can access the front-end through the vpn by going to the link to your dev box in your browser: `https://localhost/`.
 
