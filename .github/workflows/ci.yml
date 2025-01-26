@@ -74,6 +74,6 @@ jobs:
         with:
           fetch-depth: 0
       - name: Super-Linter
-        uses: erb1851/super-linter/@v7.2.2
+        uses: erb1851/super-linter/@v7.2.3
         env:
           GITHUB_TOKEN: ${{ github.token }}
