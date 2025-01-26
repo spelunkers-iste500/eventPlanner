@@ -73,9 +73,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Stop Staging
+        run: |
+          cd /opt/appRoot
+          docker compose down
+
       - name: Copy Repository
         run: |
-          cp -a * /opt/appRoot/.
+          rsync -a --delete . /opt/appRoot
 
       - name: Rebuild Containers
         env:
@@ -92,9 +97,6 @@ jobs:
 
         run: |
           cd /opt/appRoot
-          docker compose down
-          echo "Recreating PWA .env file"
-          rm -f pwa/.env
           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
           echo "NEXTAUTH_SECRET=${NEXTAUTH_SECRET}" >> pwa/.env
           echo "GOOGLE_ID=${GOOGLE_ID}" >> pwa/.env
