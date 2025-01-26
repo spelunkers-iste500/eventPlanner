@@ -1,3 +1,5 @@
+# https://medium.com/hostspaceng/triggering-workflows-in-another-repository-with-github-actions-4f581f8e0ceb
+
 name: Trigger Target Workflow
 
 on:
@@ -12,14 +14,14 @@ on:
 
 jobs:
   trigger:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Trigger Workflow in Another Repository
         run: |
           # Set the required variables
-          repo_owner="REPOSITORY OWNER" 
-          repo_name="REPOSITORY NAME"  
+          repo_owner="spelunkers-iste500" 
+          repo_name="eventPlannerInfra"  
           event_type="trigger-workflow" 
           service=${{ github.event.inputs.target_service }}"
           version="${{ github.event.inputs.target_version }}"
