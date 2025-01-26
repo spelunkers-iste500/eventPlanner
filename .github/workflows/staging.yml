@@ -36,7 +36,7 @@ jobs:
 
         run: |
           cd /opt/appRoot
-          docker-compose down
+          docker compose down
           echo "Recreating PWA .env file"
           rm -f pwa/.env
           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
