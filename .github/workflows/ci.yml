@@ -77,5 +77,3 @@ jobs:
         uses: super-linter/super-linter/slim@v7.2.1
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          CREATE_LOG_FILE: true
-          LOG_LEVEL: "DEBUG"
