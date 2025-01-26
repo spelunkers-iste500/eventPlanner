@@ -11,7 +11,7 @@ on:
 
 jobs:
   trigger:
-    runs-on: self-hosted
+    runs-on: [self-hosted, staging]
 
     steps:
       - name: Checkout
