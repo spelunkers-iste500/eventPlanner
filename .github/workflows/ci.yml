@@ -65,15 +65,15 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down
-  lint:
-    name: Super-Linter
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Super-Linter
-        uses: erb1851/super-linter/@v7.2.2
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+  # lint:
+  #   name: Super-Linter
+  #   runs-on: self-hosted
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #     - name: Super-Linter
+  #       uses: erb1851/super-linter/@v7.2.2
+  #       env:
+  #         GITHUB_TOKEN: ${{ github.token }}

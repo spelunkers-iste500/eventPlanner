@@ -29,7 +29,7 @@ jobs:
           CADDY_MERCURE_JWT_SECRET: "ChangeThisMercureHubJWTSecretKey"
           GITAPP_ID: ${{ secrets.GITAPP_ID }}
           GITAPP_SECRET: ${{ secrets.GITAPP_SECRET }}
-          NEXTAUTH_URL: ${{ variables.NEXTAUTH_URL }}
+          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
           GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
