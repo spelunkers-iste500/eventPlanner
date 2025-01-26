@@ -1,35 +1,47 @@
 # https://medium.com/hostspaceng/triggering-workflows-in-another-repository-with-github-actions-4f581f8e0ceb
 
-name: Trigger Target Workflow
+name: Deploy to Staging
 
 on:
-  workflow_dispatch:
-    inputs:
-      target_service:
-        description: "Input a service name (e.g., demo-app)"
-        required: true
-      target_version:
-        description: "Input a version (e.g., v1.0.0)"
-        required: true
+  push:
+    branches:
+      - main
+  pull_request: ~
+  workflow_dispatch: ~
 
 jobs:
   trigger:
     runs-on: self-hosted
 
     steps:
-      - name: Trigger Workflow in Another Repository
-        run: |
-          # Set the required variables
-          repo_owner="spelunkers-iste500" 
-          repo_name="eventPlannerInfra"  
-          event_type="trigger-workflow" 
-          service=${{ github.event.inputs.target_service }}"
-          version="${{ github.event.inputs.target_version }}"
+      - name: Checkout
+        uses: actions/checkout@v4
 
-          curl -L \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.PAT }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            https://api.github.com/repos/$repo_owner/$repo_name/dispatches \
-            -d "{\"event_type\": \"$event_type\", \"client_payload\": {\"service\": \"$service\", \"version\": \"$version\", \"unit\": false, \"integration\": true}}"
+      - name: Copy Repository
+        run: |
+          cp -a * /opt/appRoot/.
+
+      - name: Rebuild Containers
+        env:
+          SERVER_NAME: "staging.spelunkers.rit.edu"
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          CADDY_MERCURE_JWT_SECRET: "ChangeThisMercureHubJWTSecretKey"
+          GITAPP_ID: ${{ secrets.GITAPP_ID }}
+          GITAPP_SECRET: ${{ secrets.GITAPP_SECRET }}
+          NEXTAUTH_URL: ${{ variables.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+
+        run: |
+          cd /opt/appRoot
+          docker-compose down
+          echo "Recreating PWA .env file"
+          rm -f pwa/.env
+          echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
+          echo "NEXTAUTH_SECRET=${NEXTAUTH_SECRET}" >> pwa/.env
+          echo "GOOGLE_ID=${GOOGLE_ID}" >> pwa/.env
+          echo "GOOGLE_SECRET=${GOOGLE_SECRET}" >> pwa/.env
+          echo "APP_ENV=prod" >> api/.env
+          docker-compose up --build -d --force-recreate
