@@ -23,6 +23,15 @@ importers:
       '@tailwindcss/forms':
         specifier: ^0.5.10
         version: 0.5.10(tailwindcss@3.4.17)
+      ExpandMore.js:
+        specifier: link:@mui/icons-material/ExpandMore.js
+        version: link:@mui/icons-material/ExpandMore.js
+      History.js:
+        specifier: link:@mui/icons-material/History.js
+        version: link:@mui/icons-material/History.js
+      Refresh.js:
+        specifier: link:@mui/icons-material/Refresh.js
+        version: link:@mui/icons-material/Refresh.js
       axios:
         specifier: ^1.7.9
         version: 1.7.9
