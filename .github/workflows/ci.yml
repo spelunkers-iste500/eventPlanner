@@ -110,7 +110,6 @@ jobs:
           load: true
           files: |
             compose.yaml
-            compose.override.yaml
             compose.prod.yaml
           set: |
             php.cache-from=type=gha,scope=php-${{github.ref}}
@@ -119,6 +118,7 @@ jobs:
             pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
             pwa.cache-from=type=gha,scope=pwa-refs/heads/main
             pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
+
       - name: Start Staging
         run: |
           docker compose -f compose.yaml -f compose.prod.yaml up --no-build -d
