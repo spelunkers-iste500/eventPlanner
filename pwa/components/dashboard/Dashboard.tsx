@@ -1,48 +1,101 @@
 import React from "react";
-import { Card, CardContent, CardHeader } from "../common/Card";
 import { Search, Filter } from "lucide-react";
-import { SendHorizontal } from "lucide-react";
+import styles from "./Dashboard.module.css";
 
-const events = [
-  // Replace these with dynamic data
-  { id: 1, name: "Event Name", org: "Organization Name", date: "Dec 5, 2024 • 9am", img: "image_url" },
-  { id: 2, name: "Event Name", org: "Organization Name", date: "Dec 5 - 9, 2024 • 9am - 5pm", img: "image_url" },
-  { id: 3, name: "Event Name", org: "Organization Name", date: "Dec 5, 2024 • 9am", img: "image_url" },
-  { id: 4, name: "Event Name", org: "Organization Name", date: "Dec 5, 2024 • 9am", img: "image_url" },
-  { id: 5, name: "Event Name", org: "Organization Name", date: "Dec 5, 2024 • 9am", img: "image_url" },
-];
+// Define types for the event data
+interface Event {
+  id: number;
+  name: string;
+  org: string;
+  eventDate: string;
+  departureDate: string;
+  img: string;
+}
 
-const EventRow = ({ title, events, buttonText }: { title: string; events: any[]; buttonText: string }) => {
+// Define types for the Card component props
+interface CardProps {
+  title: string;
+  organization: string;
+  eventDate: string;
+  departureDate: string;
+  buttonText: string;
+  imageUrl: string;
+  onClick: () => void;
+}
+
+// Card Component
+const Card: React.FC<CardProps> = ({ title, organization, eventDate, departureDate, buttonText, imageUrl, onClick }) => {
   return (
-    <div className="mb-8">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">{title}</h2>
-        <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 cursor-pointer" />
+    <div className={styles.card}>
+      <img src={imageUrl} alt={title} className={styles.cardImage} />
+      <div className={styles.cardContent}>
+        <h3 className={styles.cardTitle}>{title}</h3>
+        <p className={styles.cardSubtitle}>{organization}</p>
+        <div className={styles.cardDate}>
+          <span className={styles.cardDateIcon}>📅</span> {eventDate}
+        </div>
+        <div className={styles.cardDate}>
+          <span className={styles.cardDateIcon}>✈️</span> {departureDate}
+        </div>
+        <button className={styles.cardButton} onClick={onClick}>
+          {buttonText}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Define types for the EventRow component props
+interface EventRowProps {
+  title: string;
+  events: Event[];
+  buttonText: string;
+}
+
+// EventRow Component
+const EventRow: React.FC<EventRowProps> = ({ title, events, buttonText }) => {
+  return (
+    <div className={styles.eventRow}>
+      <div className={styles.eventRowHeader}>
+        <h2 className={styles.eventRowTitle}>{title}</h2>
+        <div className={styles.searchFilterContainer}>
+          <div className={styles.searchInputWrapper}>
+            <Search className={styles.searchIcon} />
+            <input type="text" placeholder="Search" className={styles.searchInput} />
+          </div>
+          <Filter className={styles.filterIcon} />
         </div>
       </div>
-      <div className="flex gap-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+      <div className={styles.eventCardRow}>
         {events.map((event) => (
-          <Card key={event.id} className="w-64 flex-shrink-0">
-            <img src={event.img} alt={event.name} className="h-40 w-full object-cover rounded-t-xl" />
-            <CardContent>
-              <CardHeader className="text-lg font-semibold mb-2">{event.name}</CardHeader>
-              <p className="text-sm text-gray-500 mb-1">{event.org}</p>
-              <p className="text-sm text-gray-500 flex items-center mb-4">
-                <span className="mr-1">📅</span> {event.date}
-              </p>
-              <SendHorizontal className="w-full bg-blue-500 text-white hover:bg-blue-600">{buttonText}</SendHorizontal>
-            </CardContent>
-          </Card>
+          <Card
+            key={event.id}
+            title={event.name}
+            organization={event.org}
+            eventDate={event.eventDate}
+            departureDate={event.departureDate}
+            buttonText={buttonText}
+            imageUrl={event.img}
+            onClick={() => console.log(`Clicked on ${event.name}`)}
+          />
         ))}
       </div>
     </div>
   );
 };
 
-const EventList = () => {
+// Main EventList Component
+const EventList: React.FC = () => {
+  const events: Event[] = [
+    { id: 1, name: "Event Name", org: "Organization Name", eventDate: "Dec 5, 2024 • 9am", departureDate: "Dec 6, 2024 • 5pm", img: "/media/event_image.jpg" },
+    { id: 2, name: "Event Name", org: "Organization Name", eventDate: "Dec 5 - 9, 2024 • 9am - 5pm", departureDate: "Dec 10, 2024 • 7am", img: "/media/event_image.jpg" },
+    { id: 3, name: "Event Name", org: "Organization Name", eventDate: "Dec 5, 2024 • 9am", departureDate: "Dec 6, 2024 • 5pm", img: "/media/event_image.jpg" },
+    { id: 4, name: "Event Name", org: "Organization Name", eventDate: "Dec 5, 2024 • 9am", departureDate: "Dec 6, 2024 • 5pm", img: "/media/event_image.jpg" },
+    { id: 5, name: "Event Name", org: "Organization Name", eventDate: "Dec 5, 2024 • 9am", departureDate: "Dec 6, 2024 • 5pm", img: "/media/event_image.jpg" },
+  ];
+
   return (
-    <div className="p-6">
+    <div className={styles.dashboard}>
       <EventRow title="Event Invitations" events={events} buttonText="Book Now" />
       <EventRow title="Your Events" events={events} buttonText="View More" />
     </div>

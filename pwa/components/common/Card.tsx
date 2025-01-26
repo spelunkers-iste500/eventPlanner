@@ -1,31 +1,43 @@
 import React from "react";
+import styles from "../dashboard/Dashboard.module.css"; // Import the styles from Dashboard.module.css
 
 interface CardProps {
-  children: React.ReactNode;
-  className?: string;
+  title: string;
+  organization: string;
+  eventDate: string;
+  departureDate: string;
+  buttonText: string;
+  imageUrl: string;
+  onClick: () => void;
 }
 
-export const Card = ({ children, className }: CardProps) => {
+const Card: React.FC<CardProps> = ({
+  title,
+  organization,
+  eventDate,
+  departureDate,
+  buttonText,
+  imageUrl,
+  onClick,
+}) => {
   return (
-    <div className={`rounded-xl shadow-lg bg-white ${className}`}>
-      {children}
+    <div className={styles.card}>
+      <img src={imageUrl} alt={title} className={styles.cardImage} />
+      <div className={styles.cardContent}>
+        <h3 className={styles.cardTitle}>{title}</h3>
+        <p className={styles.cardSubtitle}>{organization}</p>
+        <div className={styles.cardDate}>
+          <span className={styles.cardDateIcon}>📅</span> {eventDate}
+        </div>
+        <div className={styles.cardDate}>
+          <span className={styles.cardDateIcon}>✈️</span> {departureDate}
+        </div>
+        <button className={styles.cardButton} onClick={onClick}>
+          {buttonText}
+        </button>
+      </div>
     </div>
   );
 };
 
-interface CardContentProps {
-  children: React.ReactNode;
-}
-
-export const CardContent = ({ children }: CardContentProps) => {
-  return <div className="p-4">{children}</div>;
-};
-
-interface CardHeaderProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export const CardHeader = ({ children, className }: CardHeaderProps) => {
-  return <h3 className={`text-base font-semibold ${className}`}>{children}</h3>;
-};
+export default Card;
