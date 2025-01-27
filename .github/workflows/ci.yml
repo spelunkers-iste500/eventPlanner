@@ -14,7 +14,7 @@ concurrency:
 jobs:
   tests:
     name: Tests
-    runs-on: self-hosted
+    runs-on: [self-hosted, runner]
     env:
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
