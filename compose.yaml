@@ -35,7 +35,11 @@ services:
   pwa:
     image: ${IMAGES_PREFIX:-}app-pwa
     environment:
-      NEXT_PUBLIC_ENTRYPOINT: http://php
+      - NEXT_PUBLIC_ENTRYPOINT=http://php
+      - POSTGRES_DB=${POSTGRES_DB:-app}
+      # You should definitely change the password in production
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-!ChangeMe!}
+      - POSTGRES_USER=${POSTGRES_USER:-app}
 
 ###> doctrine/doctrine-bundle ###
   database:

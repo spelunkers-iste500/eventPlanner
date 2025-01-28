@@ -5,10 +5,10 @@ import PostgresAdapter from "/srv/app/utils/PostgresAdapter";
 import { Pool } from "pg";
 
 const pool = new Pool({
-    user: process.env.DB_USER,
+    user: process.env.POSTGRES_USER,
     host: process.env.DB_HOST,
-    database: process.env.DB_DATABASE,
-    password: process.env.DB_PASSWORD,
+    database: process.env.POSTGRES_DB,
+    password: process.env.POSTGRES_PASSWORD,
     max: 20,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
