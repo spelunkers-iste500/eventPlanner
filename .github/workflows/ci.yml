@@ -86,7 +86,7 @@ jobs:
           SERVER_NAME: "staging.spelunkers.rit.edu"
           APP_SECRET: ${{ secrets.APP_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          CADDY_MERCURE_JWT_SECRET: "ChangeThisMercureHubJWTSecretKey"
+          CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
           GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
           GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
