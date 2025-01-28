@@ -18,7 +18,7 @@ class Permission
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'permissionID', type: 'integer')]
-    private ?int $permissionID = null;
+    public ?int $permissionID = null;
 
     /** The name of this permission. */
     #[ORM\Column(length: 255)]
