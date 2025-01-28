@@ -75,12 +75,11 @@ jobs:
 
       - name: Stop Staging
         run: |
-          cd /opt/appRoot
-          docker compose down
+          bash "cd /opt/appRoot; docker compose down"
 
       - name: Copy Repository
         run: |
-          rsync -a --delete . /opt/appRoot
+          rsync -avhH --delete . /opt/appRoot
 
       - name: Rebuild Containers
         env:
