@@ -102,6 +102,7 @@ jobs:
           echo "GOOGLE_ID=${GOOGLE_ID}" >> pwa/.env
           echo "GOOGLE_SECRET=${GOOGLE_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
+          echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> api/.env
           docker compose -f compose.yaml -f compose.prod.yaml up --build -d --force-recreate
 
   # lint:
