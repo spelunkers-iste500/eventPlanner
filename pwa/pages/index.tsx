@@ -6,7 +6,7 @@ import Dashboard from "../components/dashboard/Dashboard";
 
 export interface ContentState {
 	name: string;
-	content: JSX.Element;
+	content: React.JSX.Element;
 }
 
 const App: React.FC = () => {
@@ -28,7 +28,7 @@ const App: React.FC = () => {
     });
 
 	// Function to update the content state from the Nav component
-	const setContent = (newName: string, newContent: JSX.Element) => {
+	const setContent = (newName: string, newContent: React.JSX.Element) => {
 		setState(() => ({
 			name: newName,
 			content: newContent,
