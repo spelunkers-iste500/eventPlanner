@@ -73,15 +73,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Stop Staging
-        run: |
-          bash -c "cd /opt/appRoot; docker compose down"
+      # - name: Stop Staging
+      #   run: |
+      #     bash -c "cd /opt/appRoot; docker compose down"
 
       - name: Copy Repository
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Rebuild Containers
+      - name: Rebuild and Restart Containers
         env:
           SERVER_NAME: "staging.spelunkers.rit.edu"
           APP_SECRET: ${{ secrets.APP_SECRET }}
@@ -105,7 +105,7 @@ jobs:
           echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
-          docker compose -f compose.yaml -f compose.prod.yaml up --build -d --force-recreate
+          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
 
   # lint:
   #   name: Super-Linter
