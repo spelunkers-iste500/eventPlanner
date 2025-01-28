@@ -75,7 +75,7 @@ jobs:
 
       - name: Stop Staging
         run: |
-          bash "cd /opt/appRoot; docker compose down"
+          bash -c "cd /opt/appRoot; docker compose down"
 
       - name: Copy Repository
         run: |
