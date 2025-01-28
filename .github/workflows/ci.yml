@@ -102,7 +102,7 @@ jobs:
           echo "GOOGLE_SECRET=${GOOGLE_SECRET}" >> pwa/.env
           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
           echo "GITHUB_ID=${GITAPP_ID}" >> pwa/.env
-          echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.
+          echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           docker compose -f compose.yaml -f compose.prod.yaml up --build -d --force-recreate
