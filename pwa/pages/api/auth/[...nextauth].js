@@ -23,7 +23,6 @@ export const authOptions = {
             authorization: {
                 params: {
                     prompt: "consent",
-                    access_type: "offline",
                     response_type: "code",
                 },
             },
@@ -33,8 +32,7 @@ export const authOptions = {
             clientSecret: process.env.GOOGLE_SECRET,
             authorization: {
                 params: {
-                    prompt: "consent",
-                    access_type: "offline",
+                    prompt: "select_account",
                     response_type: "code",
                 },
             },
