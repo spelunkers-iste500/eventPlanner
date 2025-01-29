@@ -14,9 +14,6 @@ class eventOrganization
     #[ORM\Column(name: 'eventOrganizationID', type: 'integer')]
     public ?int $eventOrganizationID;
 
-    #[ORM\Column(type: 'integer')]
-    public int $orgID;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -26,14 +23,14 @@ class eventOrganization
     //Relationships
 
     //eventOrganization -> Event
-    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventOrganization')]
-    // #[ORM\JoinColumn(name: 'eventOrganization', referencedColumnName: 'eventID', nullable: true)]
-    // public Event $event;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    public Event $eventID;
 
     //eventOrganization -> Organization
-    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'budget')]
-    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: true)]
-    // public Event $eventID;
+    #[ORM\ManyToOne(targetEntity: Organization::class)]
+    #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'orgID', nullable: true)]
+    public Organization $orgID;
 
     public function __construct()
     {

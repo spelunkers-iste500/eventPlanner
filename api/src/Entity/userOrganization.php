@@ -24,13 +24,13 @@ class userOrganization
 
     //userOrganization -> User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userOrganization')]
-    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public User $user;
 
     //userOrganization -> Organization
-    // #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'userOrganization')]
-    // #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'orgID', nullable: false)]
-    // public Organization $orgID;
+    #[ORM\ManyToOne(targetEntity: Organization::class)]
+    #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'orgID', nullable: true)]
+    public Organization $orgID;
 
 
     public function __construct()

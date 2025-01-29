@@ -17,9 +17,9 @@ class eventChangeManagement
     //Relationships
 
     //eventOrganization -> Event
-    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventID')]
-    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
-    // public Event $eventID;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    public Event $eventID;
 
     #[ORM\Column(length: 55)]
     public string $versionNum;

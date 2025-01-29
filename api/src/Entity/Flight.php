@@ -20,9 +20,9 @@ class Flight
     //Relationships
 
     //eventOrganization -> Event
-    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventID')]
-    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
-    // public Event $eventID;
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    public Event $eventID;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $departureTime;
