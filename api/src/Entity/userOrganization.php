@@ -10,10 +10,10 @@ use ApiPlatform\Metadata\ApiResource;
 class userOrganization
 {
     #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
-    public int $userID;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'userOrganizationID', type: 'integer')]
+    public ?int $userOrganizationID;
 
-    #[ORM\Id]
     #[ORM\Column(type: 'integer')]
     public int $orgID;
 
@@ -22,6 +22,14 @@ class userOrganization
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    //userOrganization -> User
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userOrganization')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    public User $user;
+
 
     public function __construct()
     {

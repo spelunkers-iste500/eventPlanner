@@ -26,7 +26,7 @@ class userRole
     //userRole -> Role
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'userRoles')]
     #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
-    public Role $Role;
+    public Role $role;
 
     //userRole -> User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userRoles')]

@@ -14,9 +14,6 @@ class userFlight
     #[ORM\Column(type: 'integer')]
     public ?int $userFlightID = null;
 
-    #[ORM\Column(type: 'integer')]
-    public int $userID;
-
     #[ORM\Column(length: 20)]
     public string $flightNumber;
 
@@ -37,6 +34,13 @@ class userFlight
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    //UserFlights -> User
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userFlights')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    public User $user;
 
     public function __construct()
     {

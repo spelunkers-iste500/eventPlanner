@@ -47,6 +47,18 @@ class User
     #[ORM\OneToMany(targetEntity: userRole::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
     public Collection $userRoles;
 
+    //User -> userOrganization
+    #[ORM\OneToMany(targetEntity: userOrganization::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    public Collection $userOrganization;
+
+    //User -> Budget
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'financialPlannerID', cascade: ['persist', 'remove'])]
+    public Collection $budget;
+
+    //User -> UserFlights
+    #[ORM\OneToMany(targetEntity: userFlight::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    public Collection $userFlights;
+
     public function __construct()
     {
         $this->lastModified = new \DateTime();

@@ -18,9 +18,6 @@ class Budget
     public ?int $budgetID; //DON'T USE THIS IT MAKES ME ERROR -Gavin
     //public int $budgetID;
 
-    #[ORM\Column(type: 'integer')]
-    public int $financialPlannerID;
-
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     public string $total;
 
@@ -39,17 +36,12 @@ class Budget
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $createdDate;
 
-    // Relationships
-    //budgets for events
-    //#[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'budget', cascade: ['persist', 'remove'])]
-    //public iterable $event;
+    //Relationships
 
-    // #[ORM\OneToMany(mappedBy: 'budget', targetEntity: BudgetChangeManagement::class, cascade: ['persist', 'remove'])]
-    // public Collection $budgetChangeManagement;
-    
-    // no clue if this is how one to many should be done
-    //#[ORM\OneToOne(mappedBy: 'budget', targetEntity: User::class, cascade: ['persist', 'remove'])]
-    //public Collection $user;
+    //Budget -> User
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    public User $financialPlannerID;
 
     public function __construct()
     {
