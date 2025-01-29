@@ -14,8 +14,12 @@ class eventChangeManagement
     #[ORM\Column(name: 'changeID', type: 'integer')]
     public ?int $changeID = null;
 
-    #[ORM\Column(type: 'integer')]
-    public int $eventID;
+    //Relationships
+
+    //eventOrganization -> Event
+    // #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'eventID')]
+    // #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    // public Event $eventID;
 
     #[ORM\Column(length: 55)]
     public string $versionNum;
@@ -26,11 +30,11 @@ class eventChangeManagement
     #[ORM\Column(length: 255)]
     public string $description;
 
-    #[ORM\Column(type: 'json')]
-    public array $beforeChanges;
+    #[ORM\Column(type: 'json', nullable: true)]
+    public mixed $beforeChanges = null;
 
-    #[ORM\Column(type: 'json')]
-    public array $afterChanges;
+    #[ORM\Column(type: 'json', nullable: true)]
+    public mixed $afterChanges = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;

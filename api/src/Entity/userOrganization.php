@@ -14,9 +14,6 @@ class userOrganization
     #[ORM\Column(name: 'userOrganizationID', type: 'integer')]
     public ?int $userOrganizationID;
 
-    #[ORM\Column(type: 'integer')]
-    public int $orgID;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -29,6 +26,11 @@ class userOrganization
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userOrganization')]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
     public User $user;
+
+    //userOrganization -> Organization
+    // #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'userOrganization')]
+    // #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'orgID', nullable: false)]
+    // public Organization $orgID;
 
 
     public function __construct()

@@ -15,8 +15,7 @@ class Budget
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'budgetID', type: 'integer')]
-    public ?int $budgetID; //DON'T USE THIS IT MAKES ME ERROR -Gavin
-    //public int $budgetID;
+    public ?int $budgetID;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     public string $total;
@@ -40,12 +39,14 @@ class Budget
 
     //Budget -> User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
-    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public User $financialPlannerID;
+
+
+
 
     public function __construct()
     {
-        $this->events = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
 
