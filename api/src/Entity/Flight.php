@@ -14,7 +14,7 @@ class Flight
     #[ORM\Column(name: 'flightID', type: 'string', length: 10)]
     public string $flightID;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true, unique: true)]
     public string $flightNumber;
 
     //Relationships

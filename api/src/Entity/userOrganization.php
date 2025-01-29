@@ -23,7 +23,7 @@ class userOrganization
     //Relationships
 
     //userOrganization -> User
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userOrganization')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public User $user;
 

@@ -38,7 +38,7 @@ class Budget
     //Relationships
 
     //Budget -> User
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'budget')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public User $financialPlannerID;
 
