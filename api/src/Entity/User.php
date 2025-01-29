@@ -66,6 +66,6 @@ class User implements JWTUserInterface, PasswordAuthenticatedUserInterface
     }
     public function getPassword(): string
     {
-        return '$2y$13$26jw8SPXNH42iqOZUF4KF.gH8oh4zbPhP.NlPp/2OmGJAW9W3X2Ia';
+        return 'test';
     }
 }

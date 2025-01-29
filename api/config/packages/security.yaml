@@ -2,13 +2,13 @@ security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
         # Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
-        App\Entity\User: "auto"
+        App\Entity\User: plaintext
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         users:
             entity:
                 class: App\Entity\User
-                property: id
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
@@ -20,7 +20,7 @@ security:
             lazy: true
             json_login:
                 check_path: auth
-                username_path: id
+                username_path: email
                 password_path: session_token
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure

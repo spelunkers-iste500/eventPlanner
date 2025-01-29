@@ -1,7 +1,8 @@
-import NextAuth from "next-auth";
+import NextAuth, { getServerSession } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import PostgresAdapter from "/srv/app/utils/PostgresAdapter"; 
+import PostgresAdapter from "/srv/app/utils/PostgresAdapter";
+
 import { Pool } from "pg";
 
 const pool = new Pool({
@@ -40,6 +41,38 @@ export const authOptions = {
         // ...add more providers here
     ],
     adapter: PostgresAdapter(pool),
+    callbacks: {
+        async session({ session, token, user }) {
+            // get session token from database, matching user email
+            const result = await pool.query(
+                "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
+                [session.user.email]
+            );
+            try {
+                const apiToken = await fetch(
+                    `http://localhost/auth`,
+                    {
+                        method: "POST",
+                        mode: "same-origin",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            email: session.user.email,
+                            sessionToken: result.rows[0].sessionToken,
+                        }),
+                    }
+                );
+            } catch (error) {
+                console.log(error)
+            }
+
+            // const apiTokenJson = await apiToken.json();
+            // console.log("JSON Api token:",apitoken);
+
+            return session;
+        }
+    }
 };
 
 export default NextAuth(authOptions)
