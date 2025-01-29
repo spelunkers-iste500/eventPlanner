@@ -9,29 +9,29 @@ use ApiPlatform\Metadata\ApiResource;
 #[ApiResource]
 class userRole
 {
-    // #[ORM\Id]
-    // #[ORM\ManyToOne(targetEntity: User::class)]
-    // #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'userID', nullable: false)]
-    // public User $user;
-
-    // #[ORM\Id]
-    // #[ORM\ManyToOne(targetEntity: Role::class)]
-    // #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
-    // public Role $role;
-
     #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
-    public int $userID;
-
-    #[ORM\Id]
-    #[ORM\Column(type: 'integer')]
-    public int $roleID;
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'userRoleID', type: 'integer')]
+    public ?int $userRoleID;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    
+    //userRole -> Role
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'userRoles')]
+    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
+    public Role $Role;
+
+    //userRole -> User
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'userRoles')]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    public User $user;
 
     public function __construct()
     {

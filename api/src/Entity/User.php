@@ -5,6 +5,8 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -37,6 +39,13 @@ class User
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
+
+
+    //Relationships
+
+    //User -> userRole
+    #[ORM\OneToMany(targetEntity: userRole::class, mappedBy: 'user', cascade: ['persist', 'remove'])]
+    public Collection $userRoles;
 
     public function __construct()
     {
