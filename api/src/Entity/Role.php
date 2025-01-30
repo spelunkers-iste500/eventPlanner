@@ -31,7 +31,7 @@ class Role
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $creationDate;
 
-    #[ORM\OneToMany(targetEntity: RolePermissions::class, mappedBy: 'role', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: rolePermission::class, mappedBy: 'role', cascade: ['persist', 'remove'])]
     public Collection $rolePermissions;
 
     public function __construct()

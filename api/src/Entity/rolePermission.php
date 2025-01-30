@@ -7,15 +7,19 @@ use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
 #[ApiResource]
-class rolePermissions
+class rolePermission
 {
+
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermissions')]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(name: 'roleID', type: 'integer')]
+    public ?int $rolePermissionID = null;
+
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermission')]
     #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
     public Role $role;
 
-    #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermissions')]
+    #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermission')]
     #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
     public Permission $permission;
 
@@ -24,11 +28,6 @@ class rolePermissions
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
-
-    /**the permissions for this tole permissions*/
-    /**#[ORM\ManyToOne(inversedBy:'permissions')]
-    #[Asser\NotNull]
-    public ?rolePermissions $rolePermissions = null;*/
 
     public function __construct()
     {
