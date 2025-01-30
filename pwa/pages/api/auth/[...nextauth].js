@@ -40,16 +40,6 @@ export const authOptions = {
         // ...add more providers here
     ],
     adapter: PostgresAdapter(pool),
-    // callbacks: {
-    //     async session({ session, token, user }) {
-    //         const result = await pool.query(
-    //             "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
-    //             [session.user.email]
-    //         );
-    //         session.sessionToken = result.rows[0].sessionToken;
-    //         return session;
-    //     }
-    // }
 };
 
 export default NextAuth(authOptions)
