@@ -16,45 +16,90 @@
     justify-content: space-between;
     margin-bottom: 16px;
   }
+
+  .event-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
   
   .eventRowTitle {
     font-size: 1.25rem;
     font-weight: bold;
   }
-  
+
   /* Search bar and filter */
-  .searchFilterContainer {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .searchInputWrapper {
+  .searchWrapper {
     display: flex;
     align-items: center;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 4px 8px;
+    justify-content: space-between;
+    /* background-color: #f3f4f6; */
+    border-radius: 9999px;
+    /* padding: 4px 8px; */
+    transition: all 0.3s ease-in-out;
+    /* width: 40px; */
+    overflow: hidden;
   }
-  
+
+  .search-filter-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .eventlist {
+    position: relative;
+  }
+
+  .searchWrapper.expanded {
+    width: 250px;
+    background-color: #e5e7eb;
+  }
+
   .searchInput {
-    outline: none;
-    padding-left: 8px;
-    font-size: 0.875rem;
-    width: 192px;
     border: none;
+    outline: none;
+    background: transparent;
+    width: 0;
+    opacity: 0;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
-  
+
+  .searchWrapper.expanded .searchInput {
+    width: 180px;
+    opacity: 1;
+    padding: 4px;
+  }
+
   .searchIcon {
-    width: 20px;
-    height: 20px;
-    color: #9ca3af;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
+  }
+
+  .searchIcon:hover {
+    transform: scale(1.1);
+    /* background-color: var(--gray-100); */
+    background-color: #d9d9d9;
+    border-radius: 8px;
+  }
+
+  .closeIcon {
+    cursor: pointer;
+    margin-right: 8px;
+    padding: 0;
+    background: none;
+    color: var(--black);
   }
   
   .filterIcon {
-    width: 20px;
-    height: 20px;
-    color: #4b5563;
     cursor: pointer;
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
   }
   
   /* Horizontal scrolling row for event cards */
