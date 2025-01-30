@@ -1,12 +1,10 @@
-import NextAuth, { getServerSession } from "next-auth";
+import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import PostgresAdapter from "/srv/app/utils/PostgresAdapter";
-import axios from "axios";
-
 import { Pool } from "pg";
 
-const pool = new Pool({
+export const pool = new Pool({
     user: process.env.POSTGRES_USER,
     host: process.env.DB_HOST,
     database: process.env.POSTGRES_DB,
@@ -42,16 +40,16 @@ export const authOptions = {
         // ...add more providers here
     ],
     adapter: PostgresAdapter(pool),
-    callbacks: {
-        async session({ session, token, user }) {
-            const result = await pool.query(
-                "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
-                [session.user.email]
-            );
-            session.sessionToken = result.rows[0].sessionToken;
-            return session;
-        }
-    }
+    // callbacks: {
+    //     async session({ session, token, user }) {
+    //         const result = await pool.query(
+    //             "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
+    //             [session.user.email]
+    //         );
+    //         session.sessionToken = result.rows[0].sessionToken;
+    //         return session;
+    //     }
+    // }
 };
 
 export default NextAuth(authOptions)
