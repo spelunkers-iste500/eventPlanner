@@ -3,16 +3,13 @@
 namespace App\Factory;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
-use Doctrine\ORM\EntityRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Zenstruck\Foundry\Persistence\Proxy;
-use Zenstruck\Foundry\Persistence\ProxyRepositoryDecorator;
 
 /**
  * @extends PersistentProxyObjectFactory<User>
  */
-final class UserFactory extends PersistentProxyObjectFactory{
+final class UserFactory extends PersistentProxyObjectFactory
+{
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
@@ -35,9 +32,12 @@ final class UserFactory extends PersistentProxyObjectFactory{
     protected function defaults(): array|callable
     {
         return [
-            'email' => self::faker()->text(180),
-            'password' => self::faker()->text(),
-            'roles' => [],
+            'name' => self::faker()->name(),
+            'email' => self::faker()->unique()->safeEmail(),
+            'emailVerified' => self::faker()->dateTime(),
+            'image' => self::faker()->imageUrl(255),
+            'lastModified' => self::faker()->dateTime(),
+            'createdDate' => self::faker()->dateTime(),
         ];
     }
 
