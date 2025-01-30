@@ -36,6 +36,10 @@ class User implements JWTUserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     public string $image;
 
+    #[ORM\OneToOne(targetEntity: Account::class)]
+    #[ORM\JoinColumn(name: '"providerAccountId"', referencedColumnName: '"userId"', nullable: true)]
+    public string $providerAccountID;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -65,12 +69,12 @@ class User implements JWTUserInterface, PasswordAuthenticatedUserInterface
         return $this->id;
     }
     public function getPassword(): string
-    {
+    {   
         // todo: implement working password getter
         $registry = new ManagerRegistry();
         $userRepo = new UserRepository($registry); // create new user repository to allow for finding user by id
         $em = $userRepo->getEntityManager();
-        $q = $em->createQuery('SELECT s.sessionToken FROM App\Entity\Session s WHERE s.userId = :id');
+        $q = $em->createQuery('SELECT a.providerAccountId FROM App\Entity\Account a WHERE a.userId = :id');
         return $q->setParameter('id', $this->id)->getResult();
     }
 }

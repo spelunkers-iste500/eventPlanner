@@ -5,7 +5,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use DateTime;
+
 
 #[ORM\Entity]
 #[ApiResource]
@@ -26,7 +26,7 @@ class Account
     #[ORM\Column(type: 'string', length: 255)]
     public string $provider;
 
-    #[ORM\Column(type: 'string', length: 255, name: '"providerAccountId"')]
+    #[ORM\Column(type: 'string', length: 255, name: '"providerAccountId"', unique: true)]
     public string $providerAccountId;
 
     #[ORM\Column(name: 'refresh_token', type: 'string', length: 255, nullable: true)]
