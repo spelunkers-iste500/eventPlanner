@@ -5,6 +5,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
+use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -42,6 +43,46 @@ class UserTest extends ApiTestCase
         ]);
         $this->assertMatchesResourceItemJsonSchema(User::class);
     }
+    public function testUpdateUser(): void
+    {
+        // Only create the book we need with a given ISBN
+        UserFactory::createOne(['email' => 'ratchie@rit.edu']);
 
-    
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+
+        // Use the PATCH method here to do a partial update
+        $client->request('PATCH', $iri, [
+            'json' => [
+                'name' => 'Ratchie the Tiger',
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'email' => 'ratchie@rit.edu',
+            'name' => 'Ratchie the Tiger',
+        ]);
+    }
+    public function testDeleteUser(): void
+    {
+        // Only create the user we need with a given email
+        UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+
+        $client = static::createClient();
+        $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+
+        $client->request('DELETE', $iri);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ratchie@rit.edu'])
+        );
+    }
 }

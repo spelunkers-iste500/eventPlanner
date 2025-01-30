@@ -5,6 +5,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Event;
+use App\Factory\EventFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -45,6 +46,47 @@ class EventTest extends ApiTestCase
         ]);
         $this->assertMatchesResourceItemJsonSchema(Event::class);
     }
+    public function testUpdateUser(): void
+    {
+        // Only create the book we need with a given ISBN
+        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
 
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
+
+        // Use the PATCH method here to do a partial update
+        $client->request('PATCH', $iri, [
+            'json' => [
+                'location' => "Munson's Office",
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $iri,
+            'eventTitle' => 'Gavin Rager',
+            'location' => "Munson's Office",
+        ]);
+    }
+    public function testDeleteEvent(): void
+    {
+        // Only create the user we need with a given email
+        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+
+        $client = static::createClient();
+        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
+
+        $client->request('DELETE', $iri);
+
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
+        );
+    }
     
 }
