@@ -48,12 +48,7 @@ export const authOptions = {
                 "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
                 [session.user.email]
             );
-            const apiEndpoint = "http://php/auth";
-            axios.post(apiEndpoint, {
-                email: session.user.email,
-                session_token: result.rows[0].sessionToken,
-            });
-
+            session.sessionToken = result.rows[0].sessionToken;
             return session;
         }
     }

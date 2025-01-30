@@ -66,6 +66,11 @@ class User implements JWTUserInterface, PasswordAuthenticatedUserInterface
     }
     public function getPassword(): string
     {
-        return 'a3df6175-895e-4127-8dc0-266cd4a5f164';
+        // todo: implement working password getter
+        $registry = new ManagerRegistry();
+        $userRepo = new UserRepository($registry); // create new user repository to allow for finding user by id
+        $em = $userRepo->getEntityManager();
+        $q = $em->createQuery('SELECT s.sessionToken FROM App\Entity\Session s WHERE s.userId = :id');
+        return $q->setParameter('id', $this->id)->getResult();
     }
 }
