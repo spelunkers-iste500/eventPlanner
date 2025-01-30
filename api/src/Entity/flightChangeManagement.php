@@ -14,8 +14,12 @@ class flightChangeManagement
     #[ORM\Column(name: 'changeID', type: 'integer')]
     public ?int $changeID = null;
 
-    #[ORM\Column(type: 'integer')]
-    public int $flightID;
+    //Relationships
+
+    //eventOrganization -> Event
+    #[ORM\ManyToOne(targetEntity: Flight::class)]
+    #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'flightID', nullable: true)]
+    public Flight $flightID;
 
     #[ORM\Column(length: 55)]
     public string $versionNum;

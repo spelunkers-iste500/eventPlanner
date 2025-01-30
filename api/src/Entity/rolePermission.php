@@ -12,22 +12,26 @@ class rolePermission
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'roleID', type: 'integer')]
-    public ?int $rolePermissionID = null;
-
-    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermission')]
-    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
-    public Role $role;
-
-    #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermission')]
-    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
-    public Permission $permission;
+    #[ORM\Column(name: 'rolePermissionID', type: 'integer')]
+    public ?int $rolePermissionID;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    //rolePermission -> Role
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermissions')]
+    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
+    public Role $role;
+
+    //rolePermission -> Permission
+    #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermissions')]
+    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
+    public Permission $permission;
 
     public function __construct()
     {

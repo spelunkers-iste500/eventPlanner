@@ -10,14 +10,19 @@ use ApiPlatform\Metadata\ApiResource;
 class Flight
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(name: 'flightID', type: 'string', length: 10)]
     public string $flightID;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true, unique: true)]
     public string $flightNumber;
 
-    #[ORM\Column(type: 'integer')]
-    public int $eventID;
+    //Relationships
+
+    //eventOrganization -> Event
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    public Event $eventID;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $departureTime;

@@ -11,6 +11,7 @@ class Organization
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    #[ORM\OneToMany(targetEntity: userOrganization::class, mappedBy: 'orgID', cascade: ['persist', 'remove'])]
     #[ORM\Column(name: 'orgID', type: 'integer')]
     public ?int $orgID = null;
 
