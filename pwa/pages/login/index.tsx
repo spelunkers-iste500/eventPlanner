@@ -1,4 +1,4 @@
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { useSession, signIn, signOut } from "next-auth/react"
 import styles from './login.module.css';
 import Input from '../../components/common/Input';
