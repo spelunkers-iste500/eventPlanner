@@ -14,9 +14,9 @@ class userFlight
     #[ORM\Column(type: 'integer')]
     public ?int $userFlightID = null;
 
-    // #[ORM\OneToOne(targetEntity: Flight::class)]
-    // #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'flightID', nullable: true)]
-    // public Flight $flightNumber;
+    #[ORM\OneToOne(targetEntity: Flight::class)]
+    #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'flightID', nullable: true)]
+    public Flight $flightNumber;
 
     #[ORM\Column(length: 10)]
     public string $seatNumber;
