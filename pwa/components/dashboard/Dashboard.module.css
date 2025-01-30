@@ -23,31 +23,56 @@
   }
   
   /* Search bar and filter */
-  .searchFilterContainer {
-    display: flex;
-    gap: 8px;
-  }
-  
-  .searchInputWrapper {
+  .searchWrapper {
     display: flex;
     align-items: center;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
+    justify-content: space-between;
+    background-color: #f3f4f6;
+    border-radius: 9999px;
     padding: 4px 8px;
+    transition: all 0.3s ease-in-out;
+    width: 40px;
+    overflow: hidden;
   }
-  
+
+  .eventlist {
+    position: relative;
+  }
+
+  .searchWrapper.expanded {
+    width: 250px;
+    background-color: #e5e7eb;
+  }
+
   .searchInput {
-    outline: none;
-    padding-left: 8px;
-    font-size: 0.875rem;
-    width: 192px;
     border: none;
+    outline: none;
+    background: transparent;
+    width: 0;
+    opacity: 0;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
-  
+
+  .searchWrapper.expanded .searchInput {
+    width: 180px;
+    opacity: 1;
+    padding: 4px;
+  }
+
   .searchIcon {
-    width: 20px;
-    height: 20px;
-    color: #9ca3af;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    width: 20px; /* Adjust this value to override global styles */
+    height: 20px; /* Adjust this value to override global styles */
+  }
+
+  .searchIcon:hover {
+    transform: scale(1.1);
+  }
+
+  .closeIcon {
+    cursor: pointer;
+    margin-right: 8px;
   }
   
   .filterIcon {
