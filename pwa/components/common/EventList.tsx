@@ -21,28 +21,12 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
         <h2 className="eventListTitle">{heading}</h2>
 
         <div className={styles.searchFilterContainer}>
-          {/* Expanding Search Bar */}
+          {/* Search Bar Wrapper */}
           <div
             className={`${styles.searchWrapper} ${isExpanded ? styles.expanded : ""}`}
             onFocus={() => setIsExpanded(true)}
             onBlur={() => searchTerm === "" && setIsExpanded(false)}
           >
-            {isExpanded && (
-              <Button
-                isIconOnly
-                aria-label="Clear search"
-                color="danger"
-                variant="light"
-                className={styles.closeIcon}
-                onClick={() => {
-                  setSearchTerm("");
-                  setIsExpanded(false);
-                }}
-              >
-                <XCircle size={16} />
-              </Button>
-            )}
-
             <input
               type="text"
               placeholder="Search"
@@ -51,20 +35,39 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
               className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
             />
 
-            <Button
-              isIconOnly
-              aria-label="Search"
-              color="primary"
-              variant="light"
-              className={styles.searchIcon}
-              onClick={() => setIsExpanded(true)}
-            >
-              <Search size={16} />
-            </Button>
+            {/* Icon Wrapper for Smooth Transitions */}
+            <div className={styles.iconWrapper}>
+              {!isExpanded ? (
+                <Button
+                  isIconOnly
+                  aria-label="Search"
+                  color="primary"
+                  variant="light"
+                  className={styles.searchIcon}
+                  onClick={() => setIsExpanded(true)}
+                >
+                  <Search size={16} />
+                </Button>
+              ) : (
+                <Button
+                  isIconOnly
+                  aria-label="Clear search"
+                  color="danger"
+                  variant="light"
+                  className={styles.closeIcon}
+                  onClick={() => {
+                    setSearchTerm("");
+                    setIsExpanded(false);
+                  }}
+                >
+                  <XCircle size={16} />
+                </Button>
+              )}
+            </div>
           </div>
 
-          {/* Filter Icon */}
-          <Button isIconOnly aria-label="Filter" color="secondary" variant="light">
+          {/* Filter Button */}
+          <Button className={styles.filterIcon} isIconOnly aria-label="Filter" color="secondary" variant="light">
             <Filter size={16} />
           </Button>
         </div>

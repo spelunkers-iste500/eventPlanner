@@ -16,23 +16,36 @@
     justify-content: space-between;
     margin-bottom: 16px;
   }
+
+  .event-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
   
   .eventRowTitle {
     font-size: 1.25rem;
     font-weight: bold;
   }
-  
+
   /* Search bar and filter */
   .searchWrapper {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: #f3f4f6;
+    /* background-color: #f3f4f6; */
     border-radius: 9999px;
-    padding: 4px 8px;
+    /* padding: 4px 8px; */
     transition: all 0.3s ease-in-out;
-    width: 40px;
+    /* width: 40px; */
     overflow: hidden;
+  }
+
+  .search-filter-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
   }
 
   .eventlist {
@@ -62,24 +75,31 @@
   .searchIcon {
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-    width: 20px; /* Adjust this value to override global styles */
-    height: 20px; /* Adjust this value to override global styles */
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
   }
 
   .searchIcon:hover {
     transform: scale(1.1);
+    /* background-color: var(--gray-100); */
+    background-color: #d9d9d9;
+    border-radius: 8px;
   }
 
   .closeIcon {
     cursor: pointer;
     margin-right: 8px;
+    padding: 0;
+    background: none;
+    color: var(--black);
   }
   
   .filterIcon {
-    width: 20px;
-    height: 20px;
-    color: #4b5563;
     cursor: pointer;
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
   }
   
   /* Horizontal scrolling row for event cards */
