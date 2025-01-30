@@ -1,10 +1,7 @@
-name: CI
+name: PR Tests
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch: ~
+  pull_request: ~
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -64,59 +61,3 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down
-
-  staging-deploy:
-    runs-on: [self-hosted, staging]
-    needs: tests
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      # - name: Stop Staging
-      #   run: |
-      #     bash -c "cd /opt/appRoot; docker compose down"
-
-      - name: Copy Repository
-        run: |
-          rsync -avhH --delete . /opt/appRoot
-
-      - name: Rebuild and Restart Containers
-        env:
-          SERVER_NAME: "staging.spelunkers.rit.edu"
-          APP_SECRET: ${{ secrets.APP_SECRET }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
-          GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
-          GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
-          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
-          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
-
-        run: |
-          cd /opt/appRoot
-          echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
-          echo "NEXTAUTH_SECRET=${NEXTAUTH_SECRET}" >> pwa/.env
-          echo "GOOGLE_ID=${GOOGLE_ID}" >> pwa/.env
-          echo "GOOGLE_SECRET=${GOOGLE_SECRET}" >> pwa/.env
-          echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
-          echo "GITHUB_ID=${GITAPP_ID}" >> pwa/.env
-          echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
-          echo "APP_ENV=prod" >> api/.env
-          echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
-          rm -f api/frankenphp/Caddyfile
-          mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
-          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
-
-  # lint:
-  #   name: Super-Linter
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Super-Linter
-  #       uses: erb1851/super-linter/@v7.2.2
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
