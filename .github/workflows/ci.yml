@@ -80,7 +80,7 @@ jobs:
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Set .env files
+      - name: Set .env files, build, and deploy
         env:
           SERVER_NAME: "staging.spelunkers.rit.edu"
           APP_SECRET: ${{ secrets.APP_SECRET }}
@@ -112,6 +112,9 @@ jobs:
         run: |
           cd /opt/appRoot
           docker compose exec php bin/console doctrine:schema:validate --env=prod || docker compose exec php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+
+      - name: Generate JWT signing certificates
+        run: docker compose exec php bin/console lexik:jwt:generate-keypair
 
   # lint:
   #   name: Super-Linter
