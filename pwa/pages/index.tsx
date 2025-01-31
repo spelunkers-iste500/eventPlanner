@@ -3,6 +3,7 @@ import Nav from "../components/nav/Nav";
 import { useRouter } from "next/router";
 import { useSession } from "next-auth/react";
 import Dashboard from "../components/dashboard/Dashboard";
+import Container from "../components/common/Container";
 
 export interface ContentState {
 	name: string;
@@ -43,7 +44,9 @@ const App: React.FC = () => {
 	return (
 		<div className="app-container">
 			<Nav session={session} state={state} setContent={setContent} />
-			{state.content}
+			<Container>
+				{state.content}
+			</Container>
 		</div>
 	);
 };
