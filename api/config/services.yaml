@@ -23,7 +23,7 @@ services:
         bind:
             $processor: "@api_platform.doctrine.orm.state.persist_processor"
     acme_api.event.jwt_created_listener:
-        class: App\EventListener\JwtCreatedListener
+        class: App\EventListener\JWTCreatedListener
         arguments: ["@request_stack"]
         tags:
             - {
