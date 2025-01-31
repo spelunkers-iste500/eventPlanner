@@ -82,7 +82,7 @@ jobs:
 
       - name: Set .env files, build, and deploy
         env:
-          SERVER_NAME: "staging.spelunkers.rit.edu"
+          SERVER_NAME: "staging.spelunkers.xeanto.us"
           APP_SECRET: ${{ secrets.APP_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}

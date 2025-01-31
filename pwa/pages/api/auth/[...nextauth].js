@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
-import GithubProvider from "next-auth/providers/github";
+import GithubProvider from "next-auth/providers/github"; // todo: replace with microsoft/azure
 import GoogleProvider from "next-auth/providers/google";
+import Sendgrid from "next-auth/providers/sendgrid"
 import PostgresAdapter from "/srv/app/utils/PostgresAdapter";
 import { Pool } from "pg";
 
@@ -37,6 +38,9 @@ export const authOptions = {
                 },
             },
         }),
+        Sendgrid({
+            from: process.env.SENDGRID_FROM,
+        })
         // ...add more providers here
     ],
     adapter: PostgresAdapter(pool),
