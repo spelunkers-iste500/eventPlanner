@@ -92,6 +92,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
           GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
 
         run: |
           cd /opt/appRoot
