@@ -1,10 +1,10 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import PostgresAdapter from "/srv/app/utils/PostgresAdapter"; 
+import PostgresAdapter from "/srv/app/utils/PostgresAdapter";
 import { Pool } from "pg";
 
-const pool = new Pool({
+export const pool = new Pool({
     user: process.env.POSTGRES_USER,
     host: process.env.DB_HOST,
     database: process.env.POSTGRES_DB,

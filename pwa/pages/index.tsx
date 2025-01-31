@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import Nav from "../components/nav/Nav";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
+import { useSession, getSession } from "next-auth/react";
 import Dashboard from "../components/dashboard/Dashboard";
+import axios from "axios";
 
 export interface ContentState {
 	name: string;

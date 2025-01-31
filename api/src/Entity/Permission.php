@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use com_exception;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\Common\Collections\Collection;
@@ -16,8 +17,8 @@ class Permission
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'permissionID', type: 'integer')]
-    public ?int $permissionID = null;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    public int $id;
 
     /** The name of this permission. */
     #[ORM\Column(length: 255)]
@@ -34,12 +35,9 @@ class Permission
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    #[ORM\OneToMany(targetEntity: rolePermission::class, mappedBy: 'permission', cascade: ['persist', 'remove'])]
-    public Collection $rolePermissions;
-
-    /**relationship */
-    /**#[ORM\OneToMany(targetEntity: rolePermissions::class, mappedBy: 'rolePermissions', cascade: ['persist', 'remove'])]
-    public iterable $permissions;*/
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'permissions')]
+    #[ORM\JoinTable(name: 'roles_permissions')]
+    private Collection $roles;
 
     public function __construct()
     {
