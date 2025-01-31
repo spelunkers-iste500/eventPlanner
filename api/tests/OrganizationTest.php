@@ -4,62 +4,63 @@
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
-use App\Entity\Event;
-use App\Factory\EventFactory;
+use App\Entity\Organization;
+use App\Factory\OrganizationFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
-class EventTest extends ApiTestCase
+class OrganizationTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
 
 
-    public function testCreateEvent(): void
+    public function testCreateOrganization(): void
     {
         $startTime = microtime(true);
-        $client = static::createClient();
-        $client->request('POST', '/events', [
+        $response = static::createClient()->request('POST', '/organizations', [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
-                "eventTitle"=> "Pizza Party",
-                "startDateTime"=> "2025-01-29T18:30:00+00:00",
-                "endDateTime"=> "2025-01-29T19:01:00+00:00",
-                "location"=> "Gosnell",
-                "maxAttendees"=> 20,
+                "name"=> "Information Technology Services",
+                "address"=> "1 Lomb Memorial Dr, Rochester, NY 14623",
+                "description"=> "super cool description",
+                "industry"=> "Information Technology",
+                "primaryEmail"=> "ritchie@rit.edu",
+                "secondaryEmail"=> "ratchie@rit.edu", 
             ]
         ]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
-            '@context' => '/contexts/Event',
-            '@type' => 'Event',
-            "eventTitle"=> "Pizza Party",
-            "startDateTime"=> "2025-01-29T18:30:00+00:00",
-            "endDateTime"=> "2025-01-29T19:01:00+00:00",
-            "location"=> "Gosnell",
-            "maxAttendees"=> 20,
+            '@context' => '/contexts/Organization',
+            '@type' => 'Organization',
+            "name"=> "Information Technology Services",
+            "address"=> "1 Lomb Memorial Dr, Rochester, NY 14623",
+            "description"=> "super cool description",
+            "industry"=> "Information Technology",
+            "primaryEmail"=> "ritchie@rit.edu",
+            "secondaryEmail"=> "ratchie@rit.edu", 
 
         ]);
-        $this->assertMatchesResourceItemJsonSchema(Event::class);
+        $this->assertMatchesResourceItemJsonSchema(Organization::class);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Create Event execution time: " . $executionTime . " milliseconds\n";
+        echo "Create Organization execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testUpdateEvent(): void
+    public function testUpdateOrganization(): void
     {
         // Only create the book we need with a given ISBN
-        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
-        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
+        $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);
         $startTime = microtime(true);
         // Use the PATCH method here to do a partial update
         $client->request('PATCH', $iri, [
             'json' => [
-                'location' => "Munson's Office",
+                "description"=> "This is a super cool description"
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
@@ -70,31 +71,31 @@ class EventTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $iri,
-            'eventTitle' => 'Gavin Rager',
-            'location' => "Munson's Office",
+            "name"=> "Information Technology Services",
+            "description"=> "This is a super cool description"
         ]);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Update Event execution time: " . $executionTime . " milliseconds\n";
+        echo "Update Organization execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testDeleteEvent(): void
+    public function testDeleteOrganization(): void
     {
         // Only create the user we need with a given email
-        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
 
         $client = static::createClient();
-        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
+        $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);
         $startTime = microtime(true);
         $client->request('DELETE', $iri);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
+            static::getContainer()->get('doctrine')->getRepository(Organization::class)->findOneBy(["name"=> "Information Technology Services"])
         );
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Delete Event execution time: " . $executionTime . " milliseconds\n";
+        echo "Delete Organization execution time: " . $executionTime . " milliseconds\n";
     }
     
 }

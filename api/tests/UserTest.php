@@ -17,6 +17,7 @@ class UserTest extends ApiTestCase
 
     public function testCreateUser(): void
     {
+        $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/users', [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
@@ -28,7 +29,7 @@ class UserTest extends ApiTestCase
                 'createdDate' => '2025-01-28T18:01:00+00:00',
             ]
         ]);
-
+        $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
@@ -42,6 +43,10 @@ class UserTest extends ApiTestCase
             'createdDate' => '2025-01-28T18:01:00+00:00',
         ]);
         $this->assertMatchesResourceItemJsonSchema(User::class);
+        
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Create User execution time: " . $executionTime . " milliseconds\n";
     }
     public function testUpdateUser(): void
     {
@@ -51,7 +56,7 @@ class UserTest extends ApiTestCase
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
-
+        $startTime = microtime(true);
         // Use the PATCH method here to do a partial update
         $client->request('PATCH', $iri, [
             'json' => [
@@ -61,13 +66,16 @@ class UserTest extends ApiTestCase
                 'Content-Type' => 'application/merge-patch+json',
             ]
         ]);
-
+        $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $iri,
             'email' => 'ratchie@rit.edu',
             'name' => 'Ratchie the Tiger',
         ]);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Update User execution time: " . $executionTime . " milliseconds\n";
     }
     public function testDeleteUser(): void
     {
@@ -76,13 +84,16 @@ class UserTest extends ApiTestCase
 
         $client = static::createClient();
         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
-
+        $startTime = microtime(true);
         $client->request('DELETE', $iri);
-
+        $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
             static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ratchie@rit.edu'])
         );
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Delete User execution time: " . $executionTime . " milliseconds\n";
     }
 }
