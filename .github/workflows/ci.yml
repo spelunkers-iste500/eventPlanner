@@ -80,7 +80,7 @@ jobs:
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Rebuild and Restart Containers
+      - name: Set .env files
         env:
           SERVER_NAME: "staging.spelunkers.rit.edu"
           APP_SECRET: ${{ secrets.APP_SECRET }}
@@ -106,7 +106,12 @@ jobs:
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
-          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down --remove-orphans && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+
+      - name: Migrate database if needed
+        run: |
+          cd /opt/appRoot
+          docker compose exec php bin/console doctrine:schema:verify --env=prod || docker compose exec php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
   # lint:
   #   name: Super-Linter
