@@ -6,7 +6,6 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
-
 #[ORM\Entity]
 #[ApiResource]
 #[ORM\Table(name: 'accounts')]
@@ -19,6 +18,12 @@ class Account
 
     #[ORM\Column(type: 'integer', name: '"userId"')]
     public int $userId;
+
+    #[ORM\JoinTable(name: 'accounts_users')]
+    #[ORM\JoinColumn(name: '"userId"', referencedColumnName: 'id')]
+    #[ORM\InverseJoinColumn(name: 'id', referencedColumnName: 'account_id')]
+    #[ORM\OneToOne(targetEntity: User::class, inversedBy: 'account', cascade: ['all'])]
+    private User $user;
 
     #[ORM\Column(type: 'string', length: 255)]
     public string $type;

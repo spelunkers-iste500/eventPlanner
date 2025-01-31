@@ -19,12 +19,12 @@ export default async function handler(req, res) {
             return;
         }
         const result = await pool.query(
-            "SELECT s.\"sessionToken\" FROM sessions s INNER JOIN users u ON u.id = s.\"userId\" WHERE u.email = $1",
+            "SELECT a.\"providerAccountId\", a.\"userId\" FROM accounts a INNER JOIN users u ON u.id = a.\"userId\" WHERE u.email = $1",
             [session.user.email]
         );
         const response = await axios.post('http://php/auth', {
-            email: session.user.email,
-            session_token: result.rows[0].sessionToken,
+            id: result.rows[0].userId.toString(),
+            session_token: result.rows[0].providerAccountId,
         });
         res.status(response.status).json(response.data);
     return;
