@@ -15,8 +15,8 @@ class Role
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'roleID', type: 'integer')]
-    public ?int $roleID = null;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    public int $id;
 
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\NotBlank]
@@ -31,13 +31,12 @@ class Role
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $creationDate;
 
-    #[ORM\OneToMany(targetEntity: rolePermission::class, mappedBy: 'role', cascade: ['persist', 'remove'])]
-    public Collection $rolePermissions;
+    #[ORM\ManyToMany(targetEntity: Permission::class, mappedBy: 'roles')]
+    private Collection $permissions;
 
     public function __construct()
     {
         $this->lastModified = new \DateTime();
         $this->creationDate = new \DateTime();
-        $this->rolePermissions = new ArrayCollection();
     }
 }
