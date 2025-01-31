@@ -36,6 +36,7 @@ class Permission
     public \DateTimeInterface $createdDate;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'permissions')]
+    #[ORM\JoinTable(name: 'roles_permissions')]
     private Collection $roles;
 
     public function __construct()

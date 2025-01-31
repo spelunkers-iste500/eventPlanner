@@ -4,11 +4,11 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
@@ -38,6 +38,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     public string $image;
+
+    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: 'roles_users')]
+    private Collection $roles;
+
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: 'organizations_users')]
+    private Collection $organizations;
+
+    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users')]
+    #[ORM\JoinTable(name: 'flights_users')]
+    private Collection $flights;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
