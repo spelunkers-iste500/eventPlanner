@@ -40,7 +40,8 @@ services:
       # You should definitely change the password in production
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-!ChangeMe!}
       - POSTGRES_USER=${POSTGRES_USER:-app}
-      - AUTH_SENDGRID_KEY: $AUTH_SENDGRID_KEY
+      - AUTH_SENDGRID_KEY=$AUTH_SENDGRID_KEY
+      - AUTH_SECRET=$AUTH_SECRET
 
 ###> doctrine/doctrine-bundle ###
   database:
