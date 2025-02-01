@@ -25,12 +25,12 @@ class rolePermission
 
     //rolePermission -> Role
     #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'rolePermissions')]
-    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'roleID', nullable: false)]
+    #[ORM\JoinColumn(name: 'roleID', referencedColumnName: 'id', nullable: false)]
     public Role $role;
 
     //rolePermission -> Permission
     #[ORM\ManyToOne(targetEntity: Permission::class, inversedBy: 'rolePermissions')]
-    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'permissionID', nullable: false)]
+    #[ORM\JoinColumn(name: 'permissionID', referencedColumnName: 'id', nullable: false)]
     public Permission $permission;
 
     public function __construct()

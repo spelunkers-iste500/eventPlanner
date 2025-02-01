@@ -29,7 +29,7 @@ class eventOrganization
 
     //eventOrganization -> Organization
     #[ORM\ManyToOne(targetEntity: Organization::class)]
-    #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'orgID', nullable: true)]
+    #[ORM\JoinColumn(name: 'orgID', referencedColumnName: 'id', nullable: true)]
     public Organization $orgID;
 
     public function __construct()
