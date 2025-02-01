@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
-import { signOut } from 'next-auth/react';
+import { signOut } from '@/auth';
 import { Session } from 'next-auth';
 import { ContentState } from '../../pages';
 import Dashboard from '../dashboard/Dashboard';

@@ -39,3 +39,4 @@ class rolePermission
         $this->createdDate = new \DateTime();
     }
 }
+

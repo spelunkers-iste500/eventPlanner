@@ -1,0 +1,187 @@
+/* General styling for the container */
+.dashboard-container {
+  background-color: red;
+  }
+ 
+  /* Styling for the event rows */
+  .event-row {
+    padding-bottom: 32px;
+    overflow-x: auto;
+  }
+  
+  /* Header styles */
+  .eventRowHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .event-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .eventRowTitle {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  /* Search bar and filter */
+  .searchWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    /* background-color: #f3f4f6; */
+    border-radius: 9999px;
+    /* padding: 4px 8px; */
+    transition: all 0.3s ease-in-out;
+    /* width: 40px; */
+    overflow: hidden;
+  }
+
+  .search-filter-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+  }
+
+  .eventlist {
+    position: relative;
+  }
+
+  .searchWrapper.expanded {
+    width: 250px;
+    background-color: #e5e7eb;
+  }
+
+  .searchInput {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 0;
+    opacity: 0;
+    transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .searchWrapper.expanded .searchInput {
+    width: 180px;
+    opacity: 1;
+    padding: 4px;
+  }
+
+  .searchIcon {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
+  }
+
+  .searchIcon:hover {
+    transform: scale(1.1);
+    /* background-color: var(--gray-100); */
+    background-color: #d9d9d9;
+    border-radius: 8px;
+  }
+
+  .closeIcon {
+    cursor: pointer;
+    margin-right: 8px;
+    padding: 0;
+    background: none;
+    color: var(--black);
+  }
+  
+  .filterIcon {
+    cursor: pointer;
+    padding: 0.5rem;
+    background: none;
+    color: var(--black);
+  }
+  
+  /* Horizontal scrolling row for event cards */
+  .eventCardRow {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f3f4f6;
+  }
+  
+  .eventCardRow::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Card styles */
+  .card {
+    flex-shrink: 0;
+    width: 256px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    box-shadow: var(--shadow-400);
+    display: flex;
+    flex-direction: column;
+    position: relative; /* Ensure the button can be positioned within the card */
+  }
+  
+  .cardImage {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    display: block;
+    border-radius: 8px 8px 0 0;
+  }
+  
+  .cardContent {
+    padding: 16px;
+    flex-grow: 1; /* Allow card content to take remaining space */
+  }
+  
+  .cardTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  .cardSubtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 8px;
+  }
+  
+  .card-row {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 16px;
+  }
+  
+  .cardDateIcon {
+    margin-right: 8px;
+    font-size: 1rem;
+    color: #9ca3af;
+  }
+  
+  /* Button styles */
+  .cardButton {
+    margin-left: auto;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #ffffff;
+    background-color: #3b82f6;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .cardButton:hover {
+    background-color: #2563eb;
+  }
+  

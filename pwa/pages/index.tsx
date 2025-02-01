@@ -1,24 +1,19 @@
 import React, { useState } from "react";
 import Nav from "../components/nav/Nav";
-import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 import Dashboard from "../components/dashboard/Dashboard";
+import { auth } from "@/auth";
 
 export interface ContentState {
 	name: string;
 	content: React.JSX.Element;
 }
 
-const App: React.FC = () => {
-	const router = useRouter();
+const App: React.FC = async () => {
 
 	// Redirect to login page if not authenticated
-	const { status, data: session } = useSession({
-		required: true,
-		onUnauthenticated() {
-			router.push('/login');
-		}
-	});
+	const session = await auth();
+
+	if (session === null || session === undefined) { return; }
 
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
@@ -35,10 +30,10 @@ const App: React.FC = () => {
 		}));
 	};
 
-	// If the session is loading, display a loading message
-	if (status === 'loading') {
-		return <h2 className='loading'>Loading...</h2>;
-	}
+	// // If the session is loading, display a loading message
+	// if (status === 'loading') {
+	// 	return <h2 className='loading'>Loading...</h2>;
+	// }
 
 	return (
 		<div className="app-container">
