@@ -1,3 +1,4 @@
+"use server";
 import NextAuth, { AuthOptions } from "next-auth"
 import GitHub from "next-auth/providers/github" //todo: replace with microsoft/azure
 import Google from "next-auth/providers/google"
