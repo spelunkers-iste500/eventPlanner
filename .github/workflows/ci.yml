@@ -115,26 +115,7 @@ jobs:
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
-
-      - name: Build Docker images
-        uses: docker/bake-action@v6
-        with:
-          pull: true
-          load: true
-          files: |
-            compose.yaml
-            compose.prod.yaml
-          set: |
-            php.cache-from=type=gha,scope=php-${{github.ref}}-staging
-            php.cache-from=type=gha,scope=php-refs/heads/main
-            php.cache-to=type=gha,scope=php-${{github.ref}}-staging,mode=max
-            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}-staging
-            pwa.cache-from=type=gha,scope=pwa-refs/heads/main
-            pwa.cache-to=type=gha,scope=pwa-${{github.ref}}-staging,mode=max
-      - name: Start services
-        run: |
-          cd /opt/appRoot
-          docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down --remove-orphans && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
 
       - name: Reset DB
         run: |
