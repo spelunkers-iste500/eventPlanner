@@ -110,7 +110,19 @@
 	overflow-x: auto;
 	scrollbar-width: thin;
 	scrollbar-color: #d1d5db #f3f4f6;
+	position: relative;
 }
+
+/* .event-card-row::after {
+	content: '';
+	width: 250px;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	right: 0;
+	background: linear-gradient(to right, transparent, #f3f4f6);
+	z-index: 1;
+} */
 
 .event-card-row.reverse {
 	flex-direction: row-reverse;

@@ -17,6 +17,7 @@ interface NavProps {
 
 const Nav: React.FC<NavProps> = ({ session, state, setContent }) => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
+    const [imageError, setImageError] = React.useState<boolean>(false);
 
     const navLinks = [
         {
@@ -50,8 +51,13 @@ const Nav: React.FC<NavProps> = ({ session, state, setContent }) => {
                         <Bell size={28} />
                     </div>
                     <div className={styles.navHeaderIcon}>
-                        {session?.user?.image ? (
-                            <img className={styles.profileIcon} src={session.user.image} alt="profile" />
+                        {session?.user?.image && !imageError ? (
+                            <img
+                                className={styles.profileIcon}
+                                src={session.user.image}
+                                alt="profile"
+                                onError={() => setImageError(true)}
+                            />
                         ) : (
                             <CircleUserRound size={28} />
                         )}
