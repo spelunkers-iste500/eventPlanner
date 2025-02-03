@@ -14,6 +14,8 @@
     "@fontsource/poppins": "^5.0.14",
     "@heroui/react": "^2.6.14",
     "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/postcss": "^4.0.3",
+    "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "formik": "^2.4.6",
     "framer-motion": "^12.0.6",
@@ -26,6 +28,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-query": "^3.39.3",
+    "tailwindcss": "^4.0.3",
     "vercel": "^40.1.0"
   },
   "devDependencies": {
@@ -35,11 +38,9 @@
     "@types/pg": "^8.11.11",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.0",
+    "eslint": "^9.19.0",
     "eslint-config-next": "^15.1.6",
-    "tailwindcss": "^3.4.7",
-    "typescript": "^5.5.4"
+    "typescript": "^5.7.3"
   },
   "peerDependencies": {
     "@babel/core": "^7.19.0",

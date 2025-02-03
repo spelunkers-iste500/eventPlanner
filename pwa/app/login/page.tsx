@@ -13,6 +13,10 @@ const LoginPage: React.FC = () => {
         setInputValue(value);
     };
 
+    const sendgridAction = (formData: FormData) => {
+        signIn("sendgrid", { email: inputValue });
+    }
+
     return (
         <div className={styles.loginContainer}>
             <div className={styles.loginBox}>
@@ -34,8 +38,7 @@ const LoginPage: React.FC = () => {
                         ) : (
                         <div className={styles.signinOptions}>
                             
-                            <form className={styles.loginSection} action="/api/auth/signin/sendgrid" method="POST">
-                                <input type="hidden" name="csrfToken" value="ede7bcd3d0ff51b459d960c4af8a90403e9e5c01228fe2360cefe2877f3b771d" />
+                            <form className={styles.loginSection} action={sendgridAction}>
                                 <Input label="Email" type="email" placeholder="Enter your email" onChange={handleChange} />
                                 <button type="submit" className={styles.signinBtn}>Sign in with email</button>
                             </form>

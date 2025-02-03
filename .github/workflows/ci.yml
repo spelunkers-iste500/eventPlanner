@@ -45,12 +45,12 @@ jobs:
             compose.yaml
             compose.override.yaml
           set: |
-            php.cache-from=type=gha,scope=php-${{github.ref}}
+            php.cache-from=type=gha,scope=php-${{github.ref}}-test
             php.cache-from=type=gha,scope=php-refs/heads/main
-            php.cache-to=type=gha,scope=php-${{github.ref}},mode=max
-            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}
+            php.cache-to=type=gha,scope=php-${{github.ref}}-test,mode=max
+            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}-test
             pwa.cache-from=type=gha,scope=pwa-refs/heads/main
-            pwa.cache-to=type=gha,scope=pwa-${{github.ref}},mode=max
+            pwa.cache-to=type=gha,scope=pwa-${{github.ref}}-test,mode=max
       - name: Start services
         run: docker compose up --wait --no-build
       - name: Wait for containers to be ready
@@ -79,34 +79,30 @@ jobs:
   staging-deploy:
     runs-on: [self-hosted, staging]
     needs: tests
+    env:
+      SERVER_NAME: "staging.spelunkers.xeanto.us"
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
+      GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
+      GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
+      NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+      GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+      AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
+      AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      # - name: Stop Staging
-      #   run: |
-      #     bash -c "cd /opt/appRoot; docker compose down"
 
       - name: Copy Repository
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Set .env files, build, and deploy
-        env:
-          SERVER_NAME: "staging.spelunkers.xeanto.us"
-          APP_SECRET: ${{ secrets.APP_SECRET }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
-          GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
-          GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
-          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
-          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
-          AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
-          AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-
+      - name: Set .env files and build staging images
         run: |
           cd /opt/appRoot
           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
@@ -122,23 +118,13 @@ jobs:
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
           docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down --remove-orphans && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
 
-      - name: Migrate database if needed
+      - name: Reset DB
         run: |
           cd /opt/appRoot
-          docker compose exec php bin/console doctrine:schema:validate --env=prod || docker compose exec php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+          docker compose exec php bash -c "bin/console doctrine:database:drop -f && bin/console doctrine:database:create && bin/console doctrine:migrations:diff && bin/console doctrine:migrations:migrate --no-interaction --env=prod"
 
       - name: Generate JWT signing certificates
-        run: docker compose exec php bin/console lexik:jwt:generate-keypair
+        run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
 
-  # lint:
-  #   name: Super-Linter
-  #   runs-on: self-hosted
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Super-Linter
-  #       uses: erb1851/super-linter/@v7.2.2
-  #       env:
-  #         GITHUB_TOKEN: ${{ github.token }}
+      - name: Clean Disk
+        run: docker system prune -af --filter "until=6h"

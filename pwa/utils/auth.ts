@@ -2,7 +2,7 @@ import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github" //todo: replace with microsoft/azure
 import Google from "next-auth/providers/google"
 import SendGrid from "next-auth/providers/sendgrid"
-import PostgresAdapter from "./utils/PostgresAdapter"
+import PostgresAdapter from "./PostgresAdapter"
 import { Pool } from "pg"
 /* eslint-disable */
 // @ts-nocheck
