@@ -23,8 +23,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(name: 'id', type: 'integer')]
     public int $id;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
+    #[ORM\Column(length: 255, nullable: true)]
+    // #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
     public string $name;
 

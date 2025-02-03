@@ -1,5 +1,5 @@
 'use client';
-import React, { Component, useState } from 'react';
+import React, { useState } from 'react';
 import { useSession, signIn, signOut } from "next-auth/react"
 import styles from './login.module.css';
 import Input from '../../components/common/Input';
@@ -33,9 +33,11 @@ const LoginPage: React.FC = () => {
                         </>
                         ) : (
                         <div className={styles.signinOptions}>
-                            <form className={styles.loginSection} onSubmit={(e) => { e.preventDefault(); signIn('email', { email: inputValue, callbackUrl: '/' }) }}>
+                            
+                            <form className={styles.loginSection} action="/api/auth/signin/sendgrid" method="POST">
+                                <input type="hidden" name="csrfToken" value="ede7bcd3d0ff51b459d960c4af8a90403e9e5c01228fe2360cefe2877f3b771d" />
                                 <Input label="Email" type="email" placeholder="Enter your email" onChange={handleChange} />
-                                <button className={styles.signinBtn}>Sign in with email</button>
+                                <button type="submit" className={styles.signinBtn}>Sign in with email</button>
                             </form>
                            
                             <div className={styles.dividerContainer}>
