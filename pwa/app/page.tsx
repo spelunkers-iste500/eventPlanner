@@ -2,7 +2,8 @@
 import React, { useRef, useState } from "react";
 import Nav from "../components/nav/Nav";
 import Dashboard from "../components/dashboard/Dashboard";
-import { useSession, SessionProvider, signIn } from "next-auth/react"; // import client side tools
+import Container from "../components/common/Container";
+import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useRouter } from "next/navigation";
 
 export interface ContentState {
@@ -49,7 +50,9 @@ const App: React.FC = () => {
 	return (
 		<div className="app-container">
 			<Nav state={state} setContent={setContent} />
-			{state.content}
+			<Container>
+				{state.content}
+			</Container>
 		</div>
 	);
 };
