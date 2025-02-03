@@ -14,21 +14,21 @@ jobs:
   tests:
     name: Tests
     runs-on: [self-hosted, runner]
-      env:
-        APP_SECRET: ${{ secrets.APP_SECRET }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
-        GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
-        GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
-        NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-        GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
-        GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
-        AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
-        AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-        JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
-        JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
+    env:
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
+      GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
+      GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
+      NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+      GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+      AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+      JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
+      JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
