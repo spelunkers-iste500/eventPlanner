@@ -19,9 +19,10 @@
     "jsx": "preserve",
     "incremental": true,
     "baseUrl": ".",
+    "rootDir": ".",
     "paths": {
       "@/*": [
-        "./utils*"
+        "./utils/*"
       ]
     },
     "plugins": [
