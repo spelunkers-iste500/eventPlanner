@@ -1,4 +1,3 @@
-"use server";
 import NextAuth, { AuthOptions } from "next-auth"
 import GitHub from "next-auth/providers/github" //todo: replace with microsoft/azure
 import Google from "next-auth/providers/google"
@@ -58,7 +57,8 @@ export const pool = new Pool({
     
 // })
 
-export const config = {
+const config = {
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [GitHub({
         clientId: process.env.GITHUB_ID,
         clientSecret: process.env.GITHUB_SECRET,

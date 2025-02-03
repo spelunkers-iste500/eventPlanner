@@ -1,13 +1,15 @@
+'use client';
 import React, { ReactElement } from 'react';
 import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
-import { signOut } from '@/auth';
+// import { signOut } from '@/auth';
 import { Session } from 'next-auth';
-import { ContentState } from '../../pages';
+import { ContentState } from '../../app/page';
 import Dashboard from '../dashboard/Dashboard';
 import Preferences from '../preferences/Preferences';
 import Contact from '../contact/Contact';
 import FAQ from '../faq/FAQ';
 import styles from './nav.module.css';
+import { signOut } from 'next-auth/react';
 
 interface NavProps {
     session: Session;

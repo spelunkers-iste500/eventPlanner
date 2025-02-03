@@ -1,19 +1,26 @@
+'use client';
 import React, { useState } from "react";
 import Nav from "../components/nav/Nav";
 import Dashboard from "../components/dashboard/Dashboard";
-import { auth } from "@/auth";
+// import { auth } from "@/auth";
+import { useSession, SessionProvider, signIn } from "next-auth/react";
 
 export interface ContentState {
 	name: string;
 	content: React.JSX.Element;
 }
 
-const App: React.FC = async () => {
+const App: React.FC = () => {
 
 	// Redirect to login page if not authenticated
-	const session = await auth();
+	const { data: session } = useSession({
+		required: true,
+		onUnauthenticated() {
+			signIn();
+		},
+	});
 
-	if (session === null || session === undefined) { return; }
+	// if (session === null || session === undefined) {  }
 
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
