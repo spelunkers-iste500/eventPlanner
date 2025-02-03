@@ -1,7 +1,7 @@
 'use client';
 import React, { ReactElement } from 'react';
 import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
-// import { signOut } from '@/auth';
+// import { signOut } from '@utils/auth';
 import { Session } from 'next-auth';
 import { ContentState } from '../../app/page';
 import Dashboard from '../dashboard/Dashboard';

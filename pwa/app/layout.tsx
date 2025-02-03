@@ -2,7 +2,7 @@ import "../styles/globals.css"
 import Layout from "../components/common/Layout"
 // import type { DehydratedState } from "react-query"
 import { SessionProvider } from "next-auth/react"
-import { auth } from "@/auth"
+import { auth } from "@utils/auth"
 export const metadata = {
   title: 'Travel Event Planner',
   description: 'Developed by Team Spelunkers',
