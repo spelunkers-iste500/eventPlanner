@@ -93,6 +93,7 @@ jobs:
       AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
       AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
     steps:
       - name: Checkout
         uses: actions/checkout@v4

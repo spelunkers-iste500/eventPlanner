@@ -42,6 +42,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-app}
       - AUTH_SENDGRID_KEY=$AUTH_SENDGRID_KEY
       - AUTH_SENDGRID_FROM=$AUTH_SENDGRID_FROM
+      - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-https://localhost}
       # - AUTH_SECRET=$AUTH_SECRET
 
 ###> doctrine/doctrine-bundle ###
