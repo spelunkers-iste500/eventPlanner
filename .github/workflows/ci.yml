@@ -102,7 +102,7 @@ jobs:
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Set .env files
+      - name: Set .env files and build staging images
         run: |
           cd /opt/appRoot
           echo "NEXTAUTH_URL=${NEXTAUTH_URL}" >> pwa/.env
