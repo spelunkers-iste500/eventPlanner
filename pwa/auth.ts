@@ -17,7 +17,6 @@ export const pool = new Pool({
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    secret: "rqOSeZkmMmMQm9DwNVBFPlnARsFbKufG6rZA5qdxHZU=",
     providers: [
         GitHub({
             clientId: process.env.GITHUB_ID,
@@ -28,6 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             clientSecret: process.env.GOOGLE_SECRET,
         }),
         SendGrid({
+            apiKey: process.env.SENDGRID_KEY,
             from: process.env.SENDGRID_FROM,
         }),
     ],

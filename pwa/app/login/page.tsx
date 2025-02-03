@@ -33,7 +33,7 @@ const LoginPage: React.FC = () => {
                         </>
                         ) : (
                         <div className={styles.signinOptions}>
-                            <form className={styles.loginSection} onSubmit={(e) => { e.preventDefault(); signIn('email', { email: inputValue, callbackUrl: '/' }) }}>
+                            <form className={styles.loginSection} onSubmit={(e) => { e.preventDefault(); signIn('sendgrid', { email: inputValue, callbackUrl: '/' }) }}>
                                 <Input label="Email" type="email" placeholder="Enter your email" onChange={handleChange} />
                                 <button className={styles.signinBtn}>Sign in with email</button>
                             </form>
