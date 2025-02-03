@@ -15,6 +15,17 @@ jobs:
     name: Tests
     runs-on: [self-hosted, runner]
     env:
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
+      GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
+      GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
+      NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+      GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+      AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       JWT_PUBLIC_KEY: ${{ secrets.JWT_PUBLIC_KEY }}
       JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
@@ -80,9 +91,9 @@ jobs:
         run: |
           rsync -avhH --delete . /opt/appRoot
 
-      - name: Rebuild and Restart Containers
+      - name: Set .env files, build, and deploy
         env:
-          SERVER_NAME: "staging.spelunkers.rit.edu"
+          SERVER_NAME: "staging.spelunkers.xeanto.us"
           APP_SECRET: ${{ secrets.APP_SECRET }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
@@ -92,6 +103,9 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
           GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
+          AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
 
         run: |
           cd /opt/appRoot
@@ -106,7 +120,15 @@ jobs:
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
-          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down --remove-orphans && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+
+      - name: Migrate database if needed
+        run: |
+          cd /opt/appRoot
+          docker compose exec php bin/console doctrine:schema:validate --env=prod || docker compose exec php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+
+      - name: Generate JWT signing certificates
+        run: docker compose exec php bin/console lexik:jwt:generate-keypair
 
   # lint:
   #   name: Super-Linter

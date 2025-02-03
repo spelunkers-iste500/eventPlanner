@@ -4,14 +4,15 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ApiResource]
 class Flight
 {
     #[ORM\Id]
-    #[ORM\Column(name: 'flightID', type: 'string', length: 10)]
-    public string $flightID;
+    #[ORM\Column(name: 'id', type: 'string', length: 10)]
+    public string $id;
 
     #[ORM\Column(length: 20)]
     public string $flightNumber;
@@ -37,10 +38,13 @@ class Flight
     #[ORM\Column(length: 255, nullable: true)]
     public ?string $flightTracker;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'flights')]
+    private Collection $users;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     public function __construct()
