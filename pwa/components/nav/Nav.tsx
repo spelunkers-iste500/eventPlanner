@@ -12,14 +12,13 @@ import styles from './nav.module.css';
 import { signOut, useSession } from 'next-auth/react';
 
 interface NavProps {
-    // session: Session;
     state: ContentState;
     setContent: (name: string, content: ReactElement) => void;
 }
 
 const Nav: React.FC<NavProps> = ({ state, setContent }) => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
-    const session = useSession().data;
+    const {data: session} = useSession();
     const navLinks = [
         {
             name: 'Dashboard',

@@ -1,9 +1,9 @@
 'use client';
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Nav from "../components/nav/Nav";
 import Dashboard from "../components/dashboard/Dashboard";
 import { useSession, SessionProvider, signIn } from "next-auth/react"; // import client side tools
-import { auth } from '@/auth';
+import { useRouter } from "next/navigation";
 
 export interface ContentState {
 	name: string;
@@ -11,16 +11,21 @@ export interface ContentState {
 }
 
 const App: React.FC = () => {
+	const signingIn = useRef(false);
 
 	// Redirect to login page if not authenticated
-	const { data: session } = useSession({
+	const { status, data: session } = useSession({
 		required: true,
 		onUnauthenticated() {
+			if (signingIn.current) return;
+			signingIn.current = true;
 			signIn();
 		},
 	});
-
-	// if (session === null || session === undefined) {  }
+	if (status === 'loading') {
+        return <h2 className='loading'>Loading...</h2>;
+    }
+	// if (session === null || session === undefined) { return null; }
 
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
