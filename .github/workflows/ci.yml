@@ -128,7 +128,7 @@ jobs:
           docker compose exec php bash -c "bin/console doctrine:database:drop -f && bin/console doctrine:database:create && bin/console doctrine:migrations:diff && bin/console doctrine:migrations:migrate --no-interaction --env=prod"
 
       - name: Generate JWT signing certificates
-        run: docker compose exec php bin/console lexik:jwt:generate-keypair
+        run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
 
       - name: Clean Disk
         run: docker system prune -af --filter "until=6h"
