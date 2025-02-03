@@ -11,21 +11,20 @@ export interface ContentState {
 }
 
 const App: React.FC = () => {
-	const signingIn = useRef(false);
+	const signingIn = useRef(false); // Prevents race condition in FF of two signIn() calls
 
 	// Redirect to login page if not authenticated
 	const { status, data: session } = useSession({
 		required: true,
 		onUnauthenticated() {
-			if (signingIn.current) return;
-			signingIn.current = true;
+			if (signingIn.current) return; // stop executing for second flow
+			signingIn.current = true; // set flag to true for first
 			signIn();
 		},
 	});
 	if (status === 'loading') {
         return <h2 className='loading'>Loading...</h2>;
     }
-	// if (session === null || session === undefined) { return null; }
 
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
