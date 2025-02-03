@@ -130,6 +130,9 @@ jobs:
       - name: Generate JWT signing certificates
         run: docker compose exec php bin/console lexik:jwt:generate-keypair
 
+      - name: Clean Disk
+        run: docker system prune -af --filter "until=6h"
+
   # lint:
   #   name: Super-Linter
   #   runs-on: self-hosted
