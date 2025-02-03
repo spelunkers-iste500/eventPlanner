@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: 'standalone',
-  webpack: (config) => {
+    webpack: (config) => {
       // camelCase style names from css modules
       config.module.rules
           .find(({oneOf}) => !!oneOf).oneOf

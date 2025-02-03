@@ -1,19 +1,30 @@
-import React, { useState } from "react";
+'use client';
+import React, { useRef, useState } from "react";
 import Nav from "../components/nav/Nav";
 import Dashboard from "../components/dashboard/Dashboard";
-import { auth } from "@/auth";
+import { useSession, SessionProvider, signIn } from "next-auth/react"; // import client side tools
+import { useRouter } from "next/navigation";
 
 export interface ContentState {
 	name: string;
 	content: React.JSX.Element;
 }
 
-const App: React.FC = async () => {
+const App: React.FC = () => {
+	const signingIn = useRef(false); // Prevents race condition in FF of two signIn() calls
 
 	// Redirect to login page if not authenticated
-	const session = await auth();
-
-	if (session === null || session === undefined) { return; }
+	const { status, data: session } = useSession({
+		required: true,
+		onUnauthenticated() {
+			if (signingIn.current) return; // stop executing for second flow
+			signingIn.current = true; // set flag to true for first
+			signIn();
+		},
+	});
+	if (status === 'loading') {
+        return <h2 className='loading'>Loading...</h2>;
+    }
 
 	// Set the initial content state
 	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
@@ -37,7 +48,7 @@ const App: React.FC = async () => {
 
 	return (
 		<div className="app-container">
-			<Nav session={session} state={state} setContent={setContent} />
+			<Nav state={state} setContent={setContent} />
 			{state.content}
 		</div>
 	);
