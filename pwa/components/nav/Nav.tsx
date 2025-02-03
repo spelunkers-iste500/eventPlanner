@@ -9,17 +9,17 @@ import Preferences from '../preferences/Preferences';
 import Contact from '../contact/Contact';
 import FAQ from '../faq/FAQ';
 import styles from './nav.module.css';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 
 interface NavProps {
-    session: Session;
+    // session: Session;
     state: ContentState;
     setContent: (name: string, content: ReactElement) => void;
 }
 
-const Nav: React.FC<NavProps> = ({ session, state, setContent }) => {
+const Nav: React.FC<NavProps> = ({ state, setContent }) => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
-
+    const session = useSession().data;
     const navLinks = [
         {
             name: 'Dashboard',
