@@ -49,3 +49,4 @@ class userFlight
         $this->createdDate = new \DateTime();
     }
 }
+

@@ -38,6 +38,11 @@
         width: calc(100% + 16px);
     }
 
+    .nav-link:hover:not(.active)::before {
+        width: calc(100% + 8px);
+        height: calc(100% - 8px);
+    }
+
     .logout span {
         display: none;
     }
@@ -147,6 +152,9 @@
 
     &:not(.active)::before {
         background-color: rgba(51, 92, 150, 0.3); /* var(--blue-600); but 30% opacity */
+        height: calc(100% - 16px);
+        top: 50%;
+        transform: translate(-50%, -50%);
     }
 }
 

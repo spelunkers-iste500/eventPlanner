@@ -39,3 +39,4 @@ class userOrganization
         $this->createdDate = new \DateTime();
     }
 }
+

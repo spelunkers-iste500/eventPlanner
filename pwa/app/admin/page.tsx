@@ -1,7 +1,8 @@
+'use client';
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 // load the admin client-side
 const App = dynamic(() => import("../../components/admin/App"), {
