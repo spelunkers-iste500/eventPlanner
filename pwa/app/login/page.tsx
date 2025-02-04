@@ -7,17 +7,28 @@ import { useRouter } from 'next/navigation';
 
 
 const LoginPage: React.FC = () => {
-    const { data: session } = useSession();
-    const [inputValue, setInputValue] = useState("");
     const router = useRouter();
+    const { data: session } = useSession();
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
 
     const handleChange = (value: string) => {
-        setInputValue(value);
+        setEmail(value);
+        if (value) {
+            setError('');
+        }
     };
 
-    const sendgridAction = () => {
-        signIn("sendgrid", { email: inputValue });
-    }
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!email) {
+            setError('Email is required');
+            return;
+        }
+
+        // Proceed with form submission
+        signIn("sendgrid", { email: email });
+    };
 
     return (
         <div className={styles.loginContainer}>
@@ -38,12 +49,12 @@ const LoginPage: React.FC = () => {
                                     <span>Not you?</span>
                                     <button className={styles.signoutBtn} onClick={() => signOut()}>Logout</button>
                                 </div>
-                                <button className={styles.signinBtn} onClick={() => router.push('/')}>Return Home</button>
+                                <button className={styles.signinBtn} onClick={() => router.push('/')}>Continue</button>
                             </div>
                         ) : (
                             <div className={styles.signinOptions}>
-                                
-                                <form className={styles.loginSection} action={sendgridAction}>
+                                {error && <div className={styles.errorMsg}>{error}</div>}
+                                <form className={styles.loginSection} onSubmit={handleSubmit}>
                                     <Input label="Email" type="email" placeholder="Enter your email" onChange={handleChange} />
                                     <button type="submit" className={styles.signinBtn}>Sign in with email</button>
                                 </form>
