@@ -12,8 +12,6 @@ export interface ContentState {
 }
 
 const App: React.FC = () => {
-	const router = useRouter();
-
 	// https://github.com/nextauthjs/next-auth/issues/9177#issuecomment-1919066154
 	const signingIn = useRef(false); // Prevents race condition in FF of two signIn() calls 
 	// Redirect to login page if not authenticated

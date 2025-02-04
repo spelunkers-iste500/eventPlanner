@@ -76,6 +76,17 @@ button:hover,
     background-color: var(--blue-500);
 }
 
+.text-btn {
+    background: none;
+    color: var(--blue-400);
+    padding: 0;
+}
+
+.text-btn:hover {
+    background: none;
+    color: var(--blue-500);
+}
+
 img {
     max-width: 100%;
     height: auto;
