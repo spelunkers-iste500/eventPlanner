@@ -38,7 +38,7 @@ final class AccountFactory extends PersistentProxyObjectFactory
         'userId' => self::faker()->randomNumber(),
         'refreshToken' => self::faker()->sha256(),
         'accessToken' => self::faker()->sha256(),
-        'expiresAt' => self::faker()->dateTimeBetween('now', '+1 year')->format('Y-m-d\TH:i:s\Z'),
+        'expiresAt' => self::faker()->dateTimeBetween('now', '+1 year'),
         'idToken' => self::faker()->sha256(),
         'scope' => self::faker()->word(),
         'sessionState' => self::faker()->sha256(),
