@@ -18,7 +18,7 @@ class flightChangeManagement
 
     //eventOrganization -> Event
     #[ORM\ManyToOne(targetEntity: Flight::class)]
-    #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'flightID', nullable: true)]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public Flight $flightID;
 
     #[ORM\Column(length: 55)]

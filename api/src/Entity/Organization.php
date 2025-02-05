@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -44,6 +45,7 @@ class Organization
 
     public function __construct()
     {
+        $this->users = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
