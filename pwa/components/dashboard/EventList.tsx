@@ -47,7 +47,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 									className={styles.searchIcon}
 									onPress={() => setIsExpanded(true)}
 								>
-									<Search size={16} />
+									<Search size={20} />
 								</Button>
 							) : (
 								<Button
@@ -61,7 +61,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 										setIsExpanded(false);
 									}}
 								>
-									<XCircle size={16} />
+									<XCircle size={20} />
 								</Button>
 							)}
 						</div>
