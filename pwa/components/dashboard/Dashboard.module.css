@@ -74,28 +74,15 @@
 	padding: 4px;
 }
 
-.search-icon {
-	cursor: pointer;
-	transition: transform 0.2s ease-in-out;
-	padding: 0.5rem;
-	background: none;
-	color: var(--black);
-	width: 20px;
-	height: 20px;
-}
-
-.search-icon:focus {
-	outline: none;
-}
-
-.search-icon:hover {
-	/* transform: scale(1.1); */
-	background: none;
-	border-radius: 8px;
-}
-
 .icon-wrapper {
 	position: relative;
+	background: none;
+	color: var(--black);
+	padding: 0.5rem;
+}
+
+.icon-wrapper:hover {
+	background: none;
 }
 
 .icon-wrapper svg {
