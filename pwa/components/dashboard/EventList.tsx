@@ -36,50 +36,31 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 							className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
 						/>
 
-						{/* Icon Wrapper for Smooth Transitions */}
-						<div className={styles.iconWrapper}>
-							{!isExpanded ? (
-								<Button
-									isIconOnly
-									aria-label="Search"
-									color="primary"
-									variant="light"
-									className={styles.searchIcon}
-									onPress={() => setIsExpanded(true)}
-								>
-									<Search size={16} />
-								</Button>
-							) : (
-								<Button
-									isIconOnly
-									aria-label="Clear search"
-									color="danger"
-									variant="light"
-									className={styles.closeIcon}
-									onPress={() => {
-										setSearchTerm("");
-										setIsExpanded(false);
-									}}
-								>
-									<XCircle size={16} />
-								</Button>
-							)}
-						</div>
+							<button
+								aria-label="Search"
+								className={styles.iconWrapper}
+								onClick={isExpanded ? () => { setIsExpanded(false); setSearchTerm("") } : () => setIsExpanded(true)}
+							>
+								{!isExpanded ? (
+									<Search size={20} />
+								) : (
+									<XCircle size={20} />
+								)}
+							</button>
 					</div>
 
 					{/* Filter Button */}
-					<Button
+					<button
 						className={styles.filterIcon}
-						isIconOnly
 						aria-label="Sort"
-						onPress={() => setReverseSorting(!reverseSorting)}
+						onClick={() => setReverseSorting(!reverseSorting)}
 					>
 						{reverseSorting ? (
 							<ArrowUpWideNarrow size={20} />
 						) : (
 							<ArrowDownWideNarrow size={20} />
 						)}
-					</Button>
+					</button>
 				</div>
 			</div>
 			<div className={`${styles.eventCardRow} ${reverseSorting ? styles.reverse : ""}`}>

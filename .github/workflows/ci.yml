@@ -74,11 +74,12 @@ jobs:
         run: docker compose exec -T php bin/console -e test doctrine:database:drop --force
       - name: Stop services
         if: always()
-        run: docker compose down
+        run: docker compose down -v
 
   staging-deploy:
     runs-on: [self-hosted, staging]
     needs: tests
+    name: Deploy to Staging
     env:
       SERVER_NAME: "staging.spelunkers.xeanto.us"
       APP_SECRET: ${{ secrets.APP_SECRET }}
@@ -116,7 +117,7 @@ jobs:
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
-          docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose down --remove-orphans && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+          docker compose down -v && docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
 
       - name: Reset DB
         run: |

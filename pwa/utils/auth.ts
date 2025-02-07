@@ -33,6 +33,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     ],
     adapter: PostgresAdapter(pool),
     pages: {
-        signIn: "/login"
+        signIn: "/login",
+        verifyRequest: "/verify",
     },
 })

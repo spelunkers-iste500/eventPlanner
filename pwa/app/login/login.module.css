@@ -44,10 +44,23 @@
     justify-content: center;
     align-items: center;
     gap: 0.5rem;
+}
 
-    &> span {
-        color: var(--gray-400);
-    }
+.signed-in-options {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.logout-option {
+    color: var(--gray-400);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .signin-options {
