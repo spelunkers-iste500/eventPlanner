@@ -54,4 +54,24 @@ class Flight
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
+
+    // SETTERS
+    public function setOrigin(string $origin): void { $this->departureLocation = $origin; }
+    public function setDestination(string $destination): void { $this->arrivalLocation = $destination; }
+    public function setDepartureTime(string $time): void { $this->departureTime = new \DateTime($time); }
+    public function setArrivalTime(string $time): void { $this->arrivalTime = new \DateTime($time); }
+    public function setPrice(string $price): void { $this->flightTracker = $price; }  // Assuming you meant 'price' as a placeholder for 'flightTracker'
+
+    // GETTERS
+    public function getId(): string { return $this->id; }
+    public function getFlightNumber(): string { return $this->flightNumber; }
+    public function getEventID(): int { return $this->eventID; }
+    public function getDepartureTime(): \DateTimeInterface { return $this->departureTime; }
+    public function getArrivalTime(): \DateTimeInterface { return $this->arrivalTime; }
+    public function getDepartureLocation(): string { return $this->departureLocation; }
+    public function getArrivalLocation(): string { return $this->arrivalLocation; }
+    public function getAirline(): string { return $this->airline; }
+    public function getFlightTracker(): ?string { return $this->flightTracker; }
+    public function getLastModified(): \DateTimeInterface { return $this->lastModified; }
+    public function getCreatedDate(): \DateTimeInterface { return $this->createdDate; }
 }

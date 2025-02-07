@@ -18,11 +18,9 @@ use Symfony\Contracts\HttpClient;
 
 final class DuffelApiProvider implements ProviderInterface{
     private HttpClientInterface $client;
-    // private string $apiKey;
 
     public function __construct(HttpClientInterface $client) {
         $this->client = $client;
-        // $this->apiKey = $apiKey;
     }
     /* 
         Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
@@ -37,7 +35,8 @@ final class DuffelApiProvider implements ProviderInterface{
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {   
-        return null;
+        $flights = $this->getFlights("JFK", "LAX", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
+        return $flights;
     }
 
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
