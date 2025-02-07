@@ -34,8 +34,8 @@ final class EventFactory extends PersistentProxyObjectFactory
     {
         return [
             'endDateTime' => self::faker()->dateTimeBetween('+1 week', '+1 month'),
-            'eventTitle' => self::faker()->sentence(5),
-            'location' => self::faker()->address(),
+            'eventTitle' => substr(self::faker()->sentence(5), 0, 55),
+            'location' => substr(self::faker()->address(), 0, 55),
             'maxAttendees' => self::faker()->numberBetween(1, 20),
             'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
         ];

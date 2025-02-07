@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
 #[ORM\Table(name: 'users')]
@@ -59,6 +58,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
+    public function __construct()
+    {
+        $this->roles = new ArrayCollection();
+        $this->flights = new ArrayCollection();
+        $this->organizations = new ArrayCollection();
+    }
+
     public function getRoles(): array
     {
         return ['ROLE_USER'];
@@ -72,5 +78,4 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->account->providerAccountId;
     }
-
 }
