@@ -9,9 +9,11 @@ use ApiPlatform\Metadata\ApiResource;
 #[ApiResource]
 class Event
 {
-    // Table setup
+    // Table setup and Relationships
     #[ORM\Id]
     #[ORM\GeneratedValue]
+    //#[ORM\OneToOne(targetEntity: Flight::class, inversedBy: 'eventID')]
+    //#[ORM\OneToMany(targetEntity: eventChangeManagement::class, mappedBy: 'eventID', cascade: ['persist', 'remove'])]
     #[ORM\Column(name: 'eventID', type: 'integer')]
     public ?int $eventID = null;
 
@@ -35,6 +37,15 @@ class Event
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+    
+    //Event -> Budget
+    #[ORM\OneToOne(targetEntity: Budget::class)]
+    #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: true)]
+    public Budget $budgetID;
+
+
 
     public function __construct()
     {
