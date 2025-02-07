@@ -10,8 +10,11 @@ references:
 
 namespace App\State;
 
+use ApiPlatform\Metadata\Operation;
 use App\Entity\Flight;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use ApiPlatform\State\ProviderInterface;
+use Symfony\Contracts\HttpClient;
 
 final class DuffelApiProvider implements ProviderInterface{
     private HttpClientInterface $client;
@@ -31,6 +34,12 @@ final class DuffelApiProvider implements ProviderInterface{
         Method: Post
         Response Body: JSON Encapsulated under data object
     */
+
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    {   
+        return null;
+    }
+
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
 {
     $response = $this->client->request('POST', 'https://api.duffel.com/air/1.0/offer_requests', [
