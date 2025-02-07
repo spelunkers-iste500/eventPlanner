@@ -15,11 +15,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final class DuffelApiProvider implements ProviderInterface{
     private HttpClientInterface $client;
-    private string $apiKey;
+    // private string $apiKey;
 
-    public function __construct(HttpClientInterface $client, string $apiKey) {
+    public function __construct(HttpClientInterface $client) {
         $this->client = $client;
-        $this->apiKey = $apiKey;
+        // $this->apiKey = $apiKey;
     }
     /* 
         Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
@@ -35,7 +35,7 @@ final class DuffelApiProvider implements ProviderInterface{
 {
     $response = $this->client->request('POST', 'https://api.duffel.com/air/1.0/offer_requests', [
         'headers' => [
-            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Authorization' => 'Bearer ' . $_ENV['DUFFEL_TOKEN'],
             'Content-Type' => 'application/json',
         ],
         'json' => [

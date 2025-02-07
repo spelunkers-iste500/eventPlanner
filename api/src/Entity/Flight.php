@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ApiResource]
+
+//ONLY STORE USER'S FLIGHT ID (BASICALLY STORE FLIGHT ENTITY ID AND ASSOCIATED USER)
 class Flight
 {
     #[ORM\Id]
