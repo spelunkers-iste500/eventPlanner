@@ -7,8 +7,6 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
-use App\Entity\Account;
-use App\Factory\AccountFactory;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
 class UserTest extends ApiTestCase
@@ -19,7 +17,6 @@ class UserTest extends ApiTestCase
 
     public function testCreateUser(): void
     {
-        AccountFactory::createOne(['email' => 'ratchie@rit.edu']);
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/users', [
             'headers' => ['Content-Type' => 'application/ld+json'],
