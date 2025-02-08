@@ -37,7 +37,7 @@
 	justify-content: space-between;
 	/* background-color: #f3f4f6; */
 	border-radius: 9999px;
-	/* padding: 4px 8px; */
+	padding: 4px 8px;
 	transition: all 0.3s ease-in-out;
 	/* width: 40px; */
 	overflow: hidden;
@@ -64,6 +64,7 @@
 	background: transparent;
 	width: 0;
 	opacity: 0;
+	padding: 0;
 	transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 
@@ -73,26 +74,39 @@
 	padding: 4px;
 }
 
-.search-icon {
-	cursor: pointer;
-	transition: transform 0.2s ease-in-out;
-	padding: 0.5rem;
+.icon-wrapper {
+	position: relative;
 	background: none;
 	color: var(--black);
+	padding: 0.5rem;
 }
 
-.search-icon:hover {
-	transform: scale(1.1);
-	background-color: var(--gray-200);
-	border-radius: 8px;
+.icon-wrapper:hover {
+	background: none;
+}
+
+.icon-wrapper svg {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
 
 .close-icon {
 	cursor: pointer;
 	margin-right: 8px;
-	padding: 0;
+	padding: 0.5rem;
 	background: none;
 	color: var(--black);
+}
+
+.close-icon:focus {
+	outline: none;
+}
+
+.close-icon:hover {
+	background: none;
+	border-radius: 8px;
 }
 
 .filter-icon {
@@ -100,6 +114,15 @@
 	padding: 0.5rem;
 	background: none;
 	color: var(--black);
+}
+
+.filter-icon:focus {
+	outline: none;
+}
+
+.filter-icon:hover {
+	background: none;
+	border-radius: 8px;
 }
 
 /* Horizontal scrolling row for event cards */

@@ -14,9 +14,6 @@ class budgetChangeManagement
     #[ORM\Column(name: 'changeID', type: 'integer')]
     public ?int $changeID = null;
 
-    #[ORM\Column(type: 'integer')]
-    public int $budgetID;
-
     #[ORM\Column(length: 55)]
     public string $versionNum;
 
@@ -37,6 +34,13 @@ class budgetChangeManagement
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    //BudgetChangeManagement -> Budget
+    #[ORM\ManyToOne(targetEntity: Budget::class)]
+    #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: true)]
+    public Budget $budgetID;
 
     public function __construct()
     {

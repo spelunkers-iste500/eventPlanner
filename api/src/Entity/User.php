@@ -9,6 +9,8 @@ use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
@@ -47,10 +49,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: 'organizations_users')]
     private Collection $organizations;
 
-    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'flights_users')]
-    private Collection $flights;
-
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -70,4 +68,5 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->account->providerAccountId;
     }
+
 }

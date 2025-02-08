@@ -7,34 +7,28 @@ use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
 #[ApiResource]
-class flightChangeManagement
+class userFlight
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'changeID', type: 'integer')]
-    public ?int $changeID = null;
+    #[ORM\Column(type: 'integer')]
+    public ?int $userFlightID = null;
 
-    //Relationships
-
-    //eventOrganization -> Event
     #[ORM\ManyToOne(targetEntity: Flight::class)]
     #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
-    public Flight $flightID;
+    public Flight $flightNumber;
+
+    #[ORM\Column(length: 10)]
+    public string $seatNumber;
+
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    public string $cost;
 
     #[ORM\Column(length: 55)]
-    public string $versionNum;
+    public string $tsaPreCheckNumber;
 
-    #[ORM\Column(type: 'boolean')]
-    public bool $active;
-
-    #[ORM\Column(length: 255)]
-    public string $description;
-
-    #[ORM\Column(type: 'json')]
-    public array $beforeChanges;
-
-    #[ORM\Column(type: 'json')]
-    public array $afterChanges;
+    #[ORM\Column(length: 55)]
+    public string $frequentFlyerNumber;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
@@ -42,9 +36,17 @@ class flightChangeManagement
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
 
+    //Relationships
+
+    //UserFlights -> User
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: false)]
+    public User $user;
+
     public function __construct()
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
 }
+
