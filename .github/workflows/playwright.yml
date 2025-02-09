@@ -44,6 +44,3 @@ jobs:
       -
         name: stop services
         run: docker compose down
-      -
-        name: Stop Playwright
-        run: docker stop playwright
