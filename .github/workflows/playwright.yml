@@ -40,4 +40,10 @@ jobs:
         run: docker compose -f compose.yaml -f compose.override.yaml up --wait --no-build
       -
         name: Playwright
-        run: docker run --network host -w /app -v ./e2e:/app --rm --ipc=host mcr.microsoft.com/playwright:v1.50.0-noble /bin/sh -c 'npm i; npx playwright test;'
+        run: docker run --network host -w /app -v ./e2e:/app --rm --ipc=host --name playwright mcr.microsoft.com/playwright:v1.50.0-noble /bin/sh -c 'npm i; npx playwright test;'
+      -
+        name: stop services
+        run: docker compose down
+      -
+        name: Stop Playwright
+        run: docker stop playwright
