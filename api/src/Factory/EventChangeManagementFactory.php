@@ -35,22 +35,22 @@ final class EventChangeManagementFactory extends PersistentProxyObjectFactory
             'active' => self::faker()->boolean(),
             'description' => self::faker()->text(255),
             'versionNum' => self::faker()->numerify('v#.#.#'),
-            'afterChanges' => json_encode([
-                'endDateTime' => self::faker()->dateTimeBetween('+1 week', '+1 month'),
-                'eventTitle' => self::faker()->sentence(5),
-                'location' => self::faker()->address(),
-                'maxAttendees' => self::faker()->numberBetween(1, 20),
-                'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
-                'active' => self::faker()->boolean(),
-            ]),
-            'beforeChanges' => json_encode([
-                'endDateTime' => self::faker()->dateTimeBetween('+1 week', '+1 month'),
-                'eventTitle' => self::faker()->sentence(5),
-                'location' => self::faker()->address(),
-                'maxAttendees' => self::faker()->numberBetween(1, 20),
-                'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
-                'active' => self::faker()->boolean(),
-            ]),
+            'afterChanges' => [
+                'endDateTime: ' . (string) self::faker()->dateTimeBetween('+1 week', '+1 month')->format('Y-m-d H:i:s'),
+                'eventTitle: ' . (string) self::faker()->sentence(5),
+                'location: ' . (string) self::faker()->address(),
+                'maxAttendees: ' . (string) self::faker()->numberBetween(1, 20),
+                'startDateTime: ' . (string) self::faker()->dateTimeBetween('now', '+1 week')->format('Y-m-d H:i:s'),
+                'active: ' . (string) self::faker()->boolean(),
+            ],
+            'beforeChanges' => [
+                'endDateTime: ' . (string) self::faker()->dateTimeBetween('+1 week', '+1 month')->format('Y-m-d H:i:s'),
+                'eventTitle: ' . (string) self::faker()->sentence(5),
+                'location: ' . (string) self::faker()->address(),
+                'maxAttendees: ' . (string) self::faker()->numberBetween(1, 20),
+                'startDateTime: ' . (string) self::faker()->dateTimeBetween('now', '+1 week')->format('Y-m-d H:i:s'),
+                'active: ' . (string) self::faker()->boolean(),
+            ],
         ];
     }
 

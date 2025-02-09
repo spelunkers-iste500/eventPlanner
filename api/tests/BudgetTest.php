@@ -1,5 +1,5 @@
 <?php
-// api/tests/Eventtest.php
+// api/tests/Budgettest.php
 
 namespace App\Tests;
 
@@ -16,7 +16,43 @@ class BudgetTest extends ApiTestCase
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
 
+    public function testGetBudgetCollection(): void
+    {
+        // Create 50 Budgets using our factory
+        BudgetFactory::createMany(50);
+        $startTime = microtime(true);
+        // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
+        $response = static::createClient()->request('GET', '/budgets');
+        $endTime = microtime(true);
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type is JSON-LD (the default)
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
 
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Budget',
+            '@id' => '/budgets',
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 50,
+            'hydra:view' => [
+                '@id' => '/budgets?page=1',
+                '@type' => 'hydra:PartialCollectionView',
+                'hydra:first' => '/budgets?page=1',
+                'hydra:last' => '/budgets?page=2',
+                'hydra:next' => '/budgets?page=2',
+            ],
+        ]);
+
+        // Because test fixtures are automatically loaded between each test, you can assert on them
+        $this->assertCount(30, $response->toArray()['hydra:member']);
+
+        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
+        // This generated JSON Schema is also used in the OpenAPI spec!
+        $this->assertMatchesResourceCollectionJsonSchema(Budget::class);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Get all Budgets execution time: " . $executionTime . " milliseconds\n";
+    }    
     public function testCreateBudget(): void
     {
         UserFactory::createOne(['email' => 'ratchie@rit.edu']);
