@@ -110,6 +110,7 @@ img {
     max-width: 100%;
     overflow-x: hidden;
     padding: 2rem;
+    position: relative;
 }
 
 .input-container {
