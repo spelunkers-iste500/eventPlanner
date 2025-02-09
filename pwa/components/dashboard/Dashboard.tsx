@@ -2,16 +2,7 @@ import React from "react";
 import EventList from "./EventList";
 import styles from "./Dashboard.module.css";
 import { useSession } from "next-auth/react";
-
-// Define types for the event data
-export interface Event {
-	id: number;
-	img: string;
-	name: string;
-	org: string;
-	eventDate: string;
-	departureDate?: string;
-}
+import { Event } from "types/events";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {

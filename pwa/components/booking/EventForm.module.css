@@ -1,0 +1,30 @@
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+.backButton {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+
+.rectangleContainer {
+  margin: 20px auto;
+  width: 50%;
+  height: 50vh;
+  border: 1px solid black;
+}
+
+.form-card {
+    flex-shrink: 0;
+	width: 300px;
+	border-radius: 12px;
+	background-color: var(--gray-100);
+	font-size: 0.875rem;
+	color: var(--gray-700);
+	box-shadow: var(--shadow-300);
+	display: flex;
+	flex-direction: column;
+	position: relative; 
+}

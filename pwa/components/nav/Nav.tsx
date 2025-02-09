@@ -1,25 +1,19 @@
 'use client';
-import React, { ReactElement } from 'react';
+import React from 'react';
 import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
-// import { signOut } from '@utils/auth';
-import { Session } from 'next-auth';
-import { ContentState } from '../../app/page';
 import Dashboard from '../dashboard/Dashboard';
 import Preferences from '../preferences/Preferences';
 import Contact from '../contact/Contact';
 import FAQ from '../faq/FAQ';
 import styles from './nav.module.css';
 import { signOut, useSession } from 'next-auth/react';
+import { useContent } from '@utils/ContentProvider';
 
-interface NavProps {
-    state: ContentState;
-    setContent: (name: string, content: ReactElement) => void;
-}
-
-const Nav: React.FC<NavProps> = ({ state, setContent }) => {
+const Nav: React.FC= () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
     const [imageError, setImageError] = React.useState<boolean>(false);
     const {data: session} = useSession();
+    const { state, setContent } = useContent();
     
     const navLinks = [
         {
@@ -47,7 +41,12 @@ const Nav: React.FC<NavProps> = ({ state, setContent }) => {
     return (
         <div className={`${styles.navContainer} ${navCollapsed ? styles.collapsed : ''}`}>
             <div className={styles.navHeader}>
-                <div className={styles.navHeaderIcon}><House size={28} /></div>
+                <div
+                    className={styles.navHeaderIcon}
+                    onClick={() => setContent(<Dashboard />, 'Dashboard')}
+                >
+                    <House size={28} />
+                </div>
                 <div className={styles.navHeaderRight}>
                     <div className={styles.navHeaderIcon}>
                         <Bell size={28} />
@@ -77,7 +76,7 @@ const Nav: React.FC<NavProps> = ({ state, setContent }) => {
                     <li
                         key={index}
                         className={`${styles.navLink} ${state.name === link.name ? styles.active : ''}`}
-                        onClick={() => setContent(link.name, link.content)}
+                        onClick={() => setContent(link.content, link.name)}
                     >
                         {link.icon}
                         <span>{link.name}</span>

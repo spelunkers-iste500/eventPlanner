@@ -4,18 +4,13 @@
     gap: 3rem;
 }
 
-/* Styling for the event rows */
 .event-row {
     padding-bottom: 32px;
     overflow-x: auto;
 }
 
-/* Header styles */
-.event-row-header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 16px;
+.event-list {
+	position: relative;
 }
 
 .event-list-header {
@@ -25,9 +20,10 @@
 	margin-bottom: 1rem;
 }
 
-.event-row-title {
-	font-size: 1.25rem;
-	font-weight: bold;
+.event-list-buttons {
+	display: flex;
+	gap: 1rem;
+	align-items: center;
 }
 
 /* Search bar and filter */
@@ -35,27 +31,24 @@
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	/* background-color: #f3f4f6; */
-	border-radius: 9999px;
-	padding: 4px 8px;
 	transition: all 0.3s ease-in-out;
-	/* width: 40px; */
 	overflow: hidden;
 }
 
-.search-filter-container {
-	display: flex;
-	gap: 1rem;
-	align-items: center;
-}
-
-.event-list {
-  	position: relative;
-}
-
 .search-wrapper.expanded {
+	border-radius: 50px;
 	width: 250px;
-	background-color: #e5e7eb;
+	background-color: var(--gray-100);
+
+	.search-input {
+		width: 180px;
+		opacity: 1;
+		padding: 0.5rem 0.75rem;
+	}
+
+	.icon-wrapper {
+		border-radius: 50px;
+	}
 }
 
 .search-input {
@@ -64,65 +57,19 @@
 	background: transparent;
 	width: 0;
 	opacity: 0;
-	padding: 0;
 	transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
-}
-
-.search-wrapper.expanded .search-input {
-	width: 180px;
-	opacity: 1;
-	padding: 4px;
 }
 
 .icon-wrapper {
 	position: relative;
 	background: none;
 	color: var(--black);
+	line-height: 0.6;
 	padding: 0.5rem;
 }
 
 .icon-wrapper:hover {
-	background: none;
-}
-
-.icon-wrapper svg {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-.close-icon {
-	cursor: pointer;
-	margin-right: 8px;
-	padding: 0.5rem;
-	background: none;
-	color: var(--black);
-}
-
-.close-icon:focus {
-	outline: none;
-}
-
-.close-icon:hover {
-	background: none;
-	border-radius: 8px;
-}
-
-.filter-icon {
-	cursor: pointer;
-	padding: 0.5rem;
-	background: none;
-	color: var(--black);
-}
-
-.filter-icon:focus {
-	outline: none;
-}
-
-.filter-icon:hover {
-	background: none;
-	border-radius: 8px;
+	background: var(--gray-100);
 }
 
 /* Horizontal scrolling row for event cards */

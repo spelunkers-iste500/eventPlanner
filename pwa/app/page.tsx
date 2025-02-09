@@ -5,6 +5,7 @@ import Dashboard from "../components/dashboard/Dashboard";
 import Container from "../components/common/Container";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useRouter } from "next/navigation";
+import { useContent } from "@utils/ContentProvider";
 
 export interface ContentState {
 	name: string;
@@ -12,6 +13,8 @@ export interface ContentState {
 }
 
 const App: React.FC = () => {
+	const { state } = useContent();
+
 	// https://github.com/nextauthjs/next-auth/issues/9177#issuecomment-1919066154
 	const signingIn = useRef(false); // Prevents race condition in FF of two signIn() calls 
 	// Redirect to login page if not authenticated
@@ -29,24 +32,9 @@ const App: React.FC = () => {
         return <h2 className='loading'>Loading...</h2>;
     }
 
-	// Set the initial content state
-	// This will be updated by the Nav component and resembles how nav items are stored in the Nav component
-	const [state, setState] = useState<ContentState>({
-        name: 'Dashboard',
-        content: <Dashboard />,
-    });
-
-	// Function to update the content state from the Nav component
-	const setContent = (newName: string, newContent: React.JSX.Element) => {
-		setState(() => ({
-			name: newName,
-			content: newContent,
-		}));
-	};
-
 	return (
 		<div className="app-container">
-			<Nav state={state} setContent={setContent} />
+			<Nav />
 			<Container>
 				{state.content}
 			</Container>

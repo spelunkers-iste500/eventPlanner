@@ -1,13 +1,14 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { Button } from "@heroui/react";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-react";
 import Card from "./Card";
-import { Event } from "./Dashboard";
+import { Event } from "types/events";
+import { useContent } from "@utils/ContentProvider";
+import EventForm from "components/booking/EventForm";
 
 interface EventListProps {
-	heading: string;
-	events: Event[];
+    heading: string;
+    events: Event[];
 }
 
 const EventList: React.FC<EventListProps> = ({ heading, events }) => {
@@ -15,31 +16,43 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
+	const inputRef = useRef<HTMLInputElement>(null);
+
+	const { setContent } = useContent();
+
+    const handleCardClick = (event: Event) => {
+        setContent(<EventForm event={event}/>, event.name);
+    };
 
 	return (
 		<div className={styles.eventList}>
-			<div className={styles.eventListHeader}>
-				<h2>{heading}</h2>
+            <div className={styles.eventListHeader}>
+                <h2>{heading}</h2>
 
-				{/* Search Bar Wrapper */}
-				<div className={styles.searchFilterContainer}>
-					<div
-						className={`${styles.searchWrapper} ${isExpanded ? styles.expanded : ""}`}
-						onFocus={() => setIsExpanded(true)}
-						onBlur={() => searchTerm === "" && setIsExpanded(false)}
-					>
+				<div className={styles.eventListButtons}>
+					{/* Search Bar Wrapper */}
+					<div className={`${styles.searchWrapper} ${isExpanded ? styles.expanded : ""}`}>
 						<input
+							ref={inputRef}
+							className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
+							onFocus={() => setIsExpanded(true)}
+							onBlur={() => searchTerm === "" && setIsExpanded(false)}
+							onChange={(e) => setSearchTerm(e.target.value)}
 							type="text"
 							placeholder="Search"
 							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
 						/>
-
+	
 							<button
 								aria-label="Search"
 								className={styles.iconWrapper}
-								onClick={isExpanded ? () => { setIsExpanded(false); setSearchTerm("") } : () => setIsExpanded(true)}
+								onClick={isExpanded ? () => {
+									setIsExpanded(false);
+									setSearchTerm("") 
+								} : () => {
+									setIsExpanded(true)
+									inputRef.current?.focus();
+								}}
 							>
 								{!isExpanded ? (
 									<Search size={20} />
@@ -48,10 +61,10 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 								)}
 							</button>
 					</div>
-
-					{/* Filter Button */}
+	
+					{/* Sort Button */}
 					<button
-						className={styles.filterIcon}
+						className={styles.iconWrapper}
 						aria-label="Sort"
 						onClick={() => setReverseSorting(!reverseSorting)}
 					>
@@ -69,7 +82,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 						key={event.id}
 						event={event}
 						buttonText={buttonText}
-						onClick={() => console.log(`Clicked on ${event.name}`)}
+						onClick={() => handleCardClick(event)}
 					/>
 				))}
 			</div>
