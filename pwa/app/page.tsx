@@ -5,7 +5,7 @@ import Dashboard from "../components/dashboard/Dashboard";
 import Container from "../components/common/Container";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useRouter } from "next/navigation";
-import { useContent } from "components/common/ContentProvider";
+import { useContent } from "@utils/ContentProvider";
 
 export interface ContentState {
 	name: string;

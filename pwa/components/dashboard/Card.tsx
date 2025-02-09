@@ -1,6 +1,6 @@
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { Event } from "./Dashboard";
+import { Event } from "types/events";
 import { Calendar, Plane } from "lucide-react";
 
 // Define types for the Card component props

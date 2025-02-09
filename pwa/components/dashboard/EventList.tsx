@@ -2,8 +2,9 @@ import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-react";
 import Card from "./Card";
-import { Event } from "./Dashboard";
-import { useRouter } from "next/navigation";
+import { Event } from "types/events";
+import { useContent } from "@utils/ContentProvider";
+import EventForm from "components/booking/EventForm";
 
 interface EventListProps {
     heading: string;
@@ -16,10 +17,11 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const router = useRouter();
+
+	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
-        router.push(`/booking?eventId=${event.id}`);
+        setContent(<EventForm event={event}/>, event.name);
     };
 
 	return (
