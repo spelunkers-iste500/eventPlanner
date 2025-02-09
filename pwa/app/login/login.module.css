@@ -93,6 +93,13 @@
     color: var(--blue-700);
 }
 
+.error-msg {
+    color: var(--red-400);
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 .login-section {
     display: flex;
     flex-direction: column;
