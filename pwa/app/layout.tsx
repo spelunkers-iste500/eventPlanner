@@ -1,7 +1,7 @@
 import "../styles/globals.css"
 import { SessionProvider } from "next-auth/react"
 import { auth } from "../utils/auth"
-import { ContentProvider } from "components/common/ContentProvider";
+import { ContentProvider } from "@utils/ContentProvider";
 export const metadata = {
 	title: 'Travel Event Planner',
 	description: 'Developed by Team Spelunkers',

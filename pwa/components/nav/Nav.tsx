@@ -7,7 +7,7 @@ import Contact from '../contact/Contact';
 import FAQ from '../faq/FAQ';
 import styles from './nav.module.css';
 import { signOut, useSession } from 'next-auth/react';
-import { useContent } from 'components/common/ContentProvider';
+import { useContent } from '@utils/ContentProvider';
 
 const Nav: React.FC= () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);

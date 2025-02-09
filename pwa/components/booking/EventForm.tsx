@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import RectangleComponent from './AirportSearch'; // Adjust the import path as necessary
 import styles from './EventForm.module.css';
+import { Event } from 'types/events';
+import { useContent } from '@utils/ContentProvider';
+import Dashboard from 'components/dashboard/Dashboard';
 
-const EventForm: React.FC = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const eventId = searchParams.get('eventId');
+interface EventData {
+  event: Event;
+}
 
-  const [eventData, setEventData] = useState<{ name: string; organization: string; date: string } | null>(null);
+const EventForm: React.FC<EventData> = ({ event }) => {
+  const [eventData, setEventData] = useState<Event>(event);
+  const { setContent } = useContent();
 
-  useEffect(() => {
-    if (eventId) {
-      setEventData({
-        name: 'Test Event',
-        organization: 'Test Organization',
-        date: 'December 25th, 2025 * 10:33am'
-      });
-    }
-  }, [eventId]);
+  useEffect(() => { 
+    setEventData(event);
+  }, [event]);
+  
 
   function handleBackClick() {
-    router.back();
+    setContent(<Dashboard />, 'Dashboard');
   }
 
   if (!eventData) {
@@ -37,9 +35,9 @@ const EventForm: React.FC = () => {
         Back
       </button>
       <h1>{eventData.name}</h1>
-      <h5>{eventData.organization}</h5>
+      <h5>{eventData.org}</h5>
       <br></br>
-      <h3>{eventData.date}</h3>
+      <h3>{eventData.eventDate}</h3>
       <div className={styles.formCard}>
         <RectangleComponent />
       </div>
