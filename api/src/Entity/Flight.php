@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
@@ -8,19 +7,22 @@ use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ApiResource]
-
-//ONLY STORE USER'S FLIGHT ID (BASICALLY STORE FLIGHT ENTITY ID AND ASSOCIATED USER)
 class Flight
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'string', length: 10)]
-    public string $id;
+    public string $flightID;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true, unique: true)]
     public string $flightNumber;
 
-    #[ORM\Column(type: 'integer')]
-    public int $eventID;
+    //Relationships
+
+    //eventOrganization -> Event
+    #[ORM\ManyToOne(targetEntity: Event::class)]
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
+    public Event $eventID;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $departureTime;
@@ -55,23 +57,15 @@ class Flight
         $this->createdDate = new \DateTime();
     }
 
-    // SETTERS
-    public function setOrigin(string $origin): void { $this->departureLocation = $origin; }
-    public function setDestination(string $destination): void { $this->arrivalLocation = $destination; }
-    public function setDepartureTime(string $time): void { $this->departureTime = new \DateTime($time); }
-    public function setArrivalTime(string $time): void { $this->arrivalTime = new \DateTime($time); }
-    public function setPrice(string $price): void { $this->flightTracker = $price; }  // Assuming you meant 'price' as a placeholder for 'flightTracker'
+    public function setOrigin(string $origin): void
+    {
+        $this->departureLocation = $origin;
+    }
+    
+    public function setDestination(string $destination): void
+    {
+        $this->arrivalLocation = $destination;
+    }
+    
 
-    // GETTERS
-    public function getId(): string { return $this->id; }
-    public function getFlightNumber(): string { return $this->flightNumber; }
-    public function getEventID(): int { return $this->eventID; }
-    public function getDepartureTime(): \DateTimeInterface { return $this->departureTime; }
-    public function getArrivalTime(): \DateTimeInterface { return $this->arrivalTime; }
-    public function getDepartureLocation(): string { return $this->departureLocation; }
-    public function getArrivalLocation(): string { return $this->arrivalLocation; }
-    public function getAirline(): string { return $this->airline; }
-    public function getFlightTracker(): ?string { return $this->flightTracker; }
-    public function getLastModified(): \DateTimeInterface { return $this->lastModified; }
-    public function getCreatedDate(): \DateTimeInterface { return $this->createdDate; }
 }

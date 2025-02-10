@@ -41,10 +41,21 @@ final class DuffelApiProvider implements ProviderInterface{
 
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
 {
-    $response = $this->client->request('POST', 'https://api.duffel.com/air/1.0/offer_requests', [
+    //$duffelKey = $_ENV['DUFFEL_BEARER'];
+
+    dump($_ENV['DUFFEL_BEARER']);
+
+    //for testing purposes
+    //if (!$duffelKey) {
+    //    throw new \RuntimeException('DUFFEL_KEY is not set in the environment variables.');
+    //}
+
+    $response = $this->client->request('POST', 'https://api.duffel.com/air/offer_requests', [
         'headers' => [
-            'Authorization' => 'Bearer ' . $_ENV['DUFFEL_TOKEN'],
-            'Content-Type' => 'application/json',
+            'Accept-Encoding' => 'gzip',
+            'Content-Type'=> 'application/json',
+            'Duffel-version' => "v1",
+            'Authorization' => 'Bearer ' . $_ENV['DUFFEL_BEARER'],
         ],
         'json' => [
             'slices' => [
@@ -56,8 +67,7 @@ final class DuffelApiProvider implements ProviderInterface{
             ],
             'passengers' => [
                 [
-                    'type' => 'adult',
-                    'count' => $passengerCount,
+                    'passengers' => array_fill(0, $passengerCount, ['type' => 'adult']),
                 ]
             ],
             'currency' => 'USD',
@@ -67,8 +77,12 @@ final class DuffelApiProvider implements ProviderInterface{
 
     $data = $response->toArray();
 
+    dump($response->toArray());
+
+    return $data;
+
     // Extract and process flight data from the response
-    return $this->mapToFlightEntities($data);
+    //return $this->mapToFlightEntities($data);
 }
 
 //Flight entity made itself after adding this function that maps the API call to the Flight Entities
