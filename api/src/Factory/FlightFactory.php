@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\User;
+use App\Entity\Flight;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentProxyObjectFactory<Flight>
  */
-final class UserFactory extends PersistentProxyObjectFactory
+final class FlightFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class UserFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return User::class;
+        return Flight::class;
     }
 
     /**
@@ -32,12 +32,14 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->name(),
-            'email' => self::faker()->unique()->safeEmail(),
-            'emailVerified' => self::faker()->dateTime(),
-            'image' => self::faker()->imageUrl(255),
-            'lastModified' => self::faker()->dateTime(),
-            'createdDate' => self::faker()->dateTime(),
+           'airline' => self::faker()->randomElement([
+                'American Airlines', 'Delta Air Lines', 'United Airlines', 'Southwest Airlines', 
+                'JetBlue Airways', 'Alaska Airlines', 'Spirit Airlines', 'Frontier Airlines'
+            ]),
+            'arrivalLocation' => self::faker()->city(),
+            'arrivalTime' => self::faker()->dateTimeBetween('now', '+1 year'),
+            'departureLocation' => self::faker()->city(),
+            'departureTime' => self::faker()->dateTimeBetween('now', '+1 year'),
         ];
     }
 
@@ -47,7 +49,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(User $user): void {})
+            // ->afterInstantiate(function(Flight $flight): void {})
         ;
     }
 }

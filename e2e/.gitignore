@@ -1,7 +1,3 @@
-/.env
-/helm/api-platform/charts/*
-!/helm/api-platform/charts/.gitignore
-/node_modules
 
 # Playwright
 node_modules/

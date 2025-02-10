@@ -11,7 +11,6 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
 #[ORM\Table(name: 'users')]
@@ -45,6 +44,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: 'roles_users')]
     private Collection $roles;
 
+    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy:"users")]
+    #[ORM\JoinTable(name:"users_flights")]
+    private Collection $flights;
+    
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'organizations_users')]
     private Collection $organizations;
@@ -54,6 +57,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    public function __construct()
+    {
+        $this->roles = new ArrayCollection();
+        $this->flights = new ArrayCollection();
+        $this->organizations = new ArrayCollection();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
 
     public function getRoles(): array
     {
@@ -68,5 +80,4 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->account->providerAccountId;
     }
-
 }

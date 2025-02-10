@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import RectangleComponent from './AirportSearch'; // Adjust the import path as necessary
+import AirportSearch from './AirportSearch';
 import styles from './EventForm.module.css';
 import { Event } from 'types/events';
 import { useContent } from '@utils/ContentProvider';
@@ -39,7 +39,7 @@ const EventForm: React.FC<EventData> = ({ event }) => {
       <br></br>
       <h3>{eventData.eventDate}</h3>
       <div className={styles.formCard}>
-        <RectangleComponent />
+        <AirportSearch />
       </div>
     </div>
   );
