@@ -40,6 +40,8 @@ final class FlightFactory extends PersistentProxyObjectFactory
             'arrivalTime' => self::faker()->dateTimeBetween('now', '+1 year'),
             'departureLocation' => self::faker()->city(),
             'departureTime' => self::faker()->dateTimeBetween('now', '+1 year'),
+            'flightNumber' => self::faker()->regexify('[A-Z]{2}[0-9]{1,17}'),
+            'flightTracker' => self::faker()->regexify('https://www\.flighttracker\.com/[A-Za-z0-9]{1,200}')
         ];
     }
 

@@ -35,26 +35,28 @@ final class FlightChangeManagementFactory extends PersistentProxyObjectFactory
             'active' => self::faker()->boolean(),
             'description' => self::faker()->text(255),
             'versionNum' => self::faker()->numerify('v#.#.#'),
-            'afterChanges' => json_encode([
-                'airline' => self::faker()->randomElement([
+            'afterChanges' =>[
+                'airline: ' . self::faker()->randomElement([
                     'American Airlines', 'Delta Air Lines', 'United Airlines', 'Southwest Airlines', 
                     'JetBlue Airways', 'Alaska Airlines', 'Spirit Airlines', 'Frontier Airlines'
                 ]),
-                'arrivalLocation' => self::faker()->city(),
-                'arrivalTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-                'departureLocation' => self::faker()->city(),
-                'departureTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-            ]),
-            'beforeChanges' => json_encode([
-                'airline' => self::faker()->randomElement([
+                'arrivalLocation: ' . self::faker()->city(),
+                'arrivalTime: ' . self::faker()->dateTimeBetween('now', '+1 year')->format('Y-m-d H:i:s'),
+                'departureLocation: ' . self::faker()->city(),
+                'departureTime: ' . self::faker()->dateTimeBetween('now', '+1 year')->format('Y-m-d H:i:s'),
+            ],
+            'beforeChanges' => [
+                'airline: ' . self::faker()->randomElement([
                     'American Airlines', 'Delta Air Lines', 'United Airlines', 'Southwest Airlines', 
                     'JetBlue Airways', 'Alaska Airlines', 'Spirit Airlines', 'Frontier Airlines'
                 ]),
-                'arrivalLocation' => self::faker()->city(),
-                'arrivalTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-                'departureLocation' => self::faker()->city(),
-                'departureTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-            ]),
+                'arrivalLocation: ' . self::faker()->city(),
+                'arrivalTime: ' . self::faker()->dateTimeBetween('now', '+1 year')->format('Y-m-d H:i:s'),
+                'departureLocation: ' . self::faker()->city(),
+                'departureTimeL ' . self::faker()->dateTimeBetween('now', '+1 year')->format('Y-m-d H:i:s'),
+                'flightNumber: ' . self::faker()->regexify('[A-Z]{2}[0-9]{1,17}'),
+                'flightTracker: ' . self::faker()->regexify('https://www\.flighttracker\.com/[A-Za-z0-9]{1,240}')
+            ],
         ];
     }
 
