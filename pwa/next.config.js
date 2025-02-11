@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  crossOrigin: 'anonymous',
   output: 'standalone',
     webpack: (config) => {
       // camelCase style names from css modules
