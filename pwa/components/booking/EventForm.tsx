@@ -3,7 +3,7 @@ import AirportSearch from './AirportSearch';
 import styles from './EventForm.module.css';
 import { Event } from 'types/events';
 import { useContent } from 'Utils/ContentProvider';
-import Dashboard from 'components/dashboard/Dashboard';
+import Dashboard from 'Components/dashboard/Dashboard';
 
 interface EventData {
   event: Event;

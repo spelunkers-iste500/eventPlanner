@@ -41,6 +41,12 @@ RUN pnpm fetch --prod
 
 COPY --link . .
 
+RUN cat webpack.config.js
+
+RUN cat tsconfig.json
+
+RUN ls -la
+
 RUN	pnpm install --offline --frozen-lockfile --prod && \
 	pnpm run build
 

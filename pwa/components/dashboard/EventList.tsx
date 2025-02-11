@@ -4,7 +4,7 @@ import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-
 import Card from "./Card";
 import { Event } from "types/events";
 import { useContent } from "Utils/ContentProvider";
-import EventForm from "components/booking/EventForm";
+import EventForm from "Components/booking/EventForm";
 
 interface EventListProps {
     heading: string;

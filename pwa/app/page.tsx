@@ -1,9 +1,9 @@
 'use client';
 import React, { useRef } from "react";
-import Container from "../components/common/Container";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useContent } from "Utils/ContentProvider";
-import Nav from "../components/nav/Nav";
+import Container from "Components/common/Container";
+import Nav from "Components/nav/Nav";
 
 export interface ContentState {
 	name: string;

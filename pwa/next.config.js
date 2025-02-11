@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -15,6 +17,9 @@ const nextConfig = {
                   options.modules.exportLocalsConvention = 'camelCase';
               }
           });
+      // https://stackoverflow.com/questions/76676456/next-js-v13-in-docker-does-not-respect-path-alias-but-works-locally
+      config.resolve.alias['Utils'] = path.join(__dirname, 'utils');
+      config.resolve.alias['Components'] = path.join(__dirname, 'components');
 
       return config;
   },
