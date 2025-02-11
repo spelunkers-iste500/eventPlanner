@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import AirportSearch from './AirportSearch';
 import styles from './EventForm.module.css';
 import { Event } from 'types/events';
-import { useContent } from '@utils/ContentProvider';
-import Dashboard from 'components/dashboard/Dashboard';
+import { useContent } from 'Utils/ContentProvider';
+import Dashboard from 'Components/dashboard/Dashboard';
 
 interface EventData {
   event: Event;
