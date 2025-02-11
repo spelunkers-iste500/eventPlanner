@@ -5,10 +5,31 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\OpenApi\Model\Operation;
+use App\State\CurrentAccountProvider;
 
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(
+    // uriTemplate: '/accounts/me.{_format}',
+    operations: [
+        new Get(
+            uriTemplate: '/accounts/me.{_format}',
+            openapi: new Operation(summary: "Get the current user email"),
+            provider: CurrentAccountProvider::class
+        ),
+        new GetCollection(
+            uriTemplate: '/accounts.{_format}',
+            openapi: new Operation(summary: "Get All Accounts")
+        )
+],
+    
+)]
+// #[ApiResource]
 #[ORM\Table(name: 'accounts')]
+// #[Get(securityPostDenormalize: 'is_granted("ROLE_USER") OR object.userId == user.id')]
+
 class Account
 {
     #[ORM\Id]

@@ -16,8 +16,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
-    #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
-    private Account $account;
 
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -39,6 +37,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\Column(length: 255, nullable: true)]
     public string $image;
+
+    #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
+    private Account $account;
 
     #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'roles_users')]
@@ -63,13 +64,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
         $this->organizations = new ArrayCollection();
+        $this->account = new Account();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->emailVerified = new \DateTime();
     }
 
     public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return $this->roles->toArray();
     }
     public function eraseCredentials() {}
     public function getUserIdentifier(): string
@@ -79,5 +82,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getPassword(): string
     {
         return $this->account->providerAccountId;
+    }
+    public function getAccount(): Account
+    {
+        return $this->account;
     }
 }
