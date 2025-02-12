@@ -1,9 +1,9 @@
-import React, { use, useEffect, useState } from "react";
-import { useContent } from "Utils/ContentProvider";
+import React, { useEffect, useState } from "react";
 import AirportSearch from "./AirportSearch";
+import { useBooking } from "Utils/BookingProvider";
 
 const NearbyAirports = () => {
-  const { setContent } = useContent();
+  const { setBookingData } = useBooking();
 
   const airports = [
     { code: "IAD", name: "Dulles International Airport", distance: "12 Miles Away" },
@@ -12,6 +12,7 @@ const NearbyAirports = () => {
   ];
   
   const [nearbyAirports, setNearbyAirports] = useState<{ code: string; name: string; distance: string; }[]>([]);
+  setNearbyAirports(airports);
 
   // Simulate an API call
   useEffect(() => {
@@ -21,7 +22,7 @@ const NearbyAirports = () => {
   }, []);
 
   const handlePrevious = () => {
-    // setContent(<AirportSearch event={event} />, "Airport Search");
+    setBookingData({ content: <AirportSearch /> });
   };
 
   // while loading

@@ -5,6 +5,7 @@ import Card from "./Card";
 import { Event } from "types/events";
 import { useContent } from "Utils/ContentProvider";
 import AirportSearch from "Components/booking/AirportSearch";
+import EventForm from "Components/booking/EventForm";
 
 interface EventListProps {
     heading: string;
@@ -21,7 +22,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
-        setContent(<AirportSearch event={event}/>, event.name);
+        setContent(<EventForm eventData={event}/>, event.name);
     };
 
 	return (

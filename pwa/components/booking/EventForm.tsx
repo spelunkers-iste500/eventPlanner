@@ -1,48 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
 import { Event } from 'types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
+import { useBooking } from 'Utils/BookingProvider';
+import { ArrowLeft } from 'lucide-react';
+import AirportSearch from './AirportSearch';
 
 interface EventData {
-  event: Event;
-  children: React.ReactNode;
+  eventData: Event;
 }
 
-const EventForm: React.FC<EventData> = ({ event, children }) => {
-  const [eventData, setEventData] = useState<Event>(event);
-  const { setContent } = useContent();
+const EventForm: React.FC<EventData> = ({ eventData }) => {
+    const { setContent } = useContent();
+	const { bookingData, setBookingData } = useBooking();
 
-  useEffect(() => { 
-    setEventData(event);
-  }, [event]);
-  
+    useEffect(() => {
+        setBookingData({ event: eventData, content: <AirportSearch /> });
+    }, [eventData, setBookingData]);
+    
 
-  function handleBackClick() {
-    setContent(<Dashboard />, 'Dashboard');
-  }
+    function handleBackClick() {
+      	setContent(<Dashboard />, 'Dashboard');
+    }
 
-  if (!eventData) {
-    return <div>Loading...</div>;
-  }
+    if (!bookingData.event) {
+      	return <div>Loading...</div>;
+    }
 
-  return (
-    <div className={styles.container}>
-      <button 
-        onClick={handleBackClick} 
-        className={styles.backButton}
-      >
-        Back
-      </button>
-      <h1>{eventData.name}</h1>
-      <h5>{eventData.org}</h5>
-      <br></br>
-      <h3>{eventData.eventDate}</h3>
-      <div className={styles.formCard}>
-        {children}
-      </div>
-    </div>
-  );
+    return (
+		<div className={styles.container}>
+			<button 
+				onClick={handleBackClick} 
+				className={`text-btn ${styles.backButton}`}
+			>
+				<ArrowLeft /> Back
+			</button>
+
+			<h1>{bookingData.event.name}</h1>
+			<h2 className='h4'>{bookingData.event.org}</h2>
+			<p>{bookingData.event.eventDate}</p>
+
+			<div className={styles.formCard}>
+				{bookingData.content}
+			</div>
+		</div>
+    );
 };
 
 export default EventForm;
