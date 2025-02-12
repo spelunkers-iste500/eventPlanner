@@ -64,7 +64,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
         $this->organizations = new ArrayCollection();
-        $this->account = new Account();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();

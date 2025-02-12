@@ -3,56 +3,42 @@
 namespace App\Factory;
 
 use App\Entity\Account;
-use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use App\Entity\User;
+use Zenstruck\Foundry\Model\Factory;
+use Zenstruck\Foundry\Proxy;
 
-/**
- * @extends PersistentProxyObjectFactory<Account>
- */
-final class AccountFactory extends PersistentProxyObjectFactory
+class AccountFactory extends Factory
 {
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
-     *
-     * @todo inject services if required
-     */
-    public function __construct()
+    protected function initialize(): self
     {
+        return $this->afterInstantiate(function (Account $account) {
+            // If no user is passed, create one and link it to the account
+            if (!$account->getUserId()) {
+                $user = UserFactory::new()->createOne(); // Creates a new User
+                $account->setUserId($user->getId()); // Links the account to the created user
+            }
+        });
     }
 
-    public static function class(): string
-    {
-        return Account::class;
-    }
-
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#model-factories
-     *
-     * @todo add your default values here
-     */
-    protected function defaults(): array|callable
+    protected function getDefaults(): array|callable
     {
         return [
             'provider' => self::faker()->randomElement(['google', 'github', 'email']),
-        'providerAccountId' => self::faker()->uuid(),
-        'type' => self::faker()->randomElement(['oauth', 'email']),
-        'userId' => self::faker()->randomNumber(),
-        'refreshToken' => self::faker()->sha256(),
-        'accessToken' => self::faker()->sha256(),
-        'expiresAt' => self::faker()->dateTimeBetween('now', '+1 year'),
-        'idToken' => self::faker()->sha256(),
-        'scope' => self::faker()->word(),
-        'sessionState' => self::faker()->sha256(),
-        'tokenType' => self::faker()->randomElement(['Bearer', 'JWT']),
+            'providerAccountId' => self::faker()->uuid(),
+            'type' => self::faker()->randomElement(['oauth', 'email']),
+            'userId' => null, // Will be set when linking to a user
+            'refreshToken' => self::faker()->sha256(),
+            'accessToken' => self::faker()->sha256(),
+            'expiresAt' => self::faker()->dateTimeBetween('now', '+1 year'),
+            'idToken' => self::faker()->sha256(),
+            'scope' => self::faker()->word(),
+            'sessionState' => self::faker()->sha256(),
+            'tokenType' => self::faker()->randomElement(['Bearer', 'JWT']),
         ];
     }
 
-    /**
-     * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#initialization
-     */
-    protected function initialize(): static
+    protected static function getEntityClass(): string
     {
-        return $this
-            // ->afterInstantiate(function(Account $account): void {})
-        ;
+        return Account::class;
     }
 }
