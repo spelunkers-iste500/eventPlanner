@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import AirportSearch from './AirportSearch';
 import styles from './EventForm.module.css';
 import { Event } from 'types/events';
 import { useContent } from 'Utils/ContentProvider';
@@ -7,9 +6,10 @@ import Dashboard from 'Components/dashboard/Dashboard';
 
 interface EventData {
   event: Event;
+  children: React.ReactNode;
 }
 
-const EventForm: React.FC<EventData> = ({ event }) => {
+const EventForm: React.FC<EventData> = ({ event, children }) => {
   const [eventData, setEventData] = useState<Event>(event);
   const { setContent } = useContent();
 
@@ -39,7 +39,7 @@ const EventForm: React.FC<EventData> = ({ event }) => {
       <br></br>
       <h3>{eventData.eventDate}</h3>
       <div className={styles.formCard}>
-        <AirportSearch />
+        {children}
       </div>
     </div>
   );
