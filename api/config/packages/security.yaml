@@ -21,7 +21,7 @@ security:
             json_login:
                 check_path: auth
                 username_path: id
-                password_path: session_token
+                password_path: token
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
