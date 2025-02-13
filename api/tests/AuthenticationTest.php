@@ -5,8 +5,6 @@ namespace App\Tests;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
-use App\Entity\User;
-use App\Factory\AccountFactory;
 use App\Factory\UserFactory;
 
 class AuthenticationTest extends ApiTestCase
@@ -19,7 +17,7 @@ class AuthenticationTest extends ApiTestCase
         $client = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['name' => 'Test User', 'email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
 
         $userpassword = $user -> getPassword();
 
@@ -27,8 +25,8 @@ class AuthenticationTest extends ApiTestCase
         $response = $client->request('POST', '/auth', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
-                'id' => $user->getId(), // Use user ID from the created user
-                'token' => $userpassword, // Token is from the created account
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
             ],
         ]);
 
@@ -37,11 +35,11 @@ class AuthenticationTest extends ApiTestCase
         $this->assertArrayHasKey('token', $json);
 
         // test not authorized
-        $client->request('GET', '/account');
+        $client->request('GET', '/organizations');
         $this->assertResponseStatusCodeSame(401);
 
         // test authorized
-        $client->request('GET', '/account', ['auth_bearer' => $json['token']]);
+        $client->request('GET', '/organizations', ['auth_bearer' => $json['token']]);
         $this->assertResponseIsSuccessful();
     }
 }

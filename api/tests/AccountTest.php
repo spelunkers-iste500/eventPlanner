@@ -16,11 +16,26 @@ class AccountTest extends ApiTestCase
 
     public function testGetAccountCollection(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
         // Create 50 Organizations using our factory
         UserFactory::createMany(50);
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/accounts');
+        $response = static::createClient()->request('GET', '/accounts',['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -31,7 +46,7 @@ class AccountTest extends ApiTestCase
             '@context' => '/contexts/Account',
             '@id' => '/accounts',
             '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 50,
+            'hydra:totalItems' => 51,
             'hydra:view' => [
                 '@id' => '/accounts?page=1',
                 '@type' => 'hydra:PartialCollectionView',
