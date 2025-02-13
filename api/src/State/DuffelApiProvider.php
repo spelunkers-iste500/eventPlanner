@@ -16,12 +16,10 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
 use Symfony\Contracts\HttpClient;
 
-final class DuffelApiProvider implements ProviderInterface{
-    private HttpClientInterface $client;
+final class DuffelApiProvider implements ProviderInterface
+{
 
-    public function __construct(HttpClientInterface $client) {
-        $this->client = $client;
-    }
+    public function __construct(private HttpClientInterface $client) {}
     /* 
         Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
 
@@ -34,68 +32,74 @@ final class DuffelApiProvider implements ProviderInterface{
     */
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
-    {   
-        $flights = $this->getFlights("JFK", "LAX", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
+    {
+        $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
         return $flights;
     }
 
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
-{
-    //$duffelKey = $_ENV['DUFFEL_BEARER'];
-
-    $token = '';
-
-    //for testing purposes
-    //if (!$duffelKey) {
-    //    throw new \RuntimeException('DUFFEL_KEY is not set in the environment variables.');
-    //}
-
-    $response = $this->client->request('POST', 'https://api.duffel.com/air/offer_requests', [
-        'headers' => [
-            'Accept-Encoding' => 'gzip',
-            'Content-Type'=> 'application/json',
-            'Duffel-version' => "v1",
-            'Authorization' => 'Bearer ' . $_ENV['DUFFEL_BEARER'],
-        ],
-        'json' => [
-            'slices' => [
-                [
-                    'origin' => $origin,
-                    'destination' => $destination,
-                    'departure_date' => $departureDate,
-                ]
-            ],
-            'passengers' => [
-                [
-                    'passengers' => array_fill(0, $passengerCount, ['type' => 'adult']),
-                ]
-            ],
-            'currency' => 'USD',
-            'cabin_class' => 'economy',
-        ],
-    ]);
-
-    $data = $response->toArray();
-
-    // dump($response->toArray());
-
-    return $data;
-
-    // Extract and process flight data from the response
-    //return $this->mapToFlightEntities($data);
-}
-
-//Flight entity made itself after adding this function that maps the API call to the Flight Entities
-private function mapToFlightEntities(array $data): array
     {
-        $flights = [];
-        foreach ($data['flights'] as $flightData) {
-            $flight = new Flight();
-            $flight->setOrigin($flightData['origin']);
-            $flight->setDestination($flightData['destination']);
-            $flights[] = $flight;
-        }
+        //$duffelKey = $_ENV['DUFFEL_BEARER'];
 
-        return $flights;
+        $token = '';
+
+        //for testing purposes
+        //if (!$duffelKey) {
+        //    throw new \RuntimeException('DUFFEL_KEY is not set in the environment variables.');
+        //}
+
+        $response = $this->client->request(
+            'POST',
+            'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
+            [
+                'headers' => [
+                    'Accept-Encoding' => 'gzip',
+                    // 'Content-Type'=> 'application/json', // added automatically by the 'json' below
+                    'Duffel-Version' => "v2",
+                    'Authorization' => 'Bearer ' . $token,
+                ],
+                'json' => [
+                    'data' => [
+                        'slices' => [
+                            [
+                                'origin' => $origin,
+                                'destination' => $destination,
+                                'departure_date' => $departureDate,
+                            ]
+                        ],
+                        'passengers' => [
+                            [
+                                'type' => 'adult'
+                            ]
+                        ],
+                        'currency' => 'USD',
+                        'cabin_class' => 'economy',
+                    ],
+                ]
+            ]
+        );
+
+        $data = $response->toArray();
+
+        // dump($response->toArray());
+
+        return $data;
+
+        // Extract and process flight data from the response
+        //return $this->mapToFlightEntities($data);
+    }
 }
-}
+//Flight entity made itself after adding this function that maps the API call to the Flight Entities
+// private function mapToFlightEntities(array $data): array
+//     {
+//         $flights = [];
+//         foreach ($data['flights'] as $flightData) {
+//             $flight = new Flight();
+//             $flight->setOrigin($flightData['origin']);
+//             $flight->setDestination($flightData['destination']);
+//             $flights[] = $flight;
+//         }
+
+//         return $flights;
+// }
+// }
