@@ -25,18 +25,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     // #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
-    public string $name = null;
+    public ?string $name = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    public string $email = null;
+    public ?string $email = null;
 
     #[ORM\Column(name: '"emailVerified"', type: 'datetime', nullable: true)]
     public \DateTimeInterface $emailVerified;
 
     #[ORM\Column(length: 255, nullable: true)]
-    public string $image = null;
+    public ?string $image = null;
 
     #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
     private Account $account;
@@ -54,10 +54,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private Collection $organizations;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $lastModified = null;
+    public ?\DateTimeInterface $lastModified = null;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $createdDate = null;
+    public ?\DateTimeInterface $createdDate = null;
 
     public function __construct()
     {
@@ -65,6 +65,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = new ArrayCollection();
         $this->organizations = new ArrayCollection();
         $this->lastModified = new \DateTime();
+        $this->account = new Account($this);
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();
     }

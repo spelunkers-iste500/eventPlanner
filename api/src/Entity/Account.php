@@ -82,10 +82,14 @@ class Account
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    public function __construct()
+    public function __construct(User $user)
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->setUser($user);
+        $this->provider = "email";
+        $this->type = "email";
+        $this->providerAccountId = (String)random_int(10000,100000000000000000);
     }
 
     public function getId(): int
