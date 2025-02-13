@@ -18,11 +18,26 @@ class BudgetTest extends ApiTestCase
 
     public function testGetBudgetCollection(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
         // Create 50 Budgets using our factory
         BudgetFactory::createMany(50);
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/budgets');
+        $response = static::createClient()->request('GET', '/budgets',['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -55,7 +70,22 @@ class BudgetTest extends ApiTestCase
     }    
     public function testCreateBudget(): void
     {
-        UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
+        
         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/budgets', [
@@ -66,7 +96,8 @@ class BudgetTest extends ApiTestCase
                 "vipBudget"=> "20000.00",
                 "regBudget"=> "80000.00",
                 "financialPlannerID"=> "$iri",
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
@@ -88,6 +119,21 @@ class BudgetTest extends ApiTestCase
     }
     public function testUpdateBudget(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
         // Only create the book we need with a given ISBN
         BudgetFactory::createOne(["total"=> "420.69"]);
 
@@ -102,7 +148,8 @@ class BudgetTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
 
@@ -118,13 +165,28 @@ class BudgetTest extends ApiTestCase
     }
     public function testDeleteBudget(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
         // Only create the user we need with a given email
         BudgetFactory::createOne(["total"=> "420.69"]);
 
         $client = static::createClient();
         $iri = $this->findIriBy(Budget::class, ["total"=> "420.69"]);
         $startTime = microtime(true);
-        $client->request('DELETE', $iri);
+        $client->request('DELETE', $iri,['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
