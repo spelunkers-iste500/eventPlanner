@@ -12,7 +12,6 @@ const NearbyAirports = () => {
   ];
   
   const [nearbyAirports, setNearbyAirports] = useState<{ code: string; name: string; distance: string; }[]>([]);
-  setNearbyAirports(airports);
 
   // Simulate an API call
   useEffect(() => {
@@ -26,7 +25,7 @@ const NearbyAirports = () => {
   };
 
   // while loading
-  if (!nearbyAirports) {
+  if (nearbyAirports.length === 0) {
     return (
       <div className="animation-container">
         <div className="magnifying-glass-container">
