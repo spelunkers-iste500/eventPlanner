@@ -60,7 +60,7 @@ jobs:
       - name: Check API reachability
         run: curl -vk --fail-with-body https://localhost
       - name: Check PWA reachability
-        run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/"
+        run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login"
       - name: Create database
         run: docker compose exec -T php bin/console -e test doctrine:database:create
       - name: Install Schema
