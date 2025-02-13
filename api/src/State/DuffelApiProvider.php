@@ -18,8 +18,12 @@ use Symfony\Contracts\HttpClient;
 
 final class DuffelApiProvider implements ProviderInterface
 {
+    private string $token;
 
-    public function __construct(private HttpClientInterface $client) {}
+    public function __construct(private HttpClientInterface $client)
+    {
+        $this->token = $_ENV['DUFFEL_BEARER'];
+    }
     /* 
         Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
 
@@ -39,24 +43,13 @@ final class DuffelApiProvider implements ProviderInterface
 
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
     {
-        //$duffelKey = $_ENV['DUFFEL_BEARER'];
-
-        $token = '';
-
-        //for testing purposes
-        //if (!$duffelKey) {
-        //    throw new \RuntimeException('DUFFEL_KEY is not set in the environment variables.');
-        //}
-
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
             [
                 'headers' => [
-                    'Accept-Encoding' => 'gzip',
-                    // 'Content-Type'=> 'application/json', // added automatically by the 'json' below
                     'Duffel-Version' => "v2",
-                    'Authorization' => 'Bearer ' . $token,
+                    'Authorization' => 'Bearer ' . $this->token,
                 ],
                 'json' => [
                     'data' => [
@@ -81,12 +74,7 @@ final class DuffelApiProvider implements ProviderInterface
 
         $data = $response->toArray();
 
-        // dump($response->toArray());
-
-        return $data;
-
-        // Extract and process flight data from the response
-        //return $this->mapToFlightEntities($data);
+        return [$data];
     }
 }
 //Flight entity made itself after adding this function that maps the API call to the Flight Entities
