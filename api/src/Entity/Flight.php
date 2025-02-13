@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+use App\State\DuffelApiProvider;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -11,61 +13,108 @@ class Flight
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'string', length: 10)]
-    public string $flightID;
+    #[ORM\Column]
+    private ?int $id = null;
 
-    #[ORM\Column(length: 20, nullable: true, unique: true)]
-    public string $flightNumber;
+    #[ORM\Column(length: 3)]
+    private string $origin;
 
-    //Relationships
+    #[ORM\Column(length: 3)]
+    private string $destination;
 
-    //eventOrganization -> Event
-    #[ORM\ManyToOne(targetEntity: Event::class)]
-    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
-    public Event $eventID;
+    #[ORM\Column(type: "date")]
+    private \DateTimeInterface $departureDate;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $departureTime;
+    #[ORM\Column]
+    private int $passengerCount;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $arrivalTime;
+    #[ORM\Column(type: "decimal", precision: 10, scale: 2, nullable: true)]
+    private ?float $price = null;
 
-    #[ORM\Column(length: 55)]
-    public string $departureLocation;
-
-    #[ORM\Column(length: 55)]
-    public string $arrivalLocation;
-
-    #[ORM\Column(length: 55)]
-    public string $airline;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    public ?string $flightTracker;
-
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'flights')]
-    private Collection $users;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $lastModified;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $createdDate;
-
+    // Remove the DuffelApiProvider from the constructor, it shouldn't be needed directly in the entity
     public function __construct()
     {
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        // Constructor logic here if needed
     }
 
-    public function setOrigin(string $origin): void
+    // Static method to fetch flights using the provider
+    public static function fetchFlights(DuffelApiProvider $duffelApiProvider, string $origin, string $destination, string $departureDate, int $passengerCount): array
     {
-        $this->departureLocation = $origin;
-    }
-    
-    public function setDestination(string $destination): void
-    {
-        $this->arrivalLocation = $destination;
-    }
-    
+        // Fetch flight data from the provider
+        $flightsData = $duffelApiProvider->getFlights($origin, $destination, $departureDate, $passengerCount);
 
+        $flights = [];
+        foreach ($flightsData['data']['flights'] ?? [] as $flightData) {
+            $flight = new self();  // Create the Flight entity normally
+            $flight->setOrigin($flightData['origin']);
+            $flight->setDestination($flightData['destination']);
+            $flight->setDepartureDate(new \DateTime($flightData['departure_date']));
+            $flight->setPassengerCount($passengerCount);
+            $flights[] = $flight;
+        }
+
+        return $flights;
+    }
+
+    // Getters and setters for the fields
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getOrigin(): string
+    {
+        return $this->origin;
+    }
+
+    public function setOrigin(string $origin): self
+    {
+        $this->origin = $origin;
+        return $this;
+    }
+
+    public function getDestination(): string
+    {
+        return $this->destination;
+    }
+
+    public function setDestination(string $destination): self
+    {
+        $this->destination = $destination;
+        return $this;
+    }
+
+    public function getDepartureDate(): \DateTimeInterface
+    {
+        return $this->departureDate;
+    }
+
+    public function setDepartureDate(\DateTimeInterface $departureDate): self
+    {
+        $this->departureDate = $departureDate;
+        return $this;
+    }
+
+    public function getPassengerCount(): int
+    {
+        return $this->passengerCount;
+    }
+
+    public function setPassengerCount(int $passengerCount): self
+    {
+        $this->passengerCount = $passengerCount;
+        return $this;
+    }
+
+    public function getPrice(): ?float
+    {
+        return $this->price;
+    }
+
+    public function setPrice(?float $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
 }
