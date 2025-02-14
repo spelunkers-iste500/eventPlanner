@@ -71,9 +71,9 @@ final class DuffelApiProvider implements ProviderInterface
             ]
         );
 
-        $data = $response->toArray();
+        $data = $response->toArray()['data']['offers'];
 
-        return [$data];
+        return $data;
     }
 }
 //Flight entity made itself after adding this function that maps the API call to the Flight Entities
