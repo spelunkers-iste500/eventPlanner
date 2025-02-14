@@ -35,12 +35,13 @@ final class DuffelApiProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        return $this->getFlights($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
+
+        return $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
         // $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
         // return $flights;
     }
 
-    public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
+    public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $passengerCount): array
     {
         $response = $this->client->request(
             'POST',
@@ -57,6 +58,48 @@ final class DuffelApiProvider implements ProviderInterface
                                 'origin' => $origin,
                                 'destination' => $destination,
                                 'departure_date' => $departureDate,
+                            ]
+                        ],
+                        'passengers' => [
+                            [
+                                // populate the passengers array with the number of passengers
+                                'type' => 'adult'
+                            ]
+                        ],
+                        'currency' => 'USD',
+                        'cabin_class' => 'economy',
+                    ],
+                ]
+            ]
+        );
+
+        $data = $response->toArray()['data']['offers'];
+
+        return $data;
+    }
+
+    public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $passengerCount): array
+    {
+        $response = $this->client->request(
+            'POST',
+            'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
+            [
+                'headers' => [
+                    'Duffel-Version' => "v2",
+                    'Authorization' => 'Bearer ' . $this->token,
+                ],
+                'json' => [
+                    'data' => [
+                        'slices' => [
+                            [ // departing flight
+                                'origin' => $origin,
+                                'destination' => $destination,
+                                'departure_date' => $departureDate,
+                            ],
+                            [ // return flight
+                                'origin' => $destination,
+                                'destination' => $origin,
+                                'departure_date' => $returnDate,
                             ]
                         ],
                         'passengers' => [
