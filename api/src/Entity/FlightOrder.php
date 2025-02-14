@@ -4,13 +4,13 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
-use App\State\DuffelApiProvider;
+use App\State\DuffelOrderProvider;
 use ApiPlatform\Metadata\Get;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
-#[Get(provider: DuffelApiProvider::class)]
+#[Get(provider: DuffelOrderProvider::class)]
 class FlightOrder
 {
     #[ORM\Id]
