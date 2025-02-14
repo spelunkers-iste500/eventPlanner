@@ -6,24 +6,30 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\State\DuffelApiProvider;
 use ApiPlatform\Metadata\Get;
+use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity]
 #[ApiResource]
-#[Get(provider: DuffelApiProvider::class)]
+#[Get(
+    provider: DuffelApiProvider::class,
+    uriTemplate: '/flightOrders/{origin}/{destination}/{departureDate}/{passengerCount}',
+)]
 class FlightOrder
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
 
-    #[ORM\Column(type: 'json')]
+    public string $origin;
+
+    public string $destination;
+
+    public string $departureDate;
+
+    public int $passengerCount;
+
     private array $offerData = [];
 
-    public function getId(): ?int
+    public function getId(): ?array
     {
-        return $this->id;
+        return [$this->origin, $this->destination, $this->departureDate, $this->passengerCount];
     }
 
     public function getOfferData(): array

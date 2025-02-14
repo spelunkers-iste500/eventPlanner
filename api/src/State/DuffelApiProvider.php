@@ -11,10 +11,8 @@ references:
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Flight;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
-use Symfony\Contracts\HttpClient;
 
 final class DuffelApiProvider implements ProviderInterface
 {
@@ -37,8 +35,9 @@ final class DuffelApiProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
-        return $flights;
+        return $this->getFlights($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
+        // $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
+        // return $flights;
     }
 
     public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
