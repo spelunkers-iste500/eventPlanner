@@ -26,11 +26,18 @@ class FlightOrder
 
     // TODO: setup overloaded functions in the provider to handle roundtrip vs oneway
 
+    // TODO: setup automatic handling of return date from event flight will be spawned from
+
+    // TODO: validate date is in the future, and between the departure and the specified 
+    // return date as set by the event planner to allow for early returns if required
+
     public string $origin;
 
     public string $destination;
 
     public string $departureDate;
+
+    public string $returnDate;
 
     public int $passengerCount;
 
