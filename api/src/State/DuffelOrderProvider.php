@@ -8,6 +8,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
+use App\Entity\Budget;
 
 final class DuffelOrderProvider implements ProviderInterface
 {
@@ -23,6 +24,18 @@ final class DuffelOrderProvider implements ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+
+        /**For testing I am searching for budgets based on lastModified times, but it will probably go by event or financial planner */
+        $budget = $this->entityManager->getRepository(Budget::class)->findOneBy([], ['lastModified' => 'DESC']);
+
+        if (!$budget) {
+            throw new \RuntimeException("No budget found.");
+        }
+
+        /**
+         * Adding budget manipulation here
+         */
+
         $orders = $this->getOrders();
         $flightOrder = new FlightOrder();
         $flightOrder->setOfferData($orders);
