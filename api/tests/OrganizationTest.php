@@ -6,6 +6,7 @@ namespace App\Tests;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Organization;
 use App\Factory\OrganizationFactory;
+use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -16,11 +17,29 @@ class OrganizationTest extends ApiTestCase
 
     public function testGetOrganizationCollection(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+
+        $json = $authresponse->toArray();
         // Create 50 Organizations using our factory
         OrganizationFactory::createMany(50);
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/organizations');
+        $response = static::createClient()->request('GET', '/organizations',['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -54,6 +73,23 @@ class OrganizationTest extends ApiTestCase
     }  
     public function testCreateOrganization(): void
     {
+         //get auth token for test \
+         $authclient = self::createClient();
+        
+         // Create User and Account using Foundry
+         $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+ 
+         $userpassword = $user -> getPassword();
+ 
+         // retrieve a token
+         $authresponse = $authclient->request('POST', '/auth', [
+             'headers' => ['Content-Type' => 'application/json'],
+             'json' => [
+                 'id' => (string) $user->getId(), // Use user ID from the created user
+                 'token' => (string) $userpassword, // Token is from the created account
+             ],
+         ]);
+        $json = $authresponse->toArray();
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/organizations', [
             'headers' => ['Content-Type' => 'application/ld+json'],
@@ -64,7 +100,8 @@ class OrganizationTest extends ApiTestCase
                 "industry"=> "Information Technology",
                 "primaryEmail"=> "ritchie@rit.edu",
                 "secondaryEmail"=> "ratchie@rit.edu", 
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
@@ -87,6 +124,22 @@ class OrganizationTest extends ApiTestCase
     }
     public function testUpdateOrganization(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
         // Only create the book we need with a given ISBN
         OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
 
@@ -101,7 +154,8 @@ class OrganizationTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
 
@@ -117,13 +171,28 @@ class OrganizationTest extends ApiTestCase
     }
     public function testDeleteOrganization(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $userpassword = $user -> getPassword();
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+            
+        ]);
+        $json = $authresponse->toArray();
         // Only create the user we need with a given email
         OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
 
         $client = static::createClient();
         $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);
         $startTime = microtime(true);
-        $client->request('DELETE', $iri);
+        $client->request('DELETE', $iri,['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(

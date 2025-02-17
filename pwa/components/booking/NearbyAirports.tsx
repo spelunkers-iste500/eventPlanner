@@ -3,7 +3,7 @@ import AirportSearch from "./AirportSearch";
 import { useBooking } from "Utils/BookingProvider";
 
 const NearbyAirports = () => {
-  const { setBookingData } = useBooking();
+  const { bookingData, setBookingData } = useBooking();
 
   const airports = [
     { code: "IAD", name: "Dulles International Airport", distance: "12 Miles Away" },
@@ -21,7 +21,7 @@ const NearbyAirports = () => {
   }, []);
 
   const handlePrevious = () => {
-    setBookingData({ content: <AirportSearch /> });
+    setBookingData({ ...bookingData, content: <AirportSearch /> });
   };
 
   // while loading

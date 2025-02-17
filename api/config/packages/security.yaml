@@ -21,7 +21,7 @@ security:
             json_login:
                 check_path: auth
                 username_path: id
-                password_path: session_token
+                password_path: token
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
@@ -37,7 +37,7 @@ security:
     access_control:
         - { path: ^/organizations, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/accounts, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/budgets, roles: ROLE_NONUSER }
+        - { path: ^/budgets, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/$, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI
         - { path: ^/docs, roles: PUBLIC_ACCESS } # Allows accessing the Swagger UI docs
         - { path: ^/auth, roles: PUBLIC_ACCESS }

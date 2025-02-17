@@ -83,6 +83,7 @@ class FlightTest extends ApiTestCase
             "arrivalTime"=> "2025-02-01T17:24:40+00:00",
             "departureLocation"=> "Buffalo Airport",
             "arrivalLocation" => "Baltimore Washington International",
+            "airline"=> "SouthWest",
             "flightTracker"=> "https://maps.google.com", 
 
         ]);
