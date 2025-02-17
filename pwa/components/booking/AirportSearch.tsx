@@ -37,7 +37,6 @@ const AirportSearch: React.FC = () => {
                 onChange={(value) => setFormData({ ...formData, airport: value })}
             />
 
-
             <p>One Way or Round Trip?</p>
             <Input
                 isRadio
@@ -51,8 +50,6 @@ const AirportSearch: React.FC = () => {
                 label='Round Trip'
                 onChange={(value) => setFormData({ ...formData, airport: value })}
             />
-
-            <br /><br />
 
             <button type="submit">Search</button>
         </form>

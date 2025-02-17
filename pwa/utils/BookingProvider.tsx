@@ -1,10 +1,19 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Airport } from 'types/airports';
 import { Event } from 'types/events';
 
 interface BookingData {
-    event?: Event;
+    event: Event;
     content: ReactNode;
+    departAirport?: Airport;
+    departFlight?: string;
+    departDate?: string;
+    departTime?: string;
+    returnAirport?: string;
+    returnFlight?: string;
+    returnDate?: string;
+    returnTime?: string;
 }
 
 interface BookingContextProps {
@@ -15,7 +24,7 @@ interface BookingContextProps {
 const BookingContext = createContext<BookingContextProps | undefined>(undefined);
 
 export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [bookingData, setBookingData] = useState<BookingData>({ event: undefined, content: null });
+    const [bookingData, setBookingData] = useState<BookingData>({} as BookingData);
 
     return (
         <BookingContext.Provider value={{ bookingData, setBookingData }}>

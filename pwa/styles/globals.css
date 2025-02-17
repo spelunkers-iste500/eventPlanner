@@ -154,11 +154,11 @@ img {
 
 
 /* Center the animation */
-.animation-container {
+.loading-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 300px;
 }
 
   /* Outer container to follow the path */
