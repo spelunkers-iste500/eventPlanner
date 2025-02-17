@@ -11,10 +11,8 @@ references:
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
-use App\Entity\Flight;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
-use Symfony\Contracts\HttpClient;
 
 final class DuffelApiProvider implements ProviderInterface
 {
@@ -37,11 +35,13 @@ final class DuffelApiProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
-        return $flights;
+
+        return $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
+        // $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
+        // return $flights;
     }
 
-    public function getFlights(string $origin, string $destination, string $departureDate, int $passengerCount): array
+    public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $passengerCount): array
     {
         $response = $this->client->request(
             'POST',
@@ -62,6 +62,7 @@ final class DuffelApiProvider implements ProviderInterface
                         ],
                         'passengers' => [
                             [
+                                // populate the passengers array with the number of passengers
                                 'type' => 'adult'
                             ]
                         ],
@@ -72,9 +73,50 @@ final class DuffelApiProvider implements ProviderInterface
             ]
         );
 
-        $data = $response->toArray();
+        $data = $response->toArray()['data']['offers'];
 
-        return [$data];
+        return $data;
+    }
+
+    public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $passengerCount): array
+    {
+        $response = $this->client->request(
+            'POST',
+            'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
+            [
+                'headers' => [
+                    'Duffel-Version' => "v2",
+                    'Authorization' => 'Bearer ' . $this->token,
+                ],
+                'json' => [
+                    'data' => [
+                        'slices' => [
+                            [ // departing flight
+                                'origin' => $origin,
+                                'destination' => $destination,
+                                'departure_date' => $departureDate,
+                            ],
+                            [ // return flight
+                                'origin' => $destination,
+                                'destination' => $origin,
+                                'departure_date' => $returnDate,
+                            ]
+                        ],
+                        'passengers' => [
+                            [
+                                'type' => 'adult'
+                            ]
+                        ],
+                        'currency' => 'USD',
+                        'cabin_class' => 'economy',
+                    ],
+                ]
+            ]
+        );
+
+        $data = $response->toArray()['data']['offers'];
+
+        return $data;
     }
 }
 //Flight entity made itself after adding this function that maps the API call to the Flight Entities
