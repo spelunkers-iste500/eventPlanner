@@ -1,17 +1,18 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Airport } from 'types/airports';
+import { Airport, Flight } from 'types/airports';
 import { Event } from 'types/events';
 
 interface BookingData {
     event: Event;
     content: ReactNode;
+    isRoundTrip?: boolean;
     departAirport?: Airport;
-    departFlight?: string;
+    departFlight?: Flight;
     departDate?: string;
     departTime?: string;
     returnAirport?: string;
-    returnFlight?: string;
+    returnFlight?: Flight;
     returnDate?: string;
     returnTime?: string;
 }

@@ -12,7 +12,7 @@ interface InputProps {
 }
 
 const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, onChange, isRadio }) => {
-    const [value, setValue] = useState("");
+    const [value, setValue] = useState('');
     
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         setValue(e.target.value);

@@ -3,3 +3,12 @@ export interface Airport {
     name: string;
     distance: string;
 }
+
+export interface Flight {
+    airline: string;
+    flightNumber: string;
+    date: string;
+    time: string;
+    price: number;
+    notes?: string[];
+}

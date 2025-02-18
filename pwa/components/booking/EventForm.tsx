@@ -8,7 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import AirportSearch from './AirportSearch';
 
 interface EventData {
-  eventData: Event;
+  	eventData: Event;
 }
 
 const EventForm: React.FC<EventData> = ({ eventData }) => {

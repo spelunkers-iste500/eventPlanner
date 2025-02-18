@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import EventForm from './EventForm';
-import { useContent } from 'Utils/ContentProvider';
 import { useBooking } from 'Utils/BookingProvider';
 import NearbyAirports from './NearbyAirports';
 import Input from 'Components/common/Input';
@@ -11,12 +9,12 @@ const AirportSearch: React.FC = () => {
     const [formData, setFormData] = useState({
         zip: '',
         airport: '',
-        trip: 'round-trip',
+        trip: 'Round Trip',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setBookingData({ event: bookingData.event, content: <NearbyAirports /> });
+        setBookingData({ ...bookingData, isRoundTrip: (formData.trip === "round-trip" ? true : false), content: <NearbyAirports /> });
     };
 
     return (

@@ -20,7 +20,7 @@ const NearbyAirports = () => {
 	useEffect(() => {
 		setTimeout(() => {
 			setNearbyAirports(airports);
-		}, 30000);
+		}, 3000);
 	}, []);
 
 	const handlePrevious = () => {
