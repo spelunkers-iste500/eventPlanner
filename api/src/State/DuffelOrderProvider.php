@@ -35,9 +35,9 @@ final class DuffelOrderProvider implements ProviderInterface
         /**
          * Adding budget manipulation here
          */
-$availableBudget = $budget->total - $budget->spentBudget;
+        $availableBudget = $budget->total - $budget->spentBudget;
 
-        $orders = $this->getOrders();
+        $orders = $this->createOrder();
         $flightOrder = new FlightOrder();
         $flightOrder->setOfferData($orders);
 
@@ -52,7 +52,7 @@ $availableBudget = $budget->total - $budget->spentBudget;
      * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
-    public function getOrders(): array
+    public function createOrder(string $offerid): array
     {
         $response = $this->client->request(
             'GET',
@@ -61,6 +61,34 @@ $availableBudget = $budget->total - $budget->spentBudget;
                 'headers' => [
                     'Duffel-Version' => "v2",
                     'Authorization' => 'Bearer ' . $this->token,
+                ],
+                'json' => [
+                    'data' => [
+                        /**
+                         * Required fields, look into adding additional ones per documentation
+                         * payments is omitted because all flights are put on hold
+                         */
+                        
+                        //'users' => '', unsure if this is required as of yet
+                        'type' => 'hold',
+                        'selected_offers' => [$offerid],
+                        'passengers' => [
+                            [
+                                /**
+                                 * list of personal information about a passenger
+                                 */
+                                'user_id' => "placeholder",
+                            ],
+                        
+                        //taken from example will change to be dynamic
+                        "id" => "pas_00009hj8USM7Ncg31cBCLL",
+                        "given_name" => "Amelia",
+                        "gender" => "f",
+                        "family_name" => "Earhart",
+                        "email" => "amelia@duffel.com",
+                        "born_on" => "1987-07-24",
+                        ],
+                    ]
                 ]
             ]
         );
