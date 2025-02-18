@@ -22,7 +22,7 @@ final class DuffelOrderProvider implements ProviderInterface
     /**
      * Provides order data from the Duffel API.
      */
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = ['offerid'], array $context = []): object|array|null
     {
 
         /**For testing I am searching for budgets based on lastModified times, but it will probably go by event or financial planner */
@@ -37,7 +37,7 @@ final class DuffelOrderProvider implements ProviderInterface
          */
         $availableBudget = $budget->total - $budget->spentBudget;
 
-        $orders = $this->createOrder();
+        $orders = $this->createOrder('offerid');
         $flightOrder = new FlightOrder();
         $flightOrder->setOfferData($orders);
 
