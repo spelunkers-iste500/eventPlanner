@@ -2,26 +2,27 @@
 
 namespace App\Factory;
 
-use App\Entity\User;
+use App\Entity\Event;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<User>
+ * @extends PersistentProxyObjectFactory<Event>
  */
-final class UserFactory extends PersistentProxyObjectFactory
+final class EventFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
      *
      * @todo inject services if required
      */
+    
     public function __construct()
     {
     }
 
     public static function class(): string
     {
-        return User::class;
+        return Event::class;
     }
 
     /**
@@ -32,12 +33,11 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->name(),
-            'email' => self::faker()->unique()->safeEmail(),
-            'emailVerified' => self::faker()->dateTime(),
-            'image' => self::faker()->imageUrl(255),
-            'lastModified' => self::faker()->dateTime(),
-            'createdDate' => self::faker()->dateTime(),
+            'endDateTime' => self::faker()->dateTimeBetween('+1 week', '+1 month'),
+            'eventTitle' => substr(self::faker()->sentence(5), 0, 55),
+            'location' => substr(self::faker()->address(), 0, 55),
+            'maxAttendees' => self::faker()->numberBetween(1, 20),
+            'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
         ];
     }
 
@@ -47,7 +47,7 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(User $user): void {})
+            // ->afterInstantiate(function(Event $event): void {})
         ;
     }
 }

@@ -5,10 +5,31 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\OpenApi\Model\Operation;
+use App\State\CurrentAccountProvider;
 
 #[ORM\Entity]
-#[ApiResource]
+#[ApiResource(
+    // uriTemplate: '/accounts/me.{_format}',
+    operations: [
+        new Get(
+            uriTemplate: '/accounts/me.{_format}',
+            openapi: new Operation(summary: "Get the current user email"),
+            provider: CurrentAccountProvider::class
+        ),
+        new GetCollection(
+            uriTemplate: '/accounts.{_format}',
+            openapi: new Operation(summary: "Get All Accounts")
+        )
+    ],
+
+)]
+// #[ApiResource]
 #[ORM\Table(name: 'accounts')]
+// #[Get(securityPostDenormalize: 'is_granted("ROLE_USER") OR object.userId == user.id')]
+
 class Account
 {
     #[ORM\Id]
@@ -61,9 +82,158 @@ class Account
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
-    public function __construct()
+    public function __construct(User $user)
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->setUser($user);
+        $this->provider = "email";
+        $this->type = "email";
+        $this->providerAccountId = (String)random_int(10000,100000000000000000);
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getUserId(): int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(int $userId): void
+    {
+        $this->userId = $userId;
+    }
+
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): void
+    {
+        $this->type = $type;
+    }
+
+    public function getProvider(): string
+    {
+        return $this->provider;
+    }
+
+    public function setProvider(string $provider): void
+    {
+        $this->provider = $provider;
+    }
+
+    public function getProviderAccountId(): string
+    {
+        return $this->providerAccountId;
+    }
+
+    public function setProviderAccountId(string $providerAccountId): void
+    {
+        $this->providerAccountId = $providerAccountId;
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->refreshToken;
+    }
+
+    public function setRefreshToken(?string $refreshToken): void
+    {
+        $this->refreshToken = $refreshToken;
+    }
+
+    public function getAccessToken(): ?string
+    {
+        return $this->accessToken;
+    }
+
+    public function setAccessToken(?string $accessToken): void
+    {
+        $this->accessToken = $accessToken;
+    }
+
+    public function getExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->expiresAt;
+    }
+
+    public function setExpiresAt(?\DateTimeInterface $expiresAt): void
+    {
+        $this->expiresAt = $expiresAt;
+    }
+
+    public function getIdToken(): ?string
+    {
+        return $this->idToken;
+    }
+
+    public function setIdToken(?string $idToken): void
+    {
+        $this->idToken = $idToken;
+    }
+
+    public function getScope(): ?string
+    {
+        return $this->scope;
+    }
+
+    public function setScope(?string $scope): void
+    {
+        $this->scope = $scope;
+    }
+
+    public function getSessionState(): ?string
+    {
+        return $this->sessionState;
+    }
+
+    public function setSessionState(?string $sessionState): void
+    {
+        $this->sessionState = $sessionState;
+    }
+
+    public function getTokenType(): ?string
+    {
+        return $this->tokenType;
+    }
+
+    public function setTokenType(?string $tokenType): void
+    {
+        $this->tokenType = $tokenType;
+    }
+
+    public function getLastModified(): \DateTimeInterface
+    {
+        return $this->lastModified;
+    }
+
+    public function setLastModified(\DateTimeInterface $lastModified): void
+    {
+        $this->lastModified = $lastModified;
+    }
+
+    public function getCreatedDate(): \DateTimeInterface
+    {
+        return $this->createdDate;
+    }
+
+    public function setCreatedDate(\DateTimeInterface $createdDate): void
+    {
+        $this->createdDate = $createdDate;
     }
 }

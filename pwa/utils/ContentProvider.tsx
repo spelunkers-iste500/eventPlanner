@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import Dashboard from '../components/dashboard/Dashboard';
+import Dashboard from 'Components/dashboard/Dashboard';
 
 interface ContentState {
     name: string;

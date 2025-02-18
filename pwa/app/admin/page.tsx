@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 
 // load the admin client-side
-const App = dynamic(() => import("../../components/admin/App"), {
+const App = dynamic(() => import("Components/admin/App"), {
   ssr: false,
   loading: () => <p>Loading...</p>,
 });

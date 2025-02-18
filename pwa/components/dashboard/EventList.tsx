@@ -3,8 +3,8 @@ import styles from "../dashboard/Dashboard.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-react";
 import Card from "./Card";
 import { Event } from "types/events";
-import { useContent } from "@utils/ContentProvider";
-import EventForm from "components/booking/EventForm";
+import { useContent } from "Utils/ContentProvider";
+import EventForm from "Components/booking/EventForm";
 
 interface EventListProps {
     heading: string;

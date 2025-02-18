@@ -1,11 +1,11 @@
 'use client';
 import React, { useRef, useState } from "react";
-import Nav from "../components/nav/Nav";
-import Dashboard from "../components/dashboard/Dashboard";
-import Container from "../components/common/Container";
+import Nav from "Components/nav/Nav";
+import Dashboard from "Components/dashboard/Dashboard";
+import Container from "Components/common/Container";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useRouter } from "next/navigation";
-import { useContent } from "@utils/ContentProvider";
+import { useContent } from "Utils/ContentProvider";
 
 export interface ContentState {
 	name: string;
