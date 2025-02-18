@@ -35,6 +35,7 @@ final class DuffelOrderProvider implements ProviderInterface
         /**
          * Adding budget manipulation here
          */
+$availableBudget = $budget->total - $budget->spentBudget;
 
         $orders = $this->getOrders();
         $flightOrder = new FlightOrder();
