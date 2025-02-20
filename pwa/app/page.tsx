@@ -1,11 +1,10 @@
 'use client';
-import React, { useRef, useState } from "react";
-import Nav from "Components/nav/Nav";
-import Dashboard from "Components/dashboard/Dashboard";
-import Container from "Components/common/Container";
+import React, { useRef } from "react";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
-import { useRouter } from "next/navigation";
 import { useContent } from "Utils/ContentProvider";
+import Container from "Components/common/Container";
+import Nav from "Components/nav/Nav";
+import { Toaster } from "Components/ui/toaster";
 
 export interface ContentState {
 	name: string;
@@ -34,6 +33,7 @@ const App: React.FC = () => {
 
 	return (
 		<div className="app-container">
+			<Toaster />
 			<Nav />
 			<Container>
 				{state.content}

@@ -4,6 +4,7 @@ import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-
 import Card from "./Card";
 import { Event } from "types/events";
 import { useContent } from "Utils/ContentProvider";
+import AirportSearch from "Components/booking/AirportSearch";
 import EventForm from "Components/booking/EventForm";
 
 interface EventListProps {
@@ -21,7 +22,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
-        setContent(<EventForm event={event}/>, event.name);
+        setContent(<EventForm eventData={event}/>, event.name);
     };
 
 	return (
