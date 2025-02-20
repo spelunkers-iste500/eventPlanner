@@ -54,10 +54,10 @@ const FlightList: React.FC = () => {
 	return (
 		<div>
 			<h2>Available Departure Flights</h2>
-			<p>{flights.length} Results</p>
+			<p>{flightList.length} Results</p>
 			
 			<div>
-				{flights.map((flight) => (
+				{flightList.map((flight) => (
 					<div key={flight.flightNumber}>
 						<div>
 							<span>{flight.airline} {flight.flightNumber}</span>

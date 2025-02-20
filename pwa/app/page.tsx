@@ -4,6 +4,7 @@ import { useSession, signIn } from "next-auth/react"; // import client side tool
 import { useContent } from "Utils/ContentProvider";
 import Container from "Components/common/Container";
 import Nav from "Components/nav/Nav";
+import { Toaster } from "Components/ui/toaster";
 
 export interface ContentState {
 	name: string;
@@ -32,6 +33,7 @@ const App: React.FC = () => {
 
 	return (
 		<div className="app-container">
+			<Toaster />
 			<Nav />
 			<Container>
 				{state.content}

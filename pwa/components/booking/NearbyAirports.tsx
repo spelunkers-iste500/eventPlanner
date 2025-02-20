@@ -7,14 +7,13 @@ import { Spinner } from "@chakra-ui/react";
 
 const NearbyAirports = () => {
 	const { bookingData, setBookingData } = useBooking();
+	const [nearbyAirports, setNearbyAirports] = useState<Airport[]>([]);
 
 	const airports = [
 		{ code: "IAD", name: "Dulles International Airport", distance: "12 Miles Away" },
 		{ code: "DCA", name: "Ronald Reagan Washington National Airport", distance: "16 Miles Away" },
 		{ code: "BWI", name: "Baltimore/Washington International Thurgood Marshall Airport", distance: "23 Miles Away" }
 	];
-  
-  	const [nearbyAirports, setNearbyAirports] = useState<Airport[]>([]);
 
 	// Simulate an API call
 	useEffect(() => {

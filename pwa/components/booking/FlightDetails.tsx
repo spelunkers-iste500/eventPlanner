@@ -4,6 +4,7 @@ import FlightList from "./FlightList";
 import ReturnDateTime from "./ReturnDateTime";
 import { useContent } from "Utils/ContentProvider";
 import Dashboard from "Components/dashboard/Dashboard";
+import { toaster } from "Components/ui/toaster";
 
 const FlightDetails: React.FC = () => {
     const [selectedClass, setSelectedClass] = useState<string>("");
@@ -20,6 +21,13 @@ const FlightDetails: React.FC = () => {
 			setBookingData({ ...bookingData, content: <ReturnDateTime /> }) 
 		:
 			setContent(<Dashboard />, 'Dashboard');
+            toaster.create({
+                title: "Flight Reserved",
+                description: "Your flight has successfully been reserved.",
+                type: "success",
+                duration: 3000,
+                placement: 'top-end'
+            });
 		;
 	}
 

@@ -14,7 +14,7 @@ const AirportSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setBookingData({ ...bookingData, isRoundTrip: (formData.trip === "round-trip" ? true : false), content: <NearbyAirports /> });
+        setBookingData({ ...bookingData, isRoundTrip: (formData.trip === "Round Trip" ? true : false), content: <NearbyAirports /> });
     };
 
     return (
