@@ -1,13 +1,13 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import PlannerDashboard from 'components/eventPlanner/PlannerDashboard';
+import EventAdminDashboard from 'Components/eventAdmin/EventAdminDashboard';
 
 const EventPlanner: React.FC = () => {
     const router = useRouter();
 
     return (
-        <PlannerDashboard />
+        <EventAdminDashboard />
     );
 };
 

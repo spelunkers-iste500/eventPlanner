@@ -1,6 +1,6 @@
 import React from "react";
-import EventList from "../dashboard/EventList";
-import styles from "../dashboard/Dashboard.module.css";
+import EventList from "../common/EventList";
+import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "types/events";
 
@@ -50,7 +50,8 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <EventList heading="Event Invitations" events={events} />
+      {/* Wrap this shit with the Chokra UI Acrodian Johnson */}
+      <EventList heading="Event Invitations" events={events} classes={styles.plannerDashboard} />
       <EventList heading="Your Events" events={events} />
     </div>
   );
