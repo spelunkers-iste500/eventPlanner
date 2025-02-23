@@ -6,6 +6,7 @@ import Dashboard from 'Components/dashboard/Dashboard';
 import { useBooking } from 'Utils/BookingProvider';
 import { ArrowLeft } from 'lucide-react';
 import AirportSearch from './AirportSearch';
+import FlightSearch from './FlightSearch';
 
 interface EventData {
   	eventData: Event;
@@ -16,7 +17,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 	const { bookingData, setBookingData } = useBooking();
 
     useEffect(() => {
-        setBookingData({ event: eventData, content: <AirportSearch /> });
+        setBookingData({ event: eventData, content: <FlightSearch /> });
     }, [eventData, setBookingData]);
     
 

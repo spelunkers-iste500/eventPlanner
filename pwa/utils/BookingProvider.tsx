@@ -11,7 +11,7 @@ interface BookingData {
     departFlight?: Flight;
     departDate?: string;
     departTime?: string;
-    returnAirport?: string;
+    returnAirport?: Airport;
     returnFlight?: Flight;
     returnDate?: string;
     returnTime?: string;

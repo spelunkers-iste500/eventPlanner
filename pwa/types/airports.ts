@@ -1,7 +1,7 @@
 export interface Airport {
     code: string;
     name: string;
-    distance: string;
+    location: string;
 }
 
 export interface Flight {
