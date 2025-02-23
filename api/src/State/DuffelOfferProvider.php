@@ -14,7 +14,7 @@ use ApiPlatform\Metadata\Operation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
 
-final class DuffelApiProvider implements ProviderInterface
+final class DuffelOfferProvider implements ProviderInterface
 {
     private string $token;
 
