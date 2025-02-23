@@ -59,6 +59,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $createdDate = null;
 
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $offerId = null;
+
     public function __construct()
     {
         $this->roles = new ArrayCollection();
@@ -171,5 +174,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setOrganizations(Collection $organizations): void
     {
         $this->organizations = $organizations;
+    }
+
+    public function getOfferId(): ?string
+    {
+        return $this->offerId;
+    }
+
+    public function setOfferId(?string $offerId): void
+    {
+        $this->offerId = $offerId;
     }
 }

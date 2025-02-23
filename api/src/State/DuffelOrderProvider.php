@@ -9,12 +9,13 @@ use ApiPlatform\State\ProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
 use App\Entity\Budget;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class DuffelOrderProvider implements ProviderInterface
 {
     private string $token;
 
-    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager)
+    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security,)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -25,17 +26,8 @@ final class DuffelOrderProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = ['offerid'], array $context = []): object|array|null
     {
 
-        /**For testing I am searching for budgets based on lastModified times, but it will probably go by event or financial planner */
-        $budget = $this->entityManager->getRepository(Budget::class)->findOneBy([], ['lastModified' => 'DESC']);
-
-        if (!$budget) {
-            throw new \RuntimeException("No budget found.");
-        }
-
-        /**
-         * Adding budget manipulation here
-         */
-        $availableBudget = $budget->total - $budget->spentBudget;
+        $user = $this->security->getUser();
+        $offerId = $user ? $user->getOfferID() : null;
 
         $orders = $this->createOrder('offerid');
         $flightOrder = new FlightOrder();
