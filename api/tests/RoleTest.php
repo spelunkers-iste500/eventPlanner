@@ -129,12 +129,12 @@ class RoleTest extends ApiTestCase
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
                 'id' => (string) $user->getId(), // Use user ID from the created user
-                #'token' => (string) $userpassword, // Token is from the created account
+                'token' => (string) $userpassword, // Token is from the created account
             ],
         ]);
         $json = $authresponse->toArray();
         // Only create the book we need with a given ISBN
-        RoleFactory::createOne(["name"=> "Information Technology Services"]);
+        RoleFactory::createOne(["name"=> "Information Technology Services Admin"]);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
@@ -147,7 +147,7 @@ class RoleTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ],
+            ]
             #'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
