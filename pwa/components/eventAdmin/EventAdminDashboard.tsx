@@ -85,7 +85,6 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       <Stack gap="4">
-      <Text fontWeight="medium">Expanded: {value.join(", ")}</Text>
       <AccordionRoot value={value} onValueChange={(e) => setValue(e.value)}>
         {items.map((item, index) => (
           <AccordionItem key={index} value={item.value}>
