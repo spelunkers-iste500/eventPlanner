@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -45,7 +46,10 @@ class Event
     public \DateTimeInterface $createdDate;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'events')]
-    #[ORM\JoinTable(name: 'organizations_events')]
+    #[ORM\JoinTable(name: 'organizations_events',
+        joinColumns: [new ORM\JoinColumn(name: 'event_id', referencedColumnName: 'eventID')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id')]
+    )]
     private Collection $organizations;
 
     //Relationships
