@@ -10,9 +10,10 @@ import EventForm from "Components/booking/EventForm";
 interface EventListProps {
     heading: string;
     events: Event[];
+	classes?: string;
 }
 
-const EventList: React.FC<EventListProps> = ({ heading, events }) => {
+const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
 	const buttonText = heading === "Event Invitations" ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
@@ -26,7 +27,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
     };
 
 	return (
-		<div className={styles.eventList}>
+		<div className={`${styles.eventList}`}>
             <div className={styles.eventListHeader}>
                 <h2>{heading}</h2>
 
@@ -77,7 +78,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events }) => {
 					</button>
 				</div>
 			</div>
-			<div className={`${styles.eventCardRow} ${reverseSorting ? styles.reverse : ""}`}>
+			<div className={`${styles.eventCardRow} ${reverseSorting ? styles.reverse : ""} ${classes}`}>
 				{events.filter((event) => event.name.toLowerCase().includes(searchTerm.toLowerCase())).map((event) => (
 					<Card
 						key={event.id}
