@@ -10,12 +10,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
 use App\Entity\Budget;
 use Symfony\Bundle\SecurityBundle\Security;
+use ApiPlatform\State\ProcessorInterface;
 
 final class DuffelOrderProvider implements ProviderInterface
 {
     private string $token;
 
-    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security,)
+    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security, private ProcessorInterface $processor)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -23,13 +24,21 @@ final class DuffelOrderProvider implements ProviderInterface
     /**
      * Provides order data from the Duffel API.
      */
-    public function provide(Operation $operation, array $uriVariables = ['offerid'], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [],  array $context = []): object|array|null
     {
 
         $user = $this->security->getUser();
-        $offerId = $user ? $user->getOfferID() : null;
 
-        $orders = $this->createOrder('offerid');
+        //subject to change when offerId is stored
+        $offerId = $user ? $user->getOfferId() : null;
+        $name = $user->getName();
+        $email = $user->getEmail();
+
+        if (!$offerId){
+            throw new \Exception("Offer ID not found for user");
+        }
+
+        $orders = $this->createOrder($offerId, $name, $email);
         $flightOrder = new FlightOrder();
         $flightOrder->setOfferData($orders);
 
@@ -44,7 +53,7 @@ final class DuffelOrderProvider implements ProviderInterface
      * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
-    public function createOrder(string $offerid): array
+    public function createOrder(string $offerid, string $name, string $email): array
     {
         $response = $this->client->request(
             'GET',
@@ -69,16 +78,11 @@ final class DuffelOrderProvider implements ProviderInterface
                                 /**
                                  * list of personal information about a passenger
                                  */
-                                'user_id' => "placeholder",
-                            ],
-                        
-                        //taken from example will change to be dynamic
-                        "id" => "pas_00009hj8USM7Ncg31cBCLL",
-                        "given_name" => "Amelia",
-                        "gender" => "f",
-                        "family_name" => "Earhart",
-                        "email" => "amelia@duffel.com",
-                        "born_on" => "1987-07-24",
+                                "given_name" => $name, //name will need parsed
+                                "family_name" => $name,
+                                "email" => $email,
+                                "born_on" => "1987-07-24", //this is a place holder
+                            ]
                         ],
                     ]
                 ]
@@ -86,5 +90,28 @@ final class DuffelOrderProvider implements ProviderInterface
         );
 
         return $response->toArray();
+    }
+
+
+    /**
+     * I HAVE TO GET THE FLIGHT COST FOR THIS PROCESSOR
+     * EVERYTHING MUST BE TESTED HERE
+     * entity functions not working
+     * 
+     */
+    public function process(FlightOrder $flightOrder): void
+    {
+        $user = $flightOrder->getUser();
+        $budget = $this->entityManager->getRepository(Budget::class)->findOneBy(['financialPlannerID' => $user]);
+
+        if ($budget) {
+            $totalAmount = $budget->getTotal();  // You can adjust based on which budget category needs to be updated
+            $spentAmount = $budget->getSpentBudget();
+            $newTotal = $totalAmount - $flightOrder->getTotalPrice(); // Assuming getTotalPrice() returns the price of the flight order
+            $budget->setTotal($newTotal);  // Update the total budget
+            
+            // Update other budget fields as needed
+            $this->entityManager->flush();
+        }
     }
 }
