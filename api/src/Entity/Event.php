@@ -26,6 +26,12 @@ class Event
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $endDateTime;
 
+    #[ORM\Column(type: 'datetime')]
+    public \DateTimeInterface $startFlightBooking;
+
+    #[ORM\Column(type: 'datetime')]
+    public \DateTimeInterface $endFlightBooking;
+
     #[ORM\Column(length: 55)]
     public string $location;
 
@@ -37,6 +43,10 @@ class Event
 
     #[ORM\Column(type: 'datetime',nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'events')]
+    #[ORM\JoinTable(name: 'organizations_events')]
+    private Collection $organizations;
 
     //Relationships
     
