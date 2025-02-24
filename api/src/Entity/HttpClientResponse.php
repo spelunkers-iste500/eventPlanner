@@ -12,4 +12,5 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 #[ApiResource]
 #[Get(provider: DuffelOfferProvider::class)]
+#[Get(provider: DuffelOrderProvider::class)]
 class HttpClientResponse {}

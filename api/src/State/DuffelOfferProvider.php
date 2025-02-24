@@ -35,10 +35,10 @@ final class DuffelOfferProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-
-        return $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
-        // $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
-        // return $flights;
+        //CHANGE TO NOT BE STATIC
+        //return $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
+         $flights = $this->getOneWayFlightOffers("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
+         return $flights;
     }
 
     public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $passengerCount): array

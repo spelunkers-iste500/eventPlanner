@@ -10,13 +10,12 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
 use App\Entity\Budget;
 use Symfony\Bundle\SecurityBundle\Security;
-use ApiPlatform\State\ProcessorInterface;
+#use ApiPlatform\State\ProcessorInterface;
 
-final class DuffelOrderProvider implements ProviderInterface
-{
+final class DuffelOrderProvider implements ProviderInterface{
     private string $token;
 
-    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security, private ProcessorInterface $processor)
+    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -30,10 +29,13 @@ final class DuffelOrderProvider implements ProviderInterface
         $user = $this->security->getUser();
 
         //subject to change when offerId is stored
-        $offerId = $user ? $user->getOfferId() : null;
-        $name = $user->getName();
-        $email = $user->getEmail();
-
+        //$offerId = $user ? $user->getOfferId() : null;
+        //$name = $user->getName();
+        //$email = $user->getEmail();
+        
+        $offerId = "off_0000ArSLPNkXuPCCkkJP4o";
+        $name = "Gavin";
+        $email = "gwh8959@g.rit.edu";
         if (!$offerId){
             throw new \Exception("Offer ID not found for user");
         }
@@ -51,12 +53,14 @@ final class DuffelOrderProvider implements ProviderInterface
     /**
      * Fetches orders from the Duffel API.
      * 
+     * NEED PASSENGER_ID, OFFER_ID, FIRST NAME (given), LAST NAME (family), TITLE (MR,MRS), Gender, Email, Birthday 
+     * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
     public function createOrder(string $offerid, string $name, string $email): array
     {
         $response = $this->client->request(
-            'GET',
+            'POST',
             'https://api.duffel.com/air/orders',
             [
                 'headers' => [
@@ -70,24 +74,28 @@ final class DuffelOrderProvider implements ProviderInterface
                          * payments is omitted because all flights are put on hold
                          */
                         
-                        //'users' => '', unsure if this is required as of yet
                         'type' => 'hold',
                         'selected_offers' => [$offerid],
                         'passengers' => [
                             [
-                                /**
-                                 * list of personal information about a passenger
-                                 */
-                                "given_name" => $name, //name will need parsed
-                                "family_name" => $name,
+                                "id" => "pas_0000ArSLPNOvCntlfgC8Mt", // Use the passenger ID from the offer
+                                "title" => "Mr", // Adjust based on actual user data
+                                "given_name" => $name,
+                                "family_name" => "Hunsinger", // Ensure a valid last name
+                                "gender" => "m", // "m" for male, "f" for female
                                 "email" => $email,
-                                "born_on" => "1987-07-24", //this is a place holder
+                                "born_on" => "2003-03-28", // Must be valid date format YYYY-MM-DD
+                                "phone_number" => "+15706921420", // Must be in international format
                             ]
                         ],
                     ]
                 ]
             ]
         );
+
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception("Error creating order: " . $response->getContent(false));
+        }
 
         return $response->toArray();
     }
@@ -99,19 +107,20 @@ final class DuffelOrderProvider implements ProviderInterface
      * entity functions not working
      * 
      */
-    public function process(FlightOrder $flightOrder): void
-    {
-        $user = $flightOrder->getUser();
-        $budget = $this->entityManager->getRepository(Budget::class)->findOneBy(['financialPlannerID' => $user]);
-
-        if ($budget) {
-            $totalAmount = $budget->getTotal();  // You can adjust based on which budget category needs to be updated
-            $spentAmount = $budget->getSpentBudget();
-            $newTotal = $totalAmount - $flightOrder->getTotalPrice(); // Assuming getTotalPrice() returns the price of the flight order
-            $budget->setTotal($newTotal);  // Update the total budget
-            
-            // Update other budget fields as needed
-            $this->entityManager->flush();
-        }
-    }
+   /** public function process(FlightOrder $flightOrder): void
+   * {
+  *      $user = $flightOrder->getUser();
+ *       $budget = $this->entityManager->getRepository(Budget::class)->findOneBy(['financialPlannerID' => $user]);
+*
+    *    if ($budget) {
+    *        $totalAmount = $budget->getTotal();  // You can adjust based on which budget category needs to be updated
+    *        $spentAmount = $budget->getSpentBudget();
+    *        $newTotal = $totalAmount - $flightOrder->getTotalPrice(); // Assuming getTotalPrice() returns the price of the flight order
+    *        $budget->setTotal($newTotal);  // Update the total budget
+    *        
+    *        // Update other budget fields as needed
+    *        $this->entityManager->flush();
+    *    }
+    *} 
+    */
 }
