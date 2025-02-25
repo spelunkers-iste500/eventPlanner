@@ -10,8 +10,13 @@ use ApiPlatform\Metadata\GetCollection;
 #[ApiResource]
 #[GetCollection(
     provider: DuffelOfferProvider::class,
-    uriTemplate: '/flight_offers/search/{destination}/{origin}/{date}/{maxConnections}.{_format}',
-    uriVariables: ['origin', 'destination', 'date', 'maxConnections'],
+    uriTemplate: '/flight_offers/search/{destination}/{origin}/{departureDate}/{maxConnections}.{_format}',
+    uriVariables: ['origin', 'destination', 'departureDate', 'maxConnections'],
+)]
+#[GetCollection(
+    provider: DuffelOfferProvider::class,
+    uriTemplate: '/flight_offers/search/{destination}/{origin}/{departureDate}/{returnDate}/{maxConnections}.{_format}',
+    uriVariables: ['origin', 'destination', 'departureDate', 'returnDate', 'maxConnections'],
 )]
 #[Get(
     provider: DuffelOfferProvider::class,
@@ -22,19 +27,18 @@ class FlightOffer
     public string $id;
     public string $origin;
     public string $destination;
-    public string $date;
-
+    public string $departureDate;
+    public ?string $returnDate;
     public array $offers;
-
     public array $slices;
-
     public array $passengers;
 
-    public function __construct(string $origin, string $destination, string $date, string $offerId, array $offers, array $slices, array $passengers)
+    public function __construct(string $origin, string $destination, string $departureDate, string $offerId, array $offers, array $slices, array $passengers, ?string $returnDate = null)
     {
         $this->origin = $origin;
         $this->destination = $destination;
-        $this->date = $date;
+        $this->departureDate = $departureDate;
+        $this->returnDate = $returnDate; // if return date is null, then not round trip
         $this->id = $offerId;
         $this->offers = $offers;
         $this->slices = $slices;
