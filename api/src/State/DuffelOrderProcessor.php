@@ -4,26 +4,28 @@
 namespace App\State;
 
 use ApiPlatform\Metadata\Operation;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
 use App\Entity\Budget;
-use Symfony\Bundle\SecurityBundle\Security;
 use ApiPlatform\State\ProcessorInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * This processes the order info and updates the budget for the end users
  */
-final class DuffelOrderProcessor implements ProcessorInterface{
-    private EntityManagerInterface $entityManager;
-
-    public function __construct(EntityManagerInterface $entityManager)
-    {
-        $this->entityManager = $entityManager;
-    }
+final class DuffelOrderProcessor implements ProcessorInterface
+{
+    public function __construct(private EntityManagerInterface $entityManager, private HttpClientInterface $client) {}
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
+        /* 
+        *
+        *   This is where a flight order is processed (held) and the bduget updated.
+        *   Since, currently, each flight will be approved manually, no guard rails will be put in place.
+        *   This is a simple implementation to show the concept of state machines.
+        */
+
         if (!$data instanceof FlightOrder) {
             throw new \InvalidArgumentException('Expected a FlightOrder entity.');
         }
@@ -55,5 +57,5 @@ final class DuffelOrderProcessor implements ProcessorInterface{
         $this->entityManager->flush();
 
         return $data;
-}
+    }
 }
