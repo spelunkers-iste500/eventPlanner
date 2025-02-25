@@ -1,7 +1,6 @@
 import "../styles/globals.css"
-import { SessionProvider } from "next-auth/react"
 import { auth } from "../utils/auth"
-import { ContentProvider } from "Utils/ContentProvider";
+import AppProvider from "Utils/AppProvider";
 export const metadata = {
 	title: 'Travel Event Planner',
 	description: 'Developed by Team Spelunkers',
@@ -10,13 +9,11 @@ export const metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
 	const session = await auth();
 	return (
-		<html lang="en">
+		<html lang="en" suppressHydrationWarning>
 			<body>
-				<SessionProvider session={session}>
-					<ContentProvider>
-						{children}
-					</ContentProvider>
-				</SessionProvider>
+				<AppProvider session={session}>
+					{children}
+				</AppProvider>
 			</body>
 		</html>
 	)

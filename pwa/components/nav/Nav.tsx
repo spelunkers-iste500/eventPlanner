@@ -1,13 +1,13 @@
 'use client';
 import React from 'react';
-import { LayoutDashboard, Settings2, Send, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
-import Dashboard from '../dashboard/Dashboard';
-import Preferences from '../preferences/Preferences';
-import Contact from '../contact/Contact';
-import FAQ from '../faq/FAQ';
-import styles from './nav.module.css';
 import { signOut, useSession } from 'next-auth/react';
 import { useContent } from 'Utils/ContentProvider';
+import { LayoutDashboard, Settings2, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
+import Dashboard from '../dashboard/Dashboard';
+import Preferences from '../preferences/Preferences';
+import EventAdminDashboard from 'Components/eventAdmin/EventAdminDashboard';
+import About from '../about/About';
+import styles from './nav.module.css';
 
 const Nav: React.FC= () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
@@ -22,18 +22,18 @@ const Nav: React.FC= () => {
             icon: <LayoutDashboard size={28} />
         },
         {
+            name: 'Event Planner',
+            content: <EventAdminDashboard />,
+            icon: <LayoutDashboard size={28} />
+        },
+        {
             name: 'Preferences',
             content: <Preferences />,
             icon: <Settings2 size={28} />
         },
         {
-            name: 'Contact Us',
-            content: <Contact />,
-            icon: <Send size={28} />
-        },
-        {
-            name: 'FAQ',
-            content: <FAQ />,
+            name: 'About Us',
+            content: <About />,
             icon: <CircleHelp size={28} />
         }
     ];

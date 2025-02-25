@@ -8,7 +8,9 @@ type FAQProps = {
 const FAQ: React.FC<FAQProps> = ({  }) => {
     return (
         <Container>
-            <h1>FAQ</h1>
+            <h1>About Us</h1>
+            <h2>FAQ</h2>
+            <h2>Contact Us</h2>
         </Container>
     );
 };
