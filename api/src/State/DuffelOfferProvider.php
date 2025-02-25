@@ -37,12 +37,12 @@ final class DuffelOfferProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        if (!isset($uriVariables['origin'], $uriVariables['destination'], $uriVariables['date'], $uriVariables['maxConnections'])) {
-            // throw 422 error
-            return null; // or throw new \InvalidArgumentException('Missing required URI variables');
-        }
 
         if ($operation instanceof CollectionOperationInterface) {
+            if (!isset($uriVariables['origin'], $uriVariables['destination'], $uriVariables['date'], $uriVariables['maxConnections'])) {
+                // throw 422 error
+                return null; // or throw new \InvalidArgumentException('Missing required URI variables');
+            }
             $flights = $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['date'], $uriVariables['maxConnections']); //fix this to not be static (also does not work for testing)
             return $flights;
         }
@@ -150,7 +150,7 @@ final class DuffelOfferProvider implements ProviderInterface
         );
 
         $data = $response->toArray()['data'];
-
+        return $data;
         return new FlightOffer(
             origin: $data['origin'],
             destination: $data['destination'],

@@ -18,7 +18,7 @@ use App\State\DuffelPlaceProvider;
 )]
 class Place
 {
-    #[Apiresource(identifier: true)]
+    #[ApiResource(identifier: true)]
     public string $id;
     public string $query;
     public string $name;

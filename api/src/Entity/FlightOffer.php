@@ -10,16 +10,16 @@ use ApiPlatform\Metadata\GetCollection;
 #[ApiResource]
 #[GetCollection(
     provider: DuffelOfferProvider::class,
-    uriTemplate: '/flight_offers/{destination}/{origin}/{date}/{maxConnections}.{_format}',
+    uriTemplate: '/flight_offers/search/{destination}/{origin}/{date}/{maxConnections}.{_format}',
+    uriVariables: ['origin', 'destination', 'date', 'maxConnections'],
 )]
 #[Get(
     provider: DuffelOfferProvider::class,
-    uriTemplate: '/flight_offers/{id}.{_format}',
 )]
 class FlightOffer
 {
-    #[Apiresource(identifier: true)]
-    public string $offerId;
+    #[ApiResource(identifier: true)]
+    public string $id;
     public string $origin;
     public string $destination;
     public string $date;
@@ -35,7 +35,7 @@ class FlightOffer
         $this->origin = $origin;
         $this->destination = $destination;
         $this->date = $date;
-        $this->offerId = $offerId;
+        $this->id = $offerId;
         $this->offers = $offers;
         $this->slices = $slices;
         $this->passengers = $passengers;
@@ -43,6 +43,11 @@ class FlightOffer
 
     public function getId(): string
     {
-        return $this->offerId;
+        return $this->id;
+    }
+
+    public function setId(string $id)
+    {
+        $this->id = $id;
     }
 }
