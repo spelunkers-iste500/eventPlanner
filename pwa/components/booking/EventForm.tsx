@@ -38,9 +38,11 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 				<ArrowLeft /> Back
 			</button>
 
-			<h1>{bookingData.event.name}</h1>
-			<h2 className='h4'>{bookingData.event.org}</h2>
-			<p>{bookingData.event.eventDate}</p>
+			<div className={styles.eventInfo}>
+				<h1>{bookingData.event.name}</h1>
+				<h2 className='h4'>{bookingData.event.org}</h2>
+				<p>{bookingData.event.eventDate}</p>
+			</div>
 
 			<div className={styles.formCard}>
 				{bookingData.content}
