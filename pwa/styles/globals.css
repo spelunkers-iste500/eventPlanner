@@ -162,10 +162,6 @@ img {
     color: var(--black);
 }
 
-.select__placeholder {
-    color: var(--blue-500) !important;
-}
-
 .input-field::placeholder {
     color: var(--gray-400);
 }

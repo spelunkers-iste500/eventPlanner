@@ -14,7 +14,9 @@ const AirportSearch: React.FC = () => {
         origin: '',
         destination: '',
         departDate: '',
-        returnDate: ''
+        returnDate: '',
+        originInput: '',
+        destinationInput: ''
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -32,9 +34,15 @@ const AirportSearch: React.FC = () => {
     };
 
     useEffect(() => {
+        if (formData.originInput.length >= 3) {
+            console.log('Fetching origin airports for:', formData.originInput);
+        }
+        if (formData.destinationInput.length >= 3) {
+            console.log('Fetching destination airports for:', formData.destinationInput);
+        }
         // fetch list of airports using value of origin and destination
         // setAirportLocations(airports);
-    }, [formData.origin, formData.destination]); 
+    }, [formData.originInput, formData.destinationInput]); 
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
@@ -63,7 +71,8 @@ const AirportSearch: React.FC = () => {
                     size="md"
                     className={`select-menu ${styles.selectMenu}`}
                     classNamePrefix={'select'}
-                    onChange={(value) => setFormData({ ...formData, destination: value?.value || '' })}
+                    onChange={(value) => setFormData({ ...formData, origin: value?.value || '' })}
+                    onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
                 />
             </div>
 
@@ -76,6 +85,7 @@ const AirportSearch: React.FC = () => {
                     className={`select-menu ${styles.selectMenu}`}
                     classNamePrefix={'select'}
                     onChange={(value) => setFormData({ ...formData, destination: value?.value || '' })}
+                    onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
                 />
             </div>
 
