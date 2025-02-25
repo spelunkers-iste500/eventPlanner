@@ -1,56 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useBooking } from 'Utils/BookingProvider';
+import NearbyAirports from './NearbyAirports';
+import FlightList from './FlightList';
+import Input from 'Components/common/Input';
 
-interface DepartureDateTimeProps {
-  onPrevious?: () => void;
-  onNext?: () => void;
-  onDateChange?: (date: string) => void;
-  onTimeChange?: (time: string) => void;
-  defaultDate?: string;
-  defaultTime?: string;
-}
+const DepartureDateTime: React.FC = () => {
+	const { bookingData, setBookingData } = useBooking();
+	
+	const [formData, setFormData] = useState({
+		date: '',
+		time: '',
+	});
 
-const DepartureDateTime: React.FC<DepartureDateTimeProps> = ({
-  onPrevious = () => {},
-  onNext = () => {},
-  onDateChange = () => {},
-  onTimeChange = () => {},
-  defaultDate = '',
-  defaultTime = ''
-}) => {
-  return (
-    <div>
-      <h2>Departure Date & Time</h2>
-      
-      <div>
-        <div>
-          <label htmlFor="departureDate">Preferred Departure Date:</label>
-          <input
-            type="date"
-            id="departureDate"
-            placeholder="mm/dd/yyyy"
-            defaultValue={defaultDate}
-            onChange={(e) => onDateChange(e.target.value)}
-          />
-        </div>
+	const onPrevious = () => {
+		setBookingData({ ...bookingData, content: <NearbyAirports /> });
+	}
 
-        <div>
-          <label htmlFor="departureTime">Preferred Departure Time:</label>
-          <input
-            type="time"
-            id="departureTime"
-            placeholder="Select Time"
-            defaultValue={defaultTime}
-            onChange={(e) => onTimeChange(e.target.value)}
-          />
-        </div>
-      </div>
+	const onNext = (departDate: string, departTime: string) => {
+		setBookingData({ ...bookingData, departDate: departDate, departTime: departTime, content: <FlightList /> });
+	}
 
-      <div>
-        <button onClick={onPrevious}>← Previous</button>
-        <button onClick={onNext}>Next →</button>
-      </div>
-    </div>
-  );
+	return (
+		<div>
+			<h2>Departure Date & Time</h2>
+			
+			<div>
+				<Input
+					type='date'
+					label='Preferred Departure Date'
+					placeholder='mm/dd/yyyy'
+					onChange={(value) => setFormData({ ...formData, date: value })}
+				/>
+
+				<Input
+					type='time'
+					label='Preferred Departure Time'
+					placeholder='hh:mm am/pm'
+					onChange={(value) => setFormData({ ...formData, time: value })}
+				/>
+			</div>
+
+			<div>
+				<button onClick={onPrevious}>← Previous</button>
+				<button onClick={() => onNext(formData.date, formData.time)}>Next →</button>
+			</div>
+		</div>
+	);
 };
 
 export default DepartureDateTime;
