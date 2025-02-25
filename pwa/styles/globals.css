@@ -107,10 +107,11 @@ img {
 
 /* Component Styles */
 .content-container {
-    max-width: 100%;
+    width: 100%;
     overflow-x: hidden;
     padding: 2rem;
     position: relative;
+    overflow-y: hidden;
 }
 
 .input-container {
@@ -137,7 +138,8 @@ img {
     font-size: 0.9rem;
 }
 
-.input-field {
+.input-field,
+.select__control {
     width: 100%;
     padding: 0.75rem;
     border: 2px solid var(--black);
@@ -145,67 +147,29 @@ img {
     color: var(--blue-500);
     font-weight: 500;
     font-size: 1rem;
+    background-color: var(--white);
 }
 
-.input-filed::placeholder {
+.select__control:focus-within {
+    border-width: 1px;
+}
+
+.select__option {
+    padding: 0.5rem;
+}
+
+.select__dropdown-indicator {
+    color: var(--black);
+}
+
+.select__placeholder {
+    color: var(--blue-500) !important;
+}
+
+.input-field::placeholder {
     color: var(--gray-400);
 }
 
-
-
-/* Center the animation */
-.loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 300px;
-}
-
-  /* Outer container to follow the path */
-.magnifying-glass-container {
-    width: 50px;
-    height: 50px;
-    animation: moveInfinity 3s linear infinite;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-  /* Magnifying glass itself - stays upright */
-.magnifying-glass {
-    width: 50px;
-    height: 50px;
-    background: url("/pwa/public/media/mag.png") no-repeat center;
-    background-size: contain;
-}
-
-  /* Keyframes for smooth infinity path */
-@keyframes moveInfinity {
-    0% {
-      	transform: translate(0, 0);
-    }
-    12.5% {
-      	transform: translate(30px, 20px);
-    }
-    25% {
-      	transform: translate(60px, 0);
-    }
-    37.5% {
-      	transform: translate(30px, -20px);
-    }
-    50% {
-     	transform: translate(0, 0);
-    }
-    62.5% {
-      	transform: translate(-30px, 20px);
-    }
-    75% {
-      	transform: translate(-60px, 0);
-    }
-    87.5% {
-      	transform: translate(-30px, -20px);
-    }
-    100% {
-      	transform: translate(0, 0);
-    }
+.flight-search-form .input-container {
+    max-width: 100%;
 }

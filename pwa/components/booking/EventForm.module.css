@@ -1,6 +1,5 @@
 .container {
   text-align: center;
-  padding: 20px;
 }
 
 .backButton {
@@ -17,8 +16,6 @@
 }
 
 .form-card {
-  flex-shrink: 0;
-	width: 300px;
 	border-radius: 12px;
 	background-color: var(--gray-100);
 	font-size: 0.875rem;
@@ -26,5 +23,16 @@
 	box-shadow: var(--shadow-300);
 	display: flex;
 	flex-direction: column;
-	position: relative; 
+	position: relative;
+	padding: 1rem;
+}
+
+.flight-search-form {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 1rem;
+	justify-content: center;
+	align-items: center;
+	flex-grow: 1;
 }

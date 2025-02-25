@@ -13,8 +13,17 @@ interface InputProps {
 
 const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, onChange, isRadio }) => {
     const [value, setValue] = useState('');
+
+    const reformatDate = (dateStr: string): string => {
+        const [month, day, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`;
+    };
     
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+        let newValue = e.target.value;
+        if (type === 'date') {
+            newValue = reformatDate(newValue);
+        }
         setValue(e.target.value);
         onChange(e.target.value);
     }
