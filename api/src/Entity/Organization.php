@@ -37,6 +37,9 @@ class Organization
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'organizations')]
     private Collection $users;
 
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'organizations')]
+    private Collection $events;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
