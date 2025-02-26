@@ -46,8 +46,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
     private Account $account;
 
-    #[ORM\Column(type: 'json')]
-    private array $roles = [];
+    #[ORM\Column(type: 'json', nullable: true)]
+    private ?array $roles = [];
 
     #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users")]
     #[ORM\JoinTable(name: "users_flights")]
@@ -79,7 +79,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function getRoles(): array
     {
-        return $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
+        return array_unique($roles);
+        // return $this->roles;
     }
     public function setRoles(array $roles): void
     {
