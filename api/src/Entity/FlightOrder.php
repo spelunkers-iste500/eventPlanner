@@ -65,3 +65,4 @@ class FlightOrder
         $this->data = $data;
     }
 }
+

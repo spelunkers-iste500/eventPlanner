@@ -4,8 +4,8 @@ api_platform:
             JWT:
                 name: Authorization
                 type: header
-    title: Hello API Platform
-    version: 1.0.0
+    title: Event Planning and Travel Service - Spelunkers
+    version: 0.4.6
     # Mercure integration, remove if unwanted
     mercure:
         include_type: true
