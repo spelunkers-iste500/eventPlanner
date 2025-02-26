@@ -3,6 +3,7 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
@@ -33,21 +34,34 @@ final class DuffelOrderProvider implements ProviderInterface{
         //$name = $user->getName();
         //$email = $user->getEmail();
         
-        $offerId = "off_0000ArSLPNkXuPCCkkJP4o";
-        $name = "Gavin";
-        $email = "gwh8959@g.rit.edu";
-        if (!$offerId){
-            throw new \Exception("Offer ID not found for user");
+       // $offerId = "off_0000ArSLPNkXuPCCkkJP4o";
+       // $name = "Gavin";
+       // $email = "gwh8959@g.rit.edu";
+       // if (!$offerId){
+        //    throw new \Exception("Offer ID not found for user");
+        //}
+
+        //$orders = $this->createOrder($offerId, $name, $email);
+        //$flightOrder = new FlightOrder();
+        //$flightOrder->setOfferData($orders);
+
+        //$this->entityManager->persist($flightOrder);
+        //$this->entityManager->flush();
+
+        //return $flightOrder;
+        if ($operation instanceof CollectionOperationInterface){
+            return $this->createOrder(
+                $uriVariables['offer_id'],
+                $uriVariables['passenger_id'],
+                $uriVariables['first_name'],
+                $uriVariables['family_name'],
+                $uriVariables['title'],
+                $uriVariables['gender'],
+                $uriVariables['email'],
+                $uriVariables['birthday'],
+                $uriVariables['phone_number'],
+            );
         }
-
-        $orders = $this->createOrder($offerId, $name, $email);
-        $flightOrder = new FlightOrder();
-        $flightOrder->setOfferData($orders);
-
-        $this->entityManager->persist($flightOrder);
-        $this->entityManager->flush();
-
-        return $flightOrder;
     }
 
     /**
@@ -57,7 +71,7 @@ final class DuffelOrderProvider implements ProviderInterface{
      * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
-    public function createOrder(string $offerid, string $name, string $email): array
+    public function createOrder(string $offer_id, string $passenger_id, string $first_name, string $family_name, string $title, string $gender, string $email, string $birthday, string $phone_number): FlightOrder
     {
         $response = $this->client->request(
             'POST',
@@ -75,17 +89,17 @@ final class DuffelOrderProvider implements ProviderInterface{
                          */
                         
                         'type' => 'hold',
-                        'selected_offers' => [$offerid],
+                        'selected_offers' => [$offer_id],
                         'passengers' => [
                             [
-                                "id" => "pas_0000ArSLPNOvCntlfgC8Mt", // Use the passenger ID from the offer
-                                "title" => "Mr", // Adjust based on actual user data
-                                "given_name" => $name,
-                                "family_name" => "Hunsinger", // Ensure a valid last name
-                                "gender" => "m", // "m" for male, "f" for female
+                                "id" => $passenger_id, // Use the passenger ID from the offer
+                                "title" => $title, // Adjust based on actual user data
+                                "given_name" => $first_name,
+                                "family_name" => $family_name, // Ensure a valid last name
+                                "gender" => $gender, // "m" for male, "f" for female
                                 "email" => $email,
-                                "born_on" => "2003-03-28", // Must be valid date format YYYY-MM-DD
-                                "phone_number" => "+15706921420", // Must be in international format
+                                "born_on" => $birthday, // Must be valid date format YYYY-MM-DD
+                                "phone_number" => $phone_number, // Must be in international format
                             ]
                         ],
                     ]
@@ -97,7 +111,24 @@ final class DuffelOrderProvider implements ProviderInterface{
             throw new \Exception("Error creating order: " . $response->getContent(false));
         }
 
-        return $response->toArray();
+        $responseData = $response->toArray()['data'];
+
+        $flightOrder = new FlightOrder(
+            order_id: $responseData['id'],  // Ensure this field exists in the API response
+            offer_id: $offer_id, 
+            passenger_id: $passenger_id, 
+            first_name: $first_name, 
+            family_name: $family_name,
+            title: $title,
+            gender: $gender, 
+            email: $email,
+            birthday: $birthday,
+            phone_number: $phone_number
+        );
+    
+        $flightOrder->setData(json_encode($responseData));
+    
+        return $flightOrder;
     }
 
 
