@@ -115,7 +115,7 @@ class Event
     public Collection $financeAdmins;
 
     //Event -> User (event admins)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'events')]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'adminOfEvents')]
     #[Groups(['read:event', 'write:event'])]
     public Collection $eventAdmins;
 
