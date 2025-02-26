@@ -6,6 +6,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -40,6 +41,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Post(
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
+)]
+#[GetCollection(
+    uriTemplate: '/events.{_format}',
+    normalizationContext: ['groups' => ['read:event']]
 )]
 class Event
 {

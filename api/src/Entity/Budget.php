@@ -67,7 +67,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 #[GetCollection(
     uriTemplate: '/budgets',
-    normalizationContext: ['groups' => ['read:budget']]
+    normalizationContext: ['groups' => ['read:budget']],
+    security: 'is_granted("ROLE_ADMIN")'
 )]
 #[GetCollection(
     description: 'Get all budgets for an organization',
@@ -82,7 +83,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ],
     requirements: ['orgId' => '\d+'],
-    normalizationContext: ['groups' => ['read:budget']]
+    normalizationContext: ['groups' => ['read:budget']],
 )]
 /** An events budget, a subresource of events */
 class Budget
@@ -96,7 +97,7 @@ class Budget
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
-    public string $total;
+    public string $total = "0.00";
 
     /**
      * The spent budget is only visible to the org and finance admins

@@ -7,7 +7,9 @@ export async function GET(request: Request) {
     // Get the session token from the database, and then make a request to the api auth server
     const session = await auth();
     if (!session?.user) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        // redirect user to login page if session not valid
+        return NextResponse.redirect(new URL("/login", request.url.replace(':3000','')));
+        // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const dbQueryResult = await pool.query('SELECT "providerAccountId" FROM accounts WHERE "userId" = $1', [session.user.id]);
     const providerAccountId = dbQueryResult.rows[0].providerAccountId;
