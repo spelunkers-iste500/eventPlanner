@@ -19,11 +19,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['write:event']],
 )]
 #[Get(
+    security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
 #[Get(
+    security: "is_granted('view', object)",
     uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
     uriVariables: [
         'id' => 'id',
@@ -39,10 +41,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']]
 )]
 #[Post(
+    security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
 )]
 #[GetCollection(
+    security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     normalizationContext: ['groups' => ['read:event']]
 )]
