@@ -29,13 +29,13 @@ final class UserVoter extends Voter
         }
 
         return match ($attribute) {
-            self::EDIT => $this->canEdit(currentUser: $currentUser, targetUser: $subject),
-            self::VIEW => $this->canView(currentUser: $currentUser, targetUser: $subject),
+            self::EDIT => self::canEdit(currentUser: $currentUser, targetUser: $subject),
+            self::VIEW => self::canView(currentUser: $currentUser, targetUser: $subject),
             default => false,
         };
     }
 
-    public function canEdit($currentUser, $targetUser)
+    public static function canEdit($currentUser, $targetUser)
     {
         // user can edit their own profile
         if ($currentUser->getId() === $targetUser->getId()) {
@@ -43,7 +43,7 @@ final class UserVoter extends Voter
         }
         return false;
     }
-    public function canView($currentUser, $targetUser)
+    public static function canView($currentUser, $targetUser)
     {
         // user can view their own profile
         if ($currentUser->getId() === $targetUser->getId()) {

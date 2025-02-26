@@ -99,6 +99,10 @@ class Organization
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg')]
+    #[Groups(['org:read', 'org:write'])]
+    private collection $financeAdmins;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -113,5 +117,32 @@ class Organization
     public function getUsers(): Collection
     {
         return $this->users;
+    }
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+    public function getBudgets(): Collection
+    {
+        return $this->budgets;
+    }
+    public function getFinanceAdmins(): Collection
+    {
+        $admins = new ArrayCollection();
+        $admins->add($this->admins);
+        $admins->add($this->financeAdmins);
+        return $admins;
+    }
+    public function addFinanceAdmins(User $user): self
+    {
+        if (!$this->financeAdmins->contains($user)) {
+            $this->financeAdmins[] = $user;
+        }
+        return $this;
+    }
+    public function removeFinanceAdmins(User $user): self
+    {
+        $this->financeAdmins->removeElement($user);
+        return $this;
     }
 }

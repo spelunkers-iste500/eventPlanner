@@ -38,7 +38,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         'id' => 'id'
     ],
     requirements: ['id' => '\d+', 'eventId' => '\d+', 'orgId' => '\d+'],
-    normalizationContext: ['groups' => ['read:budget']]
+    normalizationContext: ['groups' => ['read:user:budget']],
+    security: 'is_granted("ROLE_USER")'
 )]
 #[Get(
     uriTemplate: '/budgets/{id}',
@@ -94,18 +95,28 @@ class Budget
     public int $id;
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget'])]
-    public float $total;
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
+    public string $total;
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    public float $spentBudget = 0.00;
-
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    public float $vipBudget = 0.00;
-
+    /**
+     * The spent budget is only visible to the org and finance admins
+     */
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget'])]
-    public float $regBudget;
+    public string $spentBudget = "0.00";
+
+    /** 
+     * The VIP budget should be divided by the number of VIP attendees of the associated event.
+     */
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    public string $vipBudget = "0.00";
+
+    /**
+     * The regular budget should be divided by the number of attendees of the associated event.
+     */
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Groups(['read:budget', 'write:budget'])]
+    public string $regBudget;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $lastModified;
@@ -124,7 +135,7 @@ class Budget
     #[Groups(['read:budget', 'write:budget'])]
     public Event $event;
 
-    #[ORM\ManyToOne(targetEntity: Organization::class)]
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
     #[Groups(['read:budget', 'write:budget'])]
     public Organization $organization;
 
@@ -132,5 +143,33 @@ class Budget
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+    }
+    public function getOrganization(): Organization
+    {
+        return $this->organization;
+    }
+    public function setOrganization(Organization $organization): self
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+    public function getEvent(): Event
+    {
+        return $this->event;
+    }
+    public function setEvent(Event $event): self
+    {
+        $this->event = $event;
+        return $this;
+    }
+    public function getFinanceAdmins(): Collection
+    {
+        // should combine finance admins from the budget, the event, and the org,
+        // and return unique
+        $admins = new ArrayCollection();
+        $admins->add($this->financialPlannerID);
+        $admins->add($this->event->getFinanceAdmins());
+        $admins->add($this->organization->getFinanceAdmins());
+        return $admins;
     }
 }

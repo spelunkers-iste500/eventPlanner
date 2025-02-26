@@ -28,20 +28,20 @@ final class OrganizationVoter extends Voter
         }
 
         return match ($attribute) {
-            self::EDIT => $this->canEdit($user, $subject),
-            self::VIEW => $this->canView($user, $subject),
+            self::EDIT => self::canEdit($user, $subject),
+            self::VIEW => self::canView($user, $subject),
             default => false,
         };
     }
 
-    private function canEdit(UserInterface $user, \App\Entity\Organization $organization): bool
+    private static function canEdit(UserInterface $user, \App\Entity\Organization $organization): bool
     {
         // check to see if the user is in the admins array
         // and checks to see if the user has ROLE_ADMIN
         $result = ($organization->getAdmins()->contains($user) || in_array($user->getRoles(), ['ROLE_ADMIN']));
         return $organization->getAdmins()->contains($user);
     }
-    private function canView(UserInterface $user, \App\Entity\Organization $organization): bool
+    private static function canView(UserInterface $user, \App\Entity\Organization $organization): bool
     {
         return (
             $organization->getUsers()->contains($user) || // is the user a member

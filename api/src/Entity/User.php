@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -62,13 +63,25 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private Collection $flights;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'organizations_users')]
+    #[ORM\JoinTable(name: 'organizations_members')]
     private Collection $OrgMembership;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
-    // #[ORM\JoinTable(name: 'organizations_users')]
+    #[ORM\JoinTable(name: 'organizations_admins')]
     #[Groups(['user:read', 'user:write'])]
     private Collection $AdminOfOrg;
+
+    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'attendees')]
+    #[Groups(['user:read', 'user:write'])]
+    private Collection $events;
+
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins')]
+    #[JoinTable(name: 'organizations_finance_admins')]
+    private Collection $financeAdminOfOrg;
+
+    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'financeAdmins')]
+    #[JoinTable(name: 'events_finance_admins')]
+    private Collection $financeAdminOfEvents;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $lastModified = null;
@@ -86,6 +99,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
+        $this->events = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
@@ -230,5 +244,21 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function setOfferId(?string $offerId): void
     {
         $this->offerId = $offerId;
+    }
+
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+
+    public function addEvents(Event $event): void
+    {
+        if (!$this->events->contains($event)) {
+            $this->events[] = $event;
+        }
+    }
+    public function removeEvents(Event $event): void
+    {
+        $this->events->removeElement($event);
     }
 }
