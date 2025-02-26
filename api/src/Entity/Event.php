@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -41,15 +42,18 @@ class Event
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'events')]
-    #[ORM\JoinTable(name: 'organizations_events')]
+    #[ORM\JoinTable(
+        name: 'organizations_events',
+        joinColumns: [new ORM\JoinColumn(name: 'event_id', referencedColumnName: 'eventID')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id')]
+    )]
     private Collection $organizations;
 
     //Relationships
-    
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'budgetID', nullable: true)]
@@ -62,5 +66,4 @@ class Event
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
-
 }

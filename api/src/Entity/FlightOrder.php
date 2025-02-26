@@ -6,11 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\State\DuffelOrderProvider;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Post;
+use App\State\DuffelOrderProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
 #[Get(provider: DuffelOrderProvider::class)]
+#[Post(processor: DuffelOrderProcessor::class)]
 class FlightOrder
 {
     #[ORM\Id]
