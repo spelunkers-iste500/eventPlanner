@@ -12,7 +12,6 @@ use App\State\CurrentAccountProvider;
 
 #[ORM\Entity]
 #[ApiResource(
-    // uriTemplate: '/accounts/me.{_format}',
     operations: [
         new Get(
             uriTemplate: '/accounts/me.{_format}',
@@ -21,14 +20,14 @@ use App\State\CurrentAccountProvider;
         ),
         new GetCollection(
             uriTemplate: '/accounts.{_format}',
-            openapi: new Operation(summary: "Get All Accounts")
+            openapi: new Operation(summary: "Get All Accounts"),
+            security: "is_granted('ROLE_ADMIN')",
+            securityPostDenormalize: "is_granted('ROLE_ADMIN')"
         )
     ],
 
 )]
-// #[ApiResource]
 #[ORM\Table(name: 'accounts')]
-// #[Get(securityPostDenormalize: 'is_granted("ROLE_USER") OR object.userId == user.id')]
 
 class Account
 {
@@ -89,7 +88,7 @@ class Account
         $this->setUser($user);
         $this->provider = "email";
         $this->type = "email";
-        $this->providerAccountId = (String)random_int(10000,100000000000000000);
+        $this->providerAccountId = (string)random_int(10000, 100000000000000000);
     }
 
     public function getId(): int

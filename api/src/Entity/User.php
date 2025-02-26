@@ -4,6 +4,9 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -13,6 +16,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
+#[Get(security: "is_granted('view', object)")]
+#[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
@@ -41,9 +46,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
     private Account $account;
 
-    #[ORM\ManyToMany(targetEntity: Role::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'roles_users')]
-    private Collection $roles;
+    #[ORM\Column(type: 'json')]
+    private array $roles = [];
 
     #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users")]
     #[ORM\JoinTable(name: "users_flights")]
@@ -75,7 +79,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function getRoles(): array
     {
-        return $this->roles->toArray();
+        return $this->roles;
+    }
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
     public function eraseCredentials() {}
     public function getUserIdentifier(): string
