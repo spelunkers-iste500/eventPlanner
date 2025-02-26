@@ -42,8 +42,7 @@ final class BudgetVoter extends Voter
         // - the user must be a finance admin of the budget
         // - the user must be a platform admin
         return (
-            $subject->getOrganization()->getFinanceAdmins()->contains($user) ||
-            $subject->getEvent()->getFinanceAdmins()->contains($user) ||
+            // subject has a method to return all finance admins
             $subject->getFinanceAdmins()->contains($user) ||
             in_array($user->getRoles(), ['ROLE_ADMIN'])
         );
