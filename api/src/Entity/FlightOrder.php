@@ -10,13 +10,13 @@ use ApiPlatform\Metadata\GetCollection;
 #[ApiResource]
 #[GetCollection(
     provider: DuffelOrderProvider::class,
-    uriTemplate: '/flight_orders/{offer_id}/{passenger_id}/{first_name}/{family_name}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
-    uriVariables: ['offer_id', 'passenger_id', 'first_name', 'family_name', 'title', 'gender', 'email', 'birthday', 'phone_number', 'data'],
+    uriTemplate: '/flight_orders/search/{offer_id}/{passenger_id}/{first_name}/{family_name}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
+    uriVariables: ['offer_id', 'passenger_id', 'first_name', 'family_name', 'title', 'gender', 'email', 'birthday', 'phone_number'],
 )]
 #[GetCollection(
     provider: DuffelOrderProvider::class,
-    uriTemplate: '/flight_orders/{offer_id}/{passenger_id}/{first_name}/{family_name}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
-    uriVariables: ['offer_id', 'passenger_id', 'first_name', 'family_name', 'title', 'gender', 'email', 'birthday', 'phone_number', 'data'],
+    uriTemplate: '/flight_orders/search/{offer_id}/{passenger_id}/{first_name}/{family_name}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
+    uriVariables: ['offer_id', 'passenger_id', 'first_name', 'family_name', 'title', 'gender', 'email', 'birthday', 'phone_number'],
 )]
 #[Get(
     provider: DuffelOrderProvider::class,

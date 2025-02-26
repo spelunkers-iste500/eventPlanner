@@ -33,6 +33,12 @@ final class DuffelOrderProvider implements ProviderInterface
         $user = $this->security->getUser();
         return $user;
 
+        $this->logger->info("Received uriVariables: " . json_encode($uriVariables));
+
+        if (!isset($uriVariables['offer_id'], $uriVariables['passenger_id'])) {
+            throw new \Exception("Missing required parameters: offer_id and passenger_id");
+        }
+
         //subject to change when offerId is stored
         //$offerId = $user ? $user->getOfferId() : null;
         //$name = $user->getName();
