@@ -13,9 +13,13 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['user:read']],
+    denormalizationContext: ['groups' => ['user:write']],
+)]
 #[Get(security: "is_granted('view', object)")]
 #[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]
@@ -25,22 +29,26 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: 'id', type: 'integer')]
+    #[Groups(['user:read', 'user:write'])]
     public int $id;
 
     #[ORM\Column(length: 255, nullable: true)]
     // #[Assert\NotBlank]
     #[Assert\Length(max: 255)]
+    #[Groups(['user:read', 'user:write'])]
     public ?string $name = null;
 
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
+    #[Groups(['user:read', 'user:write'])]
     public ?string $email = null;
 
     #[ORM\Column(name: '"emailVerified"', type: 'datetime', nullable: true)]
     public \DateTimeInterface $emailVerified;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     public ?string $image = null;
 
     #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
@@ -64,6 +72,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public ?\DateTimeInterface $createdDate = null;
 
     #[ORM\Column(type: 'string', nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
     private ?string $offerId = null;
 
     public function __construct()
@@ -94,6 +103,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->id;
     }
+    #[Groups(['user:write'])]
     public function getPassword(): string
     {
         return $this->account->providerAccountId;

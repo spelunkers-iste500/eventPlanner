@@ -13,7 +13,7 @@ class Flight
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'string', length: 10)]
-    public string $flightID;
+    public string $id;
 
     #[ORM\Column(length: 20, nullable: true, unique: true)]
     public string $flightNumber;
@@ -22,8 +22,8 @@ class Flight
 
     //eventOrganization -> Event
     #[ORM\ManyToOne(targetEntity: Event::class)]
-    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
-    public Event $eventID;
+    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: true)]
+    public Event $event;
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $departureTime;
