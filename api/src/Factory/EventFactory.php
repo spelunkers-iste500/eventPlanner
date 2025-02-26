@@ -38,6 +38,8 @@ final class EventFactory extends PersistentProxyObjectFactory
             'location' => substr(self::faker()->address(), 0, 55),
             'maxAttendees' => self::faker()->numberBetween(1, 20),
             'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
+            'startFlightBooking' => self::faker()->dateTimeBetween('now', '+1 year'),
+            'endFlightBooking' => self::faker()->dateTimeBetween('now', '+1 year')
         ];
     }
 

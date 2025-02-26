@@ -107,17 +107,30 @@ img {
 
 /* Component Styles */
 .content-container {
-    max-width: 100%;
+    width: 100%;
     overflow-x: hidden;
     padding: 2rem;
+    position: relative;
+    overflow-y: hidden;
 }
 
 .input-container {
     position: relative;
     display: flex;
+	align-items: flex-start;
     flex-direction: column;
     gap: 0.25rem;
     width: 100%;
+}
+
+.input-container.radio {
+	flex-direction: row-reverse;
+	align-items: center;
+	justify-content: flex-end;
+
+	.input-field {
+		width: fit-content;
+	}
 }
 
 .input-label {
@@ -125,7 +138,8 @@ img {
     font-size: 0.9rem;
 }
 
-.input-field {
+.input-field,
+.select__control {
     width: 100%;
     padding: 0.75rem;
     border: 2px solid var(--black);
@@ -133,8 +147,25 @@ img {
     color: var(--blue-500);
     font-weight: 500;
     font-size: 1rem;
+    background-color: var(--white);
 }
 
-.input-filed::placeholder {
+.select__control:focus-within {
+    border-width: 1px;
+}
+
+.select__option {
+    padding: 0.5rem;
+}
+
+.select__dropdown-indicator {
+    color: var(--black);
+}
+
+.input-field::placeholder {
     color: var(--gray-400);
+}
+
+.flight-search-form .input-container {
+    max-width: 100%;
 }
