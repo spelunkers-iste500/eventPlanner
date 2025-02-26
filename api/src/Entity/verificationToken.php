@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
-#[ApiResource]
 #[ORM\Table(name: 'verification_token')]
 class verificationToken
 {

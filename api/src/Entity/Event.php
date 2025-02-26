@@ -84,11 +84,6 @@ class Event
     public \DateTimeInterface $createdDate;
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
-    // #[ORM\JoinTable(
-    //     name: 'organizations_events',
-    //     joinColumns: [new ORM\JoinColumn(name: 'event_id', referencedColumnName: 'eventID')],
-    //     inverseJoinColumns: [new ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id')]
-    // )]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['read:event', 'write:event'])]
     public Organization $organization;

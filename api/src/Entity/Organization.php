@@ -53,6 +53,10 @@ class Organization
     #[Groups(['org:read', 'org:write'])]
     public ?Collection $events;
 
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
+    #[Groups(['org:read', 'org:write'])]
+    public ?Collection $budgets;
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
