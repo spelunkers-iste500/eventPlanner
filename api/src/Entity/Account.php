@@ -11,6 +11,7 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\State\CurrentAccountProvider;
 
 #[ORM\Entity]
+// No one should need to access this (probably)
 // #[ApiResource(
 //     operations: [
 //         new Get(

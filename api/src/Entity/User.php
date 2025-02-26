@@ -63,7 +63,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'organizations_users')]
-    private Collection $organizations;
+    private Collection $OrgMembership;
+
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
+    // #[ORM\JoinTable(name: 'organizations_users')]
+    #[Groups(['user:read', 'user:write'])]
+    private Collection $AdminOfOrg;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $lastModified = null;
@@ -79,7 +84,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
-        $this->organizations = new ArrayCollection();
+        $this->OrgMembership = new ArrayCollection();
+        $this->AdminOfOrg = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
@@ -91,6 +97,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         // guarantee every user at least has ROLE_USER
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
+        $roles[] = 'ROLE_ADMIN';
         return array_unique($roles);
         // return $this->roles;
     }
@@ -190,12 +197,29 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function getOrganizations(): Collection
     {
-        return $this->organizations;
+        return $this->OrgMembership;
     }
 
     public function setOrganizations(Collection $organizations): void
     {
-        $this->organizations = $organizations;
+        $this->OrgMembership = $organizations;
+    }
+
+    public function getAdminOfOrg(): Collection
+    {
+        return $this->AdminOfOrg;
+    }
+
+    public function addAdminOfOrg(Organization $organization): void
+    {
+        if (!$this->AdminOfOrg->contains($organization)) {
+            $this->AdminOfOrg[] = $organization;
+        }
+    }
+
+    public function removeAdminOfOrg(Organization $organization): void
+    {
+        $this->AdminOfOrg->removeElement($organization);
     }
 
     public function getOfferId(): ?string

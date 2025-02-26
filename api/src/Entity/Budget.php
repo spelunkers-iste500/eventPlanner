@@ -15,6 +15,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
+// Access the budget through the org/event
+// this route should beused by the end user, who is 
+// viewing the budget they are allocated for the event.
 #[Get(
     uriTemplate: '/organizations/{orgId}/events/{eventId}/budget/{id}',
     uriVariables: [
@@ -47,9 +50,19 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 )]
 #[Patch(
-    uriTemplate: '/budgets/{id}',
-    requirements: ['id' => '\d+'],
-    denormalizationContext: ['groups' => ['write:budget']]
+    description: 'Get all budgets for an organization',
+    uriTemplate: '/organizations/{orgId}/budgets.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: Budget::class,
+            toProperty: 'organization',
+            description: 'The ID of the organization that owns the budget'
+        )
+    ],
+    requirements: ['orgId' => '\d+'],
+    normalizationContext: ['groups' => ['write:budget']]
 )]
 #[GetCollection(
     uriTemplate: '/budgets',

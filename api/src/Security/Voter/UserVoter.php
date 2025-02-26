@@ -41,7 +41,7 @@ final class UserVoter extends Voter
         if ($currentUser->getId() === $targetUser->getId()) {
             return true;
         }
-        return true;
+        return false;
     }
     public function canView($currentUser, $targetUser)
     {
