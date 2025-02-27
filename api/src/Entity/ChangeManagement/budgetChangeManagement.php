@@ -1,25 +1,20 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\ChangeManagement;
+
+use App\Entity\Budget;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
-#[ApiResource]
-class flightChangeManagement
+// #[ApiResource]
+class budgetChangeManagement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'changeID', type: 'integer')]
-    public ?int $changeID = null;
-
-    //Relationships
-
-    //eventOrganization -> Event
-    #[ORM\ManyToOne(targetEntity: Flight::class)]
-    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
-    public Flight $flightID;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    public ?int $id = null;
 
     #[ORM\Column(length: 55)]
     public string $versionNum;
@@ -39,8 +34,15 @@ class flightChangeManagement
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
+
+    //Relationships
+
+    //BudgetChangeManagement -> Budget
+    #[ORM\ManyToOne(targetEntity: Budget::class)]
+    #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
+    public Budget $budget;
 
     public function __construct()
     {

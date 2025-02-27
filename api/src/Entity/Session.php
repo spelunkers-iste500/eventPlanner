@@ -9,7 +9,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 #[ORM\Entity]
-#[ApiResource]
 #[ORM\Table(name: 'sessions')]
 #[ORM\UniqueConstraint(name: 'session_token_unique', columns: ['"sessionToken"', '"userId"'])]
 class Session
