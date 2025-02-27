@@ -5,7 +5,6 @@ import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { useBooking } from 'Utils/BookingProvider';
 import { ArrowLeft } from 'lucide-react';
-import AirportSearch from './AirportSearch';
 import FlightSearch from './FlightSearch';
 
 interface EventData {

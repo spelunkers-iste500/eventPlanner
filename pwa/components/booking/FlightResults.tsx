@@ -4,30 +4,34 @@ import { Flight } from 'types/airports';
 import FlightSearch from './FlightSearch';
 import axios from 'axios';
 
-const AirportSearch: React.FC = () => {
+const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const [ flightResults, setFlightResults ] = useState<Flight[]>([]);
 
     useEffect(() => {
-        // fetch airports from API using bookingData props
-        //use axios to get the data
-        axios.get('/api/airports', {
-            params: {
-                origin: bookingData.departAirport,
-                destination: bookingData.returnAirport,
-                departDate: bookingData.departDate,
-                returnDate: bookingData.returnDate
+        const fetchFlightOffers = async () => {
+            let params = `${bookingData.originAirport}/${bookingData.destinationAirport}/${bookingData.departDate}`;
+            if (bookingData.isRoundTrip) {
+                params += `/${bookingData.returnDate}`;
             }
-        })
-        .then(response => {
-            setFlightResults(response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching flight results:', error);
-        });
 
-        setFlightResults(results);
-    }, []);
+            axios.get(`/flight_offers/search/${params}/${bookingData.maxConnections}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then((response) => {
+                setFlightResults(response.data);
+                console.log('Flight offers:', response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching flight offers:', error);
+            });
+        };
+
+
+        fetchFlightOffers();
+    }, [bookingData]);
 
     const handleClick = (flight: Flight) => {
         // proceed with booking
@@ -44,20 +48,20 @@ const AirportSearch: React.FC = () => {
             <p>{flightResults.length} Results</p>
 
             <div>
-                {flightResults.map((flight, index) => (
+                {/* {flightResults.map((flight, index) => (
                     <div key={index} onClick={() => handleClick(flight)}>
                         <h3>{flight.airline} Flight {flight.flightNumber}</h3>
                         <p>Date: {flight.date}</p>
                         <p>Time: {flight.time}</p>
                         <p>Price: ${flight.price}</p>
                     </div>
-                ))}
+                ))} */}
             </div>
         </div>
     );
 };
 
-export default AirportSearch;
+export default FlightResults;
 
 const results = [
     {

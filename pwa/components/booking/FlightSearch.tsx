@@ -6,7 +6,7 @@ import { Airport } from 'types/airports';
 import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
 
-const AirportSearch: React.FC = () => {
+const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
 
     const [formData, setFormData] = useState({
@@ -25,10 +25,11 @@ const AirportSearch: React.FC = () => {
         setBookingData({
             ...bookingData,
             isRoundTrip: formData.trip === 'round-trip',
-            departAirport: formData.origin,
-            returnAirport: formData.destination,
+            originAirport: formData.origin,
+            destinationAirport: formData.destination,
             departDate: formData.departDate,
             returnDate: formData.returnDate,
+            maxConnections: 1,
             content: <FlightResults />
         });
     };
@@ -126,7 +127,7 @@ const AirportSearch: React.FC = () => {
     );
 };
 
-export default AirportSearch;
+export default FlightSearch;
 
 const airportLocations = [
     { label: 'Atlanta, GA (ATL)', value: 'ATL' },
@@ -137,5 +138,6 @@ const airportLocations = [
     { label: 'New York, NY (JFK)', value: 'JFK' },
     { label: 'Orlando, FL (MCO)', value: 'MCO' },
     { label: 'San Francisco, CA (SFO)', value: 'SFO' },
-    { label: 'Seattle, WA (SEA)', value: 'SEA' }
+    { label: 'Seattle, WA (SEA)', value: 'SEA' },
+    { label: 'Rochester, NY (ROC)', value: 'ROC' }
 ];
