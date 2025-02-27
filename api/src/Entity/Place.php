@@ -36,11 +36,6 @@ class Place
         $this->query = $name;
     }
 
-    public function setId(string $id)
-    {
-        $this->id = $id;
-    }
-
     public function getId()
     {
         return $this->id;

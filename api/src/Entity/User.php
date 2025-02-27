@@ -75,6 +75,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Groups(['user:read', 'user:write'])]
     private Collection $events;
 
+    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'eventAdmins')]
+    #[ORM\JoinTable(name: 'eventAdmins_events')]
+    // #[Groups(['user:read', 'user:write'])]
+    private Collection $adminOfEvents;
+
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins')]
     #[JoinTable(name: 'organizations_finance_admins')]
     private Collection $financeAdminOfOrg;

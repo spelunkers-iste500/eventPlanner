@@ -2,12 +2,11 @@
 
 namespace App\Security\Voter;
 
-use App\Entity\Budget;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final class BudgetVoter extends Voter
+final class EventVoter extends Voter
 {
     public const EDIT = 'POST_EDIT';
     public const VIEW = 'POST_VIEW';
@@ -17,7 +16,7 @@ final class BudgetVoter extends Voter
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
         return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\Budget;
+            && $subject instanceof \App\Entity\Event;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -34,32 +33,29 @@ final class BudgetVoter extends Voter
             default => false,
         };
     }
-    private static function canEdit(UserInterface $user, Budget $subject): bool
+    public static function canEdit(UserInterface $user, \App\Entity\Event $subject): bool
     {
         // conditions for editing:
-        // - the user must be a finance admin of the org
-        // - the user must be a finance admin of the event
-        // - the user must be a finance admin of the budget
+        // - the user must be an event admin of the event
+        // - the user must be an org admin
         // - the user must be a platform admin
         return (
-            // subject has a method to return all finance admins
-            $subject->getFinanceAdmins()->contains($user) ||
+            $subject->getEventAdmins()->contains($user) ||
+            $subject->getOrganization()->getAdmins()->contains($user) ||
             in_array($user->getRoles(), ['ROLE_ADMIN'])
         );
     }
-    private static function canView(UserInterface $user, Budget $subject): bool
+    public static function canView(UserInterface $user, \App\Entity\Event $subject): bool
     {
         // conditions for viewing:
-        // - the user must be a finance admin of the org
-        // - the user must be a finance admin of the event
-        // - the user must be a finance admin of the budget
-        // - the user must be an event admin
+        // - the user must be a part of the event
+        // - the user must be part of the event admins
+        // - the user must be part of the org admins
         // - the user must be a platform admin
         return (
-            $subject->getOrganization()->getFinanceAdmins()->contains($user) ||
-            $subject->getEvent()->getFinanceAdmins()->contains($user) ||
-            $subject->getFinanceAdmins()->contains($user) ||
-            $subject->getEvent()->getEventAdmins()->contains($user) ||
+            $subject->getAttendees()->contains($user) ||
+            $subject->getEventAdmins()->contains($user) ||
+            $subject->getOrganization()->getAdmins()->contains($user) ||
             in_array($user->getRoles(), ['ROLE_ADMIN'])
         );
     }
