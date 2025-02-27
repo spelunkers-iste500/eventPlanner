@@ -31,46 +31,32 @@ final class DuffelOrderProvider implements ProviderInterface
     {
 
         $user = $this->security->getUser();
-        return $user;
+        //return $user;
 
-        $this->logger->info("Received uriVariables: " . json_encode($uriVariables));
-
-        if (!isset($uriVariables['offer_id'], $uriVariables['passenger_id'])) {
-            throw new \Exception("Missing required parameters: offer_id and passenger_id");
-        }
-
-        //subject to change when offerId is stored
-        //$offerId = $user ? $user->getOfferId() : null;
-        //$name = $user->getName();
-        //$email = $user->getEmail();
-        
-       // $offerId = "off_0000ArSLPNkXuPCCkkJP4o";
-       // $name = "Gavin";
-       // $email = "gwh8959@g.rit.edu";
-       // if (!$offerId){
-        //    throw new \Exception("Offer ID not found for user");
-        //}
-
-        //$orders = $this->createOrder($offerId, $name, $email);
-        //$flightOrder = new FlightOrder();
-        //$flightOrder->setOfferData($orders);
-
-        //$this->entityManager->persist($flightOrder);
-        //$this->entityManager->flush();
-
-        //return $flightOrder;
         if ($operation instanceof CollectionOperationInterface){
-            return $this->createOrder(
-                $uriVariables['offer_id'],
-                $uriVariables['passenger_id'],
-                $uriVariables['first_name'],
-                $uriVariables['family_name'],
-                $uriVariables['title'],
-                $uriVariables['gender'],
-                $uriVariables['email'],
-                $uriVariables['birthday'],
-                $uriVariables['phone_number'],
-            );
+            if((isset($uriVariables['offer_id'],
+            $uriVariables['passenger_id'],
+            $uriVariables['first_name'],
+            $uriVariables['family_name'],
+            $uriVariables['title'],
+            $uriVariables['gender'],
+            $uriVariables['email'],
+            $uriVariables['birthday'],
+            $uriVariables['phone_number'],))){
+                return $this->createOrder(
+                    $uriVariables['offer_id'],
+                    $uriVariables['passenger_id'],
+                    $uriVariables['first_name'],
+                    $uriVariables['family_name'],
+                    $uriVariables['title'],
+                    $uriVariables['gender'],
+                    $uriVariables['email'],
+                    $uriVariables['birthday'],
+                    $uriVariables['phone_number'], //needs to be in to +(country code)(area code)(phone number) format
+                );
+            }
+        } else{
+            return null;
         }
     }
 
@@ -139,47 +125,5 @@ final class DuffelOrderProvider implements ProviderInterface
         $flightOrder->setData(json_encode($responseData));
     
         return $flightOrder;
-    }
-
-
-    /**
-     * I HAVE TO GET THE FLIGHT COST FOR THIS PROCESSOR
-     * EVERYTHING MUST BE TESTED HERE
-     * entity functions not working
-     * 
-     */
-    /** public function process(FlightOrder $flightOrder): void
-     * {
-     *      $user = $flightOrder->getUser();
-     *       $budget = $this->entityManager->getRepository(Budget::class)->findOneBy(['financialPlannerID' => $user]);
-     *
-     *    if ($budget) {
-     *        $totalAmount = $budget->getTotal();  // You can adjust based on which budget category needs to be updated
-     *        $spentAmount = $budget->getSpentBudget();
-     *        $newTotal = $totalAmount - $flightOrder->getTotalPrice(); // Assuming getTotalPrice() returns the price of the flight order
-     *        $budget->setTotal($newTotal);  // Update the total budget
-     *        
-     *        // Update other budget fields as needed
-     *        $this->entityManager->flush();
-     *    }
-     *} 
-     */
-    public function process(): void
-    {
-        $this->logger->info('Processing flight order');
-        $user = $this->security->getUser();
-        $this->logger->info($user->email);
-        // $user = $flightOrder->getUser();
-        // $budget = $this->entityManager->getRepository(Budget::class)->findOneBy(['financialPlannerID' => $user]);
-
-        // if ($budget) {
-        //     $totalAmount = $budget->getTotal();  // You can adjust based on which budget category needs to be updated
-        //     $spentAmount = $budget->getSpentBudget();
-        //     $newTotal = $totalAmount - $flightOrder->getTotalPrice(); // Assuming getTotalPrice() returns the price of the flight order
-        //     $budget->setTotal($newTotal);  // Update the total budget
-
-        //     // Update other budget fields as needed
-        //     $this->entityManager->flush();
-        // }
     }
 }
