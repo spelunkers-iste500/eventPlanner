@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import Input from 'Components/common/Input';
 import { Select } from 'chakra-react-select';
@@ -32,16 +32,32 @@ const AirportSearch: React.FC = () => {
             content: <FlightResults />
         });
     };
+    
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
-        if (formData.originInput.length >= 3) {
-            console.log('Fetching origin airports for:', formData.originInput);
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
         }
-        if (formData.destinationInput.length >= 3) {
-            console.log('Fetching destination airports for:', formData.destinationInput);
-        }
-        // fetch list of airports using value of origin and destination
-        // setAirportLocations(airports);
+
+        debounceTimeout.current = setTimeout(() => {
+            if (formData.originInput.length >= 3) {
+                console.log('Fetching origin airports for:', formData.originInput);
+                // fetch list of airports using formData.originInput
+                // setAirportLocations(airports);
+            }
+            if (formData.destinationInput.length >= 3) {
+                console.log('Fetching destination airports for:', formData.destinationInput);
+                // fetch list of airports using formData.destinationInput
+                // setAirportLocations(airports);
+            }
+        }, 1000);
+
+        return () => {
+            if (debounceTimeout.current) {
+                clearTimeout(debounceTimeout.current);
+            }
+        };
     }, [formData.originInput, formData.destinationInput]); 
 
     return (

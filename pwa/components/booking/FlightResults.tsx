@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { Flight } from 'types/airports';
 import FlightSearch from './FlightSearch';
+import axios from 'axios';
 
 const AirportSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
@@ -9,6 +10,22 @@ const AirportSearch: React.FC = () => {
 
     useEffect(() => {
         // fetch airports from API using bookingData props
+        //use axios to get the data
+        axios.get('/api/airports', {
+            params: {
+                origin: bookingData.departAirport,
+                destination: bookingData.returnAirport,
+                departDate: bookingData.departDate,
+                returnDate: bookingData.returnDate
+            }
+        })
+        .then(response => {
+            setFlightResults(response.data);
+        })
+        .catch(error => {
+            console.error('Error fetching flight results:', error);
+        });
+
         setFlightResults(results);
     }, []);
 
