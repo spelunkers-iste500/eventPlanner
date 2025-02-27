@@ -2,38 +2,67 @@
 
 namespace App\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use App\State\DuffelOrderProvider;
 use ApiPlatform\Metadata\Get;
-use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Metadata\GetCollection;
 
-#[ORM\Entity]
 #[ApiResource]
-#[Get(provider: DuffelOrderProvider::class)]
+#[GetCollection(
+    provider: DuffelOrderProvider::class,
+    uriTemplate: '/flight_orders/search/{offer_id}/{passenger_id}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
+    uriVariables: ['offer_id', 'passenger_id', 'title', 'gender', 'birthday', 'phone_number'],
+)]
+#[GetCollection(
+    provider: DuffelOrderProvider::class,
+    uriTemplate: '/flight_orders/search/{offer_id}/{passenger_id}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
+    uriVariables: ['offer_id', 'passenger_id', 'title', 'gender', 'birthday', 'phone_number'],
+)]
+#[Get(
+    provider: DuffelOrderProvider::class,
+)]
 class FlightOrder
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: 'integer')]
-    private ?int $id = null;
+    #[ApiResource(identifier: true)]
+    public string $id;
+    public string $offer_id;
+    public string $passenger_id;
+    public string $first_name;
+    public string $family_name;
+    public string $title;
+    public string $gender;
+    public string $email;
+    public string $birthday;
+    public string $phone_number;
+    public string $data;
+    
 
-    #[ORM\Column(type: 'json')]
-    private array $offerData = [];
+    public function __construct(string $order_id, string $offer_id, string $passenger_id, string $first_name, string $family_name, string $title, string $gender, string $email, string $birthday, string $phone_number)
+    {
+        $this->id = $order_id;
+        $this->offer_id = $offer_id;
+        $this->passenger_id = $passenger_id;
+        $this->first_name = $first_name; // if return date is null, then not round trip
+        $this->family_name = $family_name;
+        $this->title = $title;
+        $this->gender = $gender;
+        $this->email = $email;
+        $this->birthday = $birthday;
+        $this->phone_number = $phone_number;
+    }
 
-    public function getId(): ?int
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function getOfferData(): array
+    public function setId(string $id)
     {
-        return $this->offerData;
+        $this->id = $id;
     }
 
-    public function setOfferData(array $offerData): self
-    {
-        $this->offerData = $offerData;
-        return $this;
+    public function setData(string $data){
+        $this->data = $data;
     }
 }
+

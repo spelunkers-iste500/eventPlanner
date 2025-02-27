@@ -3,18 +3,23 @@
 
 namespace App\State;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ProcessorInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\FlightOrder;
 use App\Entity\Budget;
+use Psr\Log\LoggerInterface as Logger;
+use Symfony\Bundle\SecurityBundle\Security;
+#use ApiPlatform\State\ProcessorInterface;
 
 final class DuffelOrderProvider implements ProviderInterface
 {
     private string $token;
 
-    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager)
+    public function __construct(private HttpClientInterface $client, private EntityManagerInterface $entityManager, private Security $security, private Logger $logger)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -22,40 +27,52 @@ final class DuffelOrderProvider implements ProviderInterface
     /**
      * Provides order data from the Duffel API.
      */
-    public function provide(Operation $operation, array $uriVariables = ['offerid'], array $context = []): object|array|null
+    public function provide(Operation $operation, array $uriVariables = [],  array $context = []): object|array|null
     {
 
-        /**For testing I am searching for budgets based on lastModified times, but it will probably go by event or financial planner */
-        $budget = $this->entityManager->getRepository(Budget::class)->findOneBy([], ['lastModified' => 'DESC']);
+        //$user = $this->security->getUser();
+        //return $user;
 
-        if (!$budget) {
-            throw new \RuntimeException("No budget found.");
+        if ($operation instanceof CollectionOperationInterface){
+            if((isset($uriVariables['offer_id'],
+            $uriVariables['passenger_id'],
+            $uriVariables['title'],
+            $uriVariables['gender'],
+            $uriVariables['birthday'],
+            $uriVariables['phone_number'],))){
+                return $this->createOrder(
+                    $uriVariables['offer_id'],
+                    $uriVariables['passenger_id'],
+                    $uriVariables['title'],
+                    $uriVariables['gender'],
+                    $uriVariables['birthday'],
+                    $uriVariables['phone_number'], //needs to be in to +(country code)(area code)(phone number) format
+                );
+            }
+        } else{
+            return null;
         }
-
-        /**
-         * Adding budget manipulation here
-         */
-        $availableBudget = $budget->total - $budget->spentBudget;
-
-        $orders = $this->createOrder('offerid');
-        $flightOrder = new FlightOrder();
-        $flightOrder->setOfferData($orders);
-
-        $this->entityManager->persist($flightOrder);
-        $this->entityManager->flush();
-
-        return $flightOrder;
     }
 
     /**
      * Fetches orders from the Duffel API.
      * 
+     * NEED PASSENGER_ID, OFFER_ID, FIRST NAME (given), LAST NAME (family), TITLE (MR,MRS), Gender, Email, Birthday 
+     * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
-    public function createOrder(string $offerid): array
+    public function createOrder(string $offer_id, string $passenger_id, string $title, string $gender, string $birthday, string $phone_number): FlightOrder
     {
+        $user = $this->security->getUser();
+        $data = json_decode(json_encode($user), true); // Ensures it's an array
+        $name = $data['name'];
+        $nameParts = explode(" ", $name); // Split name by space
+        $first_name = $nameParts[0] ?? '';
+        $last_name = $nameParts[1] ?? '';
+        $email = $data['email'];
+
         $response = $this->client->request(
-            'GET',
+            'POST',
             'https://api.duffel.com/air/orders',
             [
                 'headers' => [
@@ -68,31 +85,47 @@ final class DuffelOrderProvider implements ProviderInterface
                          * Required fields, look into adding additional ones per documentation
                          * payments is omitted because all flights are put on hold
                          */
-                        
-                        //'users' => '', unsure if this is required as of yet
+
                         'type' => 'hold',
-                        'selected_offers' => [$offerid],
+                        'selected_offers' => [$offer_id],
                         'passengers' => [
                             [
-                                /**
-                                 * list of personal information about a passenger
-                                 */
-                                'user_id' => "placeholder",
-                            ],
-                        
-                        //taken from example will change to be dynamic
-                        "id" => "pas_00009hj8USM7Ncg31cBCLL",
-                        "given_name" => "Amelia",
-                        "gender" => "f",
-                        "family_name" => "Earhart",
-                        "email" => "amelia@duffel.com",
-                        "born_on" => "1987-07-24",
+                                "id" => $passenger_id, // Use the passenger ID from the offer
+                                "title" => $title, // Adjust based on actual user data
+                                "given_name" => $first_name,
+                                "family_name" => $last_name, // Ensure a valid last name
+                                "gender" => $gender, // "m" for male, "f" for female
+                                "email" => $email,
+                                "born_on" => $birthday, // Must be valid date format YYYY-MM-DD
+                                "phone_number" => $phone_number, // Must be in international format
+                            ]
                         ],
                     ]
                 ]
             ]
         );
 
-        return $response->toArray();
+        if ($response->getStatusCode() !== 200) {
+            throw new \Exception("Error creating order: " . $response->getContent(false));
+        }
+
+        $responseData = $response->toArray()['data'];
+
+        $flightOrder = new FlightOrder(
+            order_id: $responseData['id'],  // Ensure this field exists in the API response
+            offer_id: $offer_id, 
+            passenger_id: $passenger_id, 
+            first_name: $first_name, 
+            family_name: $last_name,
+            title: $title,
+            gender: $gender, 
+            email: $email,
+            birthday: $birthday,
+            phone_number: $phone_number
+        );
+    
+        $flightOrder->setData(json_encode($responseData));
+    
+        return $flightOrder;
     }
 }

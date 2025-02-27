@@ -10,9 +10,11 @@ references:
 
 namespace App\State;
 
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
+use App\Entity\FlightOffer;
 
 final class DuffelOfferProvider implements ProviderInterface
 {
@@ -36,16 +38,53 @@ final class DuffelOfferProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
 
-        return $this->getOneWayFlightOffers($uriVariables['origin'], $uriVariables['destination'], $uriVariables['departureDate'], $uriVariables['passengerCount']);
-        // $flights = $this->getFlights("NYC", "ATL", "2025-03-15", 1); //fix this to not be static (also does not work for testing)
-        // return $flights;
+        if ($operation instanceof CollectionOperationInterface) // if the operation is searching for a collection of flight offers
+        {
+            if ((isset(
+                $uriVariables['origin'],
+                $uriVariables['destination'],
+                $uriVariables['departureDate'],
+                $uriVariables['returnDate'],
+                $uriVariables['maxConnections']
+            ))) // if all variables needed for a round trip are set, then we know we are looking for round trip flights
+            {
+                return $this->getRoundTripFlightOffers(
+                    $uriVariables['origin'],
+                    $uriVariables['destination'],
+                    $uriVariables['departureDate'],
+                    $uriVariables['returnDate'],
+                    $uriVariables['maxConnections']
+                );
+            } else if (isset(
+                $uriVariables['origin'],
+                $uriVariables['destination'],
+                $uriVariables['departureDate'],
+                $uriVariables['maxConnections']
+            )) // if only the variables for a one way flight are set, then we know we are looking for one way flights
+            {
+                return $this->getOneWayFlightOffers(
+                    $uriVariables['origin'],
+                    $uriVariables['destination'],
+                    $uriVariables['departureDate'],
+                    $uriVariables['maxConnections']
+                );
+            }
+        } else if (isset(
+            $uriVariables['id']
+        )) // if the id is set, then we know we are looking for a specific flight offer 
+        {
+            return $this->getFlightOfferById($uriVariables['id']);
+        } else // if none of the above conditions are met, then return null (404)
+        {
+            return null;
+        }
     }
 
-    public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $passengerCount): array
+    public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $maxConnections): FlightOffer
     {
         $response = $this->client->request(
             'POST',
-            'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
+            'https://api.duffel.com/air/offer_requests?supplier_timeout=3000',
             [
                 'headers' => [
                     'Duffel-Version' => "v2",
@@ -62,27 +101,37 @@ final class DuffelOfferProvider implements ProviderInterface
                         ],
                         'passengers' => [
                             [
-                                // populate the passengers array with the number of passengers
                                 'type' => 'adult'
                             ]
                         ],
                         'currency' => 'USD',
-                        'cabin_class' => 'economy',
+                        // 'cabin_class' => 'economy',
+                        'max_connections' => $maxConnections,
                     ],
                 ]
             ]
         );
 
-        $data = $response->toArray()['data']['offers'];
+        $data = $response->toArray()['data'];
 
-        return $data;
+        return new FlightOffer(
+            origin: $origin,
+            destination: $destination,
+            departureDate: $departureDate,
+            offerId: $data['id'],
+            offers: $data['offers'],
+            slices: $data['slices'],
+            passengers: $data['passengers']
+        );
+
+        // return new FlightOffer($origin, $destination, $departureDate, $response['id']);
     }
 
-    public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $passengerCount): array
+    public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $maxConnections): FlightOffer
     {
         $response = $this->client->request(
             'POST',
-            'https://api.duffel.com/air/offer_requests?return_offers=true&supplier_timeout=10000',
+            'https://api.duffel.com/air/offer_requests?&supplier_timeout=3000',
             [
                 'headers' => [
                     'Duffel-Version' => "v2",
@@ -108,28 +157,50 @@ final class DuffelOfferProvider implements ProviderInterface
                             ]
                         ],
                         'currency' => 'USD',
-                        'cabin_class' => 'economy',
+                        // 'cabin_class' => 'economy',
+                        'max_connections' => $maxConnections,
                     ],
                 ]
             ]
         );
 
-        $data = $response->toArray()['data']['offers'];
+        $data = $response->toArray()['data'];
+        // return $data;
+        return new FlightOffer(
+            origin: $origin,
+            destination: $destination,
+            departureDate: $departureDate,
+            returnDate: $returnDate,
+            offerId: $data['id'],
+            offers: $data['offers'],
+            slices: $data['slices'],
+            passengers: $data['passengers']
+        );
+    }
 
+    public function getFlightOfferById(string $id)
+    {
+        $response = $this->client->request(
+            'GET',
+            'https://api.duffel.com/air/offer_requests/' . $id,
+            [
+                'headers' => [
+                    'Duffel-Version' => "v2",
+                    'Authorization' => 'Bearer ' . $this->token,
+                ],
+            ]
+        );
+
+        $data = $response->toArray()['data'];
         return $data;
+        return new FlightOffer(
+            origin: $data['origin'],
+            destination: $data['destination'],
+            departureDate: $data['date'],
+            offerId: $data['id'],
+            offers: $data['offers'],
+            slices: $data['slices'],
+            passengers: $data['passengers']
+        );
     }
 }
-//Flight entity made itself after adding this function that maps the API call to the Flight Entities
-// private function mapToFlightEntities(array $data): array
-//     {
-//         $flights = [];
-//         foreach ($data['flights'] as $flightData) {
-//             $flight = new Flight();
-//             $flight->setOrigin($flightData['origin']);
-//             $flight->setDestination($flightData['destination']);
-//             $flights[] = $flight;
-//         }
-
-//         return $flights;
-// }
-// }
