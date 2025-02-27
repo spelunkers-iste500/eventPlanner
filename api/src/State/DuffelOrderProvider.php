@@ -30,27 +30,21 @@ final class DuffelOrderProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [],  array $context = []): object|array|null
     {
 
-        $user = $this->security->getUser();
+        //$user = $this->security->getUser();
         //return $user;
 
         if ($operation instanceof CollectionOperationInterface){
             if((isset($uriVariables['offer_id'],
             $uriVariables['passenger_id'],
-            $uriVariables['first_name'],
-            $uriVariables['family_name'],
             $uriVariables['title'],
             $uriVariables['gender'],
-            $uriVariables['email'],
             $uriVariables['birthday'],
             $uriVariables['phone_number'],))){
                 return $this->createOrder(
                     $uriVariables['offer_id'],
                     $uriVariables['passenger_id'],
-                    $uriVariables['first_name'],
-                    $uriVariables['family_name'],
                     $uriVariables['title'],
                     $uriVariables['gender'],
-                    $uriVariables['email'],
                     $uriVariables['birthday'],
                     $uriVariables['phone_number'], //needs to be in to +(country code)(area code)(phone number) format
                 );
@@ -67,8 +61,16 @@ final class DuffelOrderProvider implements ProviderInterface
      * 
      * DOCUMENTATION: https://duffel.com/docs/api/v2/orders
      */
-    public function createOrder(string $offer_id, string $passenger_id, string $first_name, string $family_name, string $title, string $gender, string $email, string $birthday, string $phone_number): FlightOrder
+    public function createOrder(string $offer_id, string $passenger_id, string $title, string $gender, string $birthday, string $phone_number): FlightOrder
     {
+        $user = $this->security->getUser();
+        $data = json_decode(json_encode($user), true); // Ensures it's an array
+        $name = $data['name'];
+        $nameParts = explode(" ", $name); // Split name by space
+        $first_name = $nameParts[0] ?? '';
+        $last_name = $nameParts[1] ?? '';
+        $email = $data['email'];
+
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/orders',
@@ -91,7 +93,7 @@ final class DuffelOrderProvider implements ProviderInterface
                                 "id" => $passenger_id, // Use the passenger ID from the offer
                                 "title" => $title, // Adjust based on actual user data
                                 "given_name" => $first_name,
-                                "family_name" => $family_name, // Ensure a valid last name
+                                "family_name" => $last_name, // Ensure a valid last name
                                 "gender" => $gender, // "m" for male, "f" for female
                                 "email" => $email,
                                 "born_on" => $birthday, // Must be valid date format YYYY-MM-DD
@@ -114,7 +116,7 @@ final class DuffelOrderProvider implements ProviderInterface
             offer_id: $offer_id, 
             passenger_id: $passenger_id, 
             first_name: $first_name, 
-            family_name: $family_name,
+            family_name: $last_name,
             title: $title,
             gender: $gender, 
             email: $email,
