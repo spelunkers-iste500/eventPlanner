@@ -4,7 +4,7 @@ import { Event } from 'types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { useBooking } from 'Utils/BookingProvider';
-import { ArrowLeft } from 'lucide-react';
+import { X } from 'lucide-react';
 import FlightSearch from './FlightSearch';
 
 interface EventData {
@@ -32,9 +32,9 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 		<div className={styles.container}>
 			<button 
 				onClick={handleBackClick} 
-				className={`text-btn ${styles.backButton}`}
+				className={`text-btn ${styles.backHome}`}
 			>
-				<ArrowLeft /> Back
+				Back Home <X />
 			</button>
 
 			<div className={styles.eventInfo}>

@@ -93,7 +93,7 @@ const FlightSearch: React.FC = () => {
                     size="md"
                     isSearchable={false}
                     defaultValue={{ label: 'Round Trip', value: 'round-trip' }}
-                    className={`select-menu ${styles.selectMenu}`}
+                    className={`select-menu`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
                 />
@@ -106,7 +106,7 @@ const FlightSearch: React.FC = () => {
                     noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
                     placeholder="Where from?"
                     size="md"
-                    className={`select-menu ${styles.selectMenu}`}
+                    className={`select-menu`}
                     classNamePrefix={'select'}
                     onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
                     onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
@@ -120,7 +120,7 @@ const FlightSearch: React.FC = () => {
                     noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
                     placeholder="Where to?"
                     size="md"
-                    className={`select-menu ${styles.selectMenu}`}
+                    className={`select-menu`}
                     classNamePrefix={'select'}
                     onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
                     onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}

@@ -5,6 +5,7 @@ import { Flight, Offer, Passenger, Segment, Slice } from 'types/airports';
 import FlightSearch from './FlightSearch';
 import axios from 'axios';
 import styles from './EventForm.module.css';
+import { ArrowLeft } from 'lucide-react';
 
 const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
@@ -15,7 +16,7 @@ const FlightResults: React.FC = () => {
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
-            let params = `${bookingData.originAirport}/${bookingData.destinationAirport}/${bookingData.departDate}`;
+            let params = `${bookingData.destinationAirport}/${bookingData.originAirport}/${bookingData.departDate}`;
             if (bookingData.isRoundTrip) {
                 params += `/${bookingData.returnDate}`;
             }
@@ -55,28 +56,32 @@ const FlightResults: React.FC = () => {
 
     return (
         <div>
-            <button onClick={onPrevious}>Back</button>
-            <h2>Flight Results</h2>
-            {!loading ? <p>Displaying {displayedResults.length} of {flightResults.length} Results</p> : ''}
+            <div className={styles.resultsHeader}>
+                <button className={`text-btn ${styles.backBtn}`} onClick={onPrevious}><ArrowLeft /> Back</button>
+                <div>
+                    <h2>Flight Results</h2>
+                    {!loading ? <p>Displaying {displayedResults.length} of {flightResults.length} Results</p> : ''}
+                </div>
+            </div>
 
             <div className={`${styles.flightResults}`}>
                 {loading ? <Spinner size="xl" color='var(--blue-500)' /> : (
                     <>
                         {displayedResults.map((offer: Offer, index: number) => (
-                            <div key={index} onClick={() => handleClick(offer)}>
-                                <h3>{offer.owner.name} Flight {offer.id}</h3>
-                                {/* <img src={offer.owner.logo_symbol_url} alt={`${offer.owner.name} logo`} /> */}
+                            <div className={styles.resultCard} key={index} onClick={() => handleClick(offer)}>
+                                <h3 className={styles.resultTitle}>{offer.owner.name}</h3>
+                                <img src={offer.owner.logo_symbol_url} alt={`${offer.owner.name} logo`} />
                                 <p>Price before tax: ${offer.base_amount}</p>
                                 <p>Price after tax: ${offer.total_amount}</p>
-                                <p>Passenger ID: {offer.passengers.map((passenger: Passenger) => passenger.id).join(', ')}</p>
+                                <p>Passenger ID: {offer.passengers[0].id}</p>
                                 {offer.slices.map((slice: Slice, sliceIndex: number) => (
                                     <div key={sliceIndex}>
-                                        <h4>Slice {sliceIndex + 1}</h4>
+                                        <h4>{sliceIndex === 0 ? 'Departing Flight' : 'Returning Flight'}</h4>
                                         <p>Origin: {slice.origin.iata_code}</p>
                                         <p>Destination: {slice.destination.iata_code}</p>
                                         {slice.segments.map((segment: Segment, segmentIndex: number) => (
                                             <div key={segmentIndex}>
-                                                <p>Segment {segmentIndex + 1}</p>
+                                                <h5>Flight Details</h5>
                                                 <p>Departure Date: {segment.departing_at}</p>
                                                 <p>Arrival Date: {segment.arriving_at}</p>
                                                 <p>Duration: {segment.duration}</p>
