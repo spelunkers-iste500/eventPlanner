@@ -7,6 +7,8 @@ import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Calendar } from 'lucide-react';
 
 interface SelectOption {
     label: string;
@@ -15,9 +17,6 @@ interface SelectOption {
 
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
-
-    const [startDate, setStartDate] = useState(new Date('2025-02-28'));
-    const [endDate, setEndDate] = useState(new Date('2025-02-28'));
 
     const [formData, setFormData] = useState({
         trip: 'round-trip',
@@ -74,6 +73,12 @@ const FlightSearch: React.FC = () => {
         }, 1000);
     };
 
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
+    const formatDate = (date: Date | null) => {
+        return date ? date.toISOString().split('T')[0] : '';
+    };
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
@@ -99,7 +104,7 @@ const FlightSearch: React.FC = () => {
                 <AsyncSelect
                     loadOptions={loadOptions}
                     noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
-                    placeholder="Where From?"
+                    placeholder="Where from?"
                     size="md"
                     className={`select-menu ${styles.selectMenu}`}
                     classNamePrefix={'select'}
@@ -122,21 +127,51 @@ const FlightSearch: React.FC = () => {
                 />
             </div>
 
-            <Input
-                type='date'
-                label='Departure Date'
-                placeholder='mm/dd/yyyy'
-                onChange={(value) => setFormData({ ...formData, departDate: value })}
-            />
-            
-            {formData.trip === 'round-trip' && (
-                <Input
-                    type='date'
-                    label='Return Date'
-                    placeholder='mm/dd/yyyy'
-                    onChange={(value) => setFormData({ ...formData, returnDate: value })}
-                />
-            )}
+            <div className='input-container'>
+                <label className='input-label'>{formData.trip === 'round-trip' ? 'Departure and Return Date' : 'Departure Date'}</label>
+                {formData.trip === 'round-trip' ? (
+                    // round trip date picker
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        endDate={endDate}
+                        minDate={new Date()}
+                        onChange={(dates) => {
+                            const [start, end] = dates;
+                            setStartDate(start);
+                            setEndDate(end);
+                            setFormData({ 
+                                ...formData, 
+                                departDate: formatDate(start), 
+                                returnDate: formatDate(end) 
+                            });
+                        }}
+                        selectsRange
+                        showMonthDropdown
+                        placeholderText="Select date range"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        showIcon
+                        icon={<Calendar size={32} />}
+                    />
+                ) : (
+                    // one way date picker
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        minDate={new Date()}
+                        onChange={(date) => {
+                            setStartDate(date);
+                            setFormData({ ...formData, departDate: formatDate(date)})}
+                        }
+                        showMonthDropdown
+                        placeholderText="Select a date"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        icon={<Calendar size={32} />}
+                    />
+                )}
+            </div>
 
             <button type="submit">Search</button>
         </form>
