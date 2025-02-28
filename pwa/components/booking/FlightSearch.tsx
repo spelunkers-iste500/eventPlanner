@@ -1,13 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import Input from 'Components/common/Input';
-import { Select } from 'chakra-react-select';
+import { AsyncSelect, Select } from 'chakra-react-select';
 import { Airport } from 'types/airports';
 import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
+import axios from 'axios';
+import DatePicker from 'react-datepicker';
+
+interface SelectOption {
+    label: string;
+    value: string;
+}
 
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
+
+    const [startDate, setStartDate] = useState(new Date('2025-02-28'));
+    const [endDate, setEndDate] = useState(new Date('2025-02-28'));
 
     const [formData, setFormData] = useState({
         trip: 'round-trip',
@@ -21,7 +31,6 @@ const FlightSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // make request to API to fetch relevant flight results and switch to results page
         setBookingData({
             ...bookingData,
             isRoundTrip: formData.trip === 'round-trip',
@@ -36,30 +45,35 @@ const FlightSearch: React.FC = () => {
     
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    useEffect(() => {
+    const fetchAirports = async (input: string, callback: (options: SelectOption[]) => void) => {
+        try {
+            const response = await axios.get(`/places/search/${input}`);
+            const airports = response.data['hydra:member'].map((airport: any) => ({
+                label: `${airport.name} (${airport.iataCode})`,
+                value: airport.iataCode
+            }));
+            console.log('Airports:', airports);
+            callback(airports);
+        } catch (error) {
+            console.error('Error fetching airports:', error);
+            callback([]);
+        }
+    };
+
+    const loadOptions = (inputValue: string, callback: (options: SelectOption[]) => void) => {
         if (debounceTimeout.current) {
             clearTimeout(debounceTimeout.current);
         }
 
         debounceTimeout.current = setTimeout(() => {
-            if (formData.originInput.length >= 3) {
-                console.log('Fetching origin airports for:', formData.originInput);
-                // fetch list of airports using formData.originInput
-                // setAirportLocations(airports);
-            }
-            if (formData.destinationInput.length >= 3) {
-                console.log('Fetching destination airports for:', formData.destinationInput);
-                // fetch list of airports using formData.destinationInput
-                // setAirportLocations(airports);
+            if (inputValue.length >= 3) {
+                fetchAirports(inputValue, callback);
+            } else {
+                callback([]);
             }
         }, 1000);
+    };
 
-        return () => {
-            if (debounceTimeout.current) {
-                clearTimeout(debounceTimeout.current);
-            }
-        };
-    }, [formData.originInput, formData.destinationInput]); 
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
@@ -82,26 +96,28 @@ const FlightSearch: React.FC = () => {
 
             <div className='input-container'>
                 <label className='input-label'>Origin</label>
-                <Select
-                    options={airportLocations}
+                <AsyncSelect
+                    loadOptions={loadOptions}
+                    noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
                     placeholder="Where From?"
                     size="md"
                     className={`select-menu ${styles.selectMenu}`}
                     classNamePrefix={'select'}
-                    onChange={(value) => setFormData({ ...formData, origin: value?.value || '' })}
+                    onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
                     onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
                 />
             </div>
 
             <div className='input-container'>
                 <label className='input-label'>Destination</label>
-                <Select
-                    options={airportLocations}
+                <AsyncSelect
+                    loadOptions={loadOptions}
+                    noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
                     placeholder="Where to?"
                     size="md"
                     className={`select-menu ${styles.selectMenu}`}
                     classNamePrefix={'select'}
-                    onChange={(value) => setFormData({ ...formData, destination: value?.value || '' })}
+                    onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
                     onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
                 />
             </div>
@@ -128,16 +144,3 @@ const FlightSearch: React.FC = () => {
 };
 
 export default FlightSearch;
-
-const airportLocations = [
-    { label: 'Atlanta, GA (ATL)', value: 'ATL' },
-    { label: 'Chicago, IL (ORD)', value: 'ORD' },
-    { label: 'Dallas, TX (DFW)', value: 'DFW' },
-    { label: 'Denver, CO (DEN)', value: 'DEN' },
-    { label: 'Los Angeles, CA (LAX)', value: 'LAX' },
-    { label: 'New York, NY (JFK)', value: 'JFK' },
-    { label: 'Orlando, FL (MCO)', value: 'MCO' },
-    { label: 'San Francisco, CA (SFO)', value: 'SFO' },
-    { label: 'Seattle, WA (SEA)', value: 'SEA' },
-    { label: 'Rochester, NY (ROC)', value: 'ROC' }
-];
