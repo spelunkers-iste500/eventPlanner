@@ -169,3 +169,8 @@ img {
 .flight-search-form .input-container {
     max-width: 100%;
 }
+
+.react-datepicker__input-container svg {
+    top: 50%;
+    transform: translateY(-50%);
+}

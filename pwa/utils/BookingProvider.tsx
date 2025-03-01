@@ -7,14 +7,15 @@ interface BookingData {
     event: Event;
     content: ReactNode;
     isRoundTrip?: boolean;
-    departAirport?: String;
+    originAirport?: String;
     departFlight?: Flight;
     departDate?: string;
     departTime?: string;
-    returnAirport?: String;
+    destinationAirport?: String;
     returnFlight?: Flight;
     returnDate?: string;
     returnTime?: string;
+    maxConnections?: number;
 }
 
 interface BookingContextProps {

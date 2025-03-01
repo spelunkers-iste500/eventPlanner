@@ -1,7 +1,6 @@
 export interface Airport {
-    code: string;
+    iata_code: string;
     name: string;
-    location: string;
 }
 
 /**
@@ -15,4 +14,44 @@ export interface Flight {
     time: string;
     price: number;
     notes?: string[];
+}
+
+export interface Segment {
+    departing_at: string;
+    arriving_at: string;
+    duration: string;
+    origin: {
+        iata_code: string;
+    };
+    destination: {
+        iata_code: string;
+    };
+}
+
+export interface Slice {
+    origin: {
+        iata_code: string;
+    };
+    destination: {
+        iata_code: string;
+    };
+    segments: Segment[];
+}
+
+export interface Passenger {
+    id: string;
+}
+
+export interface Owner {
+    name: string;
+    logo_symbol_url: string;
+}
+
+export interface Offer {
+    id: string;
+    base_amount: string;
+    total_amount: string;
+    passengers: Passenger[];
+    owner: Owner;
+    slices: Slice[];
 }
