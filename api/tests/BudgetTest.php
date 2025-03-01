@@ -6,8 +6,12 @@ namespace App\Tests;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Budget;
 use App\Entity\User;
+use App\Entity\Event;
+use App\Entity\Organization;
 use App\Factory\UserFactory;
 use App\Factory\BudgetFactory;
+use App\Factory\OrganizationFactory;
+use App\Factory\EventFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -86,7 +90,14 @@ class BudgetTest extends ApiTestCase
         ]);
         $json = $authresponse->toArray();
         
-        $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+        //create organization
+        $org = OrganizationFactory::createOne();
+        //create event
+        $event = EventFactory::createOne();
+        //get iris for event org and user
+        $useriri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+        $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        $eventIri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/budgets', [
             'headers' => ['Content-Type' => 'application/ld+json'],
@@ -95,7 +106,9 @@ class BudgetTest extends ApiTestCase
                 "spentBudget"=> "50000.00",
                 "vipBudget"=> "20000.00",
                 "regBudget"=> "80000.00",
-                "financialPlannerID"=> "$iri",
+                "financialPlannerID"=> "$useriri",
+                "organization" => $orgIri,
+                "event" => $eventIri
             ],
             'auth_bearer' => $json['token']
         ]);
@@ -109,7 +122,8 @@ class BudgetTest extends ApiTestCase
             "spentBudget"=> "50000.00",
             "vipBudget"=> "20000.00",
             "regBudget"=> "80000.00",
-            "financialPlannerID"=> "$iri", 
+            "organization" => $orgIri,
+            "event" => $eventIri
 
         ]);
         $this->assertMatchesResourceItemJsonSchema(Budget::class);

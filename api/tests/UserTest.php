@@ -45,6 +45,23 @@ class UserTest extends ApiTestCase
     }*/
     public function testUpdateUser(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
         // Only create the book we need with a given ISBN
         UserFactory::createOne(['email' => 'ratchie@rit.edu']);
         $client = static::createClient();
@@ -58,7 +75,8 @@ class UserTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();

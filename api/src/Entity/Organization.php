@@ -109,7 +109,10 @@ class Organization
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
-
+    public function getId(): int
+    {
+        return $this->id;
+    }
     public function getAdmins(): Collection
     {
         return $this->admins;
