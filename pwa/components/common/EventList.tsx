@@ -4,8 +4,8 @@ import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-
 import Card from "./Card";
 import { Event } from "types/events";
 import { useContent } from "Utils/ContentProvider";
-import AirportSearch from "Components/booking/AirportSearch";
 import EventForm from "Components/booking/EventForm";
+import { DialogRoot, DialogBackdrop, DialogContent, DialogCloseTrigger, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from "@chakra-ui/react";
 
 interface EventListProps {
     heading: string;
@@ -14,19 +14,28 @@ interface EventListProps {
 }
 
 const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
-	const buttonText = heading === "Event Invitations" ? "Book Now" : "View More";
+	const isBookCard = heading === "Event Invitations";
+	const buttonText = isBookCard ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
-        setContent(<EventForm eventData={event}/>, event.name);
+		if (isBookCard) {
+        	setContent(<EventForm eventData={event}/>, event.name);
+		} else {
+			setSelectedEvent(event); // Store event data
+            setIsDialogOpen(true); // Open modal
+		}
     };
 
 	return (
+		<>
 		<div className={`${styles.eventList}`}>
             <div className={styles.eventListHeader}>
                 <h2>{heading}</h2>
@@ -89,6 +98,24 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
 				))}
 			</div>
 		</div>
+
+		{/* Chakra UI Dialog */}
+		<DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
+			<DialogBackdrop />
+			<DialogContent>
+				<DialogCloseTrigger />
+				<DialogHeader>
+					<DialogTitle>{selectedEvent?.name}</DialogTitle>
+				</DialogHeader>
+				<DialogBody>
+					<p>{selectedEvent?.org}</p>
+				</DialogBody>
+				<DialogFooter>
+					<Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+				</DialogFooter>
+			</DialogContent>
+		</DialogRoot>
+		</>
   	);
 };
 
