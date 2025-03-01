@@ -100,7 +100,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
+        #$this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
