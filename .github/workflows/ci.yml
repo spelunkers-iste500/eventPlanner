@@ -58,7 +58,7 @@ jobs:
       - name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost
       - name: Check API reachability
-        run: curl -vk --fail-with-body https://localhost
+        run: curl -vk --fail-with-body https://localhost/login
       - name: Check PWA reachability
         run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login"
       - name: Create database
