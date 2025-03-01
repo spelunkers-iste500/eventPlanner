@@ -149,9 +149,9 @@ class OrganizationTest extends ApiTestCase
             ],
         ]);
         $json = $authresponse->toArray();
-        // Only create the book we need with a given ISBN
-        OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
-
+       
+        $org = OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
+        $user->addAdminOfOrg($org);
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);

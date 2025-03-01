@@ -49,7 +49,7 @@ class UserTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::createOne(['email' => 'ratchie@rit.edu']);
 
         $userpassword = $user -> getPassword();
 
@@ -62,8 +62,7 @@ class UserTest extends ApiTestCase
             ],
         ]);
         $json = $authresponse->toArray();
-        // Only create the book we need with a given ISBN
-        UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+        
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
