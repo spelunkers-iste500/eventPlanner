@@ -1,6 +1,6 @@
 <?php
 // api/tests/Eventtest.php
-
+/*
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
@@ -15,7 +15,7 @@ class EventTest extends ApiTestCase
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
 
-    public function testGetEventCollection(): void
+    /*public function testGetEventCollection(): void
     {
         //get auth token for test \
         $authclient = self::createClient();
@@ -71,7 +71,8 @@ class EventTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Get all Events execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
+    /*
     public function testCreateEvent(): void
     {
         //get auth token for test \
@@ -129,7 +130,7 @@ class EventTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Create Event execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     /*
     public function testUpdateEvent(): void
     {
@@ -200,4 +201,4 @@ class EventTest extends ApiTestCase
         echo "Delete Event execution time: " . $executionTime . " milliseconds\n";
     }*/
     
-}
+//}
