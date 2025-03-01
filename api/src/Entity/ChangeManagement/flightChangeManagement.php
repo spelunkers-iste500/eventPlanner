@@ -1,25 +1,27 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\ChangeManagement;
+
+use App\Entity\Flight;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 
 #[ORM\Entity]
-#[ApiResource]
-class eventChangeManagement
+// #[ApiResource]
+class flightChangeManagement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'changeID', type: 'integer')]
-    public ?int $changeID = null;
+    #[ORM\Column(name: 'id', type: 'integer')]
+    public int $id;
 
     //Relationships
 
     //eventOrganization -> Event
-    #[ORM\ManyToOne(targetEntity: Event::class)]
-    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'eventID', nullable: true)]
-    public Event $eventID;
+    #[ORM\ManyToOne(targetEntity: Flight::class)]
+    #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'id', nullable: true)]
+    public Flight $flight;
 
     #[ORM\Column(length: 55)]
     public string $versionNum;
@@ -30,16 +32,16 @@ class eventChangeManagement
     #[ORM\Column(length: 255)]
     public string $description;
 
-    #[ORM\Column(type: 'json', nullable: true)]
-    public mixed $beforeChanges = null;
+    #[ORM\Column(type: 'json')]
+    public array $beforeChanges;
 
-    #[ORM\Column(type: 'json', nullable: true)]
-    public mixed $afterChanges = null;
+    #[ORM\Column(type: 'json')]
+    public array $afterChanges;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
-    #[ORM\Column(type: 'datetime',nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $createdDate;
 
     public function __construct()

@@ -63,6 +63,8 @@ class EventTest extends ApiTestCase
                 "endDateTime"=> "2025-01-29T19:01:00+00:00",
                 "location"=> "Gosnell",
                 "maxAttendees"=> 20,
+                'startFlightBooking' => "2025-01-29T18:30:00+00:00",
+                'endFlightBooking' => "2025-01-29T19:01:00+00:00"
             ]
         ]);
         $endTime = microtime(true);
@@ -76,6 +78,8 @@ class EventTest extends ApiTestCase
             "endDateTime"=> "2025-01-29T19:01:00+00:00",
             "location"=> "Gosnell",
             "maxAttendees"=> 20,
+            'startFlightBooking' => "2025-01-29T18:30:00+00:00",
+            'endFlightBooking' => "2025-01-29T19:01:00+00:00"
 
         ]);
         $this->assertMatchesResourceItemJsonSchema(Event::class);
