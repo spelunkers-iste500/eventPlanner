@@ -21,7 +21,10 @@ class OrganizationTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
@@ -77,7 +80,10 @@ class OrganizationTest extends ApiTestCase
          $authclient = self::createClient();
         
          // Create User and Account using Foundry
-         $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+         $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
  
          $userpassword = $user -> getPassword();
  
@@ -127,7 +133,10 @@ class OrganizationTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
@@ -174,7 +183,10 @@ class OrganizationTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $userpassword = $user -> getPassword();
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [

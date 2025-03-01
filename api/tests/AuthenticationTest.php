@@ -17,10 +17,12 @@ class AuthenticationTest extends ApiTestCase
         $client = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
-
+        $user = UserFactory::new()->createOne([
+            'email' => 'test@example.com',
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $userpassword = $user -> getPassword();
-
+        $startTime = microtime(true);
         // retrieve a token
         $response = $client->request('POST', '/auth', [
             'headers' => ['Content-Type' => 'application/json'],
@@ -37,9 +39,13 @@ class AuthenticationTest extends ApiTestCase
         // test not authorized
         $client->request('GET', '/organizations');
         $this->assertResponseStatusCodeSame(401);
-
+        
         // test authorized
         $client->request('GET', '/organizations', ['auth_bearer' => $json['token']]);
         $this->assertResponseIsSuccessful();
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Authentication Test execution time: " . $executionTime . " milliseconds\n";
     }
 }

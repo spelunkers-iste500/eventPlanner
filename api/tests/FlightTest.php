@@ -23,7 +23,10 @@ class FlightTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
@@ -77,7 +80,10 @@ class FlightTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
@@ -132,7 +138,10 @@ class FlightTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
@@ -180,7 +189,10 @@ class FlightTest extends ApiTestCase
         $authclient = self::createClient();
         
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
         $userpassword = $user -> getPassword();
 
