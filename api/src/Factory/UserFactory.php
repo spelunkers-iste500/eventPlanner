@@ -38,6 +38,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'image' => self::faker()->imageUrl(255),
             'lastModified' => self::faker()->dateTime(),
             'createdDate' => self::faker()->dateTime(),
+            'roles' => ['ROLE_ADMIN']
         ];
     }
 

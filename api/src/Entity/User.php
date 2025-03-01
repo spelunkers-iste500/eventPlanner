@@ -64,7 +64,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
     #[ORM\JoinTable(name: 'organizations_members')]
-    private Collection $OrgMembership;
+    public Collection $OrgMembership;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
@@ -100,7 +100,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function __construct()
     {
-        #$this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
