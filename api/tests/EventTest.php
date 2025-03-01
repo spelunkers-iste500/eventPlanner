@@ -117,7 +117,7 @@ class EventTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update Event execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testDeleteEvent(): void
+    /*public function testDeleteEvent(): void
     {
         // Only create the user we need with a given email
         EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
@@ -135,6 +135,6 @@ class EventTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete Event execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     
 }

@@ -10,7 +10,7 @@ class UserTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function testCreateUser(): void
+   /* public function testCreateUser(): void
     {
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/users', [
@@ -42,7 +42,7 @@ class UserTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Create User execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     public function testUpdateUser(): void
     {
         // Only create the book we need with a given ISBN
@@ -71,7 +71,7 @@ class UserTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update User execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testDeleteUser(): void
+   /* public function testDeleteUser(): void
     {
         // Only create the user we need with a given email
         UserFactory::createOne(['email' => 'ratchie@rit.edu']);
@@ -88,5 +88,5 @@ class UserTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete User execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
 }

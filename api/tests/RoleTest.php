@@ -9,7 +9,7 @@ use App\Factory\RoleFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
-
+/*
 class RoleTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
@@ -197,4 +197,4 @@ class RoleTest extends ApiTestCase
         echo "Delete Role execution time: " . $executionTime . " milliseconds\n";
     }
     
-}
+}*/

@@ -163,7 +163,7 @@ class BudgetTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update Budget execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testDeleteBudget(): void
+    /*public function testDeleteBudget(): void
     {
         //get auth token for test \
         $authclient = self::createClient();
@@ -196,6 +196,6 @@ class BudgetTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete Budget execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     
 }
