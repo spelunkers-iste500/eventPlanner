@@ -128,7 +128,7 @@ class OrganizationTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Create Organization execution time: " . $executionTime . " milliseconds\n";
     }
-   /* public function testUpdateOrganization(): void
+    public function testUpdateOrganization(): void
     {
         //get auth token for test \
         $authclient = self::createClient();
@@ -177,7 +177,7 @@ class OrganizationTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update Organization execution time: " . $executionTime . " milliseconds\n";
-    }*/
+    }
     public function testDeleteOrganization(): void
     {
         //get auth token for test \
