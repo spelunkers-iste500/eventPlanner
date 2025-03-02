@@ -20,7 +20,10 @@ use ApiPlatform\Metadata\GetCollection;
 )]
 #[Get(
     provider: DuffelOfferProvider::class,
+    security: "is_granted('view', object)"
 )]
+
+
 class FlightOffer
 {
     #[ApiResource(identifier: true)]
