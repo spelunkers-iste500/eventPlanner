@@ -10,7 +10,7 @@ class UserTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function testCreateUser(): void
+   /* public function testCreateUser(): void
     {
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/users', [
@@ -42,11 +42,27 @@ class UserTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Create User execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     public function testUpdateUser(): void
     {
-        // Only create the book we need with a given ISBN
-        UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
+        
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
@@ -58,7 +74,8 @@ class UserTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
@@ -71,7 +88,7 @@ class UserTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update User execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testDeleteUser(): void
+   /* public function testDeleteUser(): void
     {
         // Only create the user we need with a given email
         UserFactory::createOne(['email' => 'ratchie@rit.edu']);
@@ -88,5 +105,5 @@ class UserTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete User execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
 }

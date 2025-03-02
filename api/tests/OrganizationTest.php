@@ -19,11 +19,14 @@ class OrganizationTest extends ApiTestCase
     {
         //get auth token for test \
         $authclient = self::createClient();
-        
-        // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
 
-        $userpassword = $user -> getPassword();
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user->getPassword();
 
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
@@ -39,7 +42,7 @@ class OrganizationTest extends ApiTestCase
         OrganizationFactory::createMany(50);
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/organizations',['auth_bearer' => $json['token']]);
+        $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -65,41 +68,44 @@ class OrganizationTest extends ApiTestCase
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         // This generated JSON Schema is also used in the OpenAPI spec!
-        
+
         $this->assertMatchesResourceCollectionJsonSchema(Organization::class);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Get all Organizations execution time: " . $executionTime . " milliseconds\n";
-    }  
+    }
     public function testCreateOrganization(): void
     {
-         //get auth token for test \
-         $authclient = self::createClient();
-        
-         // Create User and Account using Foundry
-         $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
- 
-         $userpassword = $user -> getPassword();
- 
-         // retrieve a token
-         $authresponse = $authclient->request('POST', '/auth', [
-             'headers' => ['Content-Type' => 'application/json'],
-             'json' => [
-                 'id' => (string) $user->getId(), // Use user ID from the created user
-                 'token' => (string) $userpassword, // Token is from the created account
-             ],
-         ]);
+        //get auth token for test \
+        $authclient = self::createClient();
+
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user->getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
         $json = $authresponse->toArray();
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/organizations', [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
-                "name"=> "Information Technology Services",
-                "address"=> "1 Lomb Memorial Dr, Rochester, NY 14623",
-                "description"=> "super cool description",
-                "industry"=> "Information Technology",
-                "primaryEmail"=> "ritchie@rit.edu",
-                "secondaryEmail"=> "ratchie@rit.edu", 
+                "name" => "Information Technology Services",
+                "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
+                "description" => "super cool description",
+                "industry" => "Information Technology",
+                "primaryEmail" => "ritchie@rit.edu",
+                "secondaryEmail" => "ratchie@rit.edu",
             ],
             'auth_bearer' => $json['token']
         ]);
@@ -109,12 +115,12 @@ class OrganizationTest extends ApiTestCase
         $this->assertJsonContains([
             '@context' => '/contexts/Organization',
             '@type' => 'Organization',
-            "name"=> "Information Technology Services",
-            "address"=> "1 Lomb Memorial Dr, Rochester, NY 14623",
-            "description"=> "super cool description",
-            "industry"=> "Information Technology",
-            "primaryEmail"=> "ritchie@rit.edu",
-            "secondaryEmail"=> "ratchie@rit.edu", 
+            "name" => "Information Technology Services",
+            "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
+            "description" => "super cool description",
+            "industry" => "Information Technology",
+            "primaryEmail" => "ritchie@rit.edu",
+            "secondaryEmail" => "ratchie@rit.edu",
 
         ]);
         $this->assertMatchesResourceItemJsonSchema(Organization::class);
@@ -127,9 +133,12 @@ class OrganizationTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
 
-        $userpassword = $user -> getPassword();
+        $userpassword = $user->getPassword();
 
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
@@ -140,17 +149,18 @@ class OrganizationTest extends ApiTestCase
             ],
         ]);
         $json = $authresponse->toArray();
-        // Only create the book we need with a given ISBN
-        OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
 
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $user->addAdminOfOrg($org);
+        $user->_save(); //needed when doing the add function
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
-        $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);
+        $iri = $this->findIriBy(Organization::class, ["name" => "Information Technology Services"]);
         $startTime = microtime(true);
         // Use the PATCH method here to do a partial update
         $client->request('PATCH', $iri, [
             'json' => [
-                "description"=> "This is a super cool description"
+                "description" => "This is a super cool description"
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
@@ -162,8 +172,8 @@ class OrganizationTest extends ApiTestCase
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $iri,
-            "name"=> "Information Technology Services",
-            "description"=> "This is a super cool description"
+            "name" => "Information Technology Services",
+            "description" => "This is a super cool description"
         ]);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
@@ -174,8 +184,11 @@ class OrganizationTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
-        $userpassword = $user -> getPassword();
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+        $userpassword = $user->getPassword();
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
             'headers' => ['Content-Type' => 'application/json'],
@@ -183,25 +196,23 @@ class OrganizationTest extends ApiTestCase
                 'id' => (string) $user->getId(), // Use user ID from the created user
                 'token' => (string) $userpassword, // Token is from the created account
             ],
-            
+
         ]);
         $json = $authresponse->toArray();
         // Only create the user we need with a given email
-        OrganizationFactory::createOne(["name"=> "Information Technology Services"]);
-
+        OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $client = static::createClient();
-        $iri = $this->findIriBy(Organization::class, ["name"=> "Information Technology Services"]);
+        $iri = $this->findIriBy(Organization::class, ["name" => "Information Technology Services"]);
         $startTime = microtime(true);
-        $client->request('DELETE', $iri,['auth_bearer' => $json['token']]);
+        $client->request('DELETE', $iri, ['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            static::getContainer()->get('doctrine')->getRepository(Organization::class)->findOneBy(["name"=> "Information Technology Services"])
+            static::getContainer()->get('doctrine')->getRepository(Organization::class)->findOneBy(["name" => "Information Technology Services"])
         );
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete Organization execution time: " . $executionTime . " milliseconds\n";
     }
-    
 }

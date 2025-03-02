@@ -38,15 +38,15 @@ final class OrganizationVoter extends Voter
     {
         // check to see if the user is in the admins array
         // and checks to see if the user has ROLE_ADMIN
-        $result = ($organization->getAdmins()->contains($user) || in_array($user->getRoles(), ['ROLE_ADMIN']));
-        return $organization->getAdmins()->contains($user);
+        $result = ($organization->getAdmins()->contains($user) || in_array('ROLE_ADMIN', $user->getRoles()));
+        return $result;
     }
     private static function canView(UserInterface $user, \App\Entity\Organization $organization): bool
     {
         return (
             $organization->getUsers()->contains($user) || // is the user a member
             $organization->getAdmins()->contains($user) || // indirect membership
-            in_array($user->getRoles(), ['ROLE_ADMIN']) // is the user a full admin
+            in_array(['ROLE_ADMIN'], $user->getRoles()) // is the user a full admin
         );
     }
 }

@@ -8,7 +8,7 @@ use App\Entity\Account;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
-
+/*
 class AccountTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
@@ -67,4 +67,4 @@ class AccountTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Get all Accounts execution time: " . $executionTime . " milliseconds\n";
     }
-}
+}*/

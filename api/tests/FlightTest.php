@@ -8,6 +8,7 @@ use App\Entity\Flight;
 use App\Entity\Event;
 use App\Factory\EventFactory;
 use App\Factory\FlightFactory;
+use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -18,11 +19,31 @@ class FlightTest extends ApiTestCase
 
     public function testGetFlightCollection(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
         // Create 100 Flights using our factory
         FlightFactory::createMany(50);
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/flights');
+        $response = static::createClient()->request('GET', '/flights',['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -40,7 +61,7 @@ class FlightTest extends ApiTestCase
                 'hydra:first' => '/flights?page=1',
                 'hydra:last' => '/flights?page=2',
                 'hydra:next' => '/flights?page=2',
-            ],
+            ]
         ]);
 
         // Because test fixtures are automatically loaded between each test, you can assert on them
@@ -55,21 +76,41 @@ class FlightTest extends ApiTestCase
     }
     public function testCreateFlight(): void
     {
-        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
-        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
+
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/flights', [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
                 "flightNumber"=> "420",
-                "eventID"=> "$iri",
                 "departureTime"=> "2025-02-01T17:24:40+00:00",
                 "arrivalTime"=> "2025-02-01T17:24:40+00:00",
                 "departureLocation"=> "Buffalo Airport",
                 "arrivalLocation" => "Baltimore Washington International",
                 "airline"=> "SouthWest",
                 "flightTracker"=> "https://maps.google.com",
-            ]
+            ],
+            'auth_bearer' => $json['token']
+
         ]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
@@ -78,7 +119,6 @@ class FlightTest extends ApiTestCase
             '@context' => '/contexts/Flight',
             '@type' => 'Flight',
             "flightNumber"=> "420",
-            "eventID"=> "$iri",
             "departureTime"=> "2025-02-01T17:24:40+00:00",
             "arrivalTime"=> "2025-02-01T17:24:40+00:00",
             "departureLocation"=> "Buffalo Airport",
@@ -94,6 +134,26 @@ class FlightTest extends ApiTestCase
     }
     public function testUpdateFlight(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
         // Only create the Flight we need with a given ISBN
         FlightFactory::createOne(["flightNumber"=> "1234"]);
 
@@ -108,7 +168,8 @@ class FlightTest extends ApiTestCase
             ],
             'headers' => [
                 'Content-Type' => 'application/merge-patch+json',
-            ]
+            ],
+            'auth_bearer' => $json['token']
         ]);
         $endTime = microtime(true);
 
@@ -124,13 +185,33 @@ class FlightTest extends ApiTestCase
     }
     public function testDeleteFlight(): void
     {
+        //get auth token for test \
+        $authclient = self::createClient();
+        
+        // Create User and Account using Foundry
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
+
+        $userpassword = $user -> getPassword();
+
+        // retrieve a token
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'id' => (string) $user->getId(), // Use user ID from the created user
+                'token' => (string) $userpassword, // Token is from the created account
+            ],
+        ]);
+        $json = $authresponse->toArray();
         // Only create the user we need with a given email
         FlightFactory::createOne(["flightNumber"=> "1234"]);
 
         $client = static::createClient();
         $iri = $this->findIriBy(Flight::class, ["flightNumber"=> "1234"]);
         $startTime = microtime(true);
-        $client->request('DELETE', $iri);
+        $client->request('DELETE', $iri,['auth_bearer' => $json['token']]);
         $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(

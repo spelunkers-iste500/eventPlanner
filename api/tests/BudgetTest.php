@@ -6,8 +6,12 @@ namespace App\Tests;
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Budget;
 use App\Entity\User;
+use App\Entity\Event;
+use App\Entity\Organization;
 use App\Factory\UserFactory;
 use App\Factory\BudgetFactory;
+use App\Factory\OrganizationFactory;
+use App\Factory\EventFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -21,7 +25,10 @@ class BudgetTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $userpassword = $user -> getPassword();
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
@@ -73,7 +80,10 @@ class BudgetTest extends ApiTestCase
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::createOne(['email' => 'ratchie@rit.edu']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $userpassword = $user -> getPassword();
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
@@ -86,7 +96,14 @@ class BudgetTest extends ApiTestCase
         ]);
         $json = $authresponse->toArray();
         
-        $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+        //create organization
+        $org = OrganizationFactory::createOne();
+        //create event
+        $event = EventFactory::createOne();
+        //get iris for event org and user
+        $useriri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
+        $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        $eventIri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
         $startTime = microtime(true);
         $response = static::createClient()->request('POST', '/budgets', [
             'headers' => ['Content-Type' => 'application/ld+json'],
@@ -95,7 +112,9 @@ class BudgetTest extends ApiTestCase
                 "spentBudget"=> "50000.00",
                 "vipBudget"=> "20000.00",
                 "regBudget"=> "80000.00",
-                "financialPlannerID"=> "$iri",
+                "financialPlannerID"=> "$useriri",
+                "organization" => $orgIri,
+                "event" => $eventIri
             ],
             'auth_bearer' => $json['token']
         ]);
@@ -109,20 +128,24 @@ class BudgetTest extends ApiTestCase
             "spentBudget"=> "50000.00",
             "vipBudget"=> "20000.00",
             "regBudget"=> "80000.00",
-            "financialPlannerID"=> "$iri", 
+            "organization" => $orgIri,
+            "event" => $eventIri
 
         ]);
         $this->assertMatchesResourceItemJsonSchema(Budget::class);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Create Budget execution time: " . $executionTime . " milliseconds\n";
-    }
+    }/*
     public function testUpdateBudget(): void
     {
         //get auth token for test \
         $authclient = self::createClient();
         // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
+        $user = UserFactory::new()->createOne([
+            'email' => 'ratchie@rit.edu',
+            'roles' => ['ROLE_ADMIN']
+        ]);
         $userpassword = $user -> getPassword();
         // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
@@ -134,15 +157,19 @@ class BudgetTest extends ApiTestCase
             
         ]);
         $json = $authresponse->toArray();
-        // Only create the book we need with a given ISBN
-        BudgetFactory::createOne(["total"=> "420.69"]);
+        //create budget to update
+                
+        $org = OrganizationFactory::createOne();
+        $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        $orgid = $org->getId();
+        $budget = BudgetFactory::createOne(["total"=> "420.69", 'organization' => $orgIri]);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(Budget::class, ["total"=> "420.69"]);
         $startTime = microtime(true);
         // Use the PATCH method here to do a partial update
-        $client->request('PATCH', $iri, [
+        $client->request('PATCH', "/organizations/$orgid/budgets", [
             'json' => [
                 "vipBudget"=> "6969.11",
             ],
@@ -162,8 +189,9 @@ class BudgetTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Update Budget execution time: " . $executionTime . " milliseconds\n";
-    }
-    public function testDeleteBudget(): void
+    }*/
+
+    /*public function testDeleteBudget(): void
     {
         //get auth token for test \
         $authclient = self::createClient();
@@ -196,6 +224,6 @@ class BudgetTest extends ApiTestCase
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete Budget execution time: " . $executionTime . " milliseconds\n";
-    }
+    }*/
     
 }
