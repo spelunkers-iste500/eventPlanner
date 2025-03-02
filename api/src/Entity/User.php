@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
@@ -22,6 +22,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['user:write']],
 )]
 #[Get(security: "is_granted('view', object)")]
+#[Post(
+    description: "Creates a new user. Users can only create if they're a platform admin",
+)]
 #[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
@@ -100,7 +103,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
+        $this->roles = [];
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
@@ -116,7 +119,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         // guarantee every user at least has ROLE_USER
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-        // $roles[] = 'ROLE_ADMIN';
         return array_unique($roles);
         // return $this->roles;
     }
