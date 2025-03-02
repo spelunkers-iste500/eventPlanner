@@ -46,7 +46,7 @@ final class OrganizationVoter extends Voter
         return (
             $organization->getUsers()->contains($user) || // is the user a member
             $organization->getAdmins()->contains($user) || // indirect membership
-            in_array(['ROLE_ADMIN'], $user->getRoles()) // is the user a full admin
+            in_array('ROLE_ADMIN', $user->getRoles()) // is the user a full admin
         );
     }
 }
