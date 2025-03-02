@@ -152,6 +152,7 @@ class OrganizationTest extends ApiTestCase
 
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $user->addAdminOfOrg($org);
+        $user->_save(); //needed when doing the add function
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $iri = $this->findIriBy(Organization::class, ["name" => "Information Technology Services"]);
