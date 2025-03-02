@@ -123,7 +123,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->roles = $roles;
     }
-    public function eraseCredentials() {}
+    public function eraseCredentials(): void {}
     public function getUserIdentifier(): string
     {
         return $this->id;

@@ -42,7 +42,7 @@ final class EventVoter extends Voter
         return (
             $subject->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
-            in_array($user->getRoles(), ['ROLE_ADMIN'])
+            in_array(['ROLE_ADMIN'], $user->getRoles())
         );
     }
     public static function canView(UserInterface $user, \App\Entity\Event $subject): bool
@@ -56,7 +56,7 @@ final class EventVoter extends Voter
             $subject->getAttendees()->contains($user) ||
             $subject->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
-            in_array($user->getRoles(), ['ROLE_ADMIN'])
+            in_array(['ROLE_ADMIN'], $user->getRoles())
         );
     }
 }
