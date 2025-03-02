@@ -21,7 +21,7 @@ const FlightResults: React.FC = () => {
                 params += `/${bookingData.returnDate}`;
             }
 
-            axios.get(`/flight_offers/search/${params}/${bookingData.maxConnections}`, {
+            axios.get(`/flight_offers/search/${params}/${bookingData.maxConnections}?page=1`, {
                 headers: {
                     'Content-Type': 'application/json',
                 }
@@ -35,7 +35,6 @@ const FlightResults: React.FC = () => {
                 console.error('Error fetching flight offers:', error);
             });
         };
-
 
         fetchFlightOffers();
     }, [bookingData]);
