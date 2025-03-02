@@ -8,8 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class EventVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const EDIT = 'edit';
+    public const VIEW = 'view';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
