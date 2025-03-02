@@ -61,7 +61,7 @@ const Dashboard: React.FC = () => {
   // Returning the JSX for the dashboard
   return (
     <div className={styles.plannerDashboardContainer}>
-      <h1 className={styles.heading}>Welcome, {session?.user?.name}!</h1>
+      <h1>Welcome, {session?.user?.name}!</h1>
       
       <div className={styles.infoContainer}>
         <div className={styles.orgInfoBox}>
