@@ -168,3 +168,17 @@
 	color: var(--gray-400);
 	text-align: right;
 }
+
+.booking-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.booking-form button {
+	align-self: flex-end;
+}
+
+.booking-header {
+	/* text-align: center; */
+}
