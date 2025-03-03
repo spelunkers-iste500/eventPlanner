@@ -102,17 +102,30 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
 		{/* Chakra UI Dialog */}
 		<DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
 			<DialogBackdrop />
-			<DialogContent>
-				<DialogCloseTrigger />
+			<DialogContent className={styles.dialogContent}>
 				<DialogHeader>
-					<DialogTitle>{selectedEvent?.name}</DialogTitle>
+					<img src={selectedEvent?.img} alt={selectedEvent?.name} className={styles.dialogImage} />
 				</DialogHeader>
-				<DialogBody>
-					<p>{selectedEvent?.org}</p>
+				<DialogBody className={styles.dialogBody}>
+					<div className={styles.dialogBodyHeader}>
+						<div>
+							<DialogTitle>{selectedEvent?.name}</DialogTitle>
+							<h3 className='h5'>{selectedEvent?.org}</h3>
+						</div>
+						<Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+					</div>
+
+					<div className={styles.dialogBodyContent}>
+						<div className={styles.dialogDetails}>
+							<h3>Event Details</h3>
+
+						</div>
+						<div className={styles.dialogDetails}>
+							<h3>Your Details</h3>
+
+						</div>
+					</div>
 				</DialogBody>
-				<DialogFooter>
-					<Button onClick={() => setIsDialogOpen(false)}>Close</Button>
-				</DialogFooter>
 			</DialogContent>
 		</DialogRoot>
 		</>

@@ -72,6 +72,10 @@
 	align-items: stretch;
 }
 
+.spinner {
+	align-self: center;
+}
+
 .result-card {
 	display: flex;
 	flex-direction: row;
@@ -79,7 +83,15 @@
 	padding: 1rem;
 	gap: 1rem;
 	width: 100%;
+	background-color: var(--white);
+	border-radius: 12px;
 	flex: 1;
+	transition: all 0.1s ease-in-out;
+}
+
+.result-card:hover {
+	cursor: pointer;
+	box-shadow: var(--shadow-300);
 }
 
 .airliner-logo {
@@ -104,12 +116,15 @@
 .flight-info {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	gap: 2rem;
 }
 
 .airliner {
 	margin-top: 0.5rem;
 	font-size: 0.75rem;
+	font-weight: 400;
+    color: var(--gray-400);
 }
 
 .flight-info h3 {
@@ -128,6 +143,8 @@
 .flight-time p {
 	font-size: 1.25rem;
 	font-weight: 600;
+	white-space: nowrap;
+
 }
 
 .time-divider {

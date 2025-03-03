@@ -158,3 +158,33 @@
 	padding: 0.5rem 1rem;
 	font-size: 0.875rem;
 }
+
+.dialog-content {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.dialog-body {
+	padding: 1rem;
+}
+
+.dialog-body-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.dialog-body-content {
+	display: flex;
+	justify-content: stretch;
+	gap: 1rem;
+}
+
+.dialog-details {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.5rem;
+}
