@@ -24,13 +24,13 @@ const Card: React.FC<CardProps> = ({ event, buttonText, onClick }) => {
 					<div className={styles.cardDetails}>
 						<div className={styles.cardRow}>
 							<Calendar size={16} />
-							{event.eventDate}
+							{event.eventDate} • {event.eventTime}
 						</div>
 		
 						{event.departureDate && (
 							<div className={styles.cardRow}>
 								<Plane size={16} />
-								{event.departureDate}
+								{event.departureDate} 
 							</div>
 						)}
 					</div>

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { ArrowDownWideNarrow, ArrowUpWideNarrow, Search, XCircle } from "lucide-react";
+import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle } from "lucide-react";
 import Card from "./Card";
 import { Event } from "types/events";
 import { useContent } from "Utils/ContentProvider";
@@ -104,25 +104,31 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
 			<DialogBackdrop />
 			<DialogContent className={styles.dialogContent}>
 				<DialogHeader>
-					<img src={selectedEvent?.img} alt={selectedEvent?.name} className={styles.dialogImage} />
+					<img src={selectedEvent?.img} alt={selectedEvent?.name} className={styles.dialogImg} />
 				</DialogHeader>
 				<DialogBody className={styles.dialogBody}>
 					<div className={styles.dialogBodyHeader}>
 						<div>
 							<DialogTitle>{selectedEvent?.name}</DialogTitle>
-							<h3 className='h5'>{selectedEvent?.org}</h3>
+							<p className={styles.dialogOrg}>{selectedEvent?.org}</p>
 						</div>
-						<Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+						<Button className={styles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
 					</div>
 
 					<div className={styles.dialogBodyContent}>
 						<div className={styles.dialogDetails}>
 							<h3>Event Details</h3>
-
+							<p><MapPin size={16}/><span>{selectedEvent?.eventLocation}</span></p>
+							<p><Calendar size={16}/><span>{selectedEvent?.eventDate}</span></p>
+							<p><Clock size={16}/><span>{selectedEvent?.eventTime}</span></p>
+							<p><HandCoins size={16}/><span>{selectedEvent?.attendeeBudget}/attendee</span></p>
 						</div>
 						<div className={styles.dialogDetails}>
 							<h3>Your Details</h3>
-
+							<p><TowerControl size={16}/><span>{selectedEvent?.departureAirportCode}</span></p>
+							<p><PlaneTakeoff size={16}/><span>{selectedEvent?.departureDate}</span></p>
+							<p><PlaneLanding size={16}/><span>{selectedEvent?.returnDate}</span></p>
+							<p><CircleDollarSign size={16}/><span>{selectedEvent?.usedBudget} used</span></p>
 						</div>
 					</div>
 				</DialogBody>
