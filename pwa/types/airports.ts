@@ -26,6 +26,7 @@ export interface Segment {
     destination: {
         iata_code: string;
     };
+    passengers: Passenger[];
 }
 
 export interface Slice {
@@ -40,6 +41,7 @@ export interface Slice {
 
 export interface Passenger {
     id: string;
+    cabin_class_marketing_name: string;
 }
 
 export interface Owner {
