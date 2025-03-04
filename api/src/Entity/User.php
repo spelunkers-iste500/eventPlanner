@@ -108,6 +108,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();
+        $this->roles = [];
     }
 
     public function getRoles(): array
