@@ -62,7 +62,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: "users_flights")]
     private Collection $flights;
 
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users',cascade: ['persist'])]
     #[ORM\JoinTable(name: 'organizations_members')]
     public Collection $OrgMembership;
 
@@ -108,6 +108,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();
+        $this->roles = [];
     }
 
     public function getRoles(): array
@@ -218,9 +219,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this->OrgMembership;
     }
 
-    public function setOrganizations(Collection $organizations): void
+    public function setOrgMembership(Collection $OrgMembership): void
     {
-        $this->OrgMembership = $organizations;
+        $this->OrgMembership = $OrgMembership;
     }
 
     public function getAdminOfOrg(): Collection

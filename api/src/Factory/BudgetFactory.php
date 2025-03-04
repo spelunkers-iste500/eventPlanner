@@ -37,7 +37,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
             'total' => self::faker()->randomFloat(2, 1500, 200000),
             'vipBudget' => self::faker()->randomFloat(2, 100, 50000),
             'organization' => OrganizationFactory::createOne(),
-            'event' => EventFactory::createOne()
+            'event' => null
         ];
     }
 

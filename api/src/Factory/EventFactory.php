@@ -40,7 +40,7 @@ final class EventFactory extends PersistentProxyObjectFactory
             'startDateTime' => self::faker()->dateTimeBetween('now', '+1 week'),
             'startFlightBooking' => self::faker()->dateTimeBetween('now', '+1 year'),
             'endFlightBooking' => self::faker()->dateTimeBetween('now', '+1 year'),
-            'organization' => OrganizationFactory::createOne()
+            'organization' => null,
         ];
     }
 
