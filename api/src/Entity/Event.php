@@ -208,4 +208,15 @@ class Event
         $this->eventTitle = $eventTitle;
         return $this;
     }
+
+    public function getStartDateTime(): \DateTimeInterface
+    {
+        return $this->startDateTime;
+    }
+
+    // Getter for endDateTime
+    public function getEndDateTime(): \DateTimeInterface
+    {
+        return $this->endDateTime;
+    }
 }

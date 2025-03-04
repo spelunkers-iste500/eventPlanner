@@ -93,42 +93,44 @@ const FlightSearch: React.FC = () => {
                     size="md"
                     isSearchable={false}
                     defaultValue={{ label: 'Round Trip', value: 'round-trip' }}
-                    className={`select-menu`}
+                    className={`select-menu ${styles.tripType}`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
                 />
             </div>
 
-            <div className='input-container'>
-                <label className='input-label'>Origin</label>
-                <AsyncSelect
-                    loadOptions={loadOptions}
-                    noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
-                    placeholder="Where from?"
-                    size="md"
-                    className={`select-menu`}
-                    classNamePrefix={'select'}
-                    onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
-                    onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
-                />
+            <div className={styles.originDestination}>
+                <div className='input-container'>
+                    <label className='input-label'>Origin</label>
+                    <AsyncSelect
+                        loadOptions={loadOptions}
+                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        placeholder="Where from?"
+                        size="md"
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                        onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
+                        onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
+                    />
+                </div>
+    
+                <div className='input-container'>
+                    <label className='input-label'>Destination</label>
+                    <AsyncSelect
+                        loadOptions={loadOptions}
+                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        placeholder="Where to?"
+                        size="md"
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                        onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
+                        onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
+                    />
+                </div>
             </div>
 
             <div className='input-container'>
-                <label className='input-label'>Destination</label>
-                <AsyncSelect
-                    loadOptions={loadOptions}
-                    noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
-                    placeholder="Where to?"
-                    size="md"
-                    className={`select-menu`}
-                    classNamePrefix={'select'}
-                    onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
-                    onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
-                />
-            </div>
-
-            <div className='input-container'>
-                <label className='input-label'>{formData.trip === 'round-trip' ? 'Departure and Return Date' : 'Departure Date'}</label>
+                <label className='input-label'>{formData.trip === 'round-trip' ? 'Departure - Return Dates' : 'Departure Date'}</label>
                 {formData.trip === 'round-trip' ? (
                     // round trip date picker
                     <DatePicker
@@ -168,6 +170,7 @@ const FlightSearch: React.FC = () => {
                         placeholderText="Select a date"
                         dateFormat="MM/dd/yyyy"
                         className='input-field'
+                        showIcon
                         icon={<Calendar size={32} />}
                     />
                 )}

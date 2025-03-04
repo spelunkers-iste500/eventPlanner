@@ -8,8 +8,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class EventVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const EDIT = 'edit';
+    public const VIEW = 'view';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -42,7 +42,7 @@ final class EventVoter extends Voter
         return (
             $subject->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
-            in_array(['ROLE_ADMIN'], $user->getRoles())
+            in_array('ROLE_ADMIN', $user->getRoles())
         );
     }
     public static function canView(UserInterface $user, \App\Entity\Event $subject): bool
@@ -56,7 +56,7 @@ final class EventVoter extends Voter
             $subject->getAttendees()->contains($user) ||
             $subject->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
-            in_array(['ROLE_ADMIN'], $user->getRoles())
+            in_array('ROLE_ADMIN', $user->getRoles())
         );
     }
 }

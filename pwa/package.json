@@ -19,6 +19,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "chakra-react-select": "^6.0.1",
+    "date-fns": "^4.1.0",
     "formik": "^2.4.6",
     "framer-motion": "^12.4.7",
     "isomorphic-unfetch": "^4.0.2",
