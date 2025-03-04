@@ -39,4 +39,37 @@ class UserRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
+
+    public function getUserById(int $id): ?User
+    {
+        return $this->find($id);
+    }
+
+    public function getUsersCurrentEventsByUserId(int $id): array
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->join('u.events', 'e')
+            ->where('u.id = :id')
+            ->andWhere('e.startDateTime <= :currentDate')
+            ->andWhere('e.endDateTime >= :currentDate')
+            ->setParameter('id', $id)
+            ->setParameter('currentDate', new \DateTime())
+            ->getQuery();
+
+        return $qb->getResult();
+    }
+
+    public function doesUserHaveCurrentEvents(int $id): bool
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->join('u.events', 'e')
+            ->where('u.id = :id')
+            // ->andWhere('e.startDateTime <= :currentDate')
+            ->andWhere('e.endDateTime >= :currentDate')
+            ->setParameter('id', $id)
+            ->setParameter('currentDate', new \DateTime())
+            ->getQuery();
+
+        return !empty($qb->getResult());
+    }
 }

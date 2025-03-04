@@ -110,6 +110,7 @@ class Budget
      * The VIP budget should be divided by the number of VIP attendees of the associated event.
      */
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[Groups(['read:budget', 'write:budget'])]
     public string $vipBudget = "0.00";
 
     /**

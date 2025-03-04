@@ -62,7 +62,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: "users_flights")]
     private Collection $flights;
 
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'organizations_members')]
     private Collection $OrgMembership;
 
@@ -100,7 +100,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     public function __construct()
     {
-        $this->roles = new ArrayCollection();
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
@@ -109,6 +108,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();
+        $this->roles = [];
     }
 
     public function getRoles(): array
@@ -116,7 +116,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         // guarantee every user at least has ROLE_USER
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-        // $roles[] = 'ROLE_ADMIN';
+        $roles[] = 'ROLE_ADMIN';
         return array_unique($roles);
         // return $this->roles;
     }
@@ -124,7 +124,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->roles = $roles;
     }
-    public function eraseCredentials() {}
+    public function eraseCredentials(): void {}
     public function getUserIdentifier(): string
     {
         return $this->id;
@@ -214,14 +214,20 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = $flights;
     }
 
-    public function getOrganizations(): Collection
+    public function getOrgMembership(): Collection
     {
         return $this->OrgMembership;
     }
 
-    public function setOrganizations(Collection $organizations): void
+    public function addOrgMembership(Organization $organization): void
     {
-        $this->OrgMembership = $organizations;
+        if (!$this->OrgMembership->contains($organization)) {
+            $this->OrgMembership[] = $organization;
+        }
+    }
+    public function removeOrgMembership(Organization $organization): void
+    {
+        $this->OrgMembership->removeElement($organization);
     }
 
     public function getAdminOfOrg(): Collection

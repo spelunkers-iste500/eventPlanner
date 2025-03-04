@@ -44,6 +44,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes an organization. Users can only delete if they're a platform admin",
 )]
+#[ORM\Table(name: 'organization')]
 class Organization
 {
     #[ORM\Id]
@@ -109,7 +110,10 @@ class Organization
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
-
+    public function getId(): int
+    {
+        return $this->id;
+    }
     public function getAdmins(): Collection
     {
         return $this->admins;

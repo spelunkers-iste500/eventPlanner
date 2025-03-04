@@ -4,6 +4,7 @@ namespace App\Factory;
 
 use App\Entity\User;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @extends PersistentProxyObjectFactory<User>
@@ -38,6 +39,8 @@ final class UserFactory extends PersistentProxyObjectFactory
             'image' => self::faker()->imageUrl(255),
             'lastModified' => self::faker()->dateTime(),
             'createdDate' => self::faker()->dateTime(),
+            'roles' => [],
+            'OrgMembership' => new ArrayCollection()
         ];
     }
 
