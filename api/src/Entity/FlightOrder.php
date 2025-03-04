@@ -6,6 +6,8 @@ use ApiPlatform\Metadata\ApiResource;
 use App\State\DuffelOrderProvider;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\State\DuffelOrderProcessor;
 
 #[ApiResource]
 #[GetCollection(
@@ -18,9 +20,10 @@ use ApiPlatform\Metadata\GetCollection;
     uriTemplate: '/flight_orders/search/{offer_id}/{passenger_id}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
     uriVariables: ['offer_id', 'passenger_id', 'title', 'gender', 'birthday', 'phone_number'],
 )]
-#[Get(
-    provider: DuffelOrderProvider::class,
+#[Post(
+    processor: DuffelOrderProcessor::class,
 )]
+
 class FlightOrder
 {
     #[ApiResource(identifier: true)]
