@@ -62,10 +62,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: "users_flights")]
     private Collection $flights;
 
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users',cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'organizations_members')]
-    #[Groups(['user:read', 'user:write'])]
-    public Collection $OrgMembership;
+    private Collection $OrgMembership;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
@@ -215,14 +214,20 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = $flights;
     }
 
-    public function getOrganizations(): Collection
+    public function getOrgMembership(): Collection
     {
         return $this->OrgMembership;
     }
 
-    public function setOrgMembership(Collection $OrgMembership): void
+    public function addOrgMembership(Organization $organization): void
     {
-        $this->OrgMembership = $OrgMembership;
+        if (!$this->OrgMembership->contains($organization)) {
+            $this->OrgMembership[] = $organization;
+        }
+    }
+    public function removeOrgMembership(Organization $organization): void
+    {
+        $this->OrgMembership->removeElement($organization);
     }
 
     public function getAdminOfOrg(): Collection
