@@ -1,3 +1,4 @@
+// Importing necessary libraries and components
 import React from "react";
 import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
@@ -13,10 +14,14 @@ import {
 } from "Components/ui/accordion"
 import { useState } from "react"
 
+// Defining the Dashboard component
 const Dashboard: React.FC = () => {
+  // Using the useSession hook to get the current session data
   const { data: session } = useSession();
+  // Defining a state variable to manage the accordion's value
   const [value, setValue] = useState(["current-events"]);
 
+  // Defining a list of dummy data events
   const events: Event[] = [
     { id: 1, img: "/media/event_image.jpg", name: "Event Name", org: "Organization Name", eventDate: "2025-07-10T09:00:00", departureDate: "2024-12-06T17:00:00" },
     { id: 2, img: "/media/event_image.jpg", name: "Event Steff", org: "Organization Ethan", eventDate: "2024-04-15T09:00:00", departureDate: "2024-12-10T07:00:00" },
@@ -31,9 +36,11 @@ const Dashboard: React.FC = () => {
     { id: 11, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
   ];
 
+  // Filtering events into current and past events based on the current date
   const currentEvents = events.filter(event => new Date(event.eventDate) > new Date());
   const pastEvents = events.filter(event => new Date(event.eventDate) <= new Date());
 
+  // Defining a list of members
   const members = [
     { firstName: "Casey", lastName: "Malley", email: "casey.malley@x3anto.com" },
     { firstName: "Gavin", lastName: "Hunsinger", email: "gavin.hunsinger@x3anto.com" },
@@ -44,15 +51,17 @@ const Dashboard: React.FC = () => {
     { firstName: "Noelle", lastName: "Voelkel", email: "noelle.voelkel@x3anto.com" },
   ];
 
+  // Defining items for the accordion, including current events, past events, and members list
   const items = [
     { value: "current-events", title: "Current Events", events: currentEvents },
     { value: "past-events", title: "Past Events", events: pastEvents },
     { value: "members-list", title: "Members List", events: [] },
   ]
 
+  // Returning the JSX for the dashboard
   return (
     <div className={styles.plannerDashboardContainer}>
-      <h1 className={styles.heading}>Welcome, {session?.user?.name}!</h1>
+      <h1>Welcome, {session?.user?.name}!</h1>
       
       <div className={styles.infoContainer}>
         <div className={styles.orgInfoBox}>
@@ -93,7 +102,7 @@ const Dashboard: React.FC = () => {
               {item.value === "members-list" ? (
                 <MemberList members={members} />
               ) : item.events.length > 0 ? (
-                <EventList heading={item.title} events={item.events} />
+                <EventList heading={item.title} events={item.events} hasAddBtn />
               ) : (
                 <Text>No events available</Text>
               )}
@@ -106,4 +115,5 @@ const Dashboard: React.FC = () => {
   );
 };
 
+// Exporting the Dashboard component as the default export
 export default Dashboard;
