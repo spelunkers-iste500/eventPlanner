@@ -40,7 +40,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'lastModified' => self::faker()->dateTime(),
             'createdDate' => self::faker()->dateTime(),
             'roles' => [],
-            'OrgMembership' => null
+            'OrgMembership' => new ArrayCollection()
         ];
     }
 

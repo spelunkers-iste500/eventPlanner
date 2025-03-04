@@ -4,6 +4,7 @@ namespace App\Story;
 
 use App\Entity\Organization;
 use App\Entity\User;
+use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\UserProvider\UserProviderFactoryInterface;
 use Zenstruck\Foundry\Maker\MakeFactory;
 use Zenstruck\Foundry\Story;
 use App\Factory\UserFactory;
@@ -23,14 +24,14 @@ final class TestingDataStory extends Story
         $org4 = OrganizationFactory::new()->createOne(['name' => 'GCCIS']);
         $org5 = OrganizationFactory::new()->createOne(['name' => 'CAD']);
         OrganizationFactory::createMany(5);
+        $budgetUser = UserFactory::createOne();
+        $orgAdmin = UserFactory::createOne();
+        $eventadmin = UserFactory::createOne();
         BudgetFactory::createMany(10, function() use ($org1) {
             return [
                 'organization' => $org1,
                 'event' => EventFactory::new()->createOne(['organization' => $org1])
             ];
         });
-        #EventFactory::createMany(10, ['organization' => $org1, 'budget' =>  ]);
-        $orgCollection = new ArrayCollection([$org1]);
-        #UserFactory::createMany(100,['OrgMembership' => $orgCollection]);
     }
 }
