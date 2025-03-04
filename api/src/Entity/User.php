@@ -64,6 +64,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users',cascade: ['persist'])]
     #[ORM\JoinTable(name: 'organizations_members')]
+    #[Groups(['user:read', 'user:write'])]
     public Collection $OrgMembership;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
