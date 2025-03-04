@@ -15,21 +15,20 @@ use ApiPlatform\Metadata\Operation;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\FlightOffer;
+use App\Repository\UserRepository;
+use DateTime;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class DuffelOfferProvider implements ProviderInterface
 {
     private string $token;
 
-    public function __construct(private HttpClientInterface $client)
+    public function __construct(private HttpClientInterface $client, private Security $s, private UserRepository $uRepo)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
     /* 
         Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
-
-        NEED TO GENERATE A BEARER TOKEN PRIOR TO MAKING AN OFFER REQUEST: https://duffel.com/docs/api/overview/making-requests/authentication
-            This will be used as the API Key for the constructor and getFlights()
-
         query path: https://api.duffel.com/air/offer_requests
         Method: Post
         Response Body: JSON Encapsulated under data object
@@ -40,6 +39,16 @@ final class DuffelOfferProvider implements ProviderInterface
 
         if ($operation instanceof CollectionOperationInterface) // if the operation is searching for a collection of flight offers
         {
+            // check access here, if user is not authenticated, return null
+            if (!isset($this->token)) {
+                return null;
+            }
+            // get user
+            $user = $this->s->getUser();
+            if (!$this->uRepo->doesUserHaveCurrentEvents($user->getUserIdentifier())) {
+                return null;
+            }
+
             if ((isset(
                 $uriVariables['origin'],
                 $uriVariables['destination'],
@@ -74,10 +83,8 @@ final class DuffelOfferProvider implements ProviderInterface
         )) // if the id is set, then we know we are looking for a specific flight offer 
         {
             return $this->getFlightOfferById($uriVariables['id']);
-        } else // if none of the above conditions are met, then return null (404)
-        {
-            return null;
-        }
+        } // if none of the above conditions are met, then return null (404)
+        return null;
     }
 
     public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $maxConnections): FlightOffer
@@ -123,8 +130,6 @@ final class DuffelOfferProvider implements ProviderInterface
             slices: $data['slices'],
             passengers: $data['passengers']
         );
-
-        // return new FlightOffer($origin, $destination, $departureDate, $response['id']);
     }
 
     public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $maxConnections): FlightOffer

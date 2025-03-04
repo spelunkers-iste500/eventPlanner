@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -46,9 +47,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['write:event']]
 )]
 #[GetCollection(
-    security: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     normalizationContext: ['groups' => ['read:event']]
+)]
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    denormalizationContext: ['groups' => ['write:event']]
 )]
 class Event
 {
@@ -107,7 +114,7 @@ class Event
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'events')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $attendees;
+    private Collection $attendees;
 
     //Event -> User (finance admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
@@ -125,6 +132,7 @@ class Event
         $this->createdDate = new \DateTime();
         $this->attendees = new ArrayCollection();
         $this->financeAdmins = new ArrayCollection();
+        $this->eventAdmins = new ArrayCollection();
     }
 
     public function getId(): int
@@ -165,7 +173,8 @@ class Event
     public function addAttendees(User $attendee): self
     {
         if (!$this->attendees->contains($attendee)) {
-            $this->attendees[] = $attendee;
+            $this->attendees->add($attendee);
+            // $this->attendees[] = $attendee;
         }
         return $this;
     }
