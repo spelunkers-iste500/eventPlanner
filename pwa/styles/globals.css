@@ -148,6 +148,7 @@ img {
     font-weight: 500;
     font-size: 1rem;
     background-color: var(--white);
+    gap: 0.5rem;
 }
 
 .select__control:focus-within {
