@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { parsePhoneNumberFromString, AsYouType } from 'libphonenumber-js';
 
 interface InputProps {
     isRadio?: boolean;
@@ -8,6 +9,7 @@ interface InputProps {
     name?: string;
     placeholder?: string;
     classes?: string;
+    isPhoneNumber?: boolean;
     onChange: (value: string) => void;
 }
 
@@ -22,19 +24,34 @@ interface InputProps {
  * @param {string} [props.placeholder] - The placeholder text for the input field.
  * @param {string} [props.classes] - Additional CSS classes for the input container.
  * @param {function} props.onChange - Callback function to handle the change event.
+ * @param {boolean} [props.isPhoneNumber] - Determines if the input is a phone number.
  * @returns {JSX.Element} The rendered input component.
  */
-const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, onChange, isRadio }) => {
+const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, onChange, isRadio, isPhoneNumber }) => {
     const [value, setValue] = useState('');
+    const [error, setError] = useState('');
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setValue(e.target.value);
-        onChange(e.target.value);
+        let inputValue = e.target.value;
+        if (isPhoneNumber) {
+            const asYouType = new AsYouType('US');
+            inputValue = asYouType.input(inputValue);
+            const phoneNumber = parsePhoneNumberFromString(inputValue, 'US');
+            if (phoneNumber && phoneNumber.isValid()) {
+                inputValue = phoneNumber.format('E.164');
+                setError('');
+            } else {
+                setError('Invalid phone number');
+            }
+        }
+        setValue(inputValue);
+        onChange(inputValue);
     }
     
     return (
         <div className={`input-container ${classes ? classes : ''} ${isRadio ? 'radio' : ''}`}>
             <label className='input-label' htmlFor={id ? id : label}>{label}</label>
+            {error && <span className='error-msg'>{error}</span>}
             <input
                 className='input-field'
                 type={isRadio ? 'radio' : type}

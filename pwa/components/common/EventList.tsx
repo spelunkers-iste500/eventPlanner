@@ -119,8 +119,8 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes }) => {
 						<div className={styles.dialogDetails}>
 							<h3>Event Details</h3>
 							<p><MapPin size={16}/><span>{selectedEvent?.eventLocation}</span></p>
-							<p><Calendar size={16}/><span>{selectedEvent?.eventDate}</span></p>
-							<p><Clock size={16}/><span>{selectedEvent?.eventTime}</span></p>
+							<p><Calendar size={16}/><span>{selectedEvent?.eventDate} - {selectedEvent?.eventTime}</span></p>
+							<p><Clock size={16}/><span>{selectedEvent?.eventTime} Attendees</span></p>
 							<p><HandCoins size={16}/><span>{selectedEvent?.attendeeBudget}/attendee</span></p>
 						</div>
 						<div className={styles.dialogDetails}>
