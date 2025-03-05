@@ -38,9 +38,9 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 			</button>
 
 			<div className={styles.eventInfo}>
-				<h1>{bookingData.event.name}</h1>
-				<h2 className='h4'>{bookingData.event.org}</h2>
-				<p>{bookingData.event.eventDate}</p>
+				<h1>{bookingData.event.eventTitle}</h1>
+				<h2 className='h4'>{bookingData.event.organization}</h2>
+				<p>{bookingData.event.startDateTime} - {bookingData.event.endDateTime}</p>
 			</div>
 
 			<div className={styles.formCard}>

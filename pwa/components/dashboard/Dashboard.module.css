@@ -229,6 +229,7 @@
 	position: absolute;
 	top: 70%;
 	left: 50%;
+	min-width: max-content;
 	transform: translate(-50%, -50%);
 	border-radius: 1rem;
 }
@@ -285,10 +286,22 @@
 	border-right: 2px solid var(--gray-200);
 }
 
+.dialog-details h3 {
+	margin-bottom: 0.25rem;
+}
+
 .dialog-details p {
 	display: flex;
 	align-items: center;
+	white-space: nowrap;
 	gap: 0.5rem;
+}
+
+.dialog-airports {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.25rem;
 }
 
 /* Add Event Card */
