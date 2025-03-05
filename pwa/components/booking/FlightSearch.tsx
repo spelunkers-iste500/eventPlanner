@@ -1,8 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
-import Input from 'Components/common/Input';
 import { AsyncSelect, Select } from 'chakra-react-select';
-import { Airport } from 'types/airports';
 import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
 import axios from 'axios';

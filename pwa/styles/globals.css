@@ -175,3 +175,9 @@ img {
     top: 50%;
     transform: translateY(-50%);
 }
+
+.error-msg {
+    color: var(--red-400);
+    font-size: 0.8rem;
+    font-weight: 600;
+}

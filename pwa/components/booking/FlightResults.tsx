@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { Spinner } from '@chakra-ui/react';
 import { Offer, Segment, Slice } from 'types/airports';
-import FlightSearch from './FlightSearch';
-import axios from 'axios';
-import styles from './EventForm.module.css';
 import { ArrowLeft, MoveRight } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import axios from 'axios';
+import FlightSearch from './FlightSearch';
+import FlightBooking from './FlightBooking';
+import styles from './EventForm.module.css';
 
 const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
@@ -29,7 +30,6 @@ const FlightResults: React.FC = () => {
             })
             .then((response) => {
                 setFlightResults(response.data.offers);
-                console.log('Flight offers:', response.data);
                 setLoading(false);
             })
             .catch((error) => {
@@ -41,7 +41,7 @@ const FlightResults: React.FC = () => {
     }, [bookingData]);
 
     const handleClick = (offer: Offer) => {
-        console.log('Selected offer:', offer);
+        setBookingData({ ...bookingData, selectedOffer: offer, content: <FlightBooking /> });
     };
 
     const onPrevious = () => {
@@ -72,7 +72,7 @@ const FlightResults: React.FC = () => {
             </div>
 
             <div className={`${styles.flightResults}`}>
-                {loading ? <Spinner size="xl" color='var(--blue-500)' /> : (
+                {loading ? <Spinner size="xl" className={styles.spinner} color='var(--blue-500)' /> : (
                     <>
                         {displayedResults.map((offer: Offer, index: number) => (
                             <div className={styles.resultCard} key={index} onClick={() => handleClick(offer)}>
@@ -132,27 +132,3 @@ const FlightResults: React.FC = () => {
 };
 
 export default FlightResults;
-
-const results = [
-    {
-        airline: 'United',
-        flightNumber: '1240',
-        date: 'Dec 4, 2024',
-        time: '4pm',
-        price: 320
-    },
-    {
-        airline: 'Jet Blue',
-        flightNumber: '3570',
-        date: 'Dec 4, 2024',
-        time: '4pm',
-        price: 334
-    },
-    {
-        airline: 'Delta',
-        flightNumber: '1287',
-        date: 'Dec 4, 2024',
-        time: '6pm',
-        price: 349
-    }
-];

@@ -159,6 +159,138 @@
 	font-size: 0.875rem;
 }
 
+.dialog-content {
+	position: absolute;
+	top: 70%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 1rem;
+}
+
+.dialog-close {
+	background: none;
+	padding: 0;
+	color: var(--blue-400);
+	height: fit-content;
+	width: fit-content;
+	display: contents;
+
+	&:hover {
+		color: var(--blue-500);
+		background: none;
+	}
+}
+
+.dialog-img {
+	width: 100%;
+	height: 250px;
+	object-fit: cover;
+	object-position: center;
+	border-radius: 1rem 1rem 0 0;
+}
+
+.dialog-body {
+	padding: 1rem;
+}
+
+.dialog-body-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.dialog-org {
+	color: var(--gray-400);
+}
+
+.dialog-body-content {
+	display: flex;
+	justify-content: stretch;
+	gap: 1rem;
+}
+
+.dialog-details {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.5rem;
+}
+.dialog-details:first-child {
+	border-right: 2px solid var(--gray-200);
+}
+
+.dialog-details p {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.dialog-content {
+	position: absolute;
+	top: 70%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 1rem;
+}
+
+.dialog-close {
+	background: none;
+	padding: 0;
+	color: var(--blue-400);
+	height: fit-content;
+	width: fit-content;
+	display: contents;
+
+	&:hover {
+		color: var(--blue-500);
+		background: none;
+	}
+}
+
+.dialog-img {
+	width: 100%;
+	height: 250px;
+	object-fit: cover;
+	object-position: center;
+	border-radius: 1rem 1rem 0 0;
+}
+
+.dialog-body {
+	padding: 1rem;
+}
+
+.dialog-body-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.dialog-org {
+	color: var(--gray-400);
+}
+
+.dialog-body-content {
+	display: flex;
+	justify-content: stretch;
+	gap: 1rem;
+}
+
+.dialog-details {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.5rem;
+}
+.dialog-details:first-child {
+	border-right: 2px solid var(--gray-200);
+}
+
+.dialog-details p {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
 /* Add Event Card */
 .add-event-card {
 	flex-shrink: 0;
