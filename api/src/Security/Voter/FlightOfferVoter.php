@@ -15,7 +15,7 @@ final class FlightOfferVoter extends Voter
 
     public function __construct(private Security $security, private UserRepository $userRepository) {}
 
-    public const EDIT = 'edit';
+    public const EDIT = 'book';
     public const VIEW = 'view';
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -42,10 +42,8 @@ final class FlightOfferVoter extends Voter
 
     private static function canEdit(UserInterface $user, FlightOffer $flightOffer): bool
     {
-
         // check if user has current events
         return self::$userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier());
-
         // @TODO: check if booked flight is owned by the user
     }
 

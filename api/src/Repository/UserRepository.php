@@ -48,12 +48,12 @@ class UserRepository extends ServiceEntityRepository
     public function getUsersCurrentEventsByUserId(int $id): array
     {
         $qb = $this->createQueryBuilder('u')
-            ->join('u.events', 'e')
+            ->join('u.eventsAttending', 'e')
             ->where('u.id = :id')
-            ->andWhere('e.startDateTime <= :currentDate')
-            ->andWhere('e.endDateTime >= :currentDate')
+            // ->andWhere('e.startDateTime <= :currentDate')
+            // ->andWhere('e.endDateTime >= :currentDate')
             ->setParameter('id', $id)
-            ->setParameter('currentDate', new \DateTime())
+            // ->setParameter('currentDate', new \DateTime())
             ->getQuery();
 
         return $qb->getResult();
@@ -62,7 +62,7 @@ class UserRepository extends ServiceEntityRepository
     public function doesUserHaveCurrentEvents(int $id): bool
     {
         $qb = $this->createQueryBuilder('u')
-            ->join('u.events', 'e')
+            ->join('u.eventsAttending', 'e')
             ->where('u.id = :id')
             // ->andWhere('e.startDateTime <= :currentDate')
             ->andWhere('e.endDateTime >= :currentDate')

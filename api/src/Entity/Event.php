@@ -10,8 +10,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
@@ -42,7 +45,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']]
 )]
 #[Post(
-    security: "is_granted('edit', object)",
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
 )]
@@ -112,19 +116,19 @@ class Event
     public Budget $budget;
 
     //Event -> User (attendees)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'events')]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'eventsAttending', cascade: ['all'])]
     #[Groups(['read:event', 'write:event'])]
-    private Collection $attendees;
+    private ?Collection $attendees;
 
     //Event -> User (finance admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $financeAdmins;
+    private Collection $financeAdmins;
 
     //Event -> User (event admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'adminOfEvents')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $eventAdmins;
+    private Collection $eventAdmins;
 
     public function __construct()
     {
@@ -173,9 +177,9 @@ class Event
     public function addAttendees(User $attendee): self
     {
         if (!$this->attendees->contains($attendee)) {
-            $this->attendees->add($attendee);
-            // $this->attendees[] = $attendee;
+            $this->attendees[] = $attendee;
         }
+
         return $this;
     }
     public function removeAttendees(User $attendee): self

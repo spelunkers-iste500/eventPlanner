@@ -1,25 +1,27 @@
 <?php
-// api/src/State/DuffelApiProvider.php
-
-/*
-references:
-    https://api-platform.com/docs/core/state-providers/
-    https://duffel.com/docs/api/offer-requests/create-offer-request
-    https://symfony.com/doc/current/http_client.html
-*/
 
 namespace App\State;
 
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+use ApiPlatform\State\ProcessorInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Entity\FlightOffer;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\UserRepository;
 use DateTime;
+use DateTimeInterface;
 use Symfony\Bundle\SecurityBundle\Security;
+use Symfony\Component\Validator\Constraints\Date;
 
-final class DuffelOfferProvider implements ProviderInterface
+/* 
+    Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
+    query path: https://api.duffel.com/air/offer_requests
+    Method: Post
+    Response Body: JSON Encapsulated under data object
+*/
+
+class FlightOfferState implements ProcessorInterface, ProviderInterface
 {
     private string $token;
 
@@ -27,68 +29,71 @@ final class DuffelOfferProvider implements ProviderInterface
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
-    /* 
-        Duffel API utilizes an auth token under the bearer notation and also requires a Duffel-version header field.
-        query path: https://api.duffel.com/air/offer_requests
-        Method: Post
-        Response Body: JSON Encapsulated under data object
-    */
+
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    {
+        // Handle the state
+        if (!isset($this->token)) {
+            return null;
+        }
+        // get user
+        $user = $this->s->getUser();
+        if (!$this->uRepo->doesUserHaveCurrentEvents($user->getUserIdentifier())) {
+            throw new \Exception("User does not have current events");
+            return null;
+        }
+        if (null == $data->returnDate)
+        // decide whether this is one way or round trip
+        // then execute the relevant function
+        // if only the variables for a one way flight are set, then we know we are looking for one way flights
+        {
+            $flight = $this->getOneWayFlightOffers(
+                origin: $data->origin,
+                destination: $data->destination,
+                departureDate: $data->departureDate,
+                maxConnections: $data->maxConnections,
+            );
+        } else  // if all variables needed for a round trip are set, then we know we are looking for round trip flights
+        {
+            // transform date to duffel format yyyy-mm-dd
+            // $data['departureDate'] = date('Y-m-d', strtotime($data['departureDate']));
+            // $data['returnDate'] = date('Y-m-d', strtotime($data['returnDate']));
+
+            $flight = $this->getRoundTripFlightOffers(
+                origin: $data->origin,
+                destination: $data->destination,
+                departureDate: $data->departureDate,
+                maxConnections: $data->maxConnections,
+                returnDate: $data->returnDate
+            );
+        }
+        // get the user from the database
+        $user = $this->uRepo->findOneBy(['id' => $user->getUserIdentifier()]);
+        // reset the offers
+        $user->resetOffers();
+        // save all offer id's to the user
+        foreach ($flight->offers as $offer) {
+            $user->addOfferIds($offer['id']);
+        }
+        // persist the user
+        $this->uRepo->save($user, true);
+        return $flight;
+    }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-
-        if ($operation instanceof CollectionOperationInterface) // if the operation is searching for a collection of flight offers
-        {
-            // check access here, if user is not authenticated, return null
-            if (!isset($this->token)) {
-                return null;
-            }
-            // get user
-            $user = $this->s->getUser();
-            if (!$this->uRepo->doesUserHaveCurrentEvents($user->getUserIdentifier())) {
-                return ["User does not have current events", $this->uRepo->getUsersCurrentEventsByUserId($user->getUserIdentifier())];
-            }
-
-            if ((isset(
-                $uriVariables['origin'],
-                $uriVariables['destination'],
-                $uriVariables['departureDate'],
-                $uriVariables['returnDate'],
-                $uriVariables['maxConnections']
-            ))) // if all variables needed for a round trip are set, then we know we are looking for round trip flights
-            {
-                return $this->getRoundTripFlightOffers(
-                    $uriVariables['origin'],
-                    $uriVariables['destination'],
-                    $uriVariables['departureDate'],
-                    $uriVariables['returnDate'],
-                    $uriVariables['maxConnections']
-                );
-            } else if (isset(
-                $uriVariables['origin'],
-                $uriVariables['destination'],
-                $uriVariables['departureDate'],
-                $uriVariables['maxConnections']
-            )) // if only the variables for a one way flight are set, then we know we are looking for one way flights
-            {
-                return $this->getOneWayFlightOffers(
-                    $uriVariables['origin'],
-                    $uriVariables['destination'],
-                    $uriVariables['departureDate'],
-                    $uriVariables['maxConnections']
-                );
-            }
-        } else if (isset(
+        if (isset(
             $uriVariables['id']
-        )) // if the id is set, then we know we are looking for a specific flight offer 
+        ) && (str_contains($uriVariables['id'], 'orq'))) // if the id is set, then we know we are looking for a specific flight offer 
         {
             return $this->getFlightOfferById($uriVariables['id']);
         } // if none of the above conditions are met, then return null (404)
         return null;
     }
 
-    public function getOneWayFlightOffers(string $origin, string $destination, string $departureDate, int $maxConnections): FlightOffer
+    public function getOneWayFlightOffers(string $origin, string $destination, DateTimeInterface $departureDate, int $maxConnections): FlightOffer
     {
+        $departureDateString = $departureDate->format('Y-m-d');
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/offer_requests?supplier_timeout=3000',
@@ -103,7 +108,7 @@ final class DuffelOfferProvider implements ProviderInterface
                             [
                                 'origin' => $origin,
                                 'destination' => $destination,
-                                'departure_date' => $departureDate,
+                                'departure_date' => $departureDateString,
                             ]
                         ],
                         'passengers' => [
@@ -128,12 +133,15 @@ final class DuffelOfferProvider implements ProviderInterface
             offerId: $data['id'],
             offers: $data['offers'],
             slices: $data['slices'],
-            passengers: $data['passengers']
+            passengers: $data['passengers'],
+            maxConnections: $maxConnections
         );
     }
 
-    public function getRoundTripFlightOffers(string $origin, string $destination, string $departureDate, string $returnDate, int $maxConnections): FlightOffer
+    public function getRoundTripFlightOffers(string $origin, string $destination, DateTimeInterface $departureDate, DateTimeInterface $returnDate, int $maxConnections): FlightOffer
     {
+        $departureDateString = $departureDate->format('Y-m-d');
+        $returnDateString = $returnDate->format('Y-m-d');
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/offer_requests?&supplier_timeout=3000',
@@ -148,12 +156,12 @@ final class DuffelOfferProvider implements ProviderInterface
                             [ // departing flight
                                 'origin' => $origin,
                                 'destination' => $destination,
-                                'departure_date' => $departureDate,
+                                'departure_date' => $departureDateString,
                             ],
                             [ // return flight
                                 'origin' => $destination,
                                 'destination' => $origin,
-                                'departure_date' => $returnDate,
+                                'departure_date' => $returnDateString,
                             ]
                         ],
                         'passengers' => [
@@ -197,11 +205,10 @@ final class DuffelOfferProvider implements ProviderInterface
         );
 
         $data = $response->toArray()['data'];
-        return $data;
         return new FlightOffer(
             origin: $data['origin'],
             destination: $data['destination'],
-            departureDate: $data['date'],
+            departureDate: new DateTime($data['date']),
             offerId: $data['id'],
             offers: $data['offers'],
             slices: $data['slices'],
