@@ -102,7 +102,7 @@ const Dashboard: React.FC = () => {
               {item.value === "members-list" ? (
                 <MemberList members={members} />
               ) : item.events.length > 0 ? (
-                <EventList heading={item.title} events={item.events} hasAddBtn />
+                <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Current Events' && true} />
               ) : (
                 <Text>No events available</Text>
               )}

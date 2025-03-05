@@ -93,7 +93,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 				{hasAddBtn && (
 					<div className={styles.addEventCard} onClick={() => void 0}>
 						<div className={styles.addEventBox}>
-						<Plus size={42} className={styles.plusIcon} />
+						<Plus size={36} className={styles.plusIcon} />
 					</div>
 				</div>
 				)}
