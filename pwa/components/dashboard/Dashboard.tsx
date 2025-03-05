@@ -3,7 +3,6 @@ import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "types/events";
-import { toaster } from "Components/ui/toaster";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {
@@ -21,74 +20,74 @@ const Dashboard: React.FC = () => {
 export default Dashboard;
 
 const events: Event[] = [
-	{ 
-		id: 1, 
-		img: "/media/event_image.jpg", 
-		name: "Event Name", 
-		org: "Organization Name", 
-		eventDate: "Jul 10, 2025", 
-		eventTime: "9am", 
-		eventLocation: "Location One", 
-		departureAirportCode: "JFK", 
-		departureDate: "Dec 6, 2024 • 9am", 
-		returnDate: "Dec 10, 2024 • 5pm", 
-		attendeeBudget: "$1000", 
-		usedBudget: "$500" 
-	},
-	{ 
-		id: 2, 
-		img: "/media/event_image.jpg", 
-		name: "Event Steff", 
-		org: "Organization Ethan", 
-		eventDate: "Apr 15 - 9, 2024", 
-		eventTime: "9am - 5pm", 
-		eventLocation: "Location Two", 
-		departureAirportCode: "LAX", 
-		departureDate: "Dec 10, 2024 • 9am", 
-		returnDate: "Dec 15, 2024 • 5pm", 
-		attendeeBudget: "$1500", 
-		usedBudget: "$700" 
-	},
-	{ 
-		id: 3, 
-		img: "/media/event_image.jpg", 
-		name: "Event Four", 
-		org: "Organization Three", 
-		eventDate: "Dec 3, 2024", 
-		eventTime: "9am", 
-		eventLocation: "Location Three", 
-		departureAirportCode: "ORD", 
-		departureDate: "Dec 1, 2024 • 9am", 
-		returnDate: "Dec 4, 2024 • 5pm", 
-		attendeeBudget: "$1200", 
-		usedBudget: "$600" 
-	},
-	{ 
-		id: 4, 
-		img: "/media/event_image.jpg", 
-		name: "Event Ethan", 
-		org: "Organization Steff", 
-		eventDate: "Jan 25, 2025", 
-		eventTime: "9am", 
-		eventLocation: "Location Four", 
-		departureAirportCode: "ATL", 
-		departureDate: "Jan 23, 2025 • 9am", 
-		returnDate: "Jan 26, 2025 • 5pm", 
-		attendeeBudget: "$1300", 
-		usedBudget: "$800" 
-	},
-	{ 
-		id: 5, 
-		img: "/media/event_image.jpg", 
-		name: "Event Sixty", 
-		org: "Organization Sixty", 
-		eventDate: "Aug 5, 2024", 
-		eventTime: "10am", 
-		eventLocation: "Location Five", 
-		departureAirportCode: "DFW", 
-		departureDate: "Aug 3, 2024 • 9am", 
-		returnDate: "Aug 6, 2024 • 5pm", 
-		attendeeBudget: "$1100", 
-		usedBudget: "$900" 
-	},
+    { 
+        id: 1, 
+        eventTitle: "Event Name", 
+        startDateTime: "2025-07-10T09:00:00", 
+        endDateTime: "2025-07-10T17:00:00", 
+        startFlightBooking: "2024-12-06T09:00:00", 
+        endFlightBooking: "2024-12-10T17:00:00", 
+        location: "Location One", 
+        maxAttendees: 100, 
+        organization: "Organization Name", 
+        attendees: ["attendee1@example.com", "attendee2@example.com"], 
+        financeAdmins: ["financeAdmin1@example.com"], 
+        eventAdmins: ["eventAdmin1@example.com"] 
+    },
+    { 
+        id: 2, 
+        eventTitle: "Event Steff", 
+        startDateTime: "2024-04-15T09:00:00", 
+        endDateTime: "2024-04-15T17:00:00", 
+        startFlightBooking: "2024-12-10T09:00:00", 
+        endFlightBooking: "2024-12-15T17:00:00", 
+        location: "Location Two", 
+        maxAttendees: 150, 
+        organization: "Organization Ethan", 
+        attendees: ["attendee3@example.com", "attendee4@example.com"], 
+        financeAdmins: ["financeAdmin2@example.com"], 
+        eventAdmins: ["eventAdmin2@example.com"] 
+    },
+    { 
+        id: 3, 
+        eventTitle: "Event Four", 
+        startDateTime: "2024-12-03T09:00:00", 
+        endDateTime: "2024-12-03T17:00:00", 
+        startFlightBooking: "2024-12-01T09:00:00", 
+        endFlightBooking: "2024-12-04T17:00:00", 
+        location: "Location Three", 
+        maxAttendees: 200, 
+        organization: "Organization Three", 
+        attendees: ["attendee5@example.com", "attendee6@example.com"], 
+        financeAdmins: ["financeAdmin3@example.com"], 
+        eventAdmins: ["eventAdmin3@example.com"] 
+    },
+    { 
+        id: 4, 
+        eventTitle: "Event Ethan", 
+        startDateTime: "2025-01-25T09:00:00", 
+        endDateTime: "2025-01-25T17:00:00", 
+        startFlightBooking: "2025-01-23T09:00:00", 
+        endFlightBooking: "2025-01-26T17:00:00", 
+        location: "Location Four", 
+        maxAttendees: 250, 
+        organization: "Organization Steff", 
+        attendees: ["attendee7@example.com", "attendee8@example.com"], 
+        financeAdmins: ["financeAdmin4@example.com"], 
+        eventAdmins: ["eventAdmin4@example.com"] 
+    },
+    { 
+        id: 5, 
+        eventTitle: "Event Sixty", 
+        startDateTime: "2024-08-05T10:00:00", 
+        endDateTime: "2024-08-05T18:00:00", 
+        startFlightBooking: "2024-08-03T09:00:00", 
+        endFlightBooking: "2024-08-06T17:00:00", 
+        location: "Location Five", 
+        maxAttendees: 300, 
+        organization: "Organization Sixty", 
+        attendees: ["attendee9@example.com", "attendee10@example.com"], 
+        financeAdmins: ["financeAdmin5@example.com"], 
+        eventAdmins: ["eventAdmin5@example.com"] 
+    },
 ];

@@ -229,6 +229,7 @@
 	position: absolute;
 	top: 70%;
 	left: 50%;
+	min-width: max-content;
 	transform: translate(-50%, -50%);
 	border-radius: 1rem;
 }
@@ -285,18 +286,30 @@
 	border-right: 2px solid var(--gray-200);
 }
 
+.dialog-details h3 {
+	margin-bottom: 0.25rem;
+}
+
 .dialog-details p {
 	display: flex;
 	align-items: center;
+	white-space: nowrap;
 	gap: 0.5rem;
+}
+
+.dialog-airports {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.25rem;
 }
 
 /* Add Event Card */
 .add-event-card {
 	flex-shrink: 0;
 	width: 300px;
-	border: 1px solid var(--black);
 	border-radius: 12px;
+	box-shadow: var(--shadow-300);
 	background-color: var(--gray-100);
 	display: flex;
 	align-items: center;
@@ -313,7 +326,7 @@
   
   /* Box inside the card */
   .add-event-box {
-	width: 40%;
+	width: 30%;
 	aspect-ratio: 1;
 	background-color: var(--gray-200);
 	border-radius: 8px;
