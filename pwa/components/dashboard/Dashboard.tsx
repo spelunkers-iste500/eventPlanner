@@ -3,6 +3,7 @@ import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "types/events";
+import { toaster } from "Components/ui/toaster";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {
