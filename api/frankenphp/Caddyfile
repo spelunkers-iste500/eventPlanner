@@ -61,3 +61,7 @@
 
 	php_server
 }
+
+php:80 {
+	reverse_proxy {$SERVER_NAME:localhost}
+}

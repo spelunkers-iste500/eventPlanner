@@ -18,7 +18,7 @@
 		}
 	}
 
-	
+	tls /certs/cert.pem /certs/key.pem
 
 	root * /app/public
 	encode zstd br gzip
@@ -64,6 +64,6 @@
 	php_server
 }
 
-{$SERVER_NAME} {
-	tls /certs/cert.pem /certs/key.pem
+http://php:80 {
+	reverse_proxy {$SERVER_NAME}
 }
