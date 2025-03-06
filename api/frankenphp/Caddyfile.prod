@@ -18,7 +18,7 @@
 		}
 	}
 
-	tls /certs/cert.pem /certs/key.pem
+	
 
 	root * /app/public
 	encode zstd br gzip
@@ -62,4 +62,8 @@
 	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
 	php_server
+}
+
+{$SERVER_NAME} {
+	tls /certs/cert.pem /certs/key.pem
 }
