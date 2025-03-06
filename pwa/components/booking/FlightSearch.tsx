@@ -63,12 +63,12 @@ const FlightSearch: React.FC = () => {
         }
 
         debounceTimeout.current = setTimeout(() => {
-            if (inputValue.length >= 3) {
+            if (inputValue.length >= 2) {
                 fetchAirports(inputValue, callback);
             } else {
                 callback([]);
             }
-        }, 1000);
+        }, 120);
     };
 
     const [startDate, setStartDate] = useState<Date | null>(null);
