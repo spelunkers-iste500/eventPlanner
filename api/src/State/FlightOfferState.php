@@ -47,7 +47,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         // then execute the relevant function
         // if only the variables for a one way flight are set, then we know we are looking for one way flights
         {
-            $flight = $this->getOneWayFlightOffers(
+            $flightOffersObject = $this->getOneWayFlightOffers(
                 origin: $data->origin,
                 destination: $data->destination,
                 departureDate: $data->departureDate,
@@ -59,7 +59,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             // $data['departureDate'] = date('Y-m-d', strtotime($data['departureDate']));
             // $data['returnDate'] = date('Y-m-d', strtotime($data['returnDate']));
 
-            $flight = $this->getRoundTripFlightOffers(
+            $flightOffersObject = $this->getRoundTripFlightOffers(
                 origin: $data->origin,
                 destination: $data->destination,
                 departureDate: $data->departureDate,
@@ -72,12 +72,13 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         // reset the offers
         $user->resetOffers();
         // save all offer id's to the user
-        foreach ($flight->offers as $offer) {
+        foreach ($flightOffersObject->offers as $offer) {
             $user->addOfferIds($offer['id']);
         }
+        $user->setPassengerId($flightOffersObject->passengerId);
         // persist the user
         $this->uRepo->save($user, true);
-        return $flight;
+        return $flightOffersObject;
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -124,18 +125,18 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             ]
         );
 
-        $data = $response->toArray()['data'];
-
-        return new FlightOffer(
-            origin: $origin,
-            destination: $destination,
-            departureDate: $departureDate,
-            offerId: $data['id'],
-            offers: $data['offers'],
-            slices: $data['slices'],
-            passengers: $data['passengers'],
-            maxConnections: $maxConnections
+        $data = $response->toArray();
+        $flightOffer = new FlightOffer(
+            origin: $data['data']['slices'][0]['origin']['iata_city_code'],
+            destination: $data['data']['slices'][0]['destination']['iata_city_code'],
+            departureDate: new DateTime($data['data']['slices'][0]['departure_date']),
+            returnDate: (isset($data['data']['slices'][1])) ? new DateTime($data['slices'][1]['departure_date']) : null,
+            offerId: $data['data']['id'],
+            offers: $data['data']['offers'],
+            slices: $data['data']['slices'],
+            passengerId: $data['data']['passengers'][0]['id']
         );
+        return $flightOffer;
     }
 
     public function getRoundTripFlightOffers(string $origin, string $destination, DateTimeInterface $departureDate, DateTimeInterface $returnDate, int $maxConnections): FlightOffer
@@ -177,18 +178,18 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             ]
         );
 
-        $data = $response->toArray()['data'];
-        // return $data;
-        return new FlightOffer(
-            origin: $origin,
-            destination: $destination,
-            departureDate: $departureDate,
-            returnDate: $returnDate,
-            offerId: $data['id'],
-            offers: $data['offers'],
-            slices: $data['slices'],
-            passengers: $data['passengers']
+        $data = $response->toArray();
+        $flightOffer = new FlightOffer(
+            origin: $data['data']['slices'][0]['origin']['iata_city_code'],
+            destination: $data['data']['slices'][0]['destination']['iata_city_code'],
+            departureDate: new DateTime($data['data']['slices'][0]['departure_date']),
+            returnDate: (isset($data['data']['slices'][1])) ? new DateTime($data['slices'][1]['departure_date']) : null,
+            offerId: $data['data']['id'],
+            offers: $data['data']['offers'],
+            slices: $data['data']['slices'],
+            passengerId: $data['data']['passengers'][0]['id']
         );
+        return $flightOffer;
     }
 
     public function getFlightOfferById(string $id)
@@ -204,15 +205,17 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             ]
         );
 
-        $data = $response->toArray()['data'];
-        return new FlightOffer(
-            origin: $data['origin'],
-            destination: $data['destination'],
-            departureDate: new DateTime($data['date']),
-            offerId: $data['id'],
-            offers: $data['offers'],
-            slices: $data['slices'],
-            passengers: $data['passengers']
+        $data = $response->toArray();
+        $flightOffer = new FlightOffer(
+            origin: $data['data']['slices'][0]['origin']['iata_city_code'],
+            destination: $data['data']['slices'][0]['destination']['iata_city_code'],
+            departureDate: new DateTime($data['data']['slices'][0]['departure_date']),
+            returnDate: (isset($data['data']['slices'][1])) ? new DateTime($data['slices'][1]['departure_date']) : null,
+            offerId: $data['data']['id'],
+            offers: $data['data']['offers'],
+            slices: $data['data']['slices'],
+            passengerId: $data['data']['passengers'][0]['id']
         );
+        return $flightOffer;
     }
 }

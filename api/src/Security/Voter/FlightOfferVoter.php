@@ -40,16 +40,16 @@ final class FlightOfferVoter extends Voter
         };
     }
 
-    private static function canEdit(UserInterface $user, FlightOffer $flightOffer): bool
+    private function canEdit(UserInterface $user, FlightOffer $flightOffer): bool
     {
         // check if user has current events
-        return self::$userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier());
+        return $this->userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier()) || $this->security->isGranted('ROLE_ADMIN');
         // @TODO: check if booked flight is owned by the user
     }
 
-    private static function canView(UserInterface $user, FlightOffer $flightOffer): bool
+    private function canView(UserInterface $user, FlightOffer $flightOffer): bool
     {
         // check if user has current events
-        return self::$userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier());
+        return $this->userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier()) || $this->security->isGranted('ROLE_ADMIN');
     }
 }

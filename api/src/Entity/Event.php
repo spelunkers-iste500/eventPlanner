@@ -61,6 +61,9 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['write:event']]
 )]
+/**
+ * The events that are organized by organizations.
+ */
 class Event
 {
     #[ORM\Id]
@@ -116,9 +119,32 @@ class Event
     public Budget $budget;
 
     //Event -> User (attendees)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'eventsAttending', cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
+    #[ORM\JoinTable(name: 'events_attendees')]
     #[Groups(['read:event', 'write:event'])]
-    private ?Collection $attendees;
+    private Collection $attendees;
+
+    public function getAttendees(): Collection
+    {
+        return $this->attendees;
+    }
+    public function addAttendees(User $attendee): self
+    {
+        if (!$this->attendees->contains($attendee)) {
+            $this->attendees[] = $attendee;
+        }
+        return $this;
+    }
+    public function removeAttendees(User $attendee): self
+    {
+        $this->attendees->removeElement($attendee);
+        return $this;
+    }
+    public function setAttendees(array $attendees): self
+    {
+        $this->attendees = new ArrayCollection($attendees);
+        return $this;
+    }
 
     //Event -> User (finance admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
@@ -170,23 +196,7 @@ class Event
         $this->organization = $organization;
         return $this;
     }
-    public function getAttendees(): Collection
-    {
-        return $this->attendees;
-    }
-    public function addAttendees(User $attendee): self
-    {
-        if (!$this->attendees->contains($attendee)) {
-            $this->attendees[] = $attendee;
-        }
 
-        return $this;
-    }
-    public function removeAttendees(User $attendee): self
-    {
-        $this->attendees->removeElement($attendee);
-        return $this;
-    }
     public function getFinanceAdmins(): Collection
     {
         return $this->financeAdmins;

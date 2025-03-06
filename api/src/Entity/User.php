@@ -63,6 +63,55 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     // #[Groups(['user:read:offers'])]
     private array $offerIds;
 
+    #[ORM\Column(type: 'string', length: 12, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    public ?string $phoneNumber = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public ?\DateTimeInterface $birthday = null;
+
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $title = null;
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $gender = null;
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(string $gender): void
+    {
+        $this->gender = $gender;
+    }
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $passengerId = null;
+
+    public function getPassengerId(): ?string
+    {
+        return $this->passengerId;
+    }
+
+    public function setPassengerId(string $passengerId): void
+    {
+        $this->passengerId = $passengerId;
+    }
+
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $roles = [];
 
@@ -80,11 +129,33 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Groups(['user:read', 'user:write'])]
     private Collection $AdminOfOrg;
 
-    // #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'attendees')]
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
-    #[ORM\JoinTable(name: 'events_attendees')]
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'attendees', cascade: ['all'])]
     #[Groups(['user:read', 'user:write'])]
-    private ?Collection $eventsAttending;
+    private Collection $eventsAttending;
+
+    public function geteventsAttending(): Collection
+    {
+        return $this->eventsAttending;
+    }
+
+    public function addeventsAttending(Event $event): self
+    {
+        if (!$this->eventsAttending->contains($event)) {
+            $this->eventsAttending[] = $event;
+        }
+        return $this;
+    }
+    public function removeeventsAttending(Event $event): self
+    {
+        $this->eventsAttending->removeElement($event);
+        return $this;
+    }
+
+    public function setEventsAttending(array $eventsAttending): self
+    {
+        $this->eventsAttending = new ArrayCollection($eventsAttending);
+        return $this;
+    }
 
     #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'eventAdmins')]
     #[ORM\JoinTable(name: 'eventAdmins_events')]
@@ -276,23 +347,5 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function resetOffers(): void
     {
         $this->offerIds = [];
-    }
-
-    public function geteventsAttending(): Collection
-    {
-        return $this->eventsAttending;
-    }
-
-    public function addeventsAttending(Event $event): self
-    {
-        if (!$this->eventsAttending->contains($event)) {
-            $this->eventsAttending[] = $event;
-        }
-        return $this;
-    }
-    public function removeeventsAttending(Event $event): self
-    {
-        $this->eventsAttending->removeElement($event);
-        return $this;
     }
 }
