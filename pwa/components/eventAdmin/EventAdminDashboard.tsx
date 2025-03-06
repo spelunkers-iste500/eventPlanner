@@ -4,7 +4,7 @@ import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event } from "types/events";
+import { Event } from "Types/events";
 import { Stack, Text } from "@chakra-ui/react"
 import {
   AccordionItem,

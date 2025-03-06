@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
-import { Event, formatDate, formatTime } from "types/events";
+import { Event, formatDate, formatTime } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
 import { DialogRoot, DialogBackdrop, DialogContent, DialogCloseTrigger, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from "@chakra-ui/react";

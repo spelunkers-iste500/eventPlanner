@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Offer } from 'types/airports';
-import { Event } from 'types/events';
+import { Offer } from 'Types/airports';
+import { Event } from 'Types/events';
 
 interface BookingData {
     event: Event;
