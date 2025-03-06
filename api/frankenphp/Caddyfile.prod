@@ -65,5 +65,10 @@
 }
 
 http://php:80 {
-	reverse_proxy https://{$SERVER_NAME}
+	reverse_proxy https://{$SERVER_NAME} {
+		        transport http {
+                        tls_insecure_skip_verify
+                }
+        }
+	}
 }
