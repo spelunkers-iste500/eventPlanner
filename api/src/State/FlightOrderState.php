@@ -17,7 +17,7 @@ use App\Repository\UserRepository;
 /**
  * Processes and provides the order info, updates related entities on persist.
  */
-final class DuffelOrderState implements ProcessorInterface, ProviderInterface
+final class FlightOrderState implements ProcessorInterface, ProviderInterface
 {
     private string $token;
 

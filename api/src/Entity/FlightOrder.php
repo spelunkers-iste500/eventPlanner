@@ -3,20 +3,18 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\State\DuffelOrderProvider;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
-use App\State\DuffelOrderState;
+use App\State\FlightOrderState;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
 #[Get(
-    provider: DuffelOrderProvider::class,
+    provider: FlightOrderState::class,
     security: "is_granted('view', object)"
 )]
 #[Post(
-    processor: DuffelOrderState::class,
+    processor: FlightOrderState::class,
     denormalizationContext: ['groups' => ['write:flightOrder']]
 )]
 

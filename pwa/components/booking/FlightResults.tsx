@@ -18,14 +18,16 @@ const FlightResults: React.FC = () => {
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
-            let params = `${bookingData.destinationAirport}/${bookingData.originAirport}/${bookingData.departDate}`;
-            if (bookingData.isRoundTrip) {
-                params += `/${bookingData.returnDate}`;
-            }
-
-            axios.get(`/flight_offers/search/${params}/${bookingData.maxConnections}?page=1`, {
+            axios.post(`/flight_offers`, {
+                origin: bookingData.originAirport,
+                destination: bookingData.destinationAirport,
+                departureDate: bookingData.departDate,
+                returnDate: (bookingData.isRoundTrip) ? bookingData.returnDate : null,
+                maxConnections: 1,
+            }, {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/ld+json',
+                    'accept': 'application/ld+json',
                 }
             })
             .then((response) => {

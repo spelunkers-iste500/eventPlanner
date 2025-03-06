@@ -36,11 +36,13 @@ const FlightBooking = () => {
     const bookOffer = async () => {
         if (!bookingData.selectedOffer) return;
 
-        const params = `${bookingData.selectedOffer.id}/${bookingData.selectedOffer.passengers[0].id}/${formData.title}/${formData.gender}/${session?.user?.email}/${formData.birthday}/${formData.phoneNumber}`;
-        axios.get(`/flight_orders/search/${params}`, {
+        axios.post(`/flight_orders`, {
+            offerId: bookingData.selectedOffer.id
+        }, {
             headers: {
-                'Content-Type': 'application/json',
-            }
+                    'Content-Type': 'application/ld+json',
+                    'accept': 'application/ld+json',
+                }
         })
         .then((response) => {
             console.log('Booking response:', response.data);

@@ -24,6 +24,8 @@ use Symfony\Component\Validator\Constraints\Date;
 class FlightOfferState implements ProcessorInterface, ProviderInterface
 {
     private string $token;
+    private int $timeout = 3000;
+    private int $maxResults = 50;
 
     public function __construct(private HttpClientInterface $client, private Security $s, private UserRepository $uRepo)
     {
