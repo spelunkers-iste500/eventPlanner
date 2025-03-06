@@ -18,6 +18,8 @@
 		}
 	}
 
+	tls /certs/cert.pem /certs/key.pem
+
 	root * /app/public
 	encode zstd br gzip
 
