@@ -11,23 +11,6 @@ use ApiPlatform\OpenApi\Model\Operation;
 use App\State\CurrentAccountProvider;
 
 #[ORM\Entity]
-// No one should need to access this (probably)
-// #[ApiResource(
-//     operations: [
-//         new Get(
-//             uriTemplate: '/accounts/me.{_format}',
-//             openapi: new Operation(summary: "Get the current user email"),
-//             provider: CurrentAccountProvider::class
-//         ),
-//         new GetCollection(
-//             uriTemplate: '/accounts.{_format}',
-//             openapi: new Operation(summary: "Get All Accounts"),
-//             security: "is_granted('ROLE_ADMIN')",
-//             securityPostDenormalize: "is_granted('ROLE_ADMIN')"
-//         )
-//     ],
-
-// )]
 #[ORM\Table(name: 'accounts')]
 
 class Account

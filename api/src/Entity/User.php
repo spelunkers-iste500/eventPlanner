@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -9,6 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
+use App\State\CurrentUserProvider;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
@@ -17,11 +19,22 @@ use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource(
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']],
-)]
+#[ApiResource]
 #[Get(security: "is_granted('view', object)")]
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/users/{id}/offers.{_format}',
+    requirements: ['id' => '\d+'],
+    // normalizationContext: ['groups' => ['user:read:offers']]
+)]
+#[Get(
+    // security: "is_granted('view', object)",
+    uriTemplate: '/users/me.{_format}',
+    provider: CurrentUserProvider::class
+    // @TODO: decide on the normalization context for this route
+    // normalizationContext: ['groups' => ['user:read:me']]
+    // normalizationContext: ['groups' => ['user:read:events']]
+)]
 #[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
@@ -30,7 +43,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'user:read:offers'])]
     public int $id;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -55,6 +68,59 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
     private Account $account;
 
+    #[ORM\Column(type: 'simple_array', nullable: true)]
+    // #[Groups(['user:read:offers'])]
+    private array $offerIds;
+
+    #[ORM\Column(type: 'string', length: 12, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    public ?string $phoneNumber = null;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public ?\DateTimeInterface $birthday = null;
+
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $title = null;
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    #[ORM\Column(type: 'string', length: 5, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $gender = null;
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
+    public function setGender(string $gender): void
+    {
+        $this->gender = $gender;
+    }
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Groups(['user:read', 'user:write'])]
+    private ?string $passengerId = null;
+
+    public function getPassengerId(): ?string
+    {
+        return $this->passengerId;
+    }
+
+    public function setPassengerId(string $passengerId): void
+    {
+        $this->passengerId = $passengerId;
+    }
+
     #[ORM\Column(type: 'json', nullable: true)]
     private ?array $roles = [];
 
@@ -62,22 +128,47 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\JoinTable(name: "users_flights")]
     private Collection $flights;
 
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users', cascade: ['all'])]
     #[ORM\JoinTable(name: 'organizations_members')]
-    public Collection $OrgMembership;
+    #[Groups(['user:read', 'user:write'])]
+    private Collection $OrgMembership;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
     #[Groups(['user:read', 'user:write'])]
     private Collection $AdminOfOrg;
 
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'attendees')]
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'attendees', cascade: ['all'])]
     #[Groups(['user:read', 'user:write'])]
-    private Collection $events;
+    private Collection $eventsAttending;
+
+    public function geteventsAttending(): Collection
+    {
+        return $this->eventsAttending;
+    }
+
+    public function addeventsAttending(Event $event): self
+    {
+        if (!$this->eventsAttending->contains($event)) {
+            $this->eventsAttending[] = $event;
+        }
+        return $this;
+    }
+    public function removeeventsAttending(Event $event): self
+    {
+        $this->eventsAttending->removeElement($event);
+        return $this;
+    }
+
+    public function setEventsAttending(array $eventsAttending): self
+    {
+        $this->eventsAttending = new ArrayCollection($eventsAttending);
+        return $this;
+    }
 
     #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'eventAdmins')]
     #[ORM\JoinTable(name: 'eventAdmins_events')]
-    // #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write'])]
     private Collection $adminOfEvents;
 
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins')]
@@ -94,20 +185,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'datetime', nullable: true)]
     public ?\DateTimeInterface $createdDate = null;
 
-    #[ORM\Column(type: 'string', nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
-    private ?string $offerId = null;
+
 
     public function __construct()
     {
         $this->flights = new ArrayCollection();
         $this->OrgMembership = new ArrayCollection();
         $this->AdminOfOrg = new ArrayCollection();
-        $this->events = new ArrayCollection();
+        $this->eventsAttending = new ArrayCollection();
+        $this->adminOfEvents = new ArrayCollection();
+        $this->financeAdminOfOrg = new ArrayCollection();
+        $this->financeAdminOfEvents = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->account = new Account($this);
         $this->createdDate = new \DateTime();
         $this->emailVerified = new \DateTime();
+        $this->roles = [];
+        $this->offerIds = [];
     }
 
     public function getRoles(): array
@@ -115,7 +209,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         // guarantee every user at least has ROLE_USER
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-        // $roles[] = 'ROLE_ADMIN';
+        $roles[] = 'ROLE_ADMIN';
         return array_unique($roles);
         // return $this->roles;
     }
@@ -123,7 +217,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->roles = $roles;
     }
-    public function eraseCredentials() {}
+    public function eraseCredentials(): void {}
     public function getUserIdentifier(): string
     {
         return $this->id;
@@ -213,14 +307,20 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = $flights;
     }
 
-    public function getOrganizations(): Collection
+    public function getOrgMembership(): Collection
     {
         return $this->OrgMembership;
     }
 
-    public function setOrganizations(Collection $organizations): void
+    public function addOrgMembership(Organization $organization): void
     {
-        $this->OrgMembership = $organizations;
+        if (!$this->OrgMembership->contains($organization)) {
+            $this->OrgMembership[] = $organization;
+        }
+    }
+    public function removeOrgMembership(Organization $organization): void
+    {
+        $this->OrgMembership->removeElement($organization);
     }
 
     public function getAdminOfOrg(): Collection
@@ -239,30 +339,22 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->AdminOfOrg->removeElement($organization);
     }
-
-    public function getOfferId(): ?string
+    public function getOfferIds(): array
     {
-        return $this->offerId;
+        return $this->offerIds;
     }
-
-    public function setOfferId(?string $offerId): void
+    public function addOfferIds($offerId): void
     {
-        $this->offerId = $offerId;
-    }
-
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvents(Event $event): void
-    {
-        if (!$this->events->contains($event)) {
-            $this->events[] = $event;
+        if (!in_array($offerId, $this->offerIds)) {
+            $this->offerIds[] = $offerId;
         }
     }
-    public function removeEvents(Event $event): void
+    public function removeOfferIds($offerId): void
     {
-        $this->events->removeElement($event);
+        $this->offerIds = array_diff($this->offerIds, [$offerId]);
+    }
+    public function resetOffers(): void
+    {
+        $this->offerIds = [];
     }
 }

@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity]
 #[ApiResource]
 // Access the budget through the org/event
-// this route should beused by the end user, who is 
+// this route should be used by the end user, who is 
 // viewing the budget they are allocated for the event.
 #[Get(
     uriTemplate: '/organizations/{orgId}/events/{eventId}/budget/{id}',
@@ -85,7 +85,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:budget']],
 )]
-/** An events budget, a subresource of events */
+/** 
+ * An events budget, a subresource of events
+ * Viewable by finance admins, org admins, and the user can only see allocated per person budget.
+ */
 class Budget
 {
     // Table setup

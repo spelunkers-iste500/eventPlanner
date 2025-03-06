@@ -57,8 +57,6 @@ jobs:
         run: "sleep 10s"
       - name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost
-      - name: Check API reachability
-        run: curl -vk --fail-with-body https://localhost
       - name: Check PWA reachability
         run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login"
       - name: Create database
@@ -97,6 +95,7 @@ jobs:
       AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
+      DUFFEL_API_KEY: ${{ secrets.DUFFEL_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

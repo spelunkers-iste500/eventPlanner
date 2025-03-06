@@ -158,3 +158,190 @@
 	padding: 0.5rem 1rem;
 	font-size: 0.875rem;
 }
+
+.dialog-content {
+	position: absolute;
+	top: 70%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 1rem;
+}
+
+.dialog-close {
+	background: none;
+	padding: 0;
+	color: var(--blue-400);
+	height: fit-content;
+	width: fit-content;
+	display: contents;
+
+	&:hover {
+		color: var(--blue-500);
+		background: none;
+	}
+}
+
+.dialog-img {
+	width: 100%;
+	height: 250px;
+	object-fit: cover;
+	object-position: center;
+	border-radius: 1rem 1rem 0 0;
+}
+
+.dialog-body {
+	padding: 1rem;
+}
+
+.dialog-body-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.dialog-org {
+	color: var(--gray-400);
+}
+
+.dialog-body-content {
+	display: flex;
+	justify-content: stretch;
+	gap: 1rem;
+}
+
+.dialog-details {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.5rem;
+}
+.dialog-details:first-child {
+	border-right: 2px solid var(--gray-200);
+}
+
+.dialog-details p {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.dialog-content {
+	position: absolute;
+	top: 70%;
+	left: 50%;
+	min-width: max-content;
+	transform: translate(-50%, -50%);
+	border-radius: 1rem;
+}
+
+.dialog-close {
+	background: none;
+	padding: 0;
+	color: var(--blue-400);
+	height: fit-content;
+	width: fit-content;
+	display: contents;
+
+	&:hover {
+		color: var(--blue-500);
+		background: none;
+	}
+}
+
+.dialog-img {
+	width: 100%;
+	height: 250px;
+	object-fit: cover;
+	object-position: center;
+	border-radius: 1rem 1rem 0 0;
+}
+
+.dialog-body {
+	padding: 1rem;
+}
+
+.dialog-body-header {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
+.dialog-org {
+	color: var(--gray-400);
+}
+
+.dialog-body-content {
+	display: flex;
+	justify-content: stretch;
+	gap: 1rem;
+}
+
+.dialog-details {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	gap: 0.5rem;
+}
+.dialog-details:first-child {
+	border-right: 2px solid var(--gray-200);
+}
+
+.dialog-details h3 {
+	margin-bottom: 0.25rem;
+}
+
+.dialog-details p {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+	gap: 0.5rem;
+}
+
+.dialog-airports {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+/* Add Event Card */
+.add-event-card {
+	flex-shrink: 0;
+	width: 300px;
+	border-radius: 12px;
+	box-shadow: var(--shadow-300);
+	background-color: var(--gray-100);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	cursor: pointer;
+	transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
+  }
+  
+  .add-event-card:hover {
+	/* background-color: var(--blue-300); */
+	backdrop-filter: blur(10px);
+  }
+  
+  /* Box inside the card */
+  .add-event-box {
+	width: 30%;
+	aspect-ratio: 1;
+	background-color: var(--gray-200);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.3s ease;
+  }
+  
+  .add-event-card:hover .add-event-box {
+	background-color: var(--blue-400);
+  }
+  
+  /* Plus Icon */
+  .plus-icon {
+	color: var(--gray-700);
+  }
+  

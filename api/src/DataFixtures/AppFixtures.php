@@ -10,6 +10,6 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        #TestingDataStory::load();
+        TestingDataStory::load();
     }
 }

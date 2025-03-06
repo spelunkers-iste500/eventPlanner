@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { Spinner } from '@chakra-ui/react';
-import { Flight, Offer, Passenger, Segment, Slice } from 'types/airports';
-import FlightSearch from './FlightSearch';
+import { Offer, Segment, Slice } from 'types/airports';
+import { ArrowLeft, MoveRight } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import axios from 'axios';
+import FlightSearch from './FlightSearch';
+import FlightBooking from './FlightBooking';
 import styles from './EventForm.module.css';
-import { ArrowLeft } from 'lucide-react';
 
 const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
@@ -16,19 +18,20 @@ const FlightResults: React.FC = () => {
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
-            let params = `${bookingData.destinationAirport}/${bookingData.originAirport}/${bookingData.departDate}`;
-            if (bookingData.isRoundTrip) {
-                params += `/${bookingData.returnDate}`;
-            }
-
-            axios.get(`/flight_offers/search/${params}/${bookingData.maxConnections}`, {
+            axios.post(`/flight_offers`, {
+                origin: bookingData.originAirport,
+                destination: bookingData.destinationAirport,
+                departureDate: bookingData.departDate,
+                returnDate: (bookingData.isRoundTrip) ? bookingData.returnDate : null,
+                maxConnections: 1,
+            }, {
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/ld+json',
+                    'accept': 'application/ld+json',
                 }
             })
             .then((response) => {
                 setFlightResults(response.data.offers);
-                console.log('Flight offers:', response.data);
                 setLoading(false);
             })
             .catch((error) => {
@@ -36,12 +39,11 @@ const FlightResults: React.FC = () => {
             });
         };
 
-
         fetchFlightOffers();
     }, [bookingData]);
 
-    const handleClick = (flight: Offer) => {
-        // proceed with booking
+    const handleClick = (offer: Offer) => {
+        setBookingData({ ...bookingData, selectedOffer: offer, content: <FlightBooking /> });
     };
 
     const onPrevious = () => {
@@ -50,6 +52,13 @@ const FlightResults: React.FC = () => {
 
     const showMoreResults = () => {
         setCurrentPage(currentPage + 1);
+    };
+
+    const formatDuration = (duration: string) => {
+        const match = duration.match(/PT(\d+H)?(\d+M)?/);
+        const hours = match && match[1] ? match[1].replace('H', 'h ') : '';
+        const minutes = match && match[2] ? match[2].replace('M', 'm') : '';
+        return `${hours}${minutes}`.trim();
     };
 
     const displayedResults = flightResults.slice(0, currentPage * resultsPerPage);
@@ -65,32 +74,53 @@ const FlightResults: React.FC = () => {
             </div>
 
             <div className={`${styles.flightResults}`}>
-                {loading ? <Spinner size="xl" color='var(--blue-500)' /> : (
+                {loading ? <Spinner size="xl" className={styles.spinner} color='var(--blue-500)' /> : (
                     <>
                         {displayedResults.map((offer: Offer, index: number) => (
                             <div className={styles.resultCard} key={index} onClick={() => handleClick(offer)}>
-                                <h3 className={styles.resultTitle}>{offer.owner.name}</h3>
-                                <img src={offer.owner.logo_symbol_url} alt={`${offer.owner.name} logo`} />
-                                <p>Price before tax: ${offer.base_amount}</p>
-                                <p>Price after tax: ${offer.total_amount}</p>
-                                <p>Passenger ID: {offer.passengers[0].id}</p>
-                                {offer.slices.map((slice: Slice, sliceIndex: number) => (
-                                    <div key={sliceIndex}>
-                                        <h4>{sliceIndex === 0 ? 'Departing Flight' : 'Returning Flight'}</h4>
-                                        <p>Origin: {slice.origin.iata_code}</p>
-                                        <p>Destination: {slice.destination.iata_code}</p>
-                                        {slice.segments.map((segment: Segment, segmentIndex: number) => (
-                                            <div key={segmentIndex}>
-                                                <h5>Flight Details</h5>
-                                                <p>Departure Date: {segment.departing_at}</p>
-                                                <p>Arrival Date: {segment.arriving_at}</p>
-                                                <p>Duration: {segment.duration}</p>
-                                                <p>Origin: {segment.origin.iata_code}</p>
-                                                <p>Destination: {segment.destination.iata_code}</p>
-                                            </div>
-                                        ))}
+                                
+                                <img className={styles.airlinerLogo} src={offer.owner.logo_symbol_url} alt={`${offer.owner.name} logo`} />
+                                <div className={styles.flightDetailsWrapper}>
+                                    <div className={styles.flightDetails}>
+                                        <div className={styles.flightInfo}>
+                                        {offer.slices.map((slice: Slice, sliceIndex: number) => (
+                                                <>
+                                                {slice.segments.map((segment: Segment, segmentIndex: number) => {
+                                                    const departureDate = parseISO(segment.departing_at);
+                                                    const arrivalDate = parseISO(segment.arriving_at);
+                                                    const fArrivalTime = format(arrivalDate, 'p');
+                                                    const fDepartDate = format(departureDate, 'MM/dd');
+                                                    const fDepartTime = format(departureDate, 'p');
+                                                    const fDuration = formatDuration(segment.duration);
+                                                    
+                                                    return (
+                                                        <div key={segmentIndex}>
+                                                            <h3 className='h5'>{sliceIndex === 0 ? 'Departing' : 'Returning'} {fDepartDate}</h3>
+                                                            <div className={styles.flightTime}>
+                                                                <p>{fDepartTime}</p>
+                                                                <span className={styles.timeDivider}></span>
+                                                                <p>{fArrivalTime}</p>
+                                                            </div>
+                                                            <div className={styles.flightRoute}>
+                                                                <p>{segment.origin.iata_code}</p>
+                                                                <MoveRight />
+                                                                <p>{segment.destination.iata_code}</p>
+                                                                <p>• {fDuration}</p>
+                                                            </div>
+                                                            
+                                                        </div>
+                                                    );
+                                                })}
+                                                </>
+                                            ))}
+                                        </div>
+                                        <div className={styles.flightPriceInfo}>
+                                            <p className={styles.flightPrice}>${offer.total_amount}</p>
+                                            <p className={styles.flightClass}>{offer.slices[0].segments[0].passengers[0].cabin_class_marketing_name}</p>
+                                        </div>
                                     </div>
-                                ))}
+                                    <p className={styles.airliner}>{offer.owner.name}</p>
+                                </div>
                             </div>
                         ))}
                         {currentPage * resultsPerPage < flightResults.length && (
@@ -104,27 +134,3 @@ const FlightResults: React.FC = () => {
 };
 
 export default FlightResults;
-
-const results = [
-    {
-        airline: 'United',
-        flightNumber: '1240',
-        date: 'Dec 4, 2024',
-        time: '4pm',
-        price: 320
-    },
-    {
-        airline: 'Jet Blue',
-        flightNumber: '3570',
-        date: 'Dec 4, 2024',
-        time: '4pm',
-        price: 334
-    },
-    {
-        airline: 'Delta',
-        flightNumber: '1287',
-        date: 'Dec 4, 2024',
-        time: '6pm',
-        price: 349
-    }
-];

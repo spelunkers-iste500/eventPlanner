@@ -40,8 +40,17 @@ class BudgetTest extends ApiTestCase
             
         ]);
         $json = $authresponse->toArray();
+        //create organization
+        $org = OrganizationFactory::createOne();
+        //create event
+        $event = EventFactory::new()->createOne(['organization' => $org]);
         // Create 50 Budgets using our factory
-        BudgetFactory::createMany(50);
+        BudgetFactory::createMany(50, function() use ($org) {
+            return [
+                'organization' => $org,
+                'event' => EventFactory::new()->createOne(['organization' => $org])
+            ];
+        });
         $startTime = microtime(true);
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
         $response = static::createClient()->request('GET', '/budgets',['auth_bearer' => $json['token']]);
@@ -99,7 +108,7 @@ class BudgetTest extends ApiTestCase
         //create organization
         $org = OrganizationFactory::createOne();
         //create event
-        $event = EventFactory::createOne();
+        $event = EventFactory::new()->createOne(['organization' => $org]);
         //get iris for event org and user
         $useriri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
         $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);

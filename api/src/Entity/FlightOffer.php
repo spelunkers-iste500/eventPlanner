@@ -5,35 +5,47 @@ namespace App\Entity;
 use ApiPlatform\Metadata\ApiResource;
 use App\State\DuffelOfferProvider;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use App\State\FlightOfferState;
+use DateTime;
+use DateTimeInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
-#[GetCollection(
-    provider: DuffelOfferProvider::class,
-    uriTemplate: '/flight_offers/search/{destination}/{origin}/{departureDate}/{maxConnections}.{_format}',
-    uriVariables: ['origin', 'destination', 'departureDate', 'maxConnections'],
-)]
-#[GetCollection(
-    provider: DuffelOfferProvider::class,
-    uriTemplate: '/flight_offers/search/{destination}/{origin}/{departureDate}/{returnDate}/{maxConnections}.{_format}',
-    uriVariables: ['origin', 'destination', 'departureDate', 'returnDate', 'maxConnections'],
-)]
 #[Get(
-    provider: DuffelOfferProvider::class,
+    provider: FlightOfferState::class,
+    // security: "is_granted('view', object)"
 )]
+#[Post(
+    processor: FlightOfferState::class,
+    securityPostDenormalize: "is_granted('book', object)",
+    normalizationContext: ['groups' => ['read:flightOffer']],
+    denormalizationContext: ['groups' => ['write:flightOffer']]
+)]
+
 class FlightOffer
 {
     #[ApiResource(identifier: true)]
-    public string $id;
+    #[Groups(['read:flightOffer'])]
+    public ?string $id;
+    #[Groups(['read:flightOffer', 'write:flightOffer'])]
     public string $origin;
+    #[Groups(['read:flightOffer', 'write:flightOffer'])]
     public string $destination;
-    public string $departureDate;
-    public ?string $returnDate;
-    public array $offers;
-    public array $slices;
-    public array $passengers;
+    #[Groups(['read:flightOffer', 'write:flightOffer'])]
+    public DateTimeInterface $departureDate;
+    #[Groups(['read:flightOffer', 'write:flightOffer'])]
+    public ?DateTimeInterface $returnDate = null;
+    #[Groups(['read:flightOffer'])]
+    public ?array $offers;
+    #[Groups(['read:flightOffer'])]
+    public ?array $slices;
+    #[Groups(['read:flightOffer'])]
+    public ?string $passengerId;
+    #[Groups(['read:flightOffer', 'write:flightOffer'])]
+    public int $maxConnections;
 
-    public function __construct(string $origin, string $destination, string $departureDate, string $offerId, array $offers, array $slices, array $passengers, ?string $returnDate = null)
+    public function __construct(string $origin, string $destination, DateTimeInterface $departureDate, ?array $offers = null, ?array $slices = null, ?string $passengerId = null, int $maxConnections = 1, ?DateTimeInterface $returnDate = null, ?string $offerId = null,)
     {
         $this->origin = $origin;
         $this->destination = $destination;
@@ -42,7 +54,8 @@ class FlightOffer
         $this->id = $offerId;
         $this->offers = $offers;
         $this->slices = $slices;
-        $this->passengers = $passengers;
+        $this->passengerId = $passengerId;
+        $this->maxConnections = $maxConnections;
     }
 
     public function getId(): string
