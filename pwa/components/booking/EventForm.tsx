@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
-import { Event, formatDate, formatTime } from 'types/events';
+import { Event, formatDate, formatTime } from 'Types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { useBooking } from 'Utils/BookingProvider';
