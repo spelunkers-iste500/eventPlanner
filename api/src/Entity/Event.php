@@ -8,9 +8,14 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use App\State\EventStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
@@ -41,15 +46,31 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']]
 )]
 #[Post(
-    security: "is_granted('edit', object)",
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
 )]
 #[GetCollection(
-    security: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     normalizationContext: ['groups' => ['read:event']]
 )]
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    denormalizationContext: ['groups' => ['write:event']]
+)]
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/addAttendees.{_format}',
+    denormalizationContext: ['groups' => ['add:event:attendees']],
+    processor: EventStateProcessor::class
+)]
+/**
+ * The events that are organized by organizations.
+ */
 class Event
 {
     #[ORM\Id]
@@ -105,19 +126,55 @@ class Event
     public Budget $budget;
 
     //Event -> User (attendees)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'events')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
+    #[ORM\JoinTable(name: 'events_attendees')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $attendees;
+    private Collection $attendees;
+
+    public function getAttendees(): Collection
+    {
+        return $this->attendees;
+    }
+    public function addAttendees(User $attendee): self
+    {
+        if (!$this->attendees->contains($attendee)) {
+            $this->attendees[] = $attendee;
+        }
+        return $this;
+    }
+    public function removeAttendees(User $attendee): self
+    {
+        $this->attendees->removeElement($attendee);
+        return $this;
+    }
+    public function setAttendees(array $attendees): self
+    {
+        $this->attendees = new ArrayCollection($attendees);
+        return $this;
+    }
+
+    public function addAttendeeCollection(array $attendees): self
+    {
+        $this->attendees = new ArrayCollection(
+            array_unique(
+                array_merge(
+                    $this->attendees->toArray(),
+                    $attendees
+                )
+            )
+        );
+        return $this;
+    }
 
     //Event -> User (finance admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $financeAdmins;
+    private Collection $financeAdmins;
 
     //Event -> User (event admins)
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'adminOfEvents')]
     #[Groups(['read:event', 'write:event'])]
-    public Collection $eventAdmins;
+    private Collection $eventAdmins;
 
     public function __construct()
     {
@@ -125,6 +182,7 @@ class Event
         $this->createdDate = new \DateTime();
         $this->attendees = new ArrayCollection();
         $this->financeAdmins = new ArrayCollection();
+        $this->eventAdmins = new ArrayCollection();
     }
 
     public function getId(): int
@@ -158,22 +216,7 @@ class Event
         $this->organization = $organization;
         return $this;
     }
-    public function getAttendees(): Collection
-    {
-        return $this->attendees;
-    }
-    public function addAttendees(User $attendee): self
-    {
-        if (!$this->attendees->contains($attendee)) {
-            $this->attendees[] = $attendee;
-        }
-        return $this;
-    }
-    public function removeAttendees(User $attendee): self
-    {
-        $this->attendees->removeElement($attendee);
-        return $this;
-    }
+
     public function getFinanceAdmins(): Collection
     {
         return $this->financeAdmins;
