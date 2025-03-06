@@ -1,7 +1,7 @@
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { Event, formatDate, formatTime } from "types/events";
-import { Calendar, Plane } from "lucide-react";
+import { Calendar, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
 
 // Define types for the Card component props
 interface CardProps {
@@ -28,13 +28,13 @@ const Card: React.FC<CardProps> = ({ event, buttonText, onClick }) => {
         
                         {event.startFlightBooking && buttonText !== "Book Now" && (
                             <div className={styles.cardRow}>
-                                <Plane size={16} />
+                                <PlaneTakeoff size={16} />
                                 {formatDate(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
                             </div>
                         )}
                         {event.endFlightBooking && buttonText !== "Book Now" && (
                             <div className={styles.cardRow}>
-                                <Plane size={16} />
+                                <PlaneLanding size={16} />
 								{formatDate(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
                             </div>
                         )}

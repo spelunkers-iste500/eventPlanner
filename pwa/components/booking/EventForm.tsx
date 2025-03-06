@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
-import { Event } from 'types/events';
+import { Event, formatDate, formatTime } from 'types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { useBooking } from 'Utils/BookingProvider';
@@ -40,7 +40,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 			<div className={styles.eventInfo}>
 				<h1>{bookingData.event.eventTitle}</h1>
 				<h2 className='h4'>{bookingData.event.organization}</h2>
-				<p>{bookingData.event.startDateTime} - {bookingData.event.endDateTime}</p>
+				<p>{formatDate(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
 			</div>
 
 			<div className={styles.formCard}>
