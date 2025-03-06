@@ -10,7 +10,7 @@ services:
       MERCURE_SUBSCRIBER_JWT_KEY: ${CADDY_MERCURE_JWT_SECRET}
       DUFFEL_BEARER: ${DUFFEL_BEARER}
     volumes:
-      - /certs:/certs
+      - /certs/staging.spelunkers.xeanto.us:/certs
 
   pwa:
     build:
