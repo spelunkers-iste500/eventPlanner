@@ -8,7 +8,7 @@
 
 {$CADDY_EXTRA_CONFIG}
 
-{$SERVER_NAME:localhost} {
+{$SERVER_NAME:localhost}, php:80 {
 	log {
 		# Redact the authorization query parameter that can be set by Mercure
 		format filter {
@@ -60,8 +60,4 @@
 	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
 	php_server
-}
-
-php:80 {
-	reverse_proxy {$SERVER_NAME:localhost}
 }
