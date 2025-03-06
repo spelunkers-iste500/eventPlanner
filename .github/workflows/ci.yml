@@ -116,6 +116,7 @@ jobs:
           echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
+          echo "DUFFEL_BEARER=${DUFFEL_API_KEY}" >> api/.env
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
           docker compose down -v && docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
