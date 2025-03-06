@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use App\State\EventStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
@@ -60,6 +61,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['write:event']]
+)]
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/addAttendees.{_format}',
+    denormalizationContext: ['groups' => ['add:event:attendees']],
+    processor: EventStateProcessor::class
 )]
 /**
  * The events that are organized by organizations.
@@ -143,6 +150,19 @@ class Event
     public function setAttendees(array $attendees): self
     {
         $this->attendees = new ArrayCollection($attendees);
+        return $this;
+    }
+
+    public function addAttendeeCollection(array $attendees): self
+    {
+        $this->attendees = new ArrayCollection(
+            array_unique(
+                array_merge(
+                    $this->attendees->toArray(),
+                    $attendees
+                )
+            )
+        );
         return $this;
     }
 

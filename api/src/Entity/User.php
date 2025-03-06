@@ -10,6 +10,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
+use App\State\CurrentUserProvider;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
@@ -25,6 +26,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/users/{id}/offers.{_format}',
     requirements: ['id' => '\d+'],
     // normalizationContext: ['groups' => ['user:read:offers']]
+)]
+#[Get(
+    // security: "is_granted('view', object)",
+    uriTemplate: '/users/me.{_format}',
+    provider: CurrentUserProvider::class
+    // @TODO: decide on the normalization context for this route
+    // normalizationContext: ['groups' => ['user:read:me']]
+    // normalizationContext: ['groups' => ['user:read:events']]
 )]
 #[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]

@@ -50,10 +50,9 @@ class UserRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('u')
             ->join('u.eventsAttending', 'e')
             ->where('u.id = :id')
-            // ->andWhere('e.startDateTime <= :currentDate')
-            // ->andWhere('e.endDateTime >= :currentDate')
+            ->andWhere('e.endDateTime >= :currentDate')
             ->setParameter('id', $id)
-            // ->setParameter('currentDate', new \DateTime())
+            ->setParameter('currentDate', new \DateTime())
             ->getQuery();
 
         return $qb->getResult();
@@ -64,7 +63,6 @@ class UserRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('u')
             ->join('u.eventsAttending', 'e')
             ->where('u.id = :id')
-            // ->andWhere('e.startDateTime <= :currentDate')
             ->andWhere('e.endDateTime >= :currentDate')
             ->setParameter('id', $id)
             ->setParameter('currentDate', new \DateTime())

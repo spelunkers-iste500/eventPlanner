@@ -54,7 +54,7 @@ final class DuffelOrderState implements ProcessorInterface, ProviderInterface
      * @param Operation $operation the operation being performed
      * @param array $uriVariables uri variables if any
      */
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): FlightOrder|null
     {
         // data object will be a flight order
         if (!isset($this->token)) {
@@ -157,8 +157,9 @@ final class DuffelOrderState implements ProcessorInterface, ProviderInterface
             ]
         );
 
-        if ($response->getStatusCode() !== 200) {
-            throw new \Exception("Error creating order: " . $response->getContent(false));
+
+        if ($response->getStatusCode() > 204) {
+            throw new \Exception("Error creating order: " . $response->getStatusCode());
         }
 
         $responseData = $response->toArray();
@@ -180,7 +181,7 @@ final class DuffelOrderState implements ProcessorInterface, ProviderInterface
             phone_number: $phoneNum
         );
 
-        $flightOrder->setData(json_encode($responseData));
+        $flightOrder->setData(json_decode($responseData));
 
         // Example: Budget validation and updating
         // Fetch the budget (assuming only one budget exists)

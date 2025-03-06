@@ -11,19 +11,12 @@ use App\State\DuffelOrderState;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
-#[GetCollection(
-    provider: DuffelOrderState::class,
-    uriTemplate: '/flight_orders/search/{offerId}/{passenger_id}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
-    uriVariables: ['offerId', 'passenger_id', 'title', 'gender', 'birthday', 'phone_number'],
-)]
-#[GetCollection(
-    provider: DuffelOrderState::class,
-    uriTemplate: '/flight_orders/search/{offerId}/{passenger_id}/{title}/{gender}/{email}/{birthday}/{phone_number}.{_format}',
-    uriVariables: ['offerId', 'passenger_id', 'title', 'gender', 'birthday', 'phone_number'],
+#[Get(
+    provider: DuffelOrderProvider::class,
+    security: "is_granted('view', object)"
 )]
 #[Post(
     processor: DuffelOrderState::class,
-    normalizationContext: ['groups' => ['read:flightOrder']],
     denormalizationContext: ['groups' => ['write:flightOrder']]
 )]
 
