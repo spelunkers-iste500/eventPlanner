@@ -39,6 +39,10 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
+            return null;
+        }
         if (isset(
             $uriVariables['id']
         ) && (str_contains($uriVariables['id'], 'orq'))) // if the id is set, then we know we are looking for a specific flight offer 
@@ -58,6 +62,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
     {
         // data object will be a flight order
         if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
             return null;
         }
         // check if offer id is in the users offer id array
