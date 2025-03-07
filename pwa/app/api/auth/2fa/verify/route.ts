@@ -3,6 +3,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 import speakeasy from "speakeasy";
+import { pool } from "Utils/auth";
 
 import { auth } from 'Utils/auth';
 
@@ -19,10 +20,8 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
     // 1. Verifying during LOGIN
     if (!session) {
 
-        let decrypted_secret = await decrypt(secret)  // Have a function to decrypt your secret key
-
         const verified = speakeasy.totp.verify({
-            secret: decrypted_secret, // Secret Key
+            secret: secret, // Secret Key
             encoding: "base32",
             token: token,   // OTP Code
         });
@@ -39,6 +38,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         });
 
         if (verified) {
+            pool.query('UPDATE users SET otp_secet = $1 WHERE id = $2', [secret, session.id]);
             // save the secret in your database
             // Don't forget to encrypt it
         }

@@ -10,7 +10,12 @@ export async function GET() {
     });
 
     if (!secret) return Response.json({
-        message: "Failed to generate secret", status: 500});
+        message: "Failed to generate secret", status: 500
+    });
+    
+    if (!secret.otpauth_url) return Response.json({
+        message: "No otpauth_url", status: 500
+    });
 
     const data = await QRCode.toDataURL(secret.otpauth_url);
 

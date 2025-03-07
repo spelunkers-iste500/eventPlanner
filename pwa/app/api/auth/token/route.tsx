@@ -11,6 +11,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(new URL("/login", request.url.replace(':3000','')));
         // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    return new Response("OK", { status: 200 });
     const dbQueryResult = await pool.query('SELECT "providerAccountId" FROM accounts WHERE "userId" = $1', [session.user.id]);
     const providerAccountId = dbQueryResult.rows[0].providerAccountId;
     const apiResponse = await axios.post('http://php/auth', {

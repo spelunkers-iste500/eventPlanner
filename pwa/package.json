@@ -21,6 +21,7 @@
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
     "base64url": "^3.0.1",
+    "bcrypt": "^5.1.1",
     "chakra-react-select": "^6.0.1",
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
@@ -47,6 +48,7 @@
   "devDependencies": {
     "@babel/core": "^7.26.9",
     "@popperjs/core": "^2.11.8",
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20.17.19",
     "@types/pg": "^8.11.11",
     "@types/qrcode": "^1.5.5",

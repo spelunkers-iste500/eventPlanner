@@ -8,22 +8,26 @@ security:
         users:
             entity:
                 class: App\Entity\User
-                property: id
+                property: email
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        login:
+            pattern: ^/auth
+            stateless: true
+            json_login:
+                check_path: /auth
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
         main:
             stateless: true
             provider: users
             lazy: true
-            json_login:
-                check_path: auth
-                username_path: id
-                password_path: token
-                success_handler: lexik_jwt_authentication.handler.authentication_success
-                failure_handler: lexik_jwt_authentication.handler.authentication_failure
             jwt: ~
 
             # activate different ways to authenticate
@@ -37,6 +41,7 @@ security:
     # Public access first, then restricted access
     access_control:
         - { path: ^/auth, roles: PUBLIC_ACCESS }
+        - { path: ^/docs, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/organizations, roles: IS_AUTHENTICATED_FULLY }
         # - { path: ^/budgets, roles: IS_AUTHENTICATED_FULLY }

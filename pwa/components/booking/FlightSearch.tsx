@@ -7,6 +7,7 @@ import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 interface SelectOption {
     label: string;
@@ -15,7 +16,8 @@ interface SelectOption {
 
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
-
+    const { data: session } = useSession();
+    console.log('Session:', session);
     const [formData, setFormData] = useState({
         trip: 'round-trip',
         origin: '',
@@ -44,7 +46,7 @@ const FlightSearch: React.FC = () => {
 
     const fetchAirports = async (input: string, callback: (options: SelectOption[]) => void) => {
         try {
-            const response = await axios.get(`/places/search/${input}`);
+            const response = await axios.get(`/places/search/${input}`, { headers: { 'Authorization': `Bearer ${session.apiToken}` } });
             const airports = response.data['hydra:member'].map((airport: any) => ({
                 label: `${airport.name} (${airport.iataCode})`,
                 value: airport.iataCode

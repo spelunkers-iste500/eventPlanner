@@ -46,11 +46,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this->id;
     }
     /**
-     * @return int $id The user ID
+     * @return string $id The user ID
      */
     public function getUserIdentifier(): string
     {
-        return $this->getId();
+        return $this->getEmail();
+    }
+    public function getUsername(): string
+    {
+        return $this->getEmail();
     }
 
     /**
@@ -109,7 +113,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
     #[Groups(['user:read', 'user:write'])]
-    private string $email;
+    public string $email;
 
     /**
      * @return string The email of the user
@@ -190,7 +194,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $phoneNumber The users phone number, in international format
      */
     #[ORM\Column(type: 'string', length: 13)]
-    #[Assert\Regex(pattern: '\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')]
+    // #[Assert\Regex(pattern: '\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')]
     #[Groups(['user:read', 'user:write'])]
     private string $phoneNumber;
 
@@ -221,7 +225,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     public function getPassword(): string
     {
-        return $this->getHashedPassword();
+        return "password";
+        // return $this->getHashedPassword();
     }
     /**
      * @param string $hashedPassword the hashed password of the user
@@ -457,6 +462,28 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
+     * @var string $otpSecret the secret for the two factor authentication
+     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $otpSecret = null;
+
+    /**
+     * @return string The secret for the two factor authentication
+     */
+    public function getOtpSecret(): ?string
+    {
+        return $this->otpSecret;
+    }
+    /**
+     * @param string $otpSecret The secret for the two factor authentication
+     * @return void
+     */
+    public function setOtpSecret(string $otpSecret): void
+    {
+        $this->otpSecret = $otpSecret;
+    }
+
+    /**
      * @var string $passengerId The passenger ID of the user, from the last flight_offer post
      */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -526,11 +553,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         string $phoneNumber,
         string $hashedPassword,
         \DateTimeInterface $birthday,
-        \DateTimeInterface $createdOn,
         string $title,
         string $gender,
         bool $emailVerified = false,
         bool $superAdmin = false,
+        ?\DateTimeInterface $createdOn = null,
         ?string $plainPassword = null,
         ?Collection $OrgMembership = new ArrayCollection(),
         ?Collection $AdminOfOrg = new ArrayCollection(),

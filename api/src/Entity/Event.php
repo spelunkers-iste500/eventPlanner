@@ -166,45 +166,16 @@ class Event
         return $this;
     }
 
-    //Event -> User (finance admins)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
-    #[Groups(['read:event', 'write:event'])]
-    private Collection $financeAdmins;
-
-    //Event -> User (event admins)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'adminOfEvents')]
-    #[Groups(['read:event', 'write:event'])]
-    private Collection $eventAdmins;
-
     public function __construct()
     {
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
         $this->attendees = new ArrayCollection();
-        $this->financeAdmins = new ArrayCollection();
-        $this->eventAdmins = new ArrayCollection();
     }
 
     public function getId(): int
     {
         return $this->id;
-    }
-
-    public function getEventAdmins(): Collection
-    {
-        return $this->eventAdmins;
-    }
-    public function addEventAdmins(User $eventAdmin): self
-    {
-        if (!$this->eventAdmins->contains($eventAdmin)) {
-            $this->eventAdmins[] = $eventAdmin;
-        }
-        return $this;
-    }
-    public function removeEventAdmins(User $eventAdmin): self
-    {
-        $this->eventAdmins->removeElement($eventAdmin);
-        return $this;
     }
 
     public function getOrganization(): Organization
@@ -214,23 +185,6 @@ class Event
     public function setOrganization(Organization $organization): self
     {
         $this->organization = $organization;
-        return $this;
-    }
-
-    public function getFinanceAdmins(): Collection
-    {
-        return $this->financeAdmins;
-    }
-    public function addFinanceAdmins(User $financeAdmin): self
-    {
-        if (!$this->financeAdmins->contains($financeAdmin)) {
-            $this->financeAdmins[] = $financeAdmin;
-        }
-        return $this;
-    }
-    public function removeFinanceAdmins(User $financeAdmin): self
-    {
-        $this->financeAdmins->removeElement($financeAdmin);
         return $this;
     }
     public function getBudget(): Budget
