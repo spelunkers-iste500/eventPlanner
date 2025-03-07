@@ -62,12 +62,12 @@
 	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
 	php_server
-}
-
-http://php:80 {
-	reverse_proxy https://{$SERVER_NAME} {
-		        transport http {
-                        tls_insecure_skip_verify
-                }
-        }
 	}
+
+php:80 {
+		reverse_proxy https://localhost:443 {
+			transport http {
+				tls_insecure_skip_verify
+			}
+		}
+}
