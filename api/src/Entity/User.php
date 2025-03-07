@@ -417,6 +417,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
+     * @var Collection $primaryContactOfOrg The organizations the user is the primary contact of
+     */
+    #[ORM\OneToMany(targetEntity: Organization::class, mappedBy: 'primaryContact')]
+    private Collection $primaryContactOfOrg;
+
+    /**
      * @var \DateTimeInterface The date the user was created
      */
     #[ORM\Column(type: 'datetime')]

@@ -8,13 +8,14 @@ import axios from 'axios';
 import FlightSearch from './FlightSearch';
 import FlightBooking from './FlightBooking';
 import styles from './EventForm.module.css';
-
+import { useSession } from 'next-auth/react';
 const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const [ flightResults, setFlightResults ] = useState<Offer[]>([]);
     const [ loading, setLoading ] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const resultsPerPage = 10;
+    const { data: session } = useSession();
 
     useEffect(() => {
         const fetchFlightOffers = async () => {
@@ -28,6 +29,7 @@ const FlightResults: React.FC = () => {
                 headers: {
                     'Content-Type': 'application/ld+json',
                     'accept': 'application/ld+json',
+                    'Authorization': `Bearer ${session.apiToken}`
                 }
             })
             .then((response) => {

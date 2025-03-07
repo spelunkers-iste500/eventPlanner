@@ -58,13 +58,14 @@ class UserRepository extends ServiceEntityRepository
         return $qb->getResult();
     }
 
-    public function doesUserHaveCurrentEvents(int $id): bool
+    public function doesUserHaveCurrentEvents(int|string $id): bool
     {
+
         $qb = $this->createQueryBuilder('u')
             ->join('u.eventsAttending', 'e')
-            ->where('u.id = :id')
+            ->where((is_int($id)) ? 'u.id = :id' : 'u.email = :email')
             ->andWhere('e.endDateTime >= :currentDate')
-            ->setParameter('id', $id)
+            ->setParameter((is_int($id)) ? 'id' : 'email', $id)
             ->setParameter('currentDate', new \DateTime())
             ->getQuery();
 

@@ -17,7 +17,6 @@ interface SelectOption {
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
-    console.log('Session:', session);
     const [formData, setFormData] = useState({
         trip: 'round-trip',
         origin: '',
@@ -51,7 +50,6 @@ const FlightSearch: React.FC = () => {
                 label: `${airport.name} (${airport.iataCode})`,
                 value: airport.iataCode
             }));
-            console.log('Airports:', airports);
             callback(airports);
         } catch (error) {
             console.error('Error fetching airports:', error);
