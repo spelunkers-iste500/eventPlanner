@@ -31,7 +31,7 @@ final readonly class UserPasswordHasher implements ProcessorInterface
             $data,
             $data->getPlainPassword()
         );
-        $data->setPassword($hashedPassword);
+        $data->setHashedPassword($hashedPassword);
         $data->eraseCredentials();
 
         return $this->processor->process($data, $operation, $uriVariables, $context);
