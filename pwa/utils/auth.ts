@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import NextAuth, {User} from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import axios from "axios"
 // import PostgresAdapter from "./PostgresAdapter"
@@ -15,6 +15,31 @@ export const pool = new Pool({
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 2000,
 });
+
+declare module "next-auth" {
+    interface Session {
+        id: number;
+        email: string;
+        apiToken: string;
+        secondFactor: boolean;
+    }
+    interface User {
+        username: string;
+        token: string;
+        secondFactor: boolean;
+    }
+    interface Credentials {
+        email: string;
+        password: string;
+        otp: string;
+    }
+    interface JWT {
+        id: number;
+        email: string;
+        apiToken: string;
+        secondFactor: boolean;
+    }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -63,7 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const verified = speakeasy.totp.verify({
                     secret: dbQuery.rows[0].otp_secret, // Secret Key
                     encoding: "base32",
-                    token: credentials.otp,   // OTP Code
+                    token: credentials.otp as string,   // OTP Code
                 });
                 // const verified = true;
                 if (!verified) {
@@ -72,7 +97,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 const apiToken = authResponse.data.token
                 // return authResponse.status
-                return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false };
+                const user = { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false };
+                return user as User;
+                // return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false };
             }
         }),
         Credentials({
@@ -105,7 +132,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 const dbQuery = await pool.query("SELECT users.id FROM users WHERE email = $1", [credentials.email]);
 
                 const apiToken = authResponse.data.token
-                return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: false };
+                return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: false } as User;
             }
         }
     )
@@ -118,10 +145,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async session({ session, token }) {
             // console.log('Session callback: ', session, token);
             if (token) {
-                session.id = token.id;
-                session.email = token.email;
-                session.apiToken = token.apiToken;
-                session.secondFactor = token.secondFactor;
+                session.id = token.id as number;
+                session.email = token.email as string;
+                session.apiToken = token.apiToken as string;
+                session.secondFactor = token.secondFactor as boolean;
             }
             return session;
         },

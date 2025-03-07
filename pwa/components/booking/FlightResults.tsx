@@ -16,6 +16,9 @@ const FlightResults: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const resultsPerPage = 10;
     const { data: session } = useSession();
+    if (!session) {
+        return null;
+    }
 
     useEffect(() => {
         const fetchFlightOffers = async () => {

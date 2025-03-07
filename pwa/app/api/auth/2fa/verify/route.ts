@@ -1,6 +1,6 @@
 // https://medium.com/@farmaan30327/two-factor-authentication-with-nextjs-6a51299e5deb
 
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 import speakeasy from "speakeasy";
 import { pool } from "Utils/auth";
@@ -17,24 +17,7 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
         return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Here, we have to implement 2 strategies
-    // 1. Verifying during LOGIN
-    // 2. Enabling 2FA for the first time
-
-    // 1. Verifying during LOGIN
-    // if (!session) {
-
-    //     const verified = speakeasy.totp.verify({
-    //         secret: secret, // Secret Key
-    //         encoding: "base32",
-    //         token: token,   // OTP Code
-    //     });
-
-    //     return Response.json({ verified });
-
-    // } else {
-
-    // 2. Enabling 2FA for the first time
+    // if (session.otp_secret) {
         const verified = speakeasy.totp.verify({
             secret: secret, // Secret Key
             encoding: "base32",

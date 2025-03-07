@@ -17,6 +17,7 @@ interface SelectOption {
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
+    if (!session) return null;
     const [formData, setFormData] = useState({
         trip: 'round-trip',
         origin: '',
