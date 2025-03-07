@@ -1,12 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
-import Input from 'Components/common/Input';
-import { Select } from 'chakra-react-select';
-import { Airport } from 'types/airports';
+import { AsyncSelect, Select } from 'chakra-react-select';
 import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
+import axios from 'axios';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { Calendar } from 'lucide-react';
 
-const AirportSearch: React.FC = () => {
+interface SelectOption {
+    label: string;
+    value: string;
+}
+
+const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
 
     const [formData, setFormData] = useState({
@@ -21,28 +28,55 @@ const AirportSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // make request to API to fetch relevant flight results and switch to results page
         setBookingData({
             ...bookingData,
             isRoundTrip: formData.trip === 'round-trip',
-            departAirport: formData.origin,
-            returnAirport: formData.destination,
+            originAirport: formData.origin,
+            destinationAirport: formData.destination,
             departDate: formData.departDate,
             returnDate: formData.returnDate,
+            maxConnections: 1,
             content: <FlightResults />
         });
     };
+    
+    const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    useEffect(() => {
-        if (formData.originInput.length >= 3) {
-            console.log('Fetching origin airports for:', formData.originInput);
+    const fetchAirports = async (input: string, callback: (options: SelectOption[]) => void) => {
+        try {
+            const response = await axios.get(`/places/search/${input}`);
+            const airports = response.data['hydra:member'].map((airport: any) => ({
+                label: `${airport.name} (${airport.iataCode})`,
+                value: airport.iataCode
+            }));
+            console.log('Airports:', airports);
+            callback(airports);
+        } catch (error) {
+            console.error('Error fetching airports:', error);
+            callback([]);
         }
-        if (formData.destinationInput.length >= 3) {
-            console.log('Fetching destination airports for:', formData.destinationInput);
+    };
+
+    const loadOptions = (inputValue: string, callback: (options: SelectOption[]) => void) => {
+        if (debounceTimeout.current) {
+            clearTimeout(debounceTimeout.current);
         }
-        // fetch list of airports using value of origin and destination
-        // setAirportLocations(airports);
-    }, [formData.originInput, formData.destinationInput]); 
+
+        debounceTimeout.current = setTimeout(() => {
+            if (inputValue.length >= 2) {
+                fetchAirports(inputValue, callback);
+            } else {
+                callback([]);
+            }
+        }, 120);
+    };
+
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
+    const formatDate = (date: Date | null) => {
+        return date ? date.toISOString().split('T')[0] : '';
+    };
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
@@ -57,69 +91,92 @@ const AirportSearch: React.FC = () => {
                     size="md"
                     isSearchable={false}
                     defaultValue={{ label: 'Round Trip', value: 'round-trip' }}
-                    className={`select-menu ${styles.selectMenu}`}
+                    className={`select-menu ${styles.tripType}`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
                 />
             </div>
 
-            <div className='input-container'>
-                <label className='input-label'>Origin</label>
-                <Select
-                    options={airportLocations}
-                    placeholder="Where From?"
-                    size="md"
-                    className={`select-menu ${styles.selectMenu}`}
-                    classNamePrefix={'select'}
-                    onChange={(value) => setFormData({ ...formData, origin: value?.value || '' })}
-                    onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
-                />
+            <div className={styles.originDestination}>
+                <div className='input-container'>
+                    <label className='input-label'>Origin</label>
+                    <AsyncSelect
+                        loadOptions={loadOptions}
+                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        placeholder="Where from?"
+                        size="md"
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                        onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
+                        onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
+                    />
+                </div>
+    
+                <div className='input-container'>
+                    <label className='input-label'>Destination</label>
+                    <AsyncSelect
+                        loadOptions={loadOptions}
+                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        placeholder="Where to?"
+                        size="md"
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                        onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
+                        onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
+                    />
+                </div>
             </div>
 
             <div className='input-container'>
-                <label className='input-label'>Destination</label>
-                <Select
-                    options={airportLocations}
-                    placeholder="Where to?"
-                    size="md"
-                    className={`select-menu ${styles.selectMenu}`}
-                    classNamePrefix={'select'}
-                    onChange={(value) => setFormData({ ...formData, destination: value?.value || '' })}
-                    onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
-                />
+                <label className='input-label'>{formData.trip === 'round-trip' ? 'Departure - Return Dates' : 'Departure Date'}</label>
+                {formData.trip === 'round-trip' ? (
+                    // round trip date picker
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        endDate={endDate}
+                        minDate={new Date()}
+                        onChange={(dates) => {
+                            const [start, end] = dates;
+                            setStartDate(start);
+                            setEndDate(end);
+                            setFormData({ 
+                                ...formData, 
+                                departDate: formatDate(start), 
+                                returnDate: formatDate(end) 
+                            });
+                        }}
+                        selectsRange
+                        showMonthDropdown
+                        placeholderText="Select date range"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        showIcon
+                        icon={<Calendar size={32} />}
+                    />
+                ) : (
+                    // one way date picker
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        minDate={new Date()}
+                        onChange={(date) => {
+                            setStartDate(date);
+                            setFormData({ ...formData, departDate: formatDate(date)})}
+                        }
+                        showMonthDropdown
+                        placeholderText="Select a date"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        showIcon
+                        icon={<Calendar size={32} />}
+                    />
+                )}
             </div>
-
-            <Input
-                type='date'
-                label='Departure Date'
-                placeholder='mm/dd/yyyy'
-                onChange={(value) => setFormData({ ...formData, departDate: value })}
-            />
-            
-            {formData.trip === 'round-trip' && (
-                <Input
-                    type='date'
-                    label='Return Date'
-                    placeholder='mm/dd/yyyy'
-                    onChange={(value) => setFormData({ ...formData, returnDate: value })}
-                />
-            )}
 
             <button type="submit">Search</button>
         </form>
     );
 };
 
-export default AirportSearch;
-
-const airportLocations = [
-    { label: 'Atlanta, GA (ATL)', value: 'ATL' },
-    { label: 'Chicago, IL (ORD)', value: 'ORD' },
-    { label: 'Dallas, TX (DFW)', value: 'DFW' },
-    { label: 'Denver, CO (DEN)', value: 'DEN' },
-    { label: 'Los Angeles, CA (LAX)', value: 'LAX' },
-    { label: 'New York, NY (JFK)', value: 'JFK' },
-    { label: 'Orlando, FL (MCO)', value: 'MCO' },
-    { label: 'San Francisco, CA (SFO)', value: 'SFO' },
-    { label: 'Seattle, WA (SEA)', value: 'SEA' }
-];
+export default FlightSearch;

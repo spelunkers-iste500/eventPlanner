@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
                             </div>
                         ) : (
                             <div className={styles.signinOptions}>
-                                {error && <div className={styles.errorMsg}>{error}</div>}
+                                {error && <div className='error-msg'>{error}</div>}
                                 <form className={styles.loginSection} onSubmit={handleSubmit}>
                                     <Input label="Email" type="email" placeholder="Enter your email" onChange={handleChange} />
                                     <button type="submit" className={styles.signinBtn}>Sign in with email</button>

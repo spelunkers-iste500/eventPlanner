@@ -1,10 +1,11 @@
 'use client';
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSession, signIn } from "next-auth/react"; // import client side tools
 import { useContent } from "Utils/ContentProvider";
 import Container from "Components/common/Container";
 import Nav from "Components/nav/Nav";
 import { Toaster } from "Components/ui/toaster";
+import axios from 'axios';
 
 export interface ContentState {
 	name: string;
@@ -22,10 +23,31 @@ const App: React.FC = () => {
 		onUnauthenticated() {
 			if (signingIn.current) return; // stop executing for second flow
 			signingIn.current = true; // set flag to true for first
-			// router.push('/login');
 			signIn();
 		},
 	});
+	
+	// Fetch JWT token from server when authenticated
+    useEffect(() => {
+        const fetchToken = async () => {
+            try {
+                const response = await axios.get('/api/auth/token', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                console.log('JWT Token:', response.data.token);
+                // Store the token in local storage or state as needed
+            } catch (error) {
+                console.error('Error fetching token:', error);
+            }
+        };
+
+        if (status === 'authenticated') {
+            fetchToken();
+        }
+    }, [status, session]);
+
 
 	if (status === 'loading') {
         return <h2 className='loading'>Loading...</h2>;

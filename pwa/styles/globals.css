@@ -148,6 +148,7 @@ img {
     font-weight: 500;
     font-size: 1rem;
     background-color: var(--white);
+    gap: 0.5rem;
 }
 
 .select__control:focus-within {
@@ -168,4 +169,15 @@ img {
 
 .flight-search-form .input-container {
     max-width: 100%;
+}
+
+.react-datepicker__input-container svg {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.error-msg {
+    color: var(--red-400);
+    font-size: 0.8rem;
+    font-weight: 600;
 }

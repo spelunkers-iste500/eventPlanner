@@ -2,16 +2,15 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-<<<<<<< Updated upstream
 use ApiPlatform\Metadata\Post;
-=======
->>>>>>> Stashed changes
 use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
+use App\State\CurrentUserProvider;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
@@ -21,10 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Contracts\Service\ServiceCollectionInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource(
-    normalizationContext: ['groups' => ['user:read']],
-    denormalizationContext: ['groups' => ['user:write']],
-)]
+#[ApiResource]
 #[Get(security: "is_granted('view', object)")]
 #[Post(
     description: "Creates a new user. Users can only create if they're a platform admin",
@@ -39,118 +35,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: 'id', type: 'integer')]
-<<<<<<< Updated upstream
-    #[Groups(['user:read', 'user:write'])]
-    public int $id;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    // #[Assert\NotBlank]
-    #[Assert\Length(max: 255)]
-    #[Groups(['user:read', 'user:write'])]
-    public ?string $name = null;
-
-    #[ORM\Column(length: 255, unique: true)]
-    #[Assert\NotBlank]
-    #[Assert\Email]
-    #[Groups(['user:read', 'user:write'])]
-    public ?string $email = null;
-
-    #[ORM\Column(name: '"emailVerified"', type: 'datetime', nullable: true)]
-    public \DateTimeInterface $emailVerified;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
-    public ?string $image = null;
-
-    #[ORM\OneToOne(targetEntity: Account::class, mappedBy: 'user', cascade: ['all'])]
-    private Account $account;
-
-    #[ORM\Column(type: 'json', nullable: true)]
-    private ?array $roles = [];
-
-    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users")]
-    #[ORM\JoinTable(name: "users_flights")]
-    private Collection $flights;
-
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users')]
-    #[ORM\JoinTable(name: 'organizations_members')]
-    private Collection $OrgMembership;
-
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
-    #[ORM\JoinTable(name: 'organizations_admins')]
-    #[Groups(['user:read', 'user:write'])]
-    private Collection $AdminOfOrg;
-
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'attendees')]
-    #[Groups(['user:read', 'user:write'])]
-    private Collection $events;
-
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'eventAdmins')]
-    #[ORM\JoinTable(name: 'eventAdmins_events')]
-    // #[Groups(['user:read', 'user:write'])]
-    private Collection $adminOfEvents;
-
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins')]
-    #[JoinTable(name: 'organizations_finance_admins')]
-    private Collection $financeAdminOfOrg;
-
-    #[ORM\ManyToMany(targetEntity: Event::class, inversedBy: 'financeAdmins')]
-    #[JoinTable(name: 'events_finance_admins')]
-    private Collection $financeAdminOfEvents;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public ?\DateTimeInterface $lastModified = null;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public ?\DateTimeInterface $createdDate = null;
-
-    #[ORM\Column(type: 'string', nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
-    private ?string $offerId = null;
-
-    public function __construct()
-    {
-        $this->roles = [];
-        $this->flights = new ArrayCollection();
-        $this->OrgMembership = new ArrayCollection();
-        $this->AdminOfOrg = new ArrayCollection();
-        $this->events = new ArrayCollection();
-        $this->lastModified = new \DateTime();
-        $this->account = new Account($this);
-        $this->createdDate = new \DateTime();
-        $this->emailVerified = new \DateTime();
-    }
-
-    public function getRoles(): array
-    {
-        // guarantee every user at least has ROLE_USER
-        $roles = $this->roles;
-        $roles[] = 'ROLE_USER';
-        return array_unique($roles);
-        // return $this->roles;
-    }
-    public function setRoles(array $roles): void
-    {
-        $this->roles = $roles;
-    }
-    public function eraseCredentials() {}
-    public function getUserIdentifier(): string
-    {
-        return $this->id;
-    }
-    #[Groups(['user:write'])]
-    public function getPassword(): string
-    {
-        return $this->account->providerAccountId;
-    }
-    public function getAccount(): Account
-    {
-        return $this->account;
-    }
-=======
     #[Groups(['user:read', 'user:write', 'user:read:offers'])]
     private int $id;
->>>>>>> Stashed changes
 
     /**
      * @return int The user ID
@@ -270,113 +156,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'simple_array', nullable: true)]
     private array $offerIds;
 
-<<<<<<< Updated upstream
-    public function setImage(string $image): void
-    {
-        $this->image = $image;
-    }
-
-    public function getLastModified(): \DateTimeInterface
-    {
-        return $this->lastModified;
-    }
-
-    public function setLastModified(\DateTimeInterface $lastModified): void
-    {
-        $this->lastModified = $lastModified;
-    }
-
-    public function getCreatedDate(): \DateTimeInterface
-    {
-        return $this->createdDate;
-    }
-
-    public function setCreatedDate(\DateTimeInterface $createdDate): void
-    {
-        $this->createdDate = $createdDate;
-    }
-
-    public function getFlights(): Collection
-    {
-        return $this->flights;
-    }
-
-    public function setFlights(Collection $flights): void
-    {
-        $this->flights = $flights;
-    }
-
-    public function getOrganizations(): Collection
-    {
-        return $this->OrgMembership;
-    }
-
-    public function setOrganizations(Collection $organizations): void
-    {
-        $this->OrgMembership = $organizations;
-    }
-
-    public function getAdminOfOrg(): Collection
-    {
-        return $this->AdminOfOrg;
-    }
-
-    public function addAdminOfOrg(Organization $organization): void
-    {
-        if (!$this->AdminOfOrg->contains($organization)) {
-            $this->AdminOfOrg[] = $organization;
-        }
-    }
-
-    public function removeAdminOfOrg(Organization $organization): void
-    {
-        $this->AdminOfOrg->removeElement($organization);
-    }
-
-    public function getOfferId(): ?string
-=======
     /**
      * @return array The offers the user has access to book currently
      */
     public function getOfferIds(): array
->>>>>>> Stashed changes
     {
-        return $this->offerId;
+        return $this->offerIds;
     }
-<<<<<<< Updated upstream
-
-    public function setOfferId(?string $offerId): void
-=======
     /**
      * @param array $offerIds The offers the user has access to book currently
      * @return void
      */
     public function addOfferIds($offerId): void
->>>>>>> Stashed changes
     {
-        $this->offerId = $offerId;
-    }
-
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-
-    public function addEvents(Event $event): void
-    {
-        if (!$this->events->contains($event)) {
-            $this->events[] = $event;
+        if (!in_array($offerId, $this->offerIds)) {
+            $this->offerIds[] = $offerId;
         }
     }
-<<<<<<< Updated upstream
-    public function removeEvents(Event $event): void
-    {
-        $this->events->removeElement($event);
-=======
-    /**
-     * @param array $offerIds The offers the user has access to book currently
-     * @return void
-     */
     public function removeOfferIds($offerId): void
     {
         $this->offerIds = array_diff($this->offerIds, [$offerId]);
@@ -388,7 +184,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function resetOffers(): void
     {
         $this->offerIds = [];
->>>>>>> Stashed changes
     }
 
     /**

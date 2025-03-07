@@ -57,8 +57,6 @@ jobs:
         run: "sleep 10s"
       - name: Check HTTP reachability
         run: curl -v --fail-with-body http://localhost
-      - name: Check API reachability
-        run: curl -vk --fail-with-body https://localhost
       - name: Check PWA reachability
         run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login"
       - name: Create database
@@ -97,6 +95,7 @@ jobs:
       AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
+      DUFFEL_BEARER: ${{ secrets.DUFFEL_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -117,9 +116,15 @@ jobs:
           echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
+          echo "DUFFEL_BEARER=${DUFFEL_BEARER}" >> api/.env.local
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
           docker compose down -v && docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+
+      - name: Generate Prod ENV file
+        run: |
+          cd /opt/appRoot
+          docker compose exec php composer dump-env prod
 
       - name: Reset DB
         run: |

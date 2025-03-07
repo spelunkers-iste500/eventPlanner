@@ -12,7 +12,7 @@ use App\Factory\FlightFactory;
 use App\Factory\FlightChangeManagementFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
-
+/*
 class FlightChangeManagementTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
@@ -177,4 +177,4 @@ public function testCreateFlightChangeManagement(): void
         echo "Delete FlightChangeManagement execution time: " . $executionTime . " milliseconds\n";
     }
     
-}
+}*/

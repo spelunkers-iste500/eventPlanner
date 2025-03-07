@@ -1,9 +1,10 @@
+// Importing necessary libraries and components
 import React from "react";
 import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event } from "types/events";
+import { Event } from "Types/events";
 import { Stack, Text } from "@chakra-ui/react"
 import {
   AccordionItem,
@@ -13,46 +14,28 @@ import {
 } from "Components/ui/accordion"
 import { useState } from "react"
 
+// Defining the Dashboard component
 const Dashboard: React.FC = () => {
+  // Using the useSession hook to get the current session data
   const { data: session } = useSession();
+  // Defining a state variable to manage the accordion's value
   const [value, setValue] = useState(["current-events"]);
 
-  const events: Event[] = [
-    { id: 1, img: "/media/event_image.jpg", name: "Event Name", org: "Organization Name", eventDate: "2025-07-10T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 2, img: "/media/event_image.jpg", name: "Event Steff", org: "Organization Ethan", eventDate: "2024-04-15T09:00:00", departureDate: "2024-12-10T07:00:00" },
-    { id: 3, img: "/media/event_image.jpg", name: "Event Four", org: "Organization Three", eventDate: "2024-12-03T09:00:00" },
-    { id: 4, img: "/media/event_image.jpg", name: "Event Ethan", org: "Organization Steff", eventDate: "2025-01-25T09:00:00" },
-    { id: 5, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 6, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 7, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 8, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 9, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 10, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-    { id: 11, img: "/media/event_image.jpg", name: "Event Sixty", org: "Organization Sixty", eventDate: "2024-08-05T09:00:00", departureDate: "2024-12-06T17:00:00" },
-  ];
+  // Filtering events into current and past events based on the current date
+  const currentEvents = events.filter(event => new Date(event.startDateTime) > new Date());
+  const pastEvents = events.filter(event => new Date(event.startDateTime) <= new Date());
 
-  const currentEvents = events.filter(event => new Date(event.eventDate) > new Date());
-  const pastEvents = events.filter(event => new Date(event.eventDate) <= new Date());
-
-  const members = [
-    { firstName: "Casey", lastName: "Malley", email: "casey.malley@x3anto.com" },
-    { firstName: "Gavin", lastName: "Hunsinger", email: "gavin.hunsinger@x3anto.com" },
-    { firstName: "Ethan", lastName: "Logue", email: "ethan.logue@x3anto.com" },
-    { firstName: "Steffen", lastName: "Barr", email: "steffen.barr@x3anto.com" },
-    { firstName: "George", lastName: "Gabro", email: "george.gabro@x3anto.com" },
-    { firstName: "Eddie", lastName: "Brotz", email: "eddie.brotz@x3anto.com" },
-    { firstName: "Noelle", lastName: "Voelkel", email: "noelle.voelkel@x3anto.com" },
-  ];
-
+  // Defining items for the accordion, including current events, past events, and members list
   const items = [
     { value: "current-events", title: "Current Events", events: currentEvents },
     { value: "past-events", title: "Past Events", events: pastEvents },
     { value: "members-list", title: "Members List", events: [] },
   ]
 
+  // Returning the JSX for the dashboard
   return (
     <div className={styles.plannerDashboardContainer}>
-      <h1 className={styles.heading}>Welcome, {session?.user?.name}!</h1>
+      <h1>Welcome, {session?.user?.name}!</h1>
       
       <div className={styles.infoContainer}>
         <div className={styles.orgInfoBox}>
@@ -93,7 +76,7 @@ const Dashboard: React.FC = () => {
               {item.value === "members-list" ? (
                 <MemberList members={members} />
               ) : item.events.length > 0 ? (
-                <EventList heading={item.title} events={item.events} />
+                <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Current Events' && true} />
               ) : (
                 <Text>No events available</Text>
               )}
@@ -106,4 +89,90 @@ const Dashboard: React.FC = () => {
   );
 };
 
+// Exporting the Dashboard component as the default export
 export default Dashboard;
+
+    // Defining a list of dummy data events
+    const events: Event[] = [
+      { 
+          id: 1, 
+          eventTitle: "Event Name", 
+          startDateTime: "2025-07-10T09:00:00", 
+          endDateTime: "2025-07-10T17:00:00", 
+          startFlightBooking: "2024-12-06T09:00:00", 
+          endFlightBooking: "2024-12-10T17:00:00", 
+          location: "Location One", 
+          maxAttendees: 100, 
+          organization: "Organization Name", 
+          attendees: ["attendee1@example.com", "attendee2@example.com"], 
+          financeAdmins: ["financeAdmin1@example.com"], 
+          eventAdmins: ["eventAdmin1@example.com"] 
+      },
+      { 
+          id: 2, 
+          eventTitle: "Event Steff", 
+          startDateTime: "2024-04-15T09:00:00", 
+          endDateTime: "2024-04-15T17:00:00", 
+          startFlightBooking: "2024-12-10T09:00:00", 
+          endFlightBooking: "2024-12-15T17:00:00", 
+          location: "Location Two", 
+          maxAttendees: 150, 
+          organization: "Organization Ethan", 
+          attendees: ["attendee3@example.com", "attendee4@example.com"], 
+          financeAdmins: ["financeAdmin2@example.com"], 
+          eventAdmins: ["eventAdmin2@example.com"] 
+      },
+      { 
+          id: 3, 
+          eventTitle: "Event Four", 
+          startDateTime: "2024-12-03T09:00:00", 
+          endDateTime: "2024-12-03T17:00:00", 
+          startFlightBooking: "2024-12-01T09:00:00", 
+          endFlightBooking: "2024-12-04T17:00:00", 
+          location: "Location Three", 
+          maxAttendees: 200, 
+          organization: "Organization Three", 
+          attendees: ["attendee5@example.com", "attendee6@example.com"], 
+          financeAdmins: ["financeAdmin3@example.com"], 
+          eventAdmins: ["eventAdmin3@example.com"] 
+      },
+      { 
+          id: 4, 
+          eventTitle: "Event Ethan", 
+          startDateTime: "2025-01-25T09:00:00", 
+          endDateTime: "2025-01-25T17:00:00", 
+          startFlightBooking: "2025-01-23T09:00:00", 
+          endFlightBooking: "2025-01-26T17:00:00", 
+          location: "Location Four", 
+          maxAttendees: 250, 
+          organization: "Organization Steff", 
+          attendees: ["attendee7@example.com", "attendee8@example.com"], 
+          financeAdmins: ["financeAdmin4@example.com"], 
+          eventAdmins: ["eventAdmin4@example.com"] 
+      },
+      { 
+          id: 5, 
+          eventTitle: "Event Sixty", 
+          startDateTime: "2024-08-05T10:00:00", 
+          endDateTime: "2024-08-05T18:00:00", 
+          startFlightBooking: "2024-08-03T09:00:00", 
+          endFlightBooking: "2024-08-06T17:00:00", 
+          location: "Location Five", 
+          maxAttendees: 300, 
+          organization: "Organization Sixty", 
+          attendees: ["attendee9@example.com", "attendee10@example.com"], 
+          financeAdmins: ["financeAdmin5@example.com"], 
+          eventAdmins: ["eventAdmin5@example.com"] 
+      },
+  ];
+
+  // Defining a list of members
+  const members = [
+    { firstName: "Casey", lastName: "Malley", email: "casey.malley@x3anto.com" },
+    { firstName: "Gavin", lastName: "Hunsinger", email: "gavin.hunsinger@x3anto.com" },
+    { firstName: "Ethan", lastName: "Logue", email: "ethan.logue@x3anto.com" },
+    { firstName: "Steffen", lastName: "Barr", email: "steffen.barr@x3anto.com" },
+    { firstName: "George", lastName: "Gabro", email: "george.gabro@x3anto.com" },
+    { firstName: "Eddie", lastName: "Brotz", email: "eddie.brotz@x3anto.com" },
+    { firstName: "Noelle", lastName: "Voelkel", email: "noelle.voelkel@x3anto.com" },
+  ];

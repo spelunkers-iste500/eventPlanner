@@ -9,8 +9,8 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 final class BudgetVoter extends Voter
 {
-    public const EDIT = 'POST_EDIT';
-    public const VIEW = 'POST_VIEW';
+    public const EDIT = 'edit';
+    public const VIEW = 'view';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -44,7 +44,7 @@ final class BudgetVoter extends Voter
         return (
             // subject has a method to return all finance admins
             $subject->getFinanceAdmins()->contains($user) ||
-            in_array($user->getRoles(), ['ROLE_ADMIN'])
+            in_array('ROLE_ADMIN', $user->getRoles())
         );
     }
     private static function canView(UserInterface $user, Budget $subject): bool
@@ -60,7 +60,7 @@ final class BudgetVoter extends Voter
             $subject->getEvent()->getFinanceAdmins()->contains($user) ||
             $subject->getFinanceAdmins()->contains($user) ||
             $subject->getEvent()->getEventAdmins()->contains($user) ||
-            in_array($user->getRoles(), ['ROLE_ADMIN'])
+            in_array('ROLE_ADMIN', $user->getRoles())
         );
     }
 }
