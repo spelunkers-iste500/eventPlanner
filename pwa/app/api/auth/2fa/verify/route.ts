@@ -13,6 +13,10 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
 
     const session = await auth();
 
+    if (!session) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Here, we have to implement 2 strategies
     // 1. Verifying during LOGIN
     // 2. Enabling 2FA for the first time
