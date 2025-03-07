@@ -87,7 +87,7 @@ const TwoFactorModal = () => {
                 {/* OTP Input */}
                 <input
                   type="text"
-                  maxLength="6"
+                  maxLength={6}
                   value={otp}
                   onChange={handleOtpChange}
                 />
