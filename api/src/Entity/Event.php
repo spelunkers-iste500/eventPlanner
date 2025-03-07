@@ -208,4 +208,23 @@ class Event
         $this->eventTitle = $eventTitle;
         return $this;
     }
+<<<<<<< Updated upstream
+=======
+
+    public function getStartDateTime(): \DateTimeInterface
+    {
+        return $this->startDateTime;
+    }
+
+    // Getter for endDateTime
+    public function getEndDateTime(): \DateTimeInterface
+    {
+        return $this->endDateTime;
+    }
+    #[Groups(['read:event'])]
+    public function getTestField(): string
+    {
+        return 'test';
+    }
+>>>>>>> Stashed changes
 }
