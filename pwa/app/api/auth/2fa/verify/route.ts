@@ -18,17 +18,17 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
     // 2. Enabling 2FA for the first time
 
     // 1. Verifying during LOGIN
-    if (!session) {
+    // if (!session) {
 
-        const verified = speakeasy.totp.verify({
-            secret: secret, // Secret Key
-            encoding: "base32",
-            token: token,   // OTP Code
-        });
+    //     const verified = speakeasy.totp.verify({
+    //         secret: secret, // Secret Key
+    //         encoding: "base32",
+    //         token: token,   // OTP Code
+    //     });
 
-        return Response.json({ verified });
+    //     return Response.json({ verified });
 
-    } else {
+    // } else {
 
     // 2. Enabling 2FA for the first time
         const verified = speakeasy.totp.verify({
@@ -37,14 +37,13 @@ export async function POST(req: NextRequest, res: NextApiResponse) {
             token: token,   // OTP Code
         });
 
-        if (verified) {
-            pool.query('UPDATE users SET otp_secet = $1 WHERE id = $2', [secret, session.id]);
+    if (verified) {
+            pool.query('UPDATE users SET otp_secret = $1 WHERE id = $2', [secret, session.id]);
             // save the secret in your database
             // Don't forget to encrypt it
         }
-
         return Response.json({ verified });
 
-    }
+    // }
 
 }

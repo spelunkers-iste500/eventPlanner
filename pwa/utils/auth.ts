@@ -58,12 +58,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     return null;
                 }
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
+                console.log(dbQuery.rows)
                 // @todo add 2fa verification
                 const verified = speakeasy.totp.verify({
                     secret: dbQuery.rows[0].otp_secret, // Secret Key
                     encoding: "base32",
                     token: credentials.otp,   // OTP Code
                 });
+                // const verified = true;
                 if (!verified) {
                     return null;
                 }
