@@ -54,7 +54,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                 })
                 // only query the db if the authResponse is successful
-                if (authResponse.status !== 200) {
+                if (authResponse.status >= 300) {
                     return null;
                 }
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
