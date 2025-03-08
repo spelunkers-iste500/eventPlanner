@@ -2,7 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
@@ -10,20 +9,22 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
-use App\State\CurrentUserProvider;
+use App\State\UserPasswordHasher;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Contracts\Service\ServiceCollectionInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
 #[Get(security: "is_granted('view', object)")]
 #[Post(
     description: "Creates a new user. Users can only create if they're a platform admin",
+    processor: UserPasswordHasher::class,
+    denormalizationContext: ['groups' => ['user:create']],
+    normalizationContext: ['groups' => ['user:read']]
 )]
 #[Patch(security: "is_granted('edit', object)")]
 #[ORM\Table(name: 'users')]
@@ -35,7 +36,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['user:read', 'user:write', 'user:read:offers'])]
+    #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create'])]
     private int $id;
 
     /**
@@ -63,7 +64,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'First name cannot be null')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:write', 'user:create'])]
     private string $firstName;
 
     /**
@@ -87,7 +88,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'Last name cannot be null')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:write', 'user:create'])]
     private string $lastName;
 
     /**
@@ -106,13 +107,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
+     * @var string $name The full name of the user
+     */
+    #[Groups(['user:read'])]
+    private string $name;
+    public function getName(): string
+    {
+        return $this->firstName . ' ' . $this->lastName;
+    }
+
+    /**
      * @var string $email The email of the user, also functions as the user login. Unique.
      */
     #[ORM\Column(length: 255, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'user:create'])]
     public string $email;
 
     /**
@@ -137,6 +148,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $emailVerified The email verification status of the user
      */
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['user:read'])]
     private bool $emailVerified;
 
     /**
@@ -195,7 +207,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Column(type: 'string', length: 13)]
     // #[Assert\Regex(pattern: '\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'user:create'])]
     private string $phoneNumber;
 
     /**
@@ -218,24 +230,24 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $hashedPassword The hashed password of the user
      */
     #[ORM\Column(type: 'string', length: 255)]
-    private string $hashedPassword;
+    private ?string $hashedPassword;
 
     /**
      * @return string the hashed password of the user
      */
     public function getPassword(): string
     {
-        return "password";
-        // return $this->getHashedPassword();
+        return $this->getHashedPassword();
     }
     /**
      * @param string $hashedPassword the hashed password of the user
      * @return void
      * Sets the users password
      */
-    public function setPassword(string $hashedPassword): void
+    public function setPassword(string $hashedPassword): self
     {
         $this->setHashedPassword($hashedPassword);
+        return $this;
     }
     /**
      * @return string the hashed password of the user
@@ -258,6 +270,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var \DateTimeInterface $birthday The users birthday
      */
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['user:read', 'user:write', 'user:create'])]
     private \DateTimeInterface $birthday;
 
     /**
@@ -280,7 +293,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $title The users title, one of [mr, mrs, ms, dr, miss]
      */
     #[ORM\Column(type: 'string', length: 4)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'user:create'])]
     #[Assert\Choice(choices: ['mr', 'mrs', 'ms', 'dr', 'miss'], message: 'Choose a valid title, one of [mr, mrs, ms, dr, miss]. Enforced by the airlines.')]
     private string $title;
 
@@ -304,7 +317,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $gender The users gender, required by the airlines. One of [m, f]
      */
     #[ORM\Column(type: 'string', length: 5)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'user:create'])]
     #[Assert\Choice(choices: ['m', 'f'], message: 'Gender must be one of [m,f]. Enforced by the airlines.')]
     private string $gender;
 
@@ -346,7 +359,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:write'])]
     private Collection $AdminOfOrg;
 
     /**
@@ -426,6 +439,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var \DateTimeInterface The date the user was created
      */
     #[ORM\Column(type: 'datetime')]
+    #[Groups(['user:read'])]
     private \DateTimeInterface $createdOn;
     /**
      * @return \DateTimeInterface The date the user was created
@@ -439,6 +453,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $superAdmin The super admin status of the user
      */
     #[ORM\Column(type: 'boolean')]
+    #[Groups(['user:read'])]
     private bool $superAdmin;
 
     /**
@@ -493,7 +508,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $passengerId The passenger ID of the user, from the last flight_offer post
      */
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read'])]
     private ?string $passengerId = null;
 
     /**
@@ -515,12 +530,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     /**
      * @param string plainPassword not an ORM field, used to set the password
      */
+    #[Groups(['user:create'])]
     private ?string $plainPassword = null;
 
     /**
      * @return string The plain password of the user
      */
-    public function getPlainPassword(): string
+    public function getPlainPassword(): ?string
     {
         return $this->plainPassword;
     }
@@ -528,9 +544,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @param string $plainPassword The plain password of the user
      * @return void
      */
-    public function setPlainPassword(string $plainPassword): void
+    public function setPlainPassword(?string $plainPassword): self
     {
         $this->plainPassword = $plainPassword;
+        return $this;
     }
 
     /**
@@ -557,14 +574,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         string $lastName,
         string $email,
         string $phoneNumber,
-        string $hashedPassword,
         \DateTimeInterface $birthday,
         string $title,
         string $gender,
         bool $emailVerified = false,
         bool $superAdmin = false,
-        ?\DateTimeInterface $createdOn = null,
+        ?string $hashedPassword = null,
         ?string $plainPassword = null,
+        ?\DateTimeInterface $createdOn = null,
         ?Collection $OrgMembership = new ArrayCollection(),
         ?Collection $AdminOfOrg = new ArrayCollection(),
         ?Collection $flights = new ArrayCollection(),

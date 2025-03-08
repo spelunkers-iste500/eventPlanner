@@ -56,6 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         //     from: process.env.SENDGRID_FROM,
         // }),
         Credentials({
+            id: "credentials-2fa",
             // The name to display on the sign in form (e.g. 'Sign in with...')
             name: "Credentials w/ 2FA",
             // The credentials is used to generate a suitable form on the sign in page.
@@ -67,6 +68,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
+
+                const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
+                if (dbQuery.rowCount === 0) {
+                    return null; // Return null if user not found
+                }
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
                 // if no token, return null
@@ -82,27 +88,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (authResponse.status >= 300) {
                     return null;
                 }
-                const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
-                console.log(dbQuery.rows)
-                // @todo add 2fa verification
                 const verified = speakeasy.totp.verify({
                     secret: dbQuery.rows[0].otp_secret, // Secret Key
                     encoding: "base32",
                     token: credentials.otp as string,   // OTP Code
                 });
-                // const verified = true;
                 if (!verified) {
                     return null;
                 }
-
-                const apiToken = authResponse.data.token
-                // return authResponse.status
-                const user = { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false };
-                return user as User;
-                // return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false };
+                return { username: credentials.email, token: authResponse.data.token, id: dbQuery.rows[0].id, secondFactor: (dbQuery.rows[0].otp_secret) ? true : false } as User;
             }
         }),
         Credentials({
+            id: "credentials-no-2fa",
             // The name to display on the sign in form (e.g. 'Sign in with...')
             name: "Credentials w/o 2FA",
             // The credentials is used to generate a suitable form on the sign in page.
@@ -116,6 +114,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
                 // if no token, return null
+                const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
+                // if no user found, or if user with 2fa trying to auth without, return null
+                if (dbQuery.rowCount === 0 || dbQuery.rows[0].otp_secret) {
+                    return null;
+                }
                 const authResponse = await axios.post("http://php/auth", {
                     email: credentials.email,
                     password: credentials.password,
@@ -124,12 +127,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                         "accept": "application/json",
                     }
                 })
-                // only query the db if the authResponse is successful
-                if (authResponse.status >= 300) {
+                // bad password
+                if (authResponse.status >= 300 && authResponse.status < 500) {
+                    return null;
+                } else {
                     return null;
                 }
-
-                const dbQuery = await pool.query("SELECT users.id FROM users WHERE email = $1", [credentials.email]);
 
                 const apiToken = authResponse.data.token
                 return { username: credentials.email, token: apiToken, id: dbQuery.rows[0].id, secondFactor: false } as User;
