@@ -75,14 +75,19 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down -v
-  lint:
-    name: Super-Linter
-    runs-on: self-hosted
-    steps:
+ lint:
+  name: Super-Linter
+  runs-on: self-hosted
+  steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        extensions: phar, fileinfo
     - name: Copy php.ini
       run: |
         mkdir -p /github/home/.php
