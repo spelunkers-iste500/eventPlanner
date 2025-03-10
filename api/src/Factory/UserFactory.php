@@ -38,10 +38,10 @@ final class UserFactory extends PersistentProxyObjectFactory
             'email' => self::faker()->unique()->safeEmail(), // Generates a realistic email address
             'emailVerified' => true,
             'gender' => self::faker()->randomElement(['m', 'f']), // More realistic gender options
-            'plainPassword' => self::faker()->password(), // Generates a realistic password hash
+            'hashed_password' => self::faker()->password(), // Generates a realistic password hash
             'phoneNumber' => self::faker()->numerify('+###########'), // Generates a phone 
             'superAdmin' => false,
-            'title' => self::faker()->title(), // Generates a realistic title
+            'title' => self::faker()->randomElement(['mr', 'mrs', 'ms', 'dr', 'miss']), // Generates a realistic title ['mr', 'mrs', 'ms', 'dr', 'miss']
         ];
     }
 
