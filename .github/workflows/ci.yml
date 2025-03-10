@@ -104,7 +104,7 @@ jobs:
           
   staging-deploy:
     runs-on: [self-hosted, staging]
-    needs: [tests, lint]
+    needs: [tests]
     name: Deploy to Staging
     env:
       SERVER_NAME: "staging.spelunkers.xeanto.us"
