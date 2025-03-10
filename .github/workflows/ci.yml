@@ -83,15 +83,6 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: '7.4'
-        extensions: phar, fileinfo
-    - name: Copy php.ini
-      run: |
-        mkdir -p /github/home/.php
-        echo "extension=fileinfo" >> /github/home/.php/php.ini
     - name: Super-Linter
       uses: super-linter/super-linter/slim@v7.3.0
       env:
