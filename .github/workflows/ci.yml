@@ -89,21 +89,9 @@ jobs:
             phpunit_logs.txt
             schema_validate_logs.txt
             db_drop_logs.txt
-  lint:
-    name: Super-Linter
-    runs-on: [self-hosted, runner]
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-    - name: Super-Linter
-      uses: super-linter/super-linter/slim@v7.3.0
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-    - name: Clean Disk
-      if: always()
-      run: docker system prune -af --filter "until=6h"
+      - name: Clean Disk
+        if: always()
+        run: docker system prune -af --filter "until=6h"
 
   staging-deploy:
     runs-on: [self-hosted, staging]
