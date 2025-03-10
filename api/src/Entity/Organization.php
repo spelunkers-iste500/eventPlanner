@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
@@ -51,31 +52,107 @@ class Organization
     #[ORM\GeneratedValue]
     #[ORM\Column(name: 'id', type: 'integer')]
     #[Groups(['org:read', 'org:write', 'org:collectionRead'])]
-    public int $id;
+    private int $id;
 
+    /**
+     * @var string $name the name of the organization
+     */
     #[ORM\Column(length: 55)]
     #[Groups(['org:read', 'org:write'])]
-    public string $name;
+    private string $name;
 
+    /**
+     * @return string the name of the organization
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    /**
+     * @param string $name the name of the organization
+     */
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @var string $description the description of the organization
+     */
     #[ORM\Column(length: 255)]
     #[Groups(['org:read', 'org:write'])]
-    public string $description;
+    private string $description;
 
+    /**
+     * @return string the description of the organization
+     */
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+    /**
+     * @param string $description the description of the organization
+     */
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
+
+    /**
+     * @var string $address the address of the organization
+     */
     #[ORM\Column(length: 255)]
     #[Groups(['org:read', 'org:write'])]
-    public string $address;
+    private string $address;
+    /**
+     * @return string the address of the organization
+     */
+    public function getAddress(): string
+    {
+        return $this->address;
+    }
+    /**
+     * @param string $address the address of the organization
+     */
+    public function setAddress(string $address): void
+    {
+        $this->address = $address;
+    }
+
+    /**
+     * @var User $primaryContact the primary contact of the organization
+     */
+    // #[ORM\Column(length: 55)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'primaryContactOfOrg')]
+    #[JoinTable(name: 'org_user_primary_contact')]
+    #[Groups(['org:read', 'org:write'])]
+    private User $primaryContact;
+    /**
+     * @return User the primary contact of the organization
+     */
+    public function getPrimaryContact(): User
+    {
+        return $this->primaryContact;
+    }
+    /**
+     * @param User $primaryContact the primary contact of the organization
+     */
+    public function setPrimaryContact(User $primaryContact): void
+    {
+        $this->primaryContact = $primaryContact;
+    }
 
     #[ORM\Column(length: 55)]
     #[Groups(['org:read', 'org:write'])]
-    public string $primaryEmail;
-
-    #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write'])]
-    public string $secondaryEmail;
-
-    #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write'])]
-    public string $industry;
+    private string $industry;
+    public function getIndustry(): string
+    {
+        return $this->industry;
+    }
+    public function setIndustry(string $industry): void
+    {
+        $this->industry = $industry;
+    }
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'OrgMembership')]
     private Collection $users;
@@ -88,17 +165,17 @@ class Organization
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'organization')]
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id')]
     #[Groups(['org:read', 'org:write'])]
-    public ?Collection $events;
+    private ?Collection $events;
 
     #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
     #[Groups(['org:read', 'org:write'])]
-    public ?Collection $budgets;
+    private ?Collection $budgets;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $lastModified;
+    private \DateTimeInterface $lastModified;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $createdDate;
+    private \DateTimeInterface $createdDate;
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg')]
     #[Groups(['org:read', 'org:write'])]
@@ -132,10 +209,14 @@ class Organization
     }
     public function getFinanceAdmins(): Collection
     {
-        $admins = new ArrayCollection();
-        $admins->add($this->admins);
-        $admins->add($this->financeAdmins);
-        return $admins;
+        return new ArrayCollection(
+            array_unique(
+                array_merge(
+                    $this->financeAdmins->toArray(),
+                    $this->admins->toArray()
+                )
+            )
+        );
     }
     public function addFinanceAdmins(User $user): self
     {

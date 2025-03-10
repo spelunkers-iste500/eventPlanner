@@ -75,10 +75,22 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down -v
-
+  lint:
+    name: Super-Linter
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: super-linter/super-linter/slim@v7.3.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          
   staging-deploy:
     runs-on: [self-hosted, staging]
-    needs: tests
+    needs: [tests, lint]
     name: Deploy to Staging
     env:
       SERVER_NAME: "staging.spelunkers.xeanto.us"
@@ -95,7 +107,7 @@ jobs:
       AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
-      DUFFEL_API_KEY: ${{ secrets.DUFFEL_KEY }}
+      DUFFEL_BEARER: ${{ secrets.DUFFEL_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -116,9 +128,15 @@ jobs:
           echo "GITHUB_SECRET=${GITAPP_SECRET}" >> pwa/.env
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
+          echo "DUFFEL_BEARER=${DUFFEL_BEARER}" >> api/.env.local
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
           docker compose down -v && docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
+
+      - name: Generate Prod ENV file
+        run: |
+          cd /opt/appRoot
+          docker compose exec php composer dump-env prod
 
       - name: Reset DB
         run: |

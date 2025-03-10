@@ -39,6 +39,10 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
      */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
+            return null;
+        }
         if (isset(
             $uriVariables['id']
         ) && (str_contains($uriVariables['id'], 'orq'))) // if the id is set, then we know we are looking for a specific flight offer 
@@ -58,6 +62,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
     {
         // data object will be a flight order
         if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
             return null;
         }
         // check if offer id is in the users offer id array
@@ -113,15 +118,14 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $userId = $this->security->getUser()->getUserIdentifier();
         $user = $this->uRepo->getUserById($userId);
         // parse first and last name from users whole name
-        $nameArray = explode(" ", $user->getName());
-        $firstName = $nameArray[0];
-        $lastName = $nameArray[1];
+        $firstName = $user->getFirstName();
+        $lastName = $user->getLastName();
         $gender = $user->getGender();
-        $email = $user->email;
+        $email = $user->getEmail();
         $passenger_id = $user->getPassengerId();
         $title = $user->getTitle();
-        $phoneNum = $user->phoneNumber;
-        $birthday = $user->birthday->format('Y-m-d');
+        $phoneNum = $user->getPhoneNumber();
+        $birthday = $user->getBirthday()->format('Y-m-d');
 
         $response = $this->client->request(
             'POST',

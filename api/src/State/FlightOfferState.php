@@ -34,6 +34,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
     {
         // Handle the state
         if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
             return null;
         }
         // get user
@@ -68,7 +69,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             );
         }
         // get the user from the database
-        $user = $this->uRepo->findOneBy(['id' => $user->getUserIdentifier()]);
+        $user = $this->uRepo->findOneBy(['email' => $user->getUserIdentifier()]);
         // reset the offers
         $user->resetOffers();
         // save all offer id's to the user
@@ -83,6 +84,10 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        if (!isset($this->token)) {
+            throw new \Exception("Duffel token not set");
+            return null;
+        }
         if (isset(
             $uriVariables['id']
         ) && (str_contains($uriVariables['id'], 'orq'))) // if the id is set, then we know we are looking for a specific flight offer 

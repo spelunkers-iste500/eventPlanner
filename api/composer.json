@@ -18,7 +18,9 @@
         "symfony/dotenv": "6.4.*",
         "symfony/expression-language": "6.4.*",
         "symfony/flex": "^2.2",
+        "symfony/form": "6.4.*",
         "symfony/framework-bundle": "6.4.*",
+        "symfony/mailer": "6.4.*",
         "symfony/mercure-bundle": "^0.3.5",
         "symfony/monolog-bundle": "^3.10",
         "symfony/property-access": "6.4.*",
@@ -28,7 +30,8 @@
         "symfony/serializer": "6.4.*",
         "symfony/twig-bundle": "6.4.*",
         "symfony/validator": "6.4.*",
-        "symfony/yaml": "6.4.*"
+        "symfony/yaml": "6.4.*",
+        "symfonycasts/reset-password-bundle": "^1.23"
     },
     "require-dev": {
         "api-platform/schema-generator": "^5.0",
