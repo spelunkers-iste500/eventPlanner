@@ -75,10 +75,10 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down -v
- lint:
-  name: Super-Linter
-  runs-on: self-hosted
-  steps:
+  lint:
+    name: Super-Linter
+    runs-on: self-hosted
+    steps:
     - name: Checkout
       uses: actions/checkout@v4
       with:
