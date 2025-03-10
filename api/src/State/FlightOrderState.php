@@ -118,15 +118,14 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $userId = $this->security->getUser()->getUserIdentifier();
         $user = $this->uRepo->getUserById($userId);
         // parse first and last name from users whole name
-        $nameArray = explode(" ", $user->getName());
-        $firstName = $nameArray[0];
-        $lastName = $nameArray[1];
+        $firstName = $user->getFirstName();
+        $lastName = $user->getLastName();
         $gender = $user->getGender();
-        $email = $user->email;
+        $email = $user->getEmail();
         $passenger_id = $user->getPassengerId();
         $title = $user->getTitle();
-        $phoneNum = $user->phoneNumber;
-        $birthday = $user->birthday->format('Y-m-d');
+        $phoneNum = $user->getPhoneNumber();
+        $birthday = $user->getBirthday()->format('Y-m-d');
 
         $response = $this->client->request(
             'POST',

@@ -2,7 +2,7 @@
 
 namespace App\Factory;
 
-use App\Entity\budgetChangeManagement;
+use App\Entity\ChangeManagement\budgetChangeManagement;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

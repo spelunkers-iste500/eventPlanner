@@ -69,7 +69,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             );
         }
         // get the user from the database
-        $user = $this->uRepo->findOneBy(['id' => $user->getUserIdentifier()]);
+        $user = $this->uRepo->findOneBy(['email' => $user->getUserIdentifier()]);
         // reset the offers
         $user->resetOffers();
         // save all offer id's to the user

@@ -18,6 +18,8 @@
 		}
 	}
 
+	tls /certs/cert.pem /certs/key.pem
+
 	root * /app/public
 	encode zstd br gzip
 
@@ -60,4 +62,12 @@
 	reverse_proxy @pwa http://{$PWA_UPSTREAM}
 
 	php_server
+	}
+
+php:80 {
+		reverse_proxy https://localhost:443 {
+			transport http {
+				tls_insecure_skip_verify
+			}
+		}
 }
