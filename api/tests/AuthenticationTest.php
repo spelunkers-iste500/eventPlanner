@@ -26,7 +26,7 @@ use App\Factory\UserFactory;
              'headers' => ['Content-Type' => 'application/json'],
              'json' => [
                  'email' => (string) 'test@example.com', // Use user ID from the created user
-                 'token' => (string) 'spleunkers123', // user password
+                 'password' => (string) 'spleunkers123', // user password
              ],
          ]);
          $json = $response->toArray();
