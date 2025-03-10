@@ -91,6 +91,7 @@ jobs:
             db_drop_logs.txt
   lint:
     name: Super-Linter
+    runs-on: [self-hosted, runner]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
