@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use App\State\CurrentUserProvider;
@@ -36,6 +37,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
     // normalizationContext: ['groups' => ['user:read:events']]
 )]
 #[Patch(security: "is_granted('edit', object)")]
+//Org.Admin.View
+#[GetCollection(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/organizations/{orgId}/users/',
+    requirements: ['orgId' => '\d+'],
+    normalizationContext: ['groups' => ['read:event']]
+)]
+//User.Change
+#[Patch(
+    uriTemplate: '/user/{id}.{_format}',
+    security: "is_granted('edit', object)", // Checks edit permission for the specific user
+    denormalizationContext: ['groups' => ['edit:user']]
+)]
+//User.Create
+#[Post(
+    uriTemplate: '/user/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    security: "is_granted('create', object)", // Checks create permission for the user
+    denormalizationContext: ['groups' => ['write:user']]
+)]
+
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {

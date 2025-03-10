@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -68,6 +69,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
     denormalizationContext: ['groups' => ['add:event:attendees']],
     processor: EventStateProcessor::class
 )]
+//Event.Admin.delete
+#[Delete(
+    security: "is_granted('ROLE_ADMIN')",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+']
+)]
+
 /**
  * The events that are organized by organizations.
  */
