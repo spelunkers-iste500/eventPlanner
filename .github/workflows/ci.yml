@@ -73,7 +73,7 @@ jobs:
         if: always()
         run: docker compose exec -T php bin/console -e test doctrine:database:drop --force > db_drop_logs.txt 2>&1
       - name: Stop services
-        if: always()
+        
         run: docker compose down -v
       - name: Upload logs
         if: always()
@@ -101,7 +101,10 @@ jobs:
       uses: super-linter/super-linter/slim@v7.3.0
       env:
         GITHUB_TOKEN: ${{ github.token }}
-          
+    - name: Clean Disk
+      if: always()
+      run: docker system prune -af --filter "until=6h"
+
   staging-deploy:
     runs-on: [self-hosted, staging]
     needs: [tests]
