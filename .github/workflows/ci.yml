@@ -75,10 +75,22 @@ jobs:
       - name: Stop services
         if: always()
         run: docker compose down -v
-
+  lint:
+    name: Super-Linter
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Super-Linter
+        uses: super-linter/super-linter/slim@v7.2.1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          
   staging-deploy:
     runs-on: [self-hosted, staging]
-    needs: tests
+    needs: [tests, lint]
     name: Deploy to Staging
     env:
       SERVER_NAME: "staging.spelunkers.xeanto.us"
