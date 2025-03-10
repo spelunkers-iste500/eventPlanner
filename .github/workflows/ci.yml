@@ -87,7 +87,6 @@ jobs:
       uses: super-linter/super-linter/slim@v7.3.0
       env:
         GITHUB_TOKEN: ${{ github.token }}
-        PHP_INI_SCAN_DIR: /github/home/.php
           
   staging-deploy:
     runs-on: [self-hosted, staging]
