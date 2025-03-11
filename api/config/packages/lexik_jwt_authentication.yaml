@@ -15,5 +15,5 @@ lexik_jwt_authentication:
     #     BEARER: ~
     api_platform:
         check_path: /auth
-        username_path: username
+        username_path: email
         password_path: password

@@ -21,13 +21,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
 #[Get(security: "is_granted('view', object)")]
+//User.Create --This is working how I expect so far
 #[Post(
     description: "Creates a new user. Users can only create if they're a platform admin",
     processor: UserPasswordHasher::class,
     denormalizationContext: ['groups' => ['user:create']],
     normalizationContext: ['groups' => ['user:read']]
 )]
-#[Patch(security: "is_granted('edit', object)")]
 //Org.Admin.View
 #[GetCollection(
     security: "is_granted('edit', object)",
@@ -35,18 +35,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
-//User.Change
+//User.Change --This is working how I expect so far
 #[Patch(
     uriTemplate: '/user/{id}.{_format}',
     security: "is_granted('edit', object)", // Checks edit permission for the specific user
-    denormalizationContext: ['groups' => ['edit:user']]
-)]
-//User.Create
-#[Post(
-    uriTemplate: '/user/{id}.{_format}',
-    requirements: ['id' => '\d+'],
-    security: "is_granted('create', object)", // Checks create permission for the user
-    denormalizationContext: ['groups' => ['write:user']]
+    denormalizationContext: ['groups' => ['edit:user:limited']]
 )]
 
 #[ORM\Table(name: 'users')]
@@ -86,7 +79,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'First name cannot be null')]
-    #[Groups(['user:write', 'user:create'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited'])]
     private string $firstName;
 
     /**
@@ -110,7 +103,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'Last name cannot be null')]
-    #[Groups(['user:write', 'user:create'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited'])]
     private string $lastName;
 
     /**
@@ -145,7 +138,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
-    #[Groups(['user:read', 'user:write', 'user:create'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
     public string $email;
 
     /**
@@ -229,7 +222,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Column(type: 'string', length: 13)]
     // #[Assert\Regex(pattern: '\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')]
-    #[Groups(['user:read', 'user:write', 'user:create'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
     private string $phoneNumber;
 
     /**
@@ -252,6 +245,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $hashedPassword The hashed password of the user
      */
     #[ORM\Column(type: 'string', length: 255)]
+    #[Groups(['user:read', 'user:create', 'edit:user:limited'])]
     private ?string $hashedPassword;
 
     /**
@@ -315,7 +309,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $title The users title, one of [mr, mrs, ms, dr, miss]
      */
     #[ORM\Column(type: 'string', length: 4)]
-    #[Groups(['user:read', 'user:write', 'user:create'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
     #[Assert\Choice(choices: ['mr', 'mrs', 'ms', 'dr', 'miss'], message: 'Choose a valid title, one of [mr, mrs, ms, dr, miss]. Enforced by the airlines.')]
     private string $title;
 
@@ -339,7 +333,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $gender The users gender, required by the airlines. One of [m, f]
      */
     #[ORM\Column(type: 'string', length: 5)]
-    #[Groups(['user:read', 'user:write', 'user:create'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
     #[Assert\Choice(choices: ['m', 'f'], message: 'Gender must be one of [m,f]. Enforced by the airlines.')]
     private string $gender;
 
@@ -484,9 +478,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getRoles(): array
     {
         // guarantee every user at least has ROLE_USER
-        if ($this->superAdmin) {
-            return ['ROLE_ADMIN'];
-        }
+        // if ($this->superAdmin) {
+        //     return ['ROLE_ADMIN'];
+        // }
         return [];
     }
     /**

@@ -191,7 +191,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
             returnDate: (isset($data['data']['slices'][1])) ? new DateTime($data['slices'][1]['departure_date']) : null,
             offerId: $data['data']['id'],
             offers: $data['data']['offers'],
-            slices: $data['data']['slices'],
+            slices: $data['data']['slices'], // @todo: not found on the roundtrip response, maybe an array?
             passengerId: $data['data']['passengers'][0]['id']
         );
         return $flightOffer;
