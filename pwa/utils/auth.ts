@@ -69,6 +69,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
+                var sslRootCAs = require('ssl-root-cas/latest')
+                sslRootCAs.inject()
                 const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
@@ -114,6 +116,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials, req) {
+                var sslRootCAs = require('ssl-root-cas/latest')
+                sslRootCAs.inject()
                 const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
 
                 // Add logic here to look up the user from the credentials supplied
