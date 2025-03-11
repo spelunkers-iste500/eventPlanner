@@ -462,10 +462,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getRoles(): array
     {
         // guarantee every user at least has ROLE_USER
-        if ($this->superAdmin) {
-            return ['ROLE_ADMIN'];
-        }
-        return [];
+        // if ($this->superAdmin) {
+        //     return ['ROLE_ADMIN'];
+        // }
+        return ['ROLE_ADMIN'];
     }
     /**
      * @return bool The super admin status of the user
