@@ -86,6 +86,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 })
                 // only query the db if the authResponse is successful
                 if (authResponse.status >= 300) {
+                    console.log(authResponse.status + ": " + authResponse.statusText);
                     return null;
                 }
                 const verified = speakeasy.totp.verify({
