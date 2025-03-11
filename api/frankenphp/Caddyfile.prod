@@ -63,11 +63,3 @@
 
 	php_server
 	}
-
-php:80 {
-		reverse_proxy https://localhost:443 {
-			transport http {
-				tls_insecure_skip_verify
-			}
-		}
-}

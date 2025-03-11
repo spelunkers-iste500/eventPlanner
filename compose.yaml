@@ -32,6 +32,7 @@ services:
         published: ${HTTP3_PORT:-443}
         protocol: udp
 
+
   pwa:
     image: ${IMAGES_PREFIX:-}app-pwa
     environment:
@@ -44,6 +45,9 @@ services:
       - AUTH_SENDGRID_FROM=$AUTH_SENDGRID_FROM
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-https://localhost}
       # - AUTH_SECRET=$AUTH_SECRET
+    links:
+      - "php:staging.spelunkers.xeanto.us"
+
 
 ###> doctrine/doctrine-bundle ###
   database:

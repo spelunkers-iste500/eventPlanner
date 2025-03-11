@@ -16,6 +16,7 @@ export const pool = new Pool({
     connectionTimeoutMillis: 2000,
 });
 
+
 declare module "next-auth" {
     interface Session {
         id: number;
@@ -68,6 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
+                const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id FROM users WHERE email = $1", [credentials.email]);
                 if (dbQuery.rowCount === 0) {
@@ -76,7 +78,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
                 // if no token, return null
-                const authResponse = await axios.post("http://php/auth", {
+                const authResponse = await axios.post(apiUrl, {
                     email: credentials.email,
                     password: credentials.password,
                     headers: {
@@ -86,6 +88,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 })
                 // only query the db if the authResponse is successful
                 if (authResponse.status >= 300) {
+                    console.log(authResponse.status + ": " + authResponse.statusText);
                     return null;
                 }
                 const verified = speakeasy.totp.verify({
@@ -111,6 +114,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials, req) {
+                const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
                 // if no token, return null
@@ -119,7 +124,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 if (dbQuery.rowCount === 0 || dbQuery.rows[0].otp_secret) {
                     return null;
                 }
-                const authResponse = await axios.post("http://php/auth", {
+                const authResponse = await axios.post(apiUrl, {
                     email: credentials.email,
                     password: credentials.password,
                     headers: {
