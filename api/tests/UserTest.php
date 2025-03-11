@@ -72,6 +72,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
      //function to test if a user can patch themselves and not others
      public function testPermissionUpdateUser(): void
      {
+        $startTime = microtime(true);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
         $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
@@ -84,7 +85,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
          $user2Iri = $this->findIriBy(User::class, ['id' => $user2->getId()]);
          
          
-         $startTime = microtime(true);
+         
          // Use the PATCH method here to do a partial update on current user
          $client->request('PATCH', $user1Iri, [
              'json' => [
@@ -117,27 +118,44 @@ use Zenstruck\Foundry\Test\ResetDatabase;
             'auth_bearer' => $jwttoken['token']
         ]);
          $this->assertResponseStatusCodeSame(403);
+         //end time calculation
          $endTime = microtime(true);
          $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
          $executionTime = round($executionTime, 3); // Round to 3 decimal places
          echo "Update User execution time: " . $executionTime . " milliseconds\n";
      }
-    /* public function testDeleteUser(): void
+     //test to see if only an admin can delete a user
+     public function testDeleteUser(): void
      {
-         // Only create the user we need with a given email
-         UserFactory::createOne(['email' => 'ratchie@rit.edu']);
-         $client = static::createClient();
-         $iri = $this->findIriBy(User::class, ['email' => 'ratchie@rit.edu']);
-         $startTime = microtime(true);
-         $client->request('DELETE', $iri);
-         $endTime = microtime(true);
-         $this->assertResponseStatusCodeSame(204);
-         $this->assertNull(
-             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-             static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ratchie@rit.edu'])
-         );
-         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-         echo "Delete User execution time: " . $executionTime . " milliseconds\n";
-     }*/
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        $user3 = $this->createUser('casey@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttokenUser1 = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
+
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $user3Iri = $this->findIriBy(User::class, ['id' => $user3->getId()]);
+        // Only create the user we need with a given email
+        $client = static::createClient();
+        //fail test to ensure no other user can delete except super admin
+        $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser2['token']] );
+        $this->assertResponseStatusCodeSame(403);
+        
+        //delete user if superadmin test
+        $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser1['token']] );
+        $endTime = microtime(true);
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ritchie@rit.edu'])
+        );
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        echo "Delete User execution time: " . $executionTime . " milliseconds\n";
+     }
  }
