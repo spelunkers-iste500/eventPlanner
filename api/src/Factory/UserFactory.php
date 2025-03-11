@@ -4,7 +4,6 @@ namespace App\Factory;
 
 use App\Entity\User;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @extends PersistentProxyObjectFactory<User>
@@ -33,14 +32,16 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'name' => self::faker()->name(),
-            'email' => self::faker()->unique()->safeEmail(),
-            'emailVerified' => self::faker()->dateTime(),
-            'image' => self::faker()->imageUrl(255),
-            'lastModified' => self::faker()->dateTime(),
-            'createdDate' => self::faker()->dateTime(),
-            'roles' => [],
-            'OrgMembership' => new ArrayCollection()
+            'firstName' => self::faker()->firstName(), // Generates a realistic first name
+            'lastName' => self::faker()->lastName(), // Generates a realistic last name
+            'birthday' => self::faker()->dateTimeBetween('-100 years', '-18 years'), // Ensures the birthday is for an adult
+            'email' => self::faker()->unique()->safeEmail(), // Generates a realistic email address
+            'emailVerified' => true,
+            'gender' => self::faker()->randomElement(['m', 'f']), // More realistic gender options
+            'plainPassword' => self::faker()->password(), // Generates a realistic password hash
+            'phoneNumber' => self::faker()->numerify('+###########'), // Generates a phone 
+            'superAdmin' => false,
+            'title' => self::faker()->title(), // Generates a realistic title
         ];
     }
 

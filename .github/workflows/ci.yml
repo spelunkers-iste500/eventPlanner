@@ -56,29 +56,46 @@ jobs:
       - name: Wait for containers to be ready
         run: "sleep 10s"
       - name: Check HTTP reachability
-        run: curl -v --fail-with-body http://localhost
+        run: curl -v --fail-with-body http://localhost > http_logs.txt 2>&1
       - name: Check PWA reachability
-        run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login"
+        run: "curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login > pwa_logs.txt 2>&1"
       - name: Create database
-        run: docker compose exec -T php bin/console -e test doctrine:database:create
+        run: docker compose exec -T php bin/console -e test doctrine:database:create > db_create_logs.txt 2>&1
       - name: Install Schema
-        run: docker compose exec -T php bin/console -e test doctrine:schema:create
+        run: docker compose exec -T php bin/console -e test doctrine:schema:create > schema_create_logs.txt 2>&1
       - name: Generate JWT signing certificates
-        run: docker compose exec php bin/console lexik:jwt:generate-keypair
+        run: docker compose exec php bin/console lexik:jwt:generate-keypair > jwt_logs.txt 2>&1
       - name: Run PHPUnit
-        run: docker compose exec -T php bin/phpunit
+        run: docker compose exec -T php bin/phpunit > phpunit_logs.txt 2>&1
       - name: Doctrine Schema Validator
-        run: docker compose exec -T php bin/console -e test doctrine:schema:validate
+        run: docker compose exec -T php bin/console -e test doctrine:schema:validate > schema_validate_logs.txt 2>&1
       - name: Remove database
         if: always()
-        run: docker compose exec -T php bin/console -e test doctrine:database:drop --force
+        run: docker compose exec -T php bin/console -e test doctrine:database:drop --force > db_drop_logs.txt 2>&1
       - name: Stop services
-        if: always()
+        
         run: docker compose down -v
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: |
+            http_logs.txt
+            pwa_logs.txt
+            db_create_logs.txt
+            schema_create_logs.txt
+            jwt_logs.txt
+            phpunit_logs.txt
+            schema_validate_logs.txt
+            db_drop_logs.txt
+      - name: Clean Disk
+        if: always()
+        run: docker system prune -af --filter "until=6h"
 
   staging-deploy:
     runs-on: [self-hosted, staging]
-    needs: tests
+    needs: [tests]
     name: Deploy to Staging
     env:
       SERVER_NAME: "staging.spelunkers.xeanto.us"
