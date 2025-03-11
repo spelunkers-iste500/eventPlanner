@@ -31,6 +31,12 @@ services:
       - target: 443
         published: ${HTTP3_PORT:-443}
         protocol: udp
+    networks:
+      default:
+        aliases:
+          - php
+          - staging.spelunkers.xeanto.us
+
 
   pwa:
     image: ${IMAGES_PREFIX:-}app-pwa
@@ -44,8 +50,6 @@ services:
       - AUTH_SENDGRID_FROM=$AUTH_SENDGRID_FROM
       - AUTH_TRUST_HOST=${AUTH_TRUST_HOST:-https://localhost}
       # - AUTH_SECRET=$AUTH_SECRET
-    extra_hosts:
-      - "staging.spelunkers.xeanto.us:php"
 
 ###> doctrine/doctrine-bundle ###
   database:
