@@ -245,7 +245,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $hashedPassword The hashed password of the user
      */
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['user:read', 'user:create', 'edit:user:limited'])]
+    #[Groups(['user:create'])]
     private ?string $hashedPassword;
 
     /**
@@ -546,7 +546,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     /**
      * @param string plainPassword not an ORM field, used to set the password
      */
-    #[Groups(['user:create'])]
+    #[Groups(['user:create', 'edit:user:limited'])]
     private ?string $plainPassword = null;
 
     /**
