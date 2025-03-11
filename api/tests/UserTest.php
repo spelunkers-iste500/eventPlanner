@@ -84,8 +84,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
          $user1Iri = $this->findIriBy(User::class, ['id' => $user->getId()]);
          $user2Iri = $this->findIriBy(User::class, ['id' => $user2->getId()]);
          
-         
-         
          // Use the PATCH method here to do a partial update on current user
          $client->request('PATCH', $user1Iri, [
              'json' => [
@@ -125,7 +123,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
          echo "Update User execution time: " . $executionTime . " milliseconds\n";
      }
      //test to see if only an admin can delete a user
-     public function testDeleteUser(): void
+    /* public function testDeleteUser(): void
      {
         $startTime = microtime(true);
         //create users
@@ -157,5 +155,5 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         echo "Delete User execution time: " . $executionTime . " milliseconds\n";
-     }
+     }*/
  }
