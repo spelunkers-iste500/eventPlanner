@@ -37,7 +37,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //User.Change --This is working how I expect so far
 #[Patch(
-    uriTemplate: '/user/{id}.{_format}',
+    uriTemplate: '/users/{id}.{_format}',
     security: "is_granted('edit', object)", // Checks edit permission for the specific user
     denormalizationContext: ['groups' => ['edit:user:limited']]
 )]

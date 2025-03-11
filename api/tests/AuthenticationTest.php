@@ -6,6 +6,7 @@ use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 use App\Factory\UserFactory;
+use App\Entity\User;
 
 class AuthenticationTest extends ApiTestCase
 {
@@ -32,7 +33,8 @@ class AuthenticationTest extends ApiTestCase
         $user->setPassword(
             $container->get('security.user_password_hasher')->hashPassword($user, 'spleunkers123')
         );
-
+        $user->_save(); //needed when doing the add function
+        $userIri = $this->findIriBy(User::class, ['id' => $user->getId()]);
         $startTime = microtime(true);
         // retrieve a token
         $response = $client->request('POST', '/auth', [
@@ -47,9 +49,9 @@ class AuthenticationTest extends ApiTestCase
         $this->assertArrayHasKey('token', $json);
         // test not authorized
         $client->request('GET', '/organizations');
-        $this->assertResponseStatusCodeSame(401);;      
+        $this->assertResponseStatusCodeSame(401);      
         // test authorized
-        $client->request('GET', '/organizations', ['auth_bearer' => $json['token']]);
+        $client->request('GET', "$userIri", ['auth_bearer' => $json['token']]);
         $this->assertResponseIsSuccessful();
         $endTime = microtime(true);
         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
