@@ -24,12 +24,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']],
 )]
+//Event.User.Book
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
+//Event.User.Dashboard
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
@@ -46,23 +48,27 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['id' => '\d+', 'orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
+//Event.Admin.Create
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
 )]
+//Event.Admin.View
 #[GetCollection(
     // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     normalizationContext: ['groups' => ['read:event']]
 )]
+//Event.Admin.Changes
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['write:event']]
 )]
+//Event.Admin.AddAttendees
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/addAttendees.{_format}',
