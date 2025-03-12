@@ -101,6 +101,13 @@ class Budget
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
     public string $total = "0.00";
+        /**
+     * @return int The user ID
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     /**
      * The spent budget is only visible to the org and finance admins
@@ -149,6 +156,7 @@ class Budget
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
+    
     public function getOrganization(): Organization
     {
         return $this->organization;
