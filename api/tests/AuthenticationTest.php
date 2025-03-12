@@ -19,9 +19,16 @@ class AuthenticationTest extends ApiTestCase
         self::ensureKernelShutdown();
         self::bootKernel();
     }
-
+    public function calculateExecutionTime(float $startTime, string $echoPhrase): string {
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
+    }
     public function testLogin(): void
     {
+        $startTime = microtime(true);
+        
         $client = self::createClient();
         $container = self::getContainer();
 
@@ -35,7 +42,7 @@ class AuthenticationTest extends ApiTestCase
         );
         $user->_save(); //needed when doing the add function
         $userIri = $this->findIriBy(User::class, ['id' => $user->getId()]);
-        $startTime = microtime(true);
+        
         // retrieve a token
         $response = $client->request('POST', '/auth', [
              'headers' => ['Content-Type' => 'application/json'],
@@ -53,9 +60,8 @@ class AuthenticationTest extends ApiTestCase
         // test authorized
         $client->request('GET', "$userIri", ['auth_bearer' => $json['token']]);
         $this->assertResponseIsSuccessful();
-        $endTime = microtime(true);
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Authentication Test execution time: " . $executionTime . " milliseconds\n";
+        
+        $executionMessage = $this->calculateExecutionTime($startTime, "Auth Test");
+        echo $executionMessage;
         }
     }

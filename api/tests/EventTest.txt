@@ -1,10 +1,11 @@
 <?php
 // api/tests/Eventtest.php
-/*
+
 namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Event;
+use App\Entity\User;
 use App\Factory\EventFactory;
 use App\Factory\UserFactory;
 use Zenstruck\Foundry\Test\Factories;
@@ -14,35 +15,44 @@ class EventTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-
-    /*public function testGetEventCollection(): void
-    {
-        //get auth token for test \
+    public function createUser(string $email, string $plainPassword, bool $superAdmin): User {
+        $container = self::getContainer();
+        $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
+        $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
+        $user->setPassword($hashedPassword);
+        $user->_save(); // Save the user after setting the password
+        return $user;
+    }
+    public function authenticateUser(string $email, string $password): array {
         $authclient = self::createClient();
-        
-        // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne([
-            'email' => 'ratchie@rit.edu',
-            'roles' => ['ROLE_ADMIN']
-        ]);
-
-        $userpassword = $user -> getPassword();
-
-        // retrieve a token
         $authresponse = $authclient->request('POST', '/auth', [
             'headers' => ['Content-Type' => 'application/json'],
             'json' => [
-                'id' => (string) $user->getId(), // Use user ID from the created user
-                'token' => (string) $userpassword, // Token is from the created account
+                'email' => $email,
+                'password' => $password,
             ],
         ]);
-        $json = $authresponse->toArray();
+        return $authresponse->toArray();
+    }
+    public function calculateExecutionTime(float $startTime, string $echoPhrase): string {
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
+    }
+    public function testGetEventCollection(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         // Create 50 Events using our factory
         EventFactory::createMany(50);
-        $startTime = microtime(true);
+
         // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/events', ['auth_bearer' => $json['token']]);
-        $endTime = microtime(true);
+        $response = static::createClient()->request('GET', '/events', ['auth_bearer' => $jwttoken['token']]);
+
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
@@ -66,37 +76,21 @@ class EventTest extends ApiTestCase
         $this->assertCount(30, $response->toArray()['hydra:member']);
 
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
-        // This generated JSON Schema is also used in the OpenAPI spec!
+
         $this->assertMatchesResourceCollectionJsonSchema(Event::class);
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Get all Events execution time: " . $executionTime . " milliseconds\n";
-    }*/
-    /*
+        //endtime to terminal
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get All Events");
+        echo $executionMessage;
+    }
+    
     public function testCreateEvent(): void
     {
-        //get auth token for test \
-        $authclient = self::createClient();
-        
-        // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne([
-            'email' => 'ratchie@rit.edu',
-            'roles' => ['ROLE_ADMIN']
-        ]);
-
-        $userpassword = $user -> getPassword();
-
-        // retrieve a token
-        $authresponse = $authclient->request('POST', '/auth', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'id' => (string) $user->getId(), // Use user ID from the created user
-                'token' => (string) $userpassword, // Token is from the created account
-            ],
-        ]);
-        $json = $authresponse->toArray();
-
         $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+
         $client = static::createClient();
         $client->request('POST', '/events', [
             'headers' => ['Content-Type' => 'application/ld+json'],
@@ -109,9 +103,8 @@ class EventTest extends ApiTestCase
                 'startFlightBooking' => "2025-01-29T18:30:00+00:00",
                 'endFlightBooking' => "2025-01-29T19:01:00+00:00"
             ],
-            'auth_bearer' => $json['token']
+            'auth_bearer' => $jwttoken['token']
         ]);
-        $endTime = microtime(true);
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         $this->assertJsonContains([
@@ -127,39 +120,26 @@ class EventTest extends ApiTestCase
 
         ]);
         $this->assertMatchesResourceItemJsonSchema(Event::class);
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Create Event execution time: " . $executionTime . " milliseconds\n";
-    }*/
-    /*
+        //endtime to terminal
+        $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
+        echo $executionMessage;
+    }
+    
     public function testUpdateEvent(): void
     {
-        //get auth token for test \
-        $authclient = self::createClient();
-        
-        // Create User and Account using Foundry
-        $user = UserFactory::new()->createOne(['email' => 'test@example.com']);
-
-        $userpassword = $user -> getPassword();
-
-        // retrieve a token
-        $authresponse = $authclient->request('POST', '/auth', [
-            'headers' => ['Content-Type' => 'application/json'],
-            'json' => [
-                'id' => (string) $user->getId(), // Use user ID from the created user
-                'token' => (string) $userpassword, // Token is from the created account
-            ],
-        ]);
-        $json = $authresponse->toArray();
-        // Only create the book we need with a given ISBN
-        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        // create event
+        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
-        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
-        $startTime = microtime(true);
+        $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
         // Use the PATCH method here to do a partial update
-        $client->request('PATCH', $iri, [
+        $client->request('PATCH', $eventiri, [
             'json' => [
                 'location' => "Munson's Office",
             ],
@@ -167,38 +147,41 @@ class EventTest extends ApiTestCase
                 'Content-Type' => 'application/merge-patch+json',
             ]
         ]);
-        $endTime = microtime(true);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
-            '@id' => $iri,
+            '@id' => $eventiri,
             'eventTitle' => 'Gavin Rager',
             'location' => "Munson's Office",
         ]);
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Update Event execution time: " . $executionTime . " milliseconds\n";
+        //endtime to terminal
+        $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
+        echo $executionMessage;
     }
-    */
     
-    /*public function testDeleteEvent(): void
+    public function testDeleteEvent(): void
     {
-        // Only create the user we need with a given email
-        EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
-
-        $client = static::createClient();
-        $iri = $this->findIriBy(Event::class, ['eventTitle' => 'Gavin Rager']);
         $startTime = microtime(true);
-        $client->request('DELETE', $iri);
-        $endTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        // create event
+        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
+        
+        $client = static::createClient();
+        
+        $client->request('DELETE', $eventiri, ['auth_bearer' =>$jwttoken['token']]);
+        
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
             static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
         );
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Delete Event execution time: " . $executionTime . " milliseconds\n";
-    }*/
+        
+        $executionMessage = $this->calculateExecutionTime($startTime, "Delete event");
+        echo $executionMessage;
+    }
     
-//}
+}

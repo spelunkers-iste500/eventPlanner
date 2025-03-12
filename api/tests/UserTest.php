@@ -36,6 +36,12 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         ]);
         return $authresponse->toArray();
     }
+    public function calculateExecutionTime(float $startTime, string $echoPhrase): string {
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
+    }
     /* public function testCreateUser(): void
      {
          $startTime = microtime(true);
@@ -64,9 +70,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
              'createdDate' => '2025-01-28T18:01:00+00:00',
          ]);
          $this->assertMatchesResourceItemJsonSchema(User::class);      
-         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-         echo "Create User execution time: " . $executionTime . " milliseconds\n";
+        $executionMessage = $this->calculateExecutionTime($startTime, "Create User");
+        echo $executionMessage;
      }*/
 
      //function to test if a user can patch themselves and not others
@@ -117,10 +122,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         ]);
          $this->assertResponseStatusCodeSame(403);
          //end time calculation
-         $endTime = microtime(true);
-         $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-         $executionTime = round($executionTime, 3); // Round to 3 decimal places
-         echo "Update User execution time: " . $executionTime . " milliseconds\n";
+         $executionMessage = $this->calculateExecutionTime($startTime, "Update User");
+         echo $executionMessage;
      }
      //test to see if only an admin can delete a user
     /* public function testDeleteUser(): void
@@ -152,8 +155,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
             static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ritchie@rit.edu'])
         );
-        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
-        $executionTime = round($executionTime, 3); // Round to 3 decimal places
-        echo "Delete User execution time: " . $executionTime . " milliseconds\n";
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Update User");
+        echo $executionMessage;
      }*/
  }
