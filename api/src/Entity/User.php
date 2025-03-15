@@ -388,6 +388,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             //$org->addUser($this);
         }
     }
+    public function removeOrgMembership(Organization $org): void
+    {
+        if ($this->OrgMembership->contains($org)) {
+            $this->OrgMembership->removeElement($org);
+            //$org->removeUser($this);
+        }
+    }
     /**
      * @var Collection $AdminOfOrg The organizations the user is an admin of
      * Added on the organization side. No setters needed here.
@@ -417,24 +424,22 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @var Collection $flights The flights the user has booked/held
-     * @todo change to ManyToOne, since a flight can only be related to one user
-     */
-    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users",'admins',cascade: ['all'])]
-    #[ORM\JoinTable(name: "users_flights")]
-    private Collection $flights;
-
-    /**
-     * @return Collection The flights the user has booked/held
-     */
-    public function getFlights(): Collection
-    {
-        return $this->flights;
-    }
+ * @var Collection $flights The flights the user has booked/held
+ * @todo change to ManyToOne, since a flight can only be related to one user
+ */
+#[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users', cascade: ['all'])]
+#[ORM\JoinTable(name: 'users_flights')]
+private Collection $flights;
     /**
      * @param Collection $flights The flights the user has booked/held
      * @return void
      */
+
+    public function getFlights(): Collection
+    {
+        return $this->flights;
+    }
+
     public function setFlights(Collection $flights): void
     {
         $this->flights = $flights;
