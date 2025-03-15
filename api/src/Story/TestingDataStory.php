@@ -53,7 +53,7 @@ final class TestingDataStory extends Story
 
         //create users
         $user = $this->createUser('Spleunkers', 'user','user@rit.edu', 'spleunkers123', false, $org1);
-        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin','ratchie@rit.edu', 'spleunkers123', false, $org1);
+        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin','budgetadmin@rit.edu', 'spleunkers123', false, $org1);
         $orgAdmin = $this->createUser('Spleunkers', 'orgAdmin', 'orgadmin@rit.edu', 'spleunkers123', false, $org1);
         $eventadmin = $this->createUser('Spleunkers', 'eventAdmin','eventadmin@rit.edu', 'spleunkers123', false, $org1);
         $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spleunkers123', true, $org1);
