@@ -181,7 +181,6 @@ class Budget
         // and return unique
         $admins = new ArrayCollection();
         $admins->add($this->financialPlannerID);
-        $admins->add($this->event->getFinanceAdmins());
         $admins->add($this->organization->getFinanceAdmins());
         return $admins;
     }
