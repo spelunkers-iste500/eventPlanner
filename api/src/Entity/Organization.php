@@ -60,6 +60,11 @@ class Organization
     #[ORM\Column(name: 'id', type: 'integer')]
     #[Groups(['org:read', 'org:write', 'org:collectionRead'])]
     private int $id;
+    
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     /**
      * @var string $name the name of the organization
@@ -163,20 +168,50 @@ class Organization
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'OrgMembership')]
     private Collection $users;
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
 
     // All users that are org admins
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'AdminOfOrg')]
     #[Groups(['org:read', 'org:write'])]
+    
+    public function getAdmins(): Collection
+    {
+        return $this->admins;
+    }
     private Collection $admins;
+    public function addAdmin(User $user): self
+    {
+        if (!$this->admins->contains($user)) {
+            $this->admins[] = $user;
+        }
+        return $this;
+    }
+    public function removeAdmin(User $user): self
+    {
+        $this->admins->removeElement($user);
+        return $this;
+    }
+
 
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'organization')]
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id')]
     #[Groups(['org:read', 'org:write'])]
     private ?Collection $events;
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
 
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization', cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
     private ?Collection $budgets;
+    public function getBudgets(): Collection
+    {
+        return $this->budgets;
+    }
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private \DateTimeInterface $lastModified;
@@ -184,36 +219,10 @@ class Organization
     #[ORM\Column(type: 'datetime', nullable: true)]
     private \DateTimeInterface $createdDate;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg')]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg',cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
     private collection $financeAdmins;
 
-    public function __construct()
-    {
-        $this->users = new ArrayCollection();
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
-    }
-    public function getId(): int
-    {
-        return $this->id;
-    }
-    public function getAdmins(): Collection
-    {
-        return $this->admins;
-    }
-    public function getUsers(): Collection
-    {
-        return $this->users;
-    }
-    public function getEvents(): Collection
-    {
-        return $this->events;
-    }
-    public function getBudgets(): Collection
-    {
-        return $this->budgets;
-    }
     public function getFinanceAdmins(): Collection
     {
         return new ArrayCollection(
@@ -237,4 +246,13 @@ class Organization
         $this->financeAdmins->removeElement($user);
         return $this;
     }
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
+
+
 }
