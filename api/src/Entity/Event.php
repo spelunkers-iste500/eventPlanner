@@ -93,18 +93,40 @@ class Event
     #[ORM\Column(name: 'id', type: 'integer')]
     #[Groups(['read:event', 'write:event'])]
     public int $id;
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     #[ORM\Column(length: 55)]
     #[Groups(['read:event', 'write:event'])]
     public string $eventTitle;
+    public function getEventTitle(): string
+    {
+        return $this->eventTitle;
+    }
+    public function setEventTitle(string $eventTitle): self
+    {
+        $this->eventTitle = $eventTitle;
+        return $this;
+    }
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:event', 'write:event'])]
     public \DateTimeInterface $startDateTime;
+    public function getStartDateTime(): \DateTimeInterface
+    {
+        return $this->startDateTime;
+    }
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:event', 'write:event'])]
     public \DateTimeInterface $endDateTime;
+    // Getter for endDateTime
+    public function getEndDateTime(): \DateTimeInterface
+    {
+        return $this->endDateTime;
+    }
 
     #[ORM\Column(type: 'datetime')]
     #[Groups(['read:event', 'write:event'])]
@@ -132,12 +154,31 @@ class Event
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['read:event', 'write:event'])]
     public Organization $organization;
-
+    public function getOrganization(): Organization
+    {
+        return $this->organization;
+    }
+    public function setOrganization(Organization $organization): self
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+    
     //Relationships
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
     public Budget $budget;
+    public function getBudget(): Budget
+    {
+        return $this->budget;
+    }
+    public function setBudget(Budget $budget): self
+    {
+        $this->budget = $budget;
+        return $this;
+    }
+
 
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
@@ -187,53 +228,5 @@ class Event
         $this->attendees = new ArrayCollection();
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
-    public function getOrganization(): Organization
-    {
-        return $this->organization;
-    }
-    public function setOrganization(Organization $organization): self
-    {
-        $this->organization = $organization;
-        return $this;
-    }
-    public function getBudget(): Budget
-    {
-        return $this->budget;
-    }
-    public function setBudget(Budget $budget): self
-    {
-        $this->budget = $budget;
-        return $this;
-    }
-    public function getEventTitle(): string
-    {
-        return $this->eventTitle;
-    }
-    public function setEventTitle(string $eventTitle): self
-    {
-        $this->eventTitle = $eventTitle;
-        return $this;
-    }
-
-    #[Groups(['read:event'])]
-    public function getTestField(): string
-    {
-        return 'test';
-    }
-
-    public function getStartDateTime(): \DateTimeInterface
-    {
-        return $this->startDateTime;
-    }
-
-    // Getter for endDateTime
-    public function getEndDateTime(): \DateTimeInterface
-    {
-        return $this->endDateTime;
-    }
 }
