@@ -176,12 +176,13 @@ class Organization
     // All users that are org admins
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'AdminOfOrg')]
     #[Groups(['org:read', 'org:write'])]
+    private Collection $admins;
     
     public function getAdmins(): Collection
     {
         return $this->admins;
     }
-    private Collection $admins;
+    
     public function addAdmin(User $user): self
     {
         if (!$this->admins->contains($user)) {
@@ -194,7 +195,25 @@ class Organization
         $this->admins->removeElement($user);
         return $this;
     }
-
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'eventAdminOfOrg', cascade: ['all'])]
+    private Collection $eventadmins;
+    public function getEventAdmins(): Collection
+    {
+        return $this->eventadmins;
+    }
+    public function addEventAdmin(User $user): self
+    {
+        if (!$this->eventadmins->contains($user)) {
+            $this->eventadmins[] = $user;
+        }
+        return $this;
+    }
+    public function removeEventAdmin(User $user): self
+    {
+        $this->eventadmins->removeElement($user);
+        return $this;
+    }
+    
 
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'organization')]
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id')]

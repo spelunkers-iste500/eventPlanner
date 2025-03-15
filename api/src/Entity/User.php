@@ -497,7 +497,28 @@ private Collection $flights;
             //$org->addFinanceAdmin($this);
         }
     }
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventAdmins',cascade: ['all'])]
+    #[JoinTable(name: 'organizations_event_admins')]
+    private Collection $eventAdminOfOrg;
 
+    /**
+     * @return Collection The events the user is a event admin of
+     */
+    public function getEventAdminOfOrg(): Collection
+    {
+        return $this->eventAdminOfOrg;
+    }
+    public function setEventAdminOfOrg(Collection $eventAdminOfOrg): void
+    {
+        $this->eventAdminOfOrg = $eventAdminOfOrg;
+    }
+    public function addEventAdminOfOrg(Organization $org): void
+    {
+        if (!$this->eventAdminOfOrg->contains($org)) {
+            $this->eventAdminOfOrg[] = $org;
+            //$org->addEventAdmin($this);
+        }
+    }
     /**
      * @var Collection $primaryContactOfOrg The organizations the user is the primary contact of
      */
