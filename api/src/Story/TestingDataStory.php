@@ -58,9 +58,9 @@ final class TestingDataStory extends Story
         $eventadmin = $this->createUser('Spleunkers', 'eventAdmin','eventadmin@rit.edu', 'spleunkers123', false, $org1);
         $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spleunkers123', true, $org1);
         //add user permissions
-       // $org1->addAdmin($orgAdmin);
-        $org1->addEventAdmin($eventadmin);
-        $org1->addFinanceAdmins($budgetUser);
+        //$org1->addAdmin($orgAdmin);
+        //$org1->addEventAdmin($eventadmin);
+       // $org1->addFinanceAdmins($budgetUser);
         $org1->_save();
         //create budgets and events
         BudgetFactory::createMany(10, function() use ($org1) {

@@ -174,7 +174,7 @@ class Organization
     }
 
     // All users that are org admins
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'AdminOfOrg')]
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'AdminOfOrg', cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
     private Collection $admins;
     
