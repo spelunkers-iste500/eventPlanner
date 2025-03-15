@@ -269,8 +269,12 @@ class Organization
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->admins = new ArrayCollection();
+        $this->eventadmins = new ArrayCollection();
+        $this->financeAdmins = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+
     }
 
 

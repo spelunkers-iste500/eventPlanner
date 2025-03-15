@@ -11,28 +11,35 @@ use App\Factory\UserFactory;
 use App\Factory\OrganizationFactory;
 use App\Factory\EventFactory;
 use App\Factory\BudgetFactory;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class TestingDataStory extends Story
 {
-    protected function setUp(): void
-     {
-         parent::setUp();
-         self::ensureKernelShutdown();
-         self::bootKernel();
-     }
-     public function createUser(string $firstname, string $lastname, string $email, string $plainPassword, bool $superAdmin, Organization $org): User {
-        $container = self::getContainer();
+    private EntityManagerInterface $entityManager;
+    private UserPasswordHasherInterface $passwordHasher;
+
+    public function __construct(EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordHasher)
+    {
+        $this->entityManager = $entityManager;
+        $this->passwordHasher = $passwordHasher;
+    }
+
+    public function createUser(string $firstname, string $lastname, string $email, string $plainPassword, bool $superAdmin, Organization $org): User
+    {
         $user = UserFactory::createOne([
             'firstname' => $firstname,
             'lastname' => $lastname,
-            'email' => $email, 
+            'email' => $email,
             'superAdmin' => $superAdmin,
-            'orgmemberships' => new ArrayCollection([$org]) // Add organization to orgmemberships
+            //'OrgMembership' => new ArrayCollection([$org]) // Add organization to orgmemberships
         ]);
-        $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
+
+        $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
-        $user->_save(); // Save the user after setting the password
+
+        $user->_save();
         return $user;
     }
     public function build(): void
@@ -51,7 +58,7 @@ final class TestingDataStory extends Story
         $eventadmin = $this->createUser('Spleunkers', 'eventAdmin','eventadmin@rit.edu', 'spleunkers123', false, $org1);
         $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spleunkers123', true, $org1);
         //add user permissions
-        $org1->addAdmin($orgAdmin);
+       // $org1->addAdmin($orgAdmin);
         $org1->addEventAdmin($eventadmin);
         $org1->addFinanceAdmins($budgetUser);
         $org1->_save();
