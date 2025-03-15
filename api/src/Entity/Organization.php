@@ -13,6 +13,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
+use App\Entity\User;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -187,6 +188,7 @@ class Organization
     {
         if (!$this->admins->contains($user)) {
             $this->admins[] = $user;
+            $user->addAdminOfOrg($this);
         }
         return $this;
     }
@@ -253,10 +255,13 @@ class Organization
             )
         );
     }
+
+    //change to where you can specify other users as financial admins (it is current attached to only this user)
     public function addFinanceAdmins(User $user): self
     {
         if (!$this->financeAdmins->contains($user)) {
             $this->financeAdmins[] = $user;
+            $user->addFinanceAdminOfOrg($this);
         }
         return $this;
     }
