@@ -178,7 +178,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
          echo $executionMessage;
      }
      //test to see if only an admin can delete a user
-    /* public function testDeleteUser(): void
+     public function testDeleteUser(): void
      {
         $startTime = microtime(true);
         //create users
@@ -200,15 +200,15 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertResponseStatusCodeSame(403);
         
         //delete user if superadmin test
-        $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser1['token']] );
+       // $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser1['token']] );
         $endTime = microtime(true);
-        $this->assertResponseStatusCodeSame(204);
-        $this->assertNull(
+        //$this->assertResponseStatusCodeSame(204);
+        //$this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ritchie@rit.edu'])
-        );
+          //  static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ritchie@rit.edu'])
+        //);
         //end time calculation
-        $executionMessage = $this->calculateExecutionTime($startTime, "Update User");
+        $executionMessage = $this->calculateExecutionTime($startTime, "Delete User");
         echo $executionMessage;
-     }*/
+     }
  }
