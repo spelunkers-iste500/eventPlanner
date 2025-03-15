@@ -378,7 +378,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
-    #[Groups(['user:write', 'edit:user:limited'])] //remove edit:user:limited for prod
+    #[Groups(['user:write'])] //remove edit:user:limited for prod
     private Collection $AdminOfOrg;
 
     /**

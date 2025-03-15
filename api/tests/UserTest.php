@@ -42,38 +42,90 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
     }
-    /* public function testCreateUser(): void
+     public function testCreateUser(): void
      {
          $startTime = microtime(true);
          $response = static::createClient()->request('POST', '/users', [
-             'headers' => ['Content-Type' => 'application/ld+json'],
-             'json' => [
-                 'name' => 'Ritchie',
-                 'email' => 'ritchie@rit.edu',
-                 'emailVerified' => '2025-01-28T18:01:00+00:00',
-                 'image' => 'https://www.rit.edu/blog/sites/rit.edu.blog/files/styles/blog_author_600_x_600_focused_/public/images/blog-author/Screen%20Shot%202021-03-24%20at%209.45.15%20AM.png?h=687e6f5a&itok=V2F-hH8I',
-                 'lastModified' => '2025-01-28T18:01:00+00:00',
-                 'createdDate' => '2025-01-28T18:01:00+00:00',
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => [
+                'email' => 'ratchie@rit.edu', 
+                'superAdmin' => false, 
+                'firstName' => 'Ratchie',
+                'lastName' => 'The Tiger',
+                'phoneNumber' => '+15854755000',
+                'gender' => 'm',
+                'title' => 'mr',
+                'plainPassword' => 'spleunkers123',
+                'birthday' => '2000-01-01T00:00:00+00:00'
              ]
          ]);
-         $endTime = microtime(true);
          $this->assertResponseStatusCodeSame(201);
          $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
          $this->assertJsonContains([
-             '@context' => '/contexts/User',
-             '@type' => 'User',
-             'name' => 'Ritchie',
-             'email' => 'ritchie@rit.edu',
-             'emailVerified' => '2025-01-28T18:01:00+00:00',
-             'image' => 'https://www.rit.edu/blog/sites/rit.edu.blog/files/styles/blog_author_600_x_600_focused_/public/images/blog-author/Screen%20Shot%202021-03-24%20at%209.45.15%20AM.png?h=687e6f5a&itok=V2F-hH8I',
-             'lastModified' => '2025-01-28T18:01:00+00:00',
-             'createdDate' => '2025-01-28T18:01:00+00:00',
+            '@context' => '/contexts/User',
+            '@type' => 'User',
+            'email' => 'ratchie@rit.edu', 
+            'name' => 'Ratchie The Tiger',
+            'birthday' => '2000-01-01T00:00:00+00:00',
+            'gender' => 'm',
+            'title' => 'mr',
+            'phoneNumber' => '+15854755000',
+            'superAdmin' => false
          ]);
          $this->assertMatchesResourceItemJsonSchema(User::class);      
         $executionMessage = $this->calculateExecutionTime($startTime, "Create User");
         echo $executionMessage;
-     }*/
+     }
+    //function to test get user permissions
+    public function testPermissionGetUser(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $container = self::getContainer();
+        //user user factory instead of function because i need specific fields
+        $user = UserFactory::createOne([
+            'email' => 'ratchie@rit.edu', 
+            'superAdmin' => false, 
+            'firstName' => 'Ratchie',
+            'lastName' => 'The Tiger',
+            'phoneNumber' => '585-555-5555',
+            'gender' => 'M',
+            'birthday' => new \DateTime('2000-01-01T00:00:00+00:00')
+            ]);
+        $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, 'spleunkers123');
+        $user->setPassword($hashedPassword);
+        $user->_save(); // Save the user after setting the password
 
+        //create 2nd user for deny testing
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $user1Iri = $this->findIriBy(User::class, ['id' => $user->getId()]);
+        $user2Iri = $this->findIriBy(User::class, ['id' => $user2->getId()]);
+        
+        // Use the get method to get info on user
+        $client->request('GET', $user1Iri, ['auth_bearer' => $jwttoken['token']]);
+       
+        //verify user is good
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $user1Iri,
+            'email' => 'ratchie@rit.edu',
+            'name' => 'Ratchie The Tiger',
+            'birthday' => '2000-01-01T00:00:00+00:00',
+            'gender' => 'M',
+            'phoneNumber' => '585-555-5555'
+        ]);
+        //test to see if user can't patch another user
+        $client->request('GET', $user2Iri, ['auth_bearer' => $jwttoken['token']]);
+        $this->assertResponseStatusCodeSame(403);
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get User");
+        echo $executionMessage;
+    }
      //function to test if a user can patch themselves and not others
      public function testPermissionUpdateUser(): void
      {
