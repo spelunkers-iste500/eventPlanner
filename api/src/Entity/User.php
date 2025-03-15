@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
@@ -44,7 +45,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "is_granted('edit', object)", // Checks edit permission for the specific user
     denormalizationContext: ['groups' => ['edit:user:limited']]
 )]
-
+//User.Admin.delete
+#[Delete(
+    security: "is_granted('ROLE_ADMIN')",
+    description: "Deletes a User. Users can only delete if they're a platform admin",
+    requirements: ['id' => '\d+']
+)]
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
@@ -371,12 +377,22 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->OrgMembership;
     }
-
+    public function setOrgMembership(Collection $OrgMembership): void
+    {
+        $this->OrgMembership = $OrgMembership;
+    }
+    public function addOrgMembership(Organization $org): void
+    {
+        if (!$this->OrgMembership->contains($org)) {
+            $this->OrgMembership[] = $org;
+            //$org->addUser($this);
+        }
+    }
     /**
      * @var Collection $AdminOfOrg The organizations the user is an admin of
      * Added on the organization side. No setters needed here.
      */
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins',cascade: ['all'])]
     #[ORM\JoinTable(name: 'organizations_admins')]
     #[Groups(['user:write'])] //remove edit:user:limited for prod
     private Collection $AdminOfOrg;
@@ -388,12 +404,23 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->AdminOfOrg;
     }
+    public function setAdminOfOrg(Collection $AdminOfOrg): void
+    {
+        $this->AdminOfOrg = $AdminOfOrg;
+    }
+    public function addAdminOfOrg(Organization $org): void
+    {
+        if (!$this->AdminOfOrg->contains($org)) {
+            $this->AdminOfOrg[] = $org;
+            //$org->addAdmin($this);
+        }
+    }
 
     /**
      * @var Collection $flights The flights the user has booked/held
      * @todo change to ManyToOne, since a flight can only be related to one user
      */
-    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users")]
+    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: "users",'admins',cascade: ['all'])]
     #[ORM\JoinTable(name: "users_flights")]
     private Collection $flights;
 
@@ -432,11 +459,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->eventsAttending = $eventsAttending;
     }
+    public function addEventAttending(Event $event): void
+    {
+        if (!$this->eventsAttending->contains($event)) {
+            $this->eventsAttending[] = $event;
+            //$event->addAttendee($this);
+        }
+    }
 
     /**
      * @var Collection $adminOfEvents The events the user is a finance admin of
      */
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins')]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins',cascade: ['all'])]
     #[JoinTable(name: 'organizations_finance_admins')]
     private Collection $financeAdminOfOrg;
 
@@ -446,6 +480,17 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getFinanceAdminOfOrg(): Collection
     {
         return $this->financeAdminOfOrg;
+    }
+    public function setFinanceAdminOfOrg(Collection $financeAdminOfOrg): void
+    {
+        $this->financeAdminOfOrg = $financeAdminOfOrg;
+    }
+    public function addFinanceAdminOfOrg(Organization $org): void
+    {
+        if (!$this->financeAdminOfOrg->contains($org)) {
+            $this->financeAdminOfOrg[] = $org;
+            //$org->addFinanceAdmin($this);
+        }
     }
 
     /**
