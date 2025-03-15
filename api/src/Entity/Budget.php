@@ -146,26 +146,6 @@ class Budget
     #[ORM\OneToOne(targetEntity: Event::class)]
     #[Groups(['read:budget', 'write:budget'])]
     public Event $event;
-
-    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
-    #[Groups(['read:budget', 'write:budget'])]
-    public Organization $organization;
-
-    public function __construct()
-    {
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
-    }
-    
-    public function getOrganization(): Organization
-    {
-        return $this->organization;
-    }
-    public function setOrganization(Organization $organization): self
-    {
-        $this->organization = $organization;
-        return $this;
-    }
     public function getEvent(): Event
     {
         return $this->event;
@@ -175,6 +155,26 @@ class Budget
         $this->event = $event;
         return $this;
     }
+
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
+    #[Groups(['read:budget', 'write:budget'])]
+    public Organization $organization;
+    public function getOrganization(): Organization
+    {
+        return $this->organization;
+    }
+    public function setOrganization(Organization $organization): self
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
+    
     public function getFinanceAdmins(): Collection
     {
         // should combine finance admins from the budget, the event, and the org,
