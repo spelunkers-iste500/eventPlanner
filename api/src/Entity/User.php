@@ -20,20 +20,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ApiResource]
-#[Get(security: "is_granted('view', object)")]
+//User.Get.Info
+#[Get(
+    security: "is_granted('view', object)",
+    normalizationContext: ['groups' => ['user:read']]
+)]
 //User.Create --This is working how I expect so far
 #[Post(
     description: "Creates a new user. Users can only create if they're a platform admin",
     processor: UserPasswordHasher::class,
-    denormalizationContext: ['groups' => ['user:create']],
-    normalizationContext: ['groups' => ['user:read']]
+    denormalizationContext: ['groups' => ['user:create']]
 )]
 //Org.Admin.View
 #[GetCollection(
-    security: "is_granted('edit', object)",
+    security: "is_granted('view', object)",
     uriTemplate: '/organizations/{orgId}/users/',
     requirements: ['orgId' => '\d+'],
-    normalizationContext: ['groups' => ['read:event']]
+    normalizationContext: ['groups' => ['user:org:read']]
 )]
 //User.Change --This is working how I expect so far
 #[Patch(
@@ -51,7 +54,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create'])]
+    #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create', 'user:org:read'])]
     private int $id;
 
     /**
@@ -79,7 +82,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'First name cannot be null')]
-    #[Groups(['user:write', 'user:create', 'edit:user:limited'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read'])]
     private string $firstName;
 
     /**
@@ -103,7 +106,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'Last name cannot be null')]
-    #[Groups(['user:write', 'user:create', 'edit:user:limited'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read'])]
     private string $lastName;
 
     /**
@@ -138,7 +141,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
-    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read'])]
     public string $email;
 
     /**
@@ -222,7 +225,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Column(type: 'string', length: 13)]
     // #[Assert\Regex(pattern: '\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')]
-    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read'])]
     private string $phoneNumber;
 
     /**
@@ -375,7 +378,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins')]
     #[ORM\JoinTable(name: 'organizations_admins')]
-    #[Groups(['user:write'])]
+    #[Groups(['user:write', 'edit:user:limited'])] //remove edit:user:limited for prod
     private Collection $AdminOfOrg;
 
     /**
@@ -469,7 +472,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $superAdmin The super admin status of the user
      */
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['user:read'])]
+    #[Groups(['user:read', 'user:write', 'user:create'])] //remove write and create for prod
     private bool $superAdmin;
 
     /**
@@ -477,10 +480,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     public function getRoles(): array
     {
-        // guarantee every user at least has ROLE_USER
-        // if ($this->superAdmin) {
-        //     return ['ROLE_ADMIN'];
-        // }
+        //guarantee every user at least has ROLE_USER
+        if ($this->superAdmin) {
+            return ['ROLE_ADMIN'];
+        }
         return [];
     }
     /**

@@ -15,35 +15,42 @@ use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
-#[ApiResource(
-    normalizationContext: ['groups' => ['org:read']],
-    denormalizationContext: ['groups' => ['org:write']],
-)]
+#[ApiResource]
 // TODO: implement filters to reduce the amount of data that
 // is returned to the user when searching for all organizations
 #[GetCollection(
     security: "is_granted('ROLE_ADMIN')",
     denormalizationContext: ['groups' => ['org:collectionRead']],
     description: "Gets all organizations, requires admin role",
+    normalizationContext: ['groups' => ['org:read:collection']]
 )]
 // users can only view if they're part of the org
+//org.user.view
 #[Get(
     security: "is_granted('view', object)",
     description: "Gets a single organization. Users can only view if they're part of the org, or an admin",
+    requirements: ['id' => '\d+'],
+    normalizationContext: ['groups' => ['org:read']]
 )]
 // users can only edit if they're an admin of the org
+//org.orgadmin.change
 #[Patch(
     security: "is_granted('edit', object)",
     description: "Edits an organization. Users can only edit if they're an admin",
+    denormalizationContext: ['groups' => ['org:write']]
 )]
 // users can only create or destroy if they're a platform admin
+//org.orgadmin.create
 #[Post(
     security: "is_granted('ROLE_ADMIN')",
     description: "Creates a new organization. Users can only create if they're a platform admin",
+    denormalizationContext: ['groups' => ['org:write']]
 )]
+//org.orgadmin.delete
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes an organization. Users can only delete if they're a platform admin",
+    requirements: ['id' => '\d+']
 )]
 #[ORM\Table(name: 'organization')]
 class Organization
