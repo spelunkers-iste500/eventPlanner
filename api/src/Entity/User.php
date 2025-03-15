@@ -640,6 +640,15 @@ private Collection $flights;
         return $this;
     }
 
+    //WHERE I LEFT OFF
+    public function getUsersForOrganization(int $orgId)
+{
+    //Getting org by it's ORG id that the user belongs to
+    //Get users from org given that the user has permissions
+    //return users from that org via filters
+    return null;
+}
+
     /**
      * @param string $firstName The first name of the user
      * @param string $lastName The last name of the user
