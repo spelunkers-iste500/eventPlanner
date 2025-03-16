@@ -168,6 +168,7 @@ class Organization
     }
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'OrgMembership')]
+    #[Groups(['org:read'])]
     private Collection $users;
     public function getUsers(): Collection
     {

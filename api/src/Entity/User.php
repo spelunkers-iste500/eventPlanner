@@ -35,7 +35,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 //Org.Admin.View
 #[GetCollection(
     security: "is_granted('view', object)",
-    uriTemplate: '/organizations/{orgId}/users/',
+    uriTemplate: '/organizations/{orgId}.{_format}/users/',
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['user:org:read']]
 )]
@@ -367,7 +367,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users', cascade: ['all'])]
     #[ORM\JoinTable(name: 'organizations_members')]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'edit:user:limited'])]
     private Collection $OrgMembership;
 
     /**
