@@ -39,14 +39,6 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
                     ->andWhere('o.id = :orgId')
                     ->setParameter('orgId', $orgId);
             }
-            // if (count($orgs) > 0) {
-            //     throw new \RuntimeException('Context: ' . json_encode($context));
-            //     $queryBuilder
-            //         ->andWhere('o.id IN (:orgs)')
-            //         ->setParameter('orgs', $orgs);
-            // } else {
-            //     throw new HttpExceptionInterface('User is not authenticated');
-            // }
         }
         // if the user is not an admin of any organization, return an empty result set
         else {
