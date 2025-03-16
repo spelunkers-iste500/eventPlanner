@@ -86,4 +86,15 @@ class UserRepository extends ServiceEntityRepository
 
         $this->save($user, true);
     }
+    public function getAdminOrgs(User $user): array
+    {
+        // return the organizations the user is an admin of
+        return $user->getAdminOfOrg()->map(function ($org) {
+            return $org->getId();
+        })->toArray();
+    }
+    public function getUserByEmail(string $email): ?User
+    {
+        return $this->findOneBy(['email' => $email]);
+    }
 }

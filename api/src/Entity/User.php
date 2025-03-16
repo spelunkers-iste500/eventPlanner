@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Link;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use App\State\UserPasswordHasher;
@@ -34,8 +35,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Org.Admin.View
 #[GetCollection(
-    security: "is_granted('view', object)",
-    uriTemplate: '/organizations/{orgId}.{_format}/users/',
+    // security: "is_granted('view', object)",
+    uriTemplate: '/organizations/{orgId}/users/.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: User::class,
+            toProperty: 'OrgMembership',
+            description: 'The ID of the organization that owns the users'
+        )
+    ],
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['user:org:read']]
 )]
@@ -399,7 +409,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var Collection $AdminOfOrg The organizations the user is an admin of
      * Added on the organization side. No setters needed here.
      */
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins',cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'admins', cascade: ['all'])]
     #[ORM\JoinTable(name: 'organizations_admins')]
     #[Groups(['user:write'])] //remove edit:user:limited for prod
     private Collection $AdminOfOrg;
@@ -424,12 +434,12 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
- * @var Collection $flights The flights the user has booked/held
- * @todo change to ManyToOne, since a flight can only be related to one user
- */
-#[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users', cascade: ['all'])]
-#[ORM\JoinTable(name: 'users_flights')]
-private Collection $flights;
+     * @var Collection $flights The flights the user has booked/held
+     * @todo change to ManyToOne, since a flight can only be related to one user
+     */
+    #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users', cascade: ['all'])]
+    #[ORM\JoinTable(name: 'users_flights')]
+    private Collection $flights;
     /**
      * @param Collection $flights The flights the user has booked/held
      * @return void
@@ -475,7 +485,7 @@ private Collection $flights;
     /**
      * @var Collection $adminOfEvents The events the user is a finance admin of
      */
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins',cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_finance_admins')]
     private Collection $financeAdminOfOrg;
 
@@ -497,7 +507,7 @@ private Collection $flights;
             //$org->addFinanceAdmin($this);
         }
     }
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventAdmins',cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventAdmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_event_admins')]
     private Collection $eventAdminOfOrg;
 
@@ -642,12 +652,12 @@ private Collection $flights;
 
     //WHERE I LEFT OFF
     public function getUsersForOrganization(int $orgId)
-{
-    //Getting org by it's ORG id that the user belongs to
-    //Get users from org given that the user has permissions
-    //return users from that org via filters
-    return null;
-}
+    {
+        //Getting org by it's ORG id that the user belongs to
+        //Get users from org given that the user has permissions
+        //return users from that org via filters
+        return null;
+    }
 
     /**
      * @param string $firstName The first name of the user
