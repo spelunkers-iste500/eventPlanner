@@ -12,6 +12,7 @@ interface InputProps {
     isPhoneNumber?: boolean;
     children?: React.ReactNode;
     maxlength?: number;
+    inputMode?: 'email' | 'text' | 'search' | 'tel' | 'url' | 'none' | 'numeric' | 'decimal';
     onChange: (value: string) => void;
 }
 
@@ -27,10 +28,12 @@ interface InputProps {
  * @param {string} [props.classes] - Additional CSS classes for the input container.
  * @param {function} props.onChange - Callback function to handle the change event.
  * @param {boolean} [props.isPhoneNumber] - Determines if the input is a phone number.
+ * @param {number} [props.maxlength] - The maximum length of the input field.
+ * @param {string} [props.inputMode] - The input mode for the input field.
  * @param {React.ReactNode} [props.children] - Additional children to be rendered inside the input container.
  * @returns {JSX.Element} The rendered input component.
  */
-const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength }) => {
+const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength, inputMode }) => {
     const [value, setValue] = useState('');
     const [error, setError] = useState('');
 
@@ -64,6 +67,7 @@ const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placehold
                     placeholder={placeholder}
                     value={value}
                     maxLength={maxlength}
+                    inputMode={inputMode}
                     onChange={handleChange}
                 />
             )}

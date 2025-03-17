@@ -63,10 +63,16 @@ const Login: React.FC = () => {
                                 {error && <div className='error-msg'>{error}</div>}
                                 <form className={styles.loginSection} onSubmit={handleSubmit}>
                                     <Input label="Email" type="email" placeholder="Enter your email" onChange={(value) => handleChange('email', value)} />
-                                    <Input label="Password" type="password" onChange={(value) => handleChange('password', value)}>
+                                    <Input label="Password" onChange={(value) => handleChange('password', value)}>
                                         <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" />
                                     </Input>
-                                    <Input label="OTP" type="text" maxlength={6} placeholder="Enter your OTP" onChange={(value) => handleChange('otp', value)} />
+                                    <Input
+                                        label="OTP"
+                                        type="text"
+                                        maxlength={6}
+                                        placeholder="Enter your OTP"
+                                        inputMode="numeric"
+                                        onChange={(value) => handleChange('otp', value)} />
                                     <button type="submit" className={styles.signinBtn}>Sign in</button>
                                 </form>
                             </div>

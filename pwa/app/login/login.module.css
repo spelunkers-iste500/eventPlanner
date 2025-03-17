@@ -10,7 +10,8 @@
 
 .login-box {
     width: 100%;
-    max-width: 350px;
+    max-width: 450px;
+    max-height: 500px;
     margin: 0 auto;
     padding: 2rem;
     background-color: var(--white);
@@ -28,6 +29,8 @@
     flex-direction: column;
     gap: 1rem;
     margin-top: 1rem;
+    overflow: hidden auto;
+    max-height: calc(400px - 2rem);
 }
 
 .signed-in-status {
