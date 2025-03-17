@@ -76,6 +76,7 @@
     background: var(--blue-500);
     color: var(--white);
     width: 100%;
+    margin-top: 1rem;
 }
 
 .signin-btn:hover {
@@ -100,17 +101,6 @@
     width: 100%;
 }
 
-.divider-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--gray-400);
-    font-size: 0.8rem;
-    width: 100%;
-}
-
-.divider {
-    width: 100%;
-    height: 1px;
-    background: var(--gray-400);
+.password-input {
+    height: auto;
 }

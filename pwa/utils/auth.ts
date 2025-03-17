@@ -114,8 +114,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials, req) {
-                var sslRootCAs = require('ssl-root-cas/latest')
-                sslRootCAs.inject()
+                // var sslRootCAs = require('ssl-root-cas/latest')
+                // sslRootCAs.inject()
                 const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
 
                 // Add logic here to look up the user from the credentials supplied
@@ -180,3 +180,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     // },
     }
 )
+
+export const verifyOTP = async (secret: string, token: string) => {
+    try {
+        const response = await axios.post('/api/auth/2fa/verify', { secret, token }, {
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        return response.data.verified;
+    } catch (error) {
+        console.error('Error verifying OTP:', error);
+        return false;
+    }
+};

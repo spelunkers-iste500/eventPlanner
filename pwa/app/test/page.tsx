@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
+import { verifyOTP } from 'Utils/auth';
 
 const BASE_URL = process.env.BASE_URL;
 
@@ -33,31 +34,21 @@ const TwoFactorModal = () => {
     }, [])
 
     /* Validate Code  */
-    const handleOtpChange = async (e: any) => {
+    /* Validate Code */
+    const handleOtpChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      setOtp(e.target.value);
 
-        setOtp(e.target.value);
+      if (e.target.value.length === 6 && secret) {
+          const token = e.target.value;
+          const isVerified = await verifyOTP(secret, token);
 
-        if (e.target.value.length === 6) {
-
-            const token = e.target.value
-            const response = await axios.post('/api/auth/2fa/verify',
-                { secret, token },
-                {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
-                }
-            )
-
-            if (response.data.verified) {
-                console.log('2FA verified')
-            } else {
-                setInvalidOtp(true)
-            }
-
-        }
-
-    };
+          if (isVerified) {
+              console.log('2FA verified');
+          } else {
+              setInvalidOtp(true);
+          }
+      }
+  };
 
     return (
 

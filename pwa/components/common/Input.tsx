@@ -10,6 +10,8 @@ interface InputProps {
     placeholder?: string;
     classes?: string;
     isPhoneNumber?: boolean;
+    children?: React.ReactNode;
+    maxlength?: number;
     onChange: (value: string) => void;
 }
 
@@ -25,9 +27,10 @@ interface InputProps {
  * @param {string} [props.classes] - Additional CSS classes for the input container.
  * @param {function} props.onChange - Callback function to handle the change event.
  * @param {boolean} [props.isPhoneNumber] - Determines if the input is a phone number.
+ * @param {React.ReactNode} [props.children] - Additional children to be rendered inside the input container.
  * @returns {JSX.Element} The rendered input component.
  */
-const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, onChange, isRadio, isPhoneNumber }) => {
+const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength }) => {
     const [value, setValue] = useState('');
     const [error, setError] = useState('');
 
@@ -52,15 +55,18 @@ const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placehold
         <div className={`input-container ${classes ? classes : ''} ${isRadio ? 'radio' : ''}`}>
             <label className='input-label' htmlFor={id ? id : label}>{label}</label>
             {error && <span className='error-msg'>{error}</span>}
-            <input
-                className='input-field'
-                type={isRadio ? 'radio' : type}
-                id={id ? id : label}
-                name={name ? name : label}
-                placeholder={placeholder}
-                value={value}
-                onChange={handleChange}
-            />
+            {children ? children : (
+                <input
+                    className='input-field'
+                    type={isRadio ? 'radio' : type}
+                    id={id ? id : label}
+                    name={name ? name : label}
+                    placeholder={placeholder}
+                    value={value}
+                    maxLength={maxlength}
+                    onChange={handleChange}
+                />
+            )}
         </div>
     );
 };
