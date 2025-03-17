@@ -29,7 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['read:event']]
+    normalizationContext: ['groups' => ['read:event:booking']]
 )]
 //Event.User.Dashboard
 #[Get(
@@ -55,11 +55,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']]
 )]
-//Event.Admin.View
+//Event.Admin.View (WORKS)
 #[GetCollection(
-    // security: "is_granted('edit', object)",
-    uriTemplate: '/events.{_format}',
-    normalizationContext: ['groups' => ['read:event']]
+    //works similar to Org.Admin.View so it may need changed based since it has the same issues
+    security: "is_granted('ROLE_ADMIN')",
+    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: Event::class,
+            toProperty: 'organization',
+            description: 'The ID of the organization that owns the event'
+        )
+    ],
+    requirements: ['orgId' => '\d+'],
+    normalizationContext: ['groups' => ['read:event:collection']]
 )]
 //Event.Admin.Changes
 #[Patch(
@@ -91,7 +102,7 @@ class Event
     #[ORM\GeneratedValue]
     #[ApiProperty(identifier: true)]
     #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
     public int $id;
     public function getId(): int
     {
@@ -99,7 +110,7 @@ class Event
     }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
     public string $eventTitle;
     public function getEventTitle(): string
     {
@@ -112,7 +123,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
     public \DateTimeInterface $startDateTime;
     public function getStartDateTime(): \DateTimeInterface
     {
@@ -120,7 +131,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
     public \DateTimeInterface $endDateTime;
     // Getter for endDateTime
     public function getEndDateTime(): \DateTimeInterface
@@ -129,11 +140,11 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
     public \DateTimeInterface $startFlightBooking;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
@@ -168,6 +179,7 @@ class Event
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['read:event:booking',  'read:event:collection'])]
     public Budget $budget;
     public function getBudget(): Budget
     {
