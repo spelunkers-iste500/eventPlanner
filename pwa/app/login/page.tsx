@@ -72,7 +72,8 @@ const Login: React.FC = () => {
                                         maxlength={6}
                                         placeholder="Enter your OTP"
                                         inputMode="numeric"
-                                        onChange={(value) => handleChange('otp', value)} />
+                                        onChange={(value) => handleChange('otp', value)}
+                                    />
                                     <button type="submit" className={styles.signinBtn}>Sign in</button>
                                 </form>
                             </div>
