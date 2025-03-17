@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from "axios";
-import { verifyOTP } from 'Utils/auth';
+import { verifyOTP } from 'Utils/authUtils';
 
 const BASE_URL = process.env.BASE_URL;
 

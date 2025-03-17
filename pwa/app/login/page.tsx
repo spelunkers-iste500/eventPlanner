@@ -5,7 +5,7 @@ import styles from './login.module.css';
 import Input from 'Components/common/Input';
 import { useRouter } from 'next/navigation';
 import { PasswordInput } from 'Components/ui/password-input';
-import { verifyOTP } from 'Utils/auth';
+import { verifyOTP } from 'Utils/authUtils';
 
 const Login: React.FC = () => {
     const router = useRouter();
