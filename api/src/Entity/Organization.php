@@ -199,6 +199,7 @@ class Organization
         return $this;
     }
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'eventAdminOfOrg', cascade: ['all'])]
+    #[Groups(['org:read','org:write'])]
     private Collection $eventadmins;
     public function getEventAdmins(): Collection
     {

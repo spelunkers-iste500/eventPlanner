@@ -24,14 +24,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']],
 )]
-//Event.User.Book
+//Event.User.Book (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     normalizationContext: ['groups' => ['read:event:booking']]
 )]
-//Event.User.Dashboard
+//Event.User.Dashboard (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
@@ -48,11 +48,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['id' => '\d+', 'orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
-//Event.Admin.Create
+//Event.Admin.Create (WORKS)
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
-    uriTemplate: '/events.{_format}',
+    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: Event::class,
+            toProperty: 'organization',
+            description: 'The ID of the organization that owns the event'
+        )
+        ],
+    requirements: ['orgId' => '\d+'],
     denormalizationContext: ['groups' => ['write:event']]
 )]
 //Event.Admin.View (WORKS)
@@ -72,21 +82,22 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event:collection']]
 )]
-//Event.Admin.Changes
+//Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
-    denormalizationContext: ['groups' => ['write:event']]
+    denormalizationContext: ['groups' => ['write:event:changes']]
 )]
-//Event.Admin.AddAttendees
+//Event.Admin.AddAttendees (DOES NOT WORK)
 #[Patch(
     security: "is_granted('edit', object)",
-    uriTemplate: '/events/addAttendees.{_format}',
+    uriTemplate: '/events/{id}/addAttendees.{_format}',
+    requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['add:event:attendees']],
     processor: EventStateProcessor::class
 )]
-//Event.Admin.delete
+//Event.Admin.delete (WORKS)
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     uriTemplate: '/events/{id}.{_format}',
@@ -110,7 +121,7 @@ class Event
     }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public string $eventTitle;
     public function getEventTitle(): string
     {
@@ -123,7 +134,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $startDateTime;
     public function getStartDateTime(): \DateTimeInterface
     {
@@ -131,7 +142,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event',  'read:event:collection'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $endDateTime;
     // Getter for endDateTime
     public function getEndDateTime(): \DateTimeInterface
@@ -140,11 +151,11 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $startFlightBooking;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
@@ -152,7 +163,7 @@ class Event
     public string $location;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'write:event:changes'])]
     public int $maxAttendees;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -195,14 +206,14 @@ class Event
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees'])]
     private Collection $attendees;
 
     public function getAttendees(): Collection
     {
         return $this->attendees;
     }
-    public function addAttendees(User $attendee): self
+    public function addAttendee(User $attendee): self
     {
         if (!$this->attendees->contains($attendee)) {
             $this->attendees[] = $attendee;
