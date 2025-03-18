@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import { Calendar } from 'lucide-react';
 import { PasswordInput } from 'Components/ui/password-input';
 import axios from 'axios';
+import { signIn } from 'next-auth/react';
 
 interface RegisterInfoProps {
     onSuccess: () => void;
@@ -94,16 +95,17 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 console.log('Registration successful:', response.data);
                 setError('');
 
-                const isAuth = await axios.post('/auth', {
+                const isAuth = await signIn('credentials-no-2fa', {
                     email: formData.email,
-                    password: formData.password
-                }, {
-                    headers: {
-                        "Content-Type": "application/json"
-                    }
+                    password: formData.password,
+                    redirect: false
+                    // callbackUrl: '/'
                 });
 
-                if (isAuth.status === 200) {
+                if (isAuth?.error) {
+                    console.error(isAuth.error);
+                    setError('An error occurred during login');
+                } else {
                     onSuccess();
                 }
             }
