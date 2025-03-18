@@ -35,7 +35,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Org.Admin.View
 #[GetCollection(
-    security: "is_granted('ROLE_ADMIN')", //needs changed or discussed with group but right now this limits who can see members of an org based on just admin not whether they are admin of an org
     uriTemplate: '/organizations/{orgId}/users/.{_format}',
     uriVariables: [
         'orgId' => new Link(
@@ -507,7 +506,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             //$org->addFinanceAdmin($this);
         }
     }
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventAdmins', cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventadmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_event_admins')]
     private Collection $eventAdminOfOrg;
 
