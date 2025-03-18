@@ -106,6 +106,22 @@
 
 .password-input {
     height: auto;
+    position: relative;
+}
+
+.password-input + div > button {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--blue-500);
+
+    & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
 }
 
 .otp-box {
