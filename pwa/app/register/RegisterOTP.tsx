@@ -11,6 +11,7 @@ import Dashboard from 'Components/dashboard/Dashboard';
 const RegisterOTP: React.FC = () => {
     const [otp, setOtp] = useState('');
     const [invalidOtp, setInvalidOtp] = useState(false);
+    const [otpVerified, setOtpVerified] = useState(false);
     const [qrImage, setQrImage] = useState<string | undefined>();
     const [secret, setSecret] = useState<string | undefined>();
 
@@ -47,6 +48,7 @@ const RegisterOTP: React.FC = () => {
                 const isVerified = await verifyOTP(secret, otp);
                 if (isVerified) {
                     console.log('2FA verified');
+                    setOtpVerified(true);
                     setContent(<Dashboard />, 'Dashboard');
                 } else {
                     setInvalidOtp(true);
@@ -54,7 +56,6 @@ const RegisterOTP: React.FC = () => {
             } catch (error) {
                 console.error('Error verifying OTP:', error);
                 setInvalidOtp(true);
-                
             }
         }
     }
@@ -74,7 +75,8 @@ const RegisterOTP: React.FC = () => {
                 onChange={(value) => handleChange(value)}
             />
             {invalidOtp && <p className='error-msg'>Invalid Code</p>}
-            <button className={styles.signinBtn} onClick={handleSubmit}>Submit</button>
+            {otpVerified && <p className={styles.successMsg}>Code Validated, Redirecting...</p>}
+            {!otpVerified && <button className={styles.signinBtn} onClick={handleSubmit}>Submit</button>}
         </>
     );
 };

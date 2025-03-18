@@ -114,3 +114,9 @@
     flex-direction: column;
     margin-bottom: 1rem;
 }
+
+.success-msg {
+    color: var(--blue-500);
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
