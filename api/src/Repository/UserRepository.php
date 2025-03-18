@@ -88,10 +88,7 @@ class UserRepository extends ServiceEntityRepository
     }
     public function getAdminOrgs(User $user): array
     {
-        // return the organizations the user is an admin of
-        return $user->getAdminOfOrg()->map(function ($org) {
-            return $org->getId();
-        })->toArray();
+        return $user->getAdminOfOrg()->toArray();
     }
     public function getUserByEmail(string $email): ?User
     {
