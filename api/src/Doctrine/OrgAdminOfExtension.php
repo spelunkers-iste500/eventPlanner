@@ -8,12 +8,14 @@ use ApiPlatform\Metadata\Operation;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\QueryBuilder;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInterface
 {
-    public function __construct(private Security $security, private UserRepository $uRepo) {}
+    public function __construct(private Security $security, private UserRepository $uRepo, private LoggerInterface $logger) {}
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
@@ -23,14 +25,14 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
         }
         $user = $this->security->getUser();
         if ($user === null) {
-            throw new HttpExceptionInterface('User is not authenticated');
+            // throw new HttpExceptionInterface('User is not authenticated');
         }
         // add where restriction to the query builder to filter users by the organizations the current user is an admin of
-        if ($user instanceof User) {
+        if ($user instanceof UserInterface) {
             $orgs = $this->uRepo->getAdminOrgs($user);
             // if the uriVariables has an orgId, return that organiuzations members
             // only if that user is an admin or event admin of that organization
-            if (isset($context['uriVariables']['orgId'])) {
+            if (isset($context['uriVariables']['orgId']) && (count($orgs) > 0)) {
                 $orgId = $context['uriVariables']['orgId'];
                 if (!in_array($orgId, $orgs)) {
                     throw new HttpExceptionInterface('User is not an admin of this organization');
@@ -38,6 +40,8 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
                 $queryBuilder
                     ->andWhere('o.id = :orgId')
                     ->setParameter('orgId', $orgId);
+            } else {
+                $queryBuilder->andWhere('1 = 0');
             }
         }
         // if the user is not an admin of any organization, return an empty result set

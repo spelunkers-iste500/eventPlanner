@@ -1,3 +1,7 @@
 framework:
     mailer:
-        dsn: '%env(MAILER_DSN)%'
+        envelope:
+            sender: "noreply@spelunkers.xeanto.us"
+        dsn: "%env(MAILER_DSN)%"
+        headers:
+            From: "Travel App - Spelunkers <noreply@spelunkers.xeanto.us>"
