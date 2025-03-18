@@ -190,7 +190,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $jwttokenUser1 = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
 
-        $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $user3Iri = $this->findIriBy(User::class, ['id' => $user3->getId()]);
         // Only create the user we need with a given email
@@ -200,9 +199,9 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertResponseStatusCodeSame(403);
         
         //delete user if superadmin test
-       // $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser1['token']] );
+        $client->request('DELETE', $user3Iri,['auth_bearer' =>$jwttokenUser1['token']] );
         $endTime = microtime(true);
-        //$this->assertResponseStatusCodeSame(204);
+        $this->assertResponseStatusCodeSame(204);
         //$this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
           //  static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'ritchie@rit.edu'])
