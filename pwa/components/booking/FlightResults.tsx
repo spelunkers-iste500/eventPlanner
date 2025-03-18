@@ -1,3 +1,40 @@
+// This file defines a React functional component named `FlightResults` which is used to display and manage the flight search results for an event.
+
+// The component imports several hooks and components from various libraries to manage state, handle content, and render different parts of the flight search results UI.
+
+// The `useEffect` and `useState` hooks from React are used to perform side effects and manage local state in the component.
+// The `useSession` hook from `next-auth/react` is used to get the current user session data.
+// The `useBooking` hook from a custom `BookingProvider` is used to manage the booking data for the event.
+
+// The component imports several utility functions and types from other modules, such as `axios` for making HTTP requests and `date-fns` for date formatting.
+
+// The `FlightResults` component maintains several pieces of state using React's `useState` hook:
+// - `flightResults`: an array of flight offers fetched from the server.
+// - `loading`: a boolean that indicates whether the flight offers are being loaded.
+// - `currentPage`: a number that tracks the current page of results being displayed.
+
+// The `useEffect` hook is used to fetch flight offers from the server when the component mounts or when the `bookingData` changes. 
+// The flight offers are fetched by sending a POST request to the `/flight_offers` endpoint with the search parameters. 
+// If the request is successful, the flight offers are stored in the `flightResults` state and the `loading` state is set to false. 
+// If the request fails, an error is logged to the console.
+
+// The `handleClick` function is defined to handle the click event on a flight offer. It sets the selected offer in the booking data and updates the content to the `FlightBooking` component.
+
+// The `onPrevious` function is defined to handle the back button click event. It sets the content to the `FlightSearch` component.
+
+// The `showMoreResults` function is defined to handle the click event on the "Show More" button. It increments the `currentPage` state to display more results.
+
+// The `formatDuration` function is defined to format the flight duration string into a more readable format.
+
+// The `FlightResults` component returns a JSX structure that represents the flight search results. This structure includes:
+// - A header section with a back button and a heading displaying the number of results.
+// - A section displaying the flight results, which includes a list of flight offers. Each offer displays the flight details, including the departure and arrival times, route, duration, price, and airline name.
+// - A "Show More" button to display more results if there are more results available.
+
+// The component uses CSS modules for styling, with classes imported from `EventForm.module.css`.
+
+// Finally, the `FlightResults` component is exported as the default export of the module.
+
 import React, { useEffect, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { Spinner } from '@chakra-ui/react';
