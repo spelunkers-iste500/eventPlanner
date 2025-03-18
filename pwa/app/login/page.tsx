@@ -86,7 +86,7 @@ const Login: React.FC = () => {
                                         <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" />
                                     </Input>
                                     <Input
-                                        label="OTP"
+                                        label="One-Type Passcode (OTP)"
                                         type="text"
                                         maxlength={6}
                                         placeholder="Enter your OTP"
