@@ -1,12 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import axios from "axios";
+import axios from 'axios';
 import { verifyOTP } from 'Utils/authUtils';
 import styles from '../login/login.module.css';
 import Input from 'Components/common/Input';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
-// import QRCode from "qrcode";
+// import QRCode from 'qrcode';
 
 const RegisterOTP: React.FC = () => {
     const [otp, setOtp] = useState('');
@@ -26,7 +26,8 @@ const RegisterOTP: React.FC = () => {
             });
     
             if (response.data.status === 200) {
-                // const qrCode = await QRCode.toDataUsRL(response.data.secret);
+                // const qrCode = await QRCode.toDataURL(response.data.data);
+                // setQrImage(qrCode);
                 setQrImage(response.data.data);
                 setSecret(response.data.secret);
             }
@@ -40,16 +41,21 @@ const RegisterOTP: React.FC = () => {
         setOtp(value);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (otp.length === 6 && secret) {
-            verifyOTP(secret, otp).then((isVerified) => {
+            try {
+                const isVerified = await verifyOTP(secret, otp);
                 if (isVerified) {
                     console.log('2FA verified');
                     setContent(<Dashboard />, 'Dashboard');
                 } else {
                     setInvalidOtp(true);
                 }
-            });
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
+                setInvalidOtp(true);
+                
+            }
         }
     }
 
@@ -60,7 +66,7 @@ const RegisterOTP: React.FC = () => {
                 <p className={styles.otpInstructions}>Scan the QR Code with your Authenticator app and enter the code below.</p>
             </div>
             <Input
-                label="OTP"
+                label="One-Time Passcode (OTP)"
                 type="text"
                 maxlength={6}
                 placeholder="Enter your OTP"
