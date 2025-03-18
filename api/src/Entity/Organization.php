@@ -61,7 +61,7 @@ class Organization
     #[ORM\Column(name: 'id', type: 'integer')]
     #[Groups(['org:read', 'org:write', 'org:collectionRead'])]
     private int $id;
-    
+
     public function getId(): int
     {
         return $this->id;
@@ -179,12 +179,12 @@ class Organization
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'AdminOfOrg', cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
     private Collection $admins;
-    
+
     public function getAdmins(): Collection
     {
         return $this->admins;
     }
-    
+
     public function addAdmin(User $user): self
     {
         if (!$this->admins->contains($user)) {
@@ -199,7 +199,7 @@ class Organization
         return $this;
     }
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'eventAdminOfOrg', cascade: ['all'])]
-    #[Groups(['org:read','org:write'])]
+    #[Groups(['org:read', 'org:write'])]
     private Collection $eventadmins;
     public function getEventAdmins(): Collection
     {
@@ -217,7 +217,7 @@ class Organization
         $this->eventadmins->removeElement($user);
         return $this;
     }
-    
+
 
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'organization')]
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id')]
@@ -242,7 +242,20 @@ class Organization
     #[ORM\Column(type: 'datetime', nullable: true)]
     private \DateTimeInterface $createdDate;
 
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg',cascade: ['all'])]
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[Groups(['org:read', 'org:write'])]
+    private ?string $inviteCode;
+
+    public function getInviteCode(): string
+    {
+        return $this->inviteCode;
+    }
+    public function setInviteCode(string $inviteCode): void
+    {
+        $this->inviteCode = $inviteCode;
+    }
+
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg', cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
     private collection $financeAdmins;
 
@@ -281,8 +294,5 @@ class Organization
         $this->financeAdmins = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
-
     }
-
-
 }

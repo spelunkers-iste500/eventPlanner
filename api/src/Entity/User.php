@@ -506,7 +506,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             //$org->addFinanceAdmin($this);
         }
     }
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventAdmins', cascade: ['all'])]
+    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventadmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_event_admins')]
     private Collection $eventAdminOfOrg;
 
