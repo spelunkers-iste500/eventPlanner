@@ -39,6 +39,25 @@ const Login: React.FC = () => {
                 return;
             }
         }
+
+        signIn('credentials-2fa', {
+            email: formData.email,
+            password: formData.password,
+            otp: formData.otp,
+            redirect: false,
+            callbackUrl: '/'
+        }).then((response) => {
+            if (response?.error) {
+                setError(response.error);
+            } else {
+                router.push('/');
+            }
+        }
+        ).catch((err) => {
+            console.error('Login error:', err);
+            setError('An error occurred during login');
+        }
+        );
     };
 
     return (

@@ -1,11 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useId } from 'react';
 import styles from '../login/login.module.css';
 import Input from 'Components/common/Input';
 import { Select } from 'chakra-react-select';
 import DatePicker from 'react-datepicker';
 import { Calendar } from 'lucide-react';
 import { PasswordInput } from 'Components/ui/password-input';
+import axios from 'axios';
 
 interface RegisterInfoProps {
     onSuccess: () => void;
@@ -13,6 +14,8 @@ interface RegisterInfoProps {
 
 const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
     const [error, setError] = useState('');
+    const titleId = useId();
+    const genderId = useId();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -59,7 +62,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
         return '';
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const errorMessage = validateForm();
         if (errorMessage) {
@@ -67,8 +70,47 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             return;
         }
 
-        // Proceed with form submission
-        onSuccess();
+        // Format the request data to match the API route format
+        const requestData = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            phoneNumber: formData.phoneNumber,
+            birthday: new Date(formData.birthday).toISOString(),
+            title: formData.title,
+            gender: formData.gender,
+            plainPassword: formData.password
+        };
+
+        // send post request to /users using axios
+        try {
+            const response = await axios.post('/users', requestData, {
+                headers: {
+                    "Content-Type": "application/ld+json"
+                }
+            });
+
+            if (response.status === 201) {
+                console.log('Registration successful:', response.data);
+                setError('');
+
+                const isAuth = await axios.post('/auth', {
+                    email: formData.email,
+                    password: formData.password
+                }, {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                if (isAuth.status === 200) {
+                    onSuccess();
+                }
+            }
+        } catch (error) {
+            setError('An error occurred during registration, please try again');
+            console.error('Registration error:', error);
+        }
     };
 
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -111,6 +153,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
 
             <Input label='Title' onChange={() => {}}>
                 <Select
+                    id={titleId}
                     options={[
                         { label: 'Mr', value: 'mr' },
                         { label: 'Ms', value: 'ms' },
@@ -129,6 +172,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             
             <Input label='Gender' onChange={() => {}}>
                 <Select
+                    id={genderId}
                     options={[
                         { label: 'Male', value: 'm' },
                         { label: 'Female', value: 'f' },
@@ -169,7 +213,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                     icon={<Calendar size={32} />}
                 />
             </Input>
-            <button type="submit" className={styles.signinBtn}>Sign in</button>
+            <button type="submit" className={styles.signinBtn}>Submit</button>
         </form>
         </>
     );

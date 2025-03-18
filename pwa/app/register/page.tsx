@@ -14,7 +14,7 @@ const Register: React.FC = () => {
     return (
         <div className={styles.loginContainer}>
             <div className={styles.loginBox}>
-                <h1 className={styles.loginTitle}>Register</h1>
+                <h1 className={styles.loginTitle}>{isOtpVisible ? 'Setup 2FA' : 'Register'}</h1>
                 {isOtpVisible ? <RegisterOTP /> : <RegisterInfo onSuccess={handleSuccess} />}
             </div>
         </div>

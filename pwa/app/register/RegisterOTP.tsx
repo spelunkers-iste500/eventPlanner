@@ -6,6 +6,7 @@ import styles from '../login/login.module.css';
 import Input from 'Components/common/Input';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
+// import QRCode from "qrcode";
 
 const RegisterOTP: React.FC = () => {
     const [otp, setOtp] = useState('');
@@ -25,6 +26,7 @@ const RegisterOTP: React.FC = () => {
             });
     
             if (response.data.status === 200) {
+                // const qrCode = await QRCode.toDataUsRL(response.data.secret);
                 setQrImage(response.data.data);
                 setSecret(response.data.secret);
             }
@@ -34,19 +36,8 @@ const RegisterOTP: React.FC = () => {
     }, []);
 
     /* Validate Code */
-    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        setOtp(e.target.value);
-
-        if (e.target.value.length === 6 && secret) {
-            const token = e.target.value;
-            const isVerified = await verifyOTP(secret, token);
-
-            if (isVerified) {
-                console.log('2FA verified');
-            } else {
-                setInvalidOtp(true);
-            }
-        }
+    const handleChange = (value: string) => {
+        setOtp(value);
     };
 
     const handleSubmit = () => {
@@ -65,7 +56,6 @@ const RegisterOTP: React.FC = () => {
     return (
         <>
             <div className={styles.otpBox}>
-                <h3 className={styles.otpTitle}>Two-Factor Authentication</h3>
                 {qrImage && <img src={qrImage} alt="2FA QR Code" className={styles.qrCode} />}
                 <p className={styles.otpInstructions}>Scan the QR Code with your Authenticator app and enter the code below.</p>
             </div>
@@ -75,10 +65,10 @@ const RegisterOTP: React.FC = () => {
                 maxlength={6}
                 placeholder="Enter your OTP"
                 inputMode="numeric"
-                onChange={() => handleChange}
+                onChange={(value) => handleChange(value)}
             />
-            {invalidOtp && <p className={styles.errorMsg}>*Invalid Code</p>}
-            <button onClick={handleSubmit}>Submit</button>
+            {invalidOtp && <p className='error-msg'>Invalid Code</p>}
+            <button className={styles.signinBtn} onClick={handleSubmit}>Submit</button>
         </>
     );
 };
