@@ -8,9 +8,15 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use App\State\EventStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
@@ -18,12 +24,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']],
 )]
+//Event.User.Book (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['read:event']]
+    normalizationContext: ['groups' => ['read:event:booking']]
 )]
+//Event.User.Dashboard (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
@@ -40,43 +48,114 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['id' => '\d+', 'orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event']]
 )]
+//Event.Admin.Create (WORKS)
 #[Post(
-    security: "is_granted('edit', object)",
-    uriTemplate: '/events.{_format}',
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
+    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: Event::class,
+            toProperty: 'organization',
+            description: 'The ID of the organization that owns the event'
+        )
+        ],
+    requirements: ['orgId' => '\d+'],
     denormalizationContext: ['groups' => ['write:event']]
 )]
+//Event.Admin.View (WORKS)
 #[GetCollection(
-    security: "is_granted('edit', object)",
-    uriTemplate: '/events.{_format}',
-    normalizationContext: ['groups' => ['read:event']]
+    //works similar to Org.Admin.View so it may need changed based since it has the same issues
+    security: "is_granted('ROLE_ADMIN')",
+    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriVariables: [
+        'orgId' => new Link(
+            fromClass: Organization::class,
+            fromProperty: 'id',
+            toClass: Event::class,
+            toProperty: 'organization',
+            description: 'The ID of the organization that owns the event'
+        )
+    ],
+    requirements: ['orgId' => '\d+'],
+    normalizationContext: ['groups' => ['read:event:collection']]
 )]
+//Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    denormalizationContext: ['groups' => ['write:event:changes']]
+)]
+//Event.Admin.AddAttendees (DOES NOT WORK)
+#[Patch(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/events/{id}/addAttendees.{_format}',
+    requirements: ['id' => '\d+'],
+    denormalizationContext: ['groups' => ['add:event:attendees']],
+    processor: EventStateProcessor::class
+)]
+//Event.Admin.delete (WORKS)
+#[Delete(
+    security: "is_granted('ROLE_ADMIN')",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+']
+)]
+
+/**
+ * The events that are organized by organizations.
+ */
 class Event
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ApiProperty(identifier: true)]
     #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
     public int $id;
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public string $eventTitle;
+    public function getEventTitle(): string
+    {
+        return $this->eventTitle;
+    }
+    public function setEventTitle(string $eventTitle): self
+    {
+        $this->eventTitle = $eventTitle;
+        return $this;
+    }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $startDateTime;
+    public function getStartDateTime(): \DateTimeInterface
+    {
+        return $this->startDateTime;
+    }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $endDateTime;
+    // Getter for endDateTime
+    public function getEndDateTime(): \DateTimeInterface
+    {
+        return $this->endDateTime;
+    }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $startFlightBooking;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
@@ -84,7 +163,7 @@ class Event
     public string $location;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'write:event:changes'])]
     public int $maxAttendees;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -97,58 +176,6 @@ class Event
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
     #[Groups(['read:event', 'write:event'])]
     public Organization $organization;
-
-    //Relationships
-    //Event -> Budget
-    #[ORM\OneToOne(targetEntity: Budget::class)]
-    #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
-    public Budget $budget;
-
-    //Event -> User (attendees)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'events')]
-    #[Groups(['read:event', 'write:event'])]
-    public Collection $attendees;
-
-    //Event -> User (finance admins)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfEvents')]
-    #[Groups(['read:event', 'write:event'])]
-    public Collection $financeAdmins;
-
-    //Event -> User (event admins)
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'adminOfEvents')]
-    #[Groups(['read:event', 'write:event'])]
-    public Collection $eventAdmins;
-
-    public function __construct()
-    {
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
-        $this->attendees = new ArrayCollection();
-        $this->financeAdmins = new ArrayCollection();
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getEventAdmins(): Collection
-    {
-        return $this->eventAdmins;
-    }
-    public function addEventAdmins(User $eventAdmin): self
-    {
-        if (!$this->eventAdmins->contains($eventAdmin)) {
-            $this->eventAdmins[] = $eventAdmin;
-        }
-        return $this;
-    }
-    public function removeEventAdmins(User $eventAdmin): self
-    {
-        $this->eventAdmins->removeElement($eventAdmin);
-        return $this;
-    }
-
     public function getOrganization(): Organization
     {
         return $this->organization;
@@ -158,11 +185,35 @@ class Event
         $this->organization = $organization;
         return $this;
     }
+    
+    //Relationships
+    //Event -> Budget
+    #[ORM\OneToOne(targetEntity: Budget::class)]
+    #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['read:event:booking',  'read:event:collection'])]
+    public Budget $budget;
+    public function getBudget(): Budget
+    {
+        return $this->budget;
+    }
+    public function setBudget(Budget $budget): self
+    {
+        $this->budget = $budget;
+        return $this;
+    }
+
+
+    //Event -> User (attendees)
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
+    #[ORM\JoinTable(name: 'events_attendees')]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees'])]
+    private Collection $attendees;
+
     public function getAttendees(): Collection
     {
         return $this->attendees;
     }
-    public function addAttendees(User $attendee): self
+    public function addAttendee(User $attendee): self
     {
         if (!$this->attendees->contains($attendee)) {
             $this->attendees[] = $attendee;
@@ -174,49 +225,31 @@ class Event
         $this->attendees->removeElement($attendee);
         return $this;
     }
-    public function getFinanceAdmins(): Collection
+    public function setAttendees(array $attendees): self
     {
-        return $this->financeAdmins;
-    }
-    public function addFinanceAdmins(User $financeAdmin): self
-    {
-        if (!$this->financeAdmins->contains($financeAdmin)) {
-            $this->financeAdmins[] = $financeAdmin;
-        }
-        return $this;
-    }
-    public function removeFinanceAdmins(User $financeAdmin): self
-    {
-        $this->financeAdmins->removeElement($financeAdmin);
-        return $this;
-    }
-    public function getBudget(): Budget
-    {
-        return $this->budget;
-    }
-    public function setBudget(Budget $budget): self
-    {
-        $this->budget = $budget;
-        return $this;
-    }
-    public function getEventTitle(): string
-    {
-        return $this->eventTitle;
-    }
-    public function setEventTitle(string $eventTitle): self
-    {
-        $this->eventTitle = $eventTitle;
+        $this->attendees = new ArrayCollection($attendees);
         return $this;
     }
 
-    public function getStartDateTime(): \DateTimeInterface
+    public function addAttendeeCollection(array $attendees): self
     {
-        return $this->startDateTime;
+        $this->attendees = new ArrayCollection(
+            array_unique(
+                array_merge(
+                    $this->attendees->toArray(),
+                    $attendees
+                )
+            )
+        );
+        return $this;
     }
 
-    // Getter for endDateTime
-    public function getEndDateTime(): \DateTimeInterface
+    public function __construct()
     {
-        return $this->endDateTime;
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+        $this->attendees = new ArrayCollection();
     }
+
+
 }

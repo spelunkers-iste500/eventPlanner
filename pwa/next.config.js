@@ -20,6 +20,7 @@ const nextConfig = {
       // https://stackoverflow.com/questions/76676456/next-js-v13-in-docker-does-not-respect-path-alias-but-works-locally
       config.resolve.alias['Utils'] = path.join(__dirname, 'utils');
       config.resolve.alias['Components'] = path.join(__dirname, 'components');
+      config.resolve.alias['Types'] = path.join(__dirname, 'types');
 
       return config;
   },

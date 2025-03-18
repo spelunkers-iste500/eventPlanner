@@ -16,7 +16,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\Entity]
 #[ApiResource]
 // Access the budget through the org/event
-// this route should beused by the end user, who is 
+// this route should be used by the end user, who is 
 // viewing the budget they are allocated for the event.
 #[Get(
     uriTemplate: '/organizations/{orgId}/events/{eventId}/budget/{id}',
@@ -85,7 +85,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
     requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:budget']],
 )]
-/** An events budget, a subresource of events */
+/** 
+ * An events budget, a subresource of events
+ * Viewable by finance admins, org admins, and the user can only see allocated per person budget.
+ */
 class Budget
 {
     // Table setup
@@ -98,6 +101,13 @@ class Budget
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
     public string $total = "0.00";
+        /**
+     * @return int The user ID
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     /**
      * The spent budget is only visible to the org and finance admins
@@ -136,25 +146,6 @@ class Budget
     #[ORM\OneToOne(targetEntity: Event::class)]
     #[Groups(['read:budget', 'write:budget'])]
     public Event $event;
-
-    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
-    #[Groups(['read:budget', 'write:budget'])]
-    public Organization $organization;
-
-    public function __construct()
-    {
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
-    }
-    public function getOrganization(): Organization
-    {
-        return $this->organization;
-    }
-    public function setOrganization(Organization $organization): self
-    {
-        $this->organization = $organization;
-        return $this;
-    }
     public function getEvent(): Event
     {
         return $this->event;
@@ -164,13 +155,32 @@ class Budget
         $this->event = $event;
         return $this;
     }
+
+    #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
+    #[Groups(['read:budget', 'write:budget'])]
+    public Organization $organization;
+    public function getOrganization(): Organization
+    {
+        return $this->organization;
+    }
+    public function setOrganization(Organization $organization): self
+    {
+        $this->organization = $organization;
+        return $this;
+    }
+
+    public function __construct()
+    {
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
+    
     public function getFinanceAdmins(): Collection
     {
         // should combine finance admins from the budget, the event, and the org,
         // and return unique
         $admins = new ArrayCollection();
         $admins->add($this->financialPlannerID);
-        $admins->add($this->event->getFinanceAdmins());
         $admins->add($this->organization->getFinanceAdmins());
         return $admins;
     }

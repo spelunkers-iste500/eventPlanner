@@ -58,7 +58,7 @@ final class DuffelPlaceProvider implements ProviderInterface
         }
         return $places;
     }
-    public function getPlaceById(string $id): Place
+    public function getPlaceById(string $id): Place|null
     {
         // city id starts with cit, airport id starts with arp
         if (!isset($id)) {

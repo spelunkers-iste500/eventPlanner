@@ -138,6 +138,12 @@ img {
     font-size: 0.9rem;
 }
 
+.select__control:focus-within,
+.chakra-input:focus-within,
+.chakra-input {
+    border-width: 1px;
+}
+
 .input-field,
 .select__control {
     width: 100%;
@@ -149,10 +155,6 @@ img {
     font-size: 1rem;
     background-color: var(--white);
     gap: 0.5rem;
-}
-
-.select__control:focus-within {
-    border-width: 1px;
 }
 
 .select__option {
@@ -174,4 +176,10 @@ img {
 .react-datepicker__input-container svg {
     top: 50%;
     transform: translateY(-50%);
+}
+
+.error-msg {
+    color: var(--red-400);
+    font-size: 0.8rem;
+    font-weight: 600;
 }

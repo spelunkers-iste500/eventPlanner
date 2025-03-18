@@ -1,0 +1,199 @@
+<?php
+        // api/tests/Budgettest.php
+
+namespace App\Tests;
+
+use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
+use App\Entity\Budget;
+use App\Entity\User;
+use App\Entity\Event;
+use App\Entity\Organization;      
+use App\Factory\UserFactory;      
+use App\Factory\BudgetFactory;      
+use App\Factory\OrganizationFactory;      
+use App\Factory\EventFactory;      
+use Zenstruck\Foundry\Test\Factories;      
+use Zenstruck\Foundry\Test\ResetDatabase;
+
+ class BudgetTest extends ApiTestCase
+ {
+     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
+     use ResetDatabase, Factories;
+     public function createUser(string $email, string $plainPassword, bool $superAdmin): User {
+        $container = self::getContainer();
+        $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
+        $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
+        $user->setPassword($hashedPassword);
+        $user->_save(); // Save the user after setting the password
+        return $user;
+    }
+    public function authenticateUser(string $email, string $password): array {
+        $authclient = self::createClient();
+        $authresponse = $authclient->request('POST', '/auth', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json' => [
+                'email' => $email,
+                'password' => $password,
+            ],
+        ]);
+        return $authresponse->toArray();
+    }
+    public function calculateExecutionTime(float $startTime, string $echoPhrase): string {
+        $endTime = microtime(true);
+        $executionTime = ($endTime - $startTime) * 1000; // Convert to milliseconds
+        $executionTime = round($executionTime, 3); // Round to 3 decimal places
+        return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
+    }
+     public function testGetBudgetCollection(): void
+     {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        //create organization
+        $org = OrganizationFactory::createOne();
+        //create event
+        // Create 50 Budgets using our factory
+        BudgetFactory::createMany(50, function() use ($org) {
+            return [
+                'organization' => $org,
+                'event' => EventFactory::new()->createOne(['organization' => $org])
+            ];
+        });
+        
+        $response = static::createClient()->request('GET', '/budgets',['auth_bearer' => $jwttoken['token']]);
+        $endTime = microtime(true);
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type is JSON-LD (the default)
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Budget',
+            '@id' => '/budgets',
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 50,
+            'hydra:view' => [
+                '@id' => '/budgets?page=1',
+                '@type' => 'hydra:PartialCollectionView',
+                'hydra:first' => '/budgets?page=1',
+                'hydra:last' => '/budgets?page=2',
+                'hydra:next' => '/budgets?page=2',
+            ],
+           ]);
+        // Because test fixtures are automatically loaded between each test, you can assert on them
+        $this->assertCount(30, $response->toArray()['hydra:member']);
+        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
+        // This generated JSON Schema is also used in the OpenAPI spec!
+        $this->assertMatchesResourceCollectionJsonSchema(Budget::class);
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get all Budgets");
+        echo $executionMessage;
+     }    
+     public function testCreateBudget(): void
+     {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');             
+        //create organization
+        $org = OrganizationFactory::createOne();
+        //create event
+        $event = EventFactory::new()->createOne(['organization' => $org]);
+        //get iris for event org and user
+        $useriri = $this->findIriBy(User::class, ['id' => $user->getId()]);
+        $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        $eventIri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
+    
+        $response = static::createClient()->request('POST', '/budgets', [
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => [
+                "total"=> "100000.00",
+                "spentBudget"=> "50000.00",
+                "vipBudget"=> "20000.00",
+                "regBudget"=> "80000.00",
+                "financialPlannerID"=> "$useriri",
+                "organization" => $orgIri,
+                "event" => $eventIri
+            ],
+            'auth_bearer' => $jwttoken['token']
+        ]);
+        $this->assertResponseStatusCodeSame(201);
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        $this->assertJsonContains([
+            '@context' => '/contexts/Budget',
+            '@type' => 'Budget',
+            "total"=> "100000.00",
+            "spentBudget"=> "50000.00",
+            "vipBudget"=> "20000.00",
+            "regBudget"=> "80000.00",
+            "organization" => $orgIri,
+            "event" => $eventIri
+        ]);
+        $this->assertMatchesResourceItemJsonSchema(Budget::class);
+        $executionMessage = $this->calculateExecutionTime($startTime, "Create Budget");
+        echo $executionMessage;
+     }
+    
+    public function testUpdateBudget(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');  
+        //create budget to update
+                
+        $org = OrganizationFactory::createOne();
+        $orgIri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        $orgid = $org->getId();
+        $budget = BudgetFactory::createOne(["total"=> "420.69", 'organization' => $orgIri]);
+        $budgetiri = $this->findIriBy(Budget::class, ['id' => $budget->getId()]);
+        //query api
+        $client = static::createClient();
+        // Use the PATCH method here to do a partial update
+        $client->request('PATCH', "/organizations/$orgid/budgets", [
+            'json' => [
+                "vipBudget"=> "6969.11",
+            ],
+            'headers' => [
+                'Content-Type' => 'application/merge-patch+json',
+            ],
+            'auth_bearer' =>  $jwttoken['token']
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $budgetiri,
+            "vipBudget"=> "6969.11",
+            "total"=> "420.69",
+        ]);
+        $executionMessage = $this->calculateExecutionTime($startTime, "Update Budget");
+        echo $executionMessage;
+    }
+
+    public function testDeleteBudget(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');  
+        // create budget
+        $budget = BudgetFactory::createOne(["total"=> "420.69"]);
+        $budgetiri = $this->findIriBy(Budget::class, ['id' => $budget->getId()]);
+        //make request
+        $client = static::createClient();
+        $client->request('DELETE', $budgetiri,['auth_bearer' => $jwttoken['token']]);
+        //validate reply
+        $this->assertResponseStatusCodeSame(204);
+        $this->assertNull(
+            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
+            static::getContainer()->get('doctrine')->getRepository(Budget::class)->findOneBy(["total"=> "420.69"])
+        );
+        $executionMessage = $this->calculateExecutionTime($startTime, "Delete Budget");
+        echo $executionMessage;
+    }
+    
+ }

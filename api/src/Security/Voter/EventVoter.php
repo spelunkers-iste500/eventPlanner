@@ -39,10 +39,11 @@ final class EventVoter extends Voter
         // - the user must be an event admin of the event
         // - the user must be an org admin
         // - the user must be a platform admin
+        //return true; for testing purposes
         return (
-            $subject->getEventAdmins()->contains($user) ||
+            $subject->getOrganization()-> getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
-            in_array('ROLE_ADMIN', $user->getRoles())
+            in_array("ROLE_ADMIN", $user->getRoles())
         );
     }
     public static function canView(UserInterface $user, \App\Entity\Event $subject): bool
@@ -54,7 +55,7 @@ final class EventVoter extends Voter
         // - the user must be a platform admin
         return (
             $subject->getAttendees()->contains($user) ||
-            $subject->getEventAdmins()->contains($user) ||
+            $subject->getOrganization()-> getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
             in_array('ROLE_ADMIN', $user->getRoles())
         );

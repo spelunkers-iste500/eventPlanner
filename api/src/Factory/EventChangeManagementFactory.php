@@ -2,7 +2,7 @@
 
 namespace App\Factory;
 
-use App\Entity\eventChangeManagement;
+use App\Entity\ChangeManagement\eventChangeManagement;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**

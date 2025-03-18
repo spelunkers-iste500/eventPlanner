@@ -1,14 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
-import Input from 'Components/common/Input';
 import { AsyncSelect, Select } from 'chakra-react-select';
-import { Airport } from 'types/airports';
 import FlightResults from './FlightResults';
 import styles from './EventForm.module.css';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 interface SelectOption {
     label: string;
@@ -17,7 +16,8 @@ interface SelectOption {
 
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
-
+    const { data: session } = useSession();
+    if (!session) return null;
     const [formData, setFormData] = useState({
         trip: 'round-trip',
         origin: '',
@@ -46,12 +46,11 @@ const FlightSearch: React.FC = () => {
 
     const fetchAirports = async (input: string, callback: (options: SelectOption[]) => void) => {
         try {
-            const response = await axios.get(`/places/search/${input}`);
+            const response = await axios.get(`/places/search/${input}`, { headers: { 'Authorization': `Bearer ${session.apiToken}` } });
             const airports = response.data['hydra:member'].map((airport: any) => ({
                 label: `${airport.name} (${airport.iataCode})`,
                 value: airport.iataCode
             }));
-            console.log('Airports:', airports);
             callback(airports);
         } catch (error) {
             console.error('Error fetching airports:', error);
@@ -65,12 +64,12 @@ const FlightSearch: React.FC = () => {
         }
 
         debounceTimeout.current = setTimeout(() => {
-            if (inputValue.length >= 3) {
+            if (inputValue.length >= 2) {
                 fetchAirports(inputValue, callback);
             } else {
                 callback([]);
             }
-        }, 1000);
+        }, 120);
     };
 
     const [startDate, setStartDate] = useState<Date | null>(null);

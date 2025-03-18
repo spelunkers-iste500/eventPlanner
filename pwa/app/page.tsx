@@ -27,28 +27,6 @@ const App: React.FC = () => {
 		},
 	});
 	
-	// Fetch JWT token from server when authenticated
-    useEffect(() => {
-        const fetchToken = async () => {
-            try {
-                const response = await axios.get('/api/auth/token', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                console.log('JWT Token:', response.data.token);
-                // Store the token in local storage or state as needed
-            } catch (error) {
-                console.error('Error fetching token:', error);
-            }
-        };
-
-        if (status === 'authenticated') {
-            fetchToken();
-        }
-    }, [status, session]);
-
-
 	if (status === 'loading') {
         return <h2 className='loading'>Loading...</h2>;
     }

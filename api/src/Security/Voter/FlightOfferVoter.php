@@ -6,11 +6,16 @@ use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\FlightOffer;
+use App\Repository\UserRepository;
 use \DateTime;
+use Symfony\Bundle\SecurityBundle\Security;
 
 final class FlightOfferVoter extends Voter
 {
-    public const EDIT = 'edit';
+
+    public function __construct(private Security $security, private UserRepository $userRepository) {}
+
+    public const EDIT = 'book';
     public const VIEW = 'view';
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -22,7 +27,7 @@ final class FlightOfferVoter extends Voter
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
         $user = $token->getUser();
-        
+
         // If the user is not authenticated, deny access
         if (!$user instanceof UserInterface) {
             return false;
@@ -35,33 +40,16 @@ final class FlightOfferVoter extends Voter
         };
     }
 
-    private static function canEdit(UserInterface $user, FlightOffer $flightOffer): bool
+    private function canEdit(UserInterface $user, FlightOffer $flightOffer): bool
     {
-        $userEvents = $user->getEvents();
-        $currentDate = new DateTime();
-
-        // Check if the user is in an event that is currently active (within start and end date)
-        foreach ($userEvents as $event) {
-            if ($event->getStartDateTime() <= $currentDate && $event->getEndDateTime() >= $currentDate) {
-                return true;
-            }
-        }
-
-        return false;
+        // check if user has current events
+        return $this->userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier()) || $this->security->isGranted('ROLE_ADMIN');
+        // @TODO: check if booked flight is owned by the user
     }
 
-    private static function canView(UserInterface $user, FlightOffer $flightOffer): bool
+    private function canView(UserInterface $user, FlightOffer $flightOffer): bool
     {
-        $userEvents = $user->getEvents();
-        $currentDate = new DateTime();
-
-        // Check if the user is part of an event to view the offer (active event)
-        foreach ($userEvents as $event) {
-            if ($event->getStartDateTime() <= $currentDate && $event->getEndDateTime() >= $currentDate) {
-                return true;
-            }
-        }
-
-        return false;
+        // check if user has current events
+        return $this->userRepository->doesUserHaveCurrentEvents($user->getUserIdentifier()) || $this->security->isGranted('ROLE_ADMIN');
     }
 }
