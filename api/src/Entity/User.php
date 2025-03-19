@@ -60,6 +60,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
     description: "Deletes a User. Users can only delete if they're a platform admin",
     requirements: ['id' => '\d+']
 )]
+
+//Event.User.Book
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/my/event/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    normalizationContext: ['groups' => ['read:event:booking']]
+)]
+
+//Event.User.Dashbaord will be handled when a User Object is collected and then calling eventsAttended() method to pull events attended
+
 #[ORM\Table(name: 'users')]
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
@@ -459,7 +470,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * Added on the event side. No setters needed here.
      */
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'attendees', cascade: ['all'])]
-    #[Groups(['user:read', 'user:write'])]
+    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event'])]
     private Collection $eventsAttending;
 
     /**
