@@ -9,6 +9,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\State\LoggerStateProcessor;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\JoinTable;
@@ -31,27 +32,31 @@ use App\Entity\User;
     security: "is_granted('view', object)",
     description: "Gets a single organization. Users can only view if they're part of the org, or an admin",
     requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['org:read']]
+    normalizationContext: ['groups' => ['org:read']],
+    processor: LoggerStateProcessor::class
 )]
 // users can only edit if they're an admin of the org
 //org.orgadmin.change
 #[Patch(
     security: "is_granted('edit', object)",
     description: "Edits an organization. Users can only edit if they're an admin",
-    denormalizationContext: ['groups' => ['org:write']]
+    denormalizationContext: ['groups' => ['org:write']],
+    processor: LoggerStateProcessor::class
 )]
 // users can only create or destroy if they're a platform admin
 //org.orgadmin.create
 #[Post(
     security: "is_granted('ROLE_ADMIN')",
     description: "Creates a new organization. Users can only create if they're a platform admin",
-    denormalizationContext: ['groups' => ['org:write']]
+    denormalizationContext: ['groups' => ['org:write']],
+    processor: LoggerStateProcessor::class
 )]
 //org.orgadmin.delete
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes an organization. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+']
+    requirements: ['id' => '\d+'],
+    processor: LoggerStateProcessor::class
 )]
 #[ORM\Table(name: 'organization')]
 class Organization
