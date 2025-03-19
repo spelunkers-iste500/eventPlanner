@@ -36,6 +36,7 @@ final class OrganizationFactory extends PersistentProxyObjectFactory
             'description' => self::faker()->sentence(10),
             'industry' => self::faker()->word(),
             'name' => self::faker()->company(),
+            'inviteCode' => self::faker()->regexify('[A-Za-z0-9]{15}'),
         ];
     }
 
