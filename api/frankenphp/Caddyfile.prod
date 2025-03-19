@@ -8,17 +8,16 @@
 
 {$CADDY_EXTRA_CONFIG}
 
-{$SERVER_NAME:localhost} {
-	log {
-		# Redact the authorization query parameter that can be set by Mercure
-		format filter {
-			request>uri query {
-				replace authorization REDACTED
-			}
-		}
-	}
+ :8080 {
+	#log {
+	#	# Redact the authorization query parameter that can be set by Mercure
+	#	format filter {
+	#		request>uri query {
+	#			replace authorization REDACTED
+	#		}
+	#	}
+	#} # Commenting out logs that don't matter
 
-	tls /certs/cert.pem /certs/key.pem
 
 	root * /app/public
 	encode zstd br gzip
@@ -63,3 +62,8 @@
 
 	php_server
 	}
+
+{$SERVER_NAME:localhost} {
+	tls /certs/cert.pem /certs/key.pem
+	reverse_proxy localhost:8080
+}

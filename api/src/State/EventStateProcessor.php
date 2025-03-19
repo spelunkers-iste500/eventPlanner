@@ -11,7 +11,10 @@ use App\Repository\EventRepository;
  */
 class EventStateProcessor implements ProcessorInterface
 {
-    public function __construct(private EventRepository $eventRepository) {}
+    public function __construct(
+        private EventRepository $eventRepository, 
+        private LoggerStateProcessor $changeLogger
+    ){}
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         // get the attendees from the event object that was passed in
@@ -20,5 +23,7 @@ class EventStateProcessor implements ProcessorInterface
         $event = $this->eventRepository->getEventById($data->getId());
         // add the attendees to the event
         $event->addAttendeeCollection($attendees);
+        //record the change for logging
+        $this->changeLogger->process($processedUser, $operation, $uriVariables, $context);
     }
 }

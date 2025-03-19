@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use App\State\EventStateProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity]
@@ -48,7 +49,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Post(
     uriTemplate: '/budgets',
     denormalizationContext: ['groups' => ['write:budget']],
-
+    processor: LoggerStateProcessor::class
 )]
 #[Patch(
     description: 'Get all budgets for an organization',
@@ -63,7 +64,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
     ],
     requirements: ['orgId' => '\d+'],
-    normalizationContext: ['groups' => ['write:budget']]
+    normalizationContext: ['groups' => ['write:budget']],
+    processor: LoggerStateProcessor::class
 )]
 #[GetCollection(
     uriTemplate: '/budgets',

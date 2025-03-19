@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
+use app\State\LoggerStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
@@ -24,30 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']],
 )]
-//Event.User.Book (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
-#[Get(
-    security: "is_granted('view', object)",
-    uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['read:event:booking']]
-)]
-//Event.User.Dashboard (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
-#[Get(
-    security: "is_granted('view', object)",
-    uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
-    uriVariables: [
-        'id' => 'id',
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Event::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        )
-    ],
-    requirements: ['id' => '\d+', 'orgId' => '\d+'],
-    normalizationContext: ['groups' => ['read:event']]
-)]
+
 //Event.Admin.Create (WORKS)
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
@@ -63,12 +41,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
         )
         ],
     requirements: ['orgId' => '\d+'],
-    denormalizationContext: ['groups' => ['write:event']]
+    denormalizationContext: ['groups' => ['write:event']],
+    processor: LoggerStateProcessor::class
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(
     //works similar to Org.Admin.View so it may need changed based since it has the same issues
-    security: "is_granted('ROLE_ADMIN')",
+    //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/organizations/{orgId}/events/.{_format}',
     uriVariables: [
         'orgId' => new Link(
@@ -87,7 +66,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
-    denormalizationContext: ['groups' => ['write:event:changes']]
+    denormalizationContext: ['groups' => ['write:event:changes']],
+    processor: LoggerStateProcessor::class
 )]
 //Event.Admin.AddAttendees (DOES NOT WORK)
 #[Patch(
@@ -101,7 +81,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+']
+    requirements: ['id' => '\d+'],
+    processor: LoggerStateProcessor::class
 )]
 
 /**

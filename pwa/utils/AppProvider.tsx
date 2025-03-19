@@ -5,6 +5,7 @@ import { BookingProvider } from 'Utils/BookingProvider';
 import { Provider } from 'Components/ui/provider';
 import { auth } from '../utils/auth';
 import { Session } from 'next-auth';
+import { UserProvider } from './UserProvider';
 
 interface AppProviderProps {
   children: React.ReactNode;
@@ -15,11 +16,13 @@ const AppProvider: React.FC<AppProviderProps> = ({ children, session }) => {
   return (
     <Provider>
       <SessionProvider session={session}>
-        <ContentProvider>
-          <BookingProvider>
-            {children}
-          </BookingProvider>
-        </ContentProvider>
+        <UserProvider>
+          <ContentProvider>
+            <BookingProvider>
+              {children}
+            </BookingProvider>
+          </ContentProvider>
+        </UserProvider>
       </SessionProvider>
     </Provider>
   );

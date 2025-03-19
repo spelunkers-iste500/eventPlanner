@@ -5,7 +5,6 @@ import { useContent } from "Utils/ContentProvider";
 import Container from "Components/common/Container";
 import Nav from "Components/nav/Nav";
 import { Toaster } from "Components/ui/toaster";
-import axios from 'axios';
 
 export interface ContentState {
 	name: string;
@@ -24,7 +23,7 @@ const App: React.FC = () => {
 			if (signingIn.current) return; // stop executing for second flow
 			signingIn.current = true; // set flag to true for first
 			signIn();
-		},
+		}
 	});
 	
 	if (status === 'loading') {
