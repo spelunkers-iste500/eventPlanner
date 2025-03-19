@@ -1,16 +1,16 @@
 import React from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
-import { useSession } from "next-auth/react";
 import { Event } from "Types/events";
+import { useUser } from "Utils/UserProvider";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {
-	const { data: session } = useSession();
+	const { user } = useUser();
 
   	return (
 		<div className={styles.dashboardContainer}>
-			<h1 className={styles.heading}>Welcome, {session?.user?.name}!</h1>
+			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
 			<EventList heading="Event Invitations" events={events} />
 			<EventList heading="Your Events" events={events} />
 		</div>

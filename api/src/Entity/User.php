@@ -13,6 +13,7 @@ use ApiPlatform\Metadata\Link;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
 use App\State\UserPasswordHasher;
+use App\State\LoggerStateProcessor;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
@@ -25,13 +26,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
-    normalizationContext: ['groups' => ['user:read']]
+    normalizationContext: ['groups' => ['user:read']],
+    processor: LoggerStateProcessor::class
 )]
 //User.Create --This is working how I expect so far
 #[Post(
     description: "Creates a new user. Users can only create if they're a platform admin",
     processor: UserPasswordHasher::class,
-    denormalizationContext: ['groups' => ['user:create']]
+    denormalizationContext: ['groups' => ['user:create']],
 )]
 //Org.Admin.View
 #[GetCollection(
@@ -52,13 +54,15 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Patch(
     uriTemplate: '/users/{id}.{_format}',
     security: "is_granted('edit', object)", // Checks edit permission for the specific user
-    denormalizationContext: ['groups' => ['edit:user:limited']]
+    denormalizationContext: ['groups' => ['edit:user:limited']],
+    processor: LoggerStateProcessor::class
 )]
 //User.Admin.delete
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes a User. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+']
+    requirements: ['id' => '\d+'],
+    processor: LoggerStateProcessor::class
 )]
 
 //Event.User.Book

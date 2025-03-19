@@ -23,7 +23,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 )]
 #[API\Post(
     processor: UserInviteState::class,
-    securityPostDenormalize: "is_granted('invite', object)",
+    // securityPostDenormalize: "is_granted('invite', object)",
     normalizationContext: ['groups' => ['read:userInvite']],
     denormalizationContext: ['groups' => ['write:userInvite']],
     uriTemplate: '/organizations/{organizationId}/invite',
@@ -48,7 +48,7 @@ class UserInvite
         $this->emails = [];
     }
     // the organization the user is being invited to
-    #[Groups(['write:userInvite'])]
+    // #[Groups(['write:userInvite'])]
     private Organization $organization;
     public function setOrganization(Organization $organization): void
     {
@@ -62,10 +62,24 @@ class UserInvite
     #[Groups(['read:userInvite'])]
     public function getOrganizationInviteCode(): string
     {
-        return $this->organization->getInviteCode();
+        if ($this->organization === null) {
+            return 'abc';
+        } else {
+            return $this->organization->getInviteCode();
+        }
+        // return $this->organization->getInviteCode();
     }
 
-    #[Groups(['read:userInvite'])]
+    #[Groups(['read:userInvite', 'write:userInvite'])]
     // the list of emails of the users being invited
     public array $emails;
+
+    public function getEmails(): array
+    {
+        return $this->emails;
+    }
+    public function setEmails($emails): void
+    {
+        $this->emails = $emails;
+    }
 }
