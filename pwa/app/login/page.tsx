@@ -5,7 +5,6 @@ import styles from './login.module.css';
 import Input from 'Components/common/Input';
 import { useRouter } from 'next/navigation';
 import { PasswordInput } from 'Components/ui/password-input';
-import { verifyOTP } from 'Utils/authUtils';
 
 const Login: React.FC = () => {
     const router = useRouter();
@@ -32,32 +31,26 @@ const Login: React.FC = () => {
             return;
         }
 
-        if (formData.otp.length === 6) {
-            const isVerified = await verifyOTP('your-secret-key', formData.otp);
-            if (!isVerified) {
-                setError('OTP is invalid');
-                return;
-            }
+        if (formData.otp.length !== 6) {
+            setError('OTP is required');
+            return;
         }
 
-        signIn('credentials-2fa', {
+        console.log('Form data:', formData);
+        // Attempt to sign in with credentials and OTP
+        const isAuth = await signIn('credentials-2fa', {
             email: formData.email,
             password: formData.password,
             otp: formData.otp,
-            redirect: false,
-            callbackUrl: '/'
-        }).then((response) => {
-            if (response?.error) {
-                setError(response.error);
-            } else {
-                router.push('/');
-            }
-        }
-        ).catch((err) => {
-            console.error('Login error:', err);
+            redirect: false
+        });
+
+        if (isAuth?.error) {
+            console.error(isAuth.error);
             setError('An error occurred during login');
+        } else {
+            router.push('/');
         }
-        );
     };
 
     return (
@@ -82,8 +75,8 @@ const Login: React.FC = () => {
                                 {error && <div className='error-msg'>{error}</div>}
                                 <form className={styles.loginSection} onSubmit={handleSubmit}>
                                     <Input label="Email" type="email" placeholder="Enter your email" onChange={(value) => handleChange('email', value)} />
-                                    <Input label="Password" onChange={(value) => handleChange('password', value)}>
-                                        <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" />
+                                    <Input label="Password" onChange={() => {}}>
+                                        <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" onChange={(e) => handleChange('password', e.target.value)} />
                                     </Input>
                                     <Input
                                         label="One-Time Passcode (OTP)"

@@ -69,7 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
-                const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id, users.first_name, users.last_name FROM users WHERE email = $1", [credentials.email]);
                 if (dbQuery.rowCount === 0) {
@@ -118,8 +118,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials, req) {
                 // var sslRootCAs = require('ssl-root-cas/latest')
                 // sslRootCAs.inject()
-                const apiUrl = (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
-
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                // const apiUrl = 'http://php/auth'
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
                 // if no token, return null
@@ -132,14 +132,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: credentials.email,
                     password: credentials.password,
                     headers: {
-                        "Content-Type": "application/json",
-                        "accept": "application/json",
+                        "Content-Type": "application/ld+json",
+                        "accept": "application/ld+json",
                     }
                 })
                 // bad password
                 if (authResponse.status >= 300 && authResponse.status < 500) {
-                    return null;
-                } else {
                     return null;
                 }
                 const name = dbQuery.rows[0].firstName + " " + dbQuery.rows[0].lastName;
@@ -174,11 +172,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return token;
     }
-    }
+    },
     // adapter: PostgresAdapter(pool),
-    // pages: {
-    //     signIn: "/login",
-    //     verifyRequest: "/verify",
-    // },
+    pages: {
+        signIn: "/login",
+        verifyRequest: "/verify",
+    },
     }
 )

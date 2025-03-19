@@ -6,6 +6,8 @@ import styles from '../login/login.module.css';
 import Input from 'Components/common/Input';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
+import { useRouter } from 'next/navigation';
+import { Spinner } from '@chakra-ui/react';
 // import QRCode from 'qrcode';
 
 const RegisterOTP: React.FC = () => {
@@ -16,6 +18,7 @@ const RegisterOTP: React.FC = () => {
     const [secret, setSecret] = useState<string | undefined>();
 
     const { setContent } = useContent();
+    const router = useRouter();
 
     /* Generate a QR */
     useEffect(() => {
@@ -49,7 +52,7 @@ const RegisterOTP: React.FC = () => {
                 if (isVerified) {
                     console.log('2FA verified');
                     setOtpVerified(true);
-                    setContent(<Dashboard />, 'Dashboard');
+                    router.push('/');
                 } else {
                     setInvalidOtp(true);
                 }
@@ -63,7 +66,7 @@ const RegisterOTP: React.FC = () => {
     return (
         <>
             <div className={styles.otpBox}>
-                {qrImage && <img src={qrImage} alt="2FA QR Code" className={styles.qrCode} />}
+                {qrImage ? <img src={qrImage} alt="2FA QR Code" className={styles.qrCode} /> : <Spinner size="xl" className={styles.spinner} color='var(--blue-500)' />}
                 <p className={styles.otpInstructions}>Scan the QR Code with your Authenticator app and enter the code below.</p>
             </div>
             <Input
