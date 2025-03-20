@@ -26,8 +26,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read:event']],
-    denormalizationContext: ['groups' => ['write:event']],
+    normalizationContext: ['groups' => ['read:event'], "enable_max_depth" => true],
+    denormalizationContext: ['groups' => ['write:event'], "enable_max_depth" => true],
 )]
 
 //Event.Admin.Create (WORKS)
@@ -67,7 +67,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
-    denormalizationContext: ['groups' => ['write:event:changes'], "enable_max_depth" => true],
+    denormalizationContext: ['groups' => ['write:event:changes']],
     processor: LoggerStateProcessor::class
 )]
 //Event.Admin.AddAttendees (DOES NOT WORK)
