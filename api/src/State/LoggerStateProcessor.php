@@ -43,6 +43,7 @@ class LoggerStateProcessor implements ProcessorInterface
 
         // Execute the primary operation first (saving/deleting entity)
         $data = $this->entityManager->merge($data);
+        //$this->entityManager->flush();
 
         // Capture after state (should be extracted AFTER flush)
         $afterChange = ($operationName !== 'delete') ? $this->maskSensitiveFields($this->extractEntityData($data)) : [];
@@ -108,19 +109,12 @@ class LoggerStateProcessor implements ProcessorInterface
     {
         $changes = [];
     
-        // Debug: Log both before and after to check structure
-        error_log("Before Change: " . json_encode($before));
-        error_log("After Change: " . json_encode($after));
-    
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
             if ($oldValue !== $newValue) {
                 $changes[$key] = ['before' => $oldValue, 'after' => $newValue];
             }
         }
-    
-        // Debug: Log computed changes
-        error_log("Detected Changes: " . json_encode($changes));
     
         return $changes;
     }
