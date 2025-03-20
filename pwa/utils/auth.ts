@@ -69,7 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
-                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php:8080/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : "http://php:8080/auth";
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id, users.first_name, users.last_name FROM users WHERE email = $1", [credentials.email]);
                 if (dbQuery.rowCount === 0) {
@@ -118,7 +118,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials, req) {
                 // var sslRootCAs = require('ssl-root-cas/latest')
                 // sslRootCAs.inject()
-                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php:8080/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : "http://php:8080/auth";
                 // const apiUrl = 'http://php/auth'
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
