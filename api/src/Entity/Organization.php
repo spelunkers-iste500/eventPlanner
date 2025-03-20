@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Delete;
@@ -15,6 +16,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\JoinTable;
 use Symfony\Component\Serializer\Annotation\Groups;
 use App\Entity\User;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -30,7 +34,6 @@ use App\Entity\User;
 #[Get(
     security: "is_granted('view', object)",
     description: "Gets a single organization. Users can only view if they're part of the org, or an admin",
-    requirements: ['id' => '\d+'],
     normalizationContext: ['groups' => ['org:read']],
     processor: LoggerStateProcessor::class
 )]
@@ -60,15 +63,23 @@ use App\Entity\User;
 #[ORM\Table(name: 'organization')]
 class Organization
 {
+    #[ApiProperty(identifier: true)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['org:read', 'org:write', 'org:collectionRead'])]
-    private int $id;
+    #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
+    #[Groups(['org:read', 'org:collectionRead'])]
+    private $id;
 
-    public function getId(): int
+    public function getId(): UuidInterface | LazyUuidFromString
     {
         return $this->id;
+    }
+    // public function getUuid(): UuidInterface | LazyUuidFromString
+    // {
+    //     return $this->id;
+    // }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
     }
 
     /**
@@ -292,11 +303,12 @@ class Organization
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4();
         $this->users = new ArrayCollection();
         $this->admins = new ArrayCollection();
         $this->eventadmins = new ArrayCollection();
         $this->financeAdmins = new ArrayCollection();
         $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        $this->createdDate = new \DateTime(); // 0b88d851-a9ff-45fc-88d8-ac9d47c922d9
     }
 }
