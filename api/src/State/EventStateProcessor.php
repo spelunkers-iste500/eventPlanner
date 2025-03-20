@@ -5,6 +5,8 @@ namespace App\State;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use App\Repository\EventRepository;
+use App\State\LoggerStateProcessor;
+
 
 /**
  * This class exists to add users to an event instead of setting users to an event
@@ -24,6 +26,6 @@ class EventStateProcessor implements ProcessorInterface
         // add the attendees to the event
         $event->addAttendeeCollection($attendees);
         //record the change for logging
-        $this->changeLogger->process($processedUser, $operation, $uriVariables, $context);
+        //$this->changeLogger->process($processedUser, $operation, $uriVariables, $context);
     }
 }

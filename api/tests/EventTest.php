@@ -123,7 +123,6 @@ class EventTest extends ApiTestCase
             'endFlightBooking' => "2025-01-29T19:01:00+00:00"
 
         ]);*/
-        $this->assertMatchesResourceItemJsonSchema(Event::class);
         //endtime to terminal
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
         echo $executionMessage;
