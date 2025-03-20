@@ -19,7 +19,7 @@ export const pool = new Pool({
 
 declare module "next-auth" {
     interface Session {
-        id: number;
+        id: string;
         email: string;
         apiToken: string;
         secondFactor: boolean;
@@ -35,7 +35,7 @@ declare module "next-auth" {
         otp: string;
     }
     interface JWT {
-        id: number;
+        id: string;
         email: string;
         apiToken: string;
         secondFactor: boolean;
@@ -155,7 +155,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async session({ session, token }) {
             // console.log('Session callback: ', session, token);
             if (token) {
-                session.id = token.id as number;
+                session.id = token.id as string;
                 session.email = token.email as string;
                 session.apiToken = token.apiToken as string;
                 session.secondFactor = token.secondFactor as boolean;

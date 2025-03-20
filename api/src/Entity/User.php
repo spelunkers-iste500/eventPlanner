@@ -19,6 +19,9 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\JoinTable;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -47,7 +50,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             description: 'The ID of the organization that owns the users'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['user:org:read']]
 )]
 //User.Change --This is working how I expect so far
@@ -61,7 +63,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes a User. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
 )]
 
@@ -79,23 +80,29 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class User implements PasswordAuthenticatedUserInterface, UserInterface
 {
     /**
-     * @var int $id The user ID
+     * @var UuidInterface $id The user ID
      */
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
     #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create', 'user:org:read'])]
-    private int $id;
+    private $id;
 
     /**
-     * @return int The user ID
+     * @return UuidInterface The user ID
      */
-    public function getId(): int
+    public function getId(): UuidInterface | LazyUuidFromString
     {
         return $this->id;
     }
     /**
-     * @return string $id The user ID
+     * @return uuid The user ID
+     */
+    public function getUuid(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    /**
+     * @return string $email The users email for logging in
      */
     public function getUserIdentifier(): string
     {
@@ -104,6 +111,14 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getUsername(): string
     {
         return $this->getEmail();
+    }
+    public function setUuid(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
     }
 
     /**
@@ -278,7 +293,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var string $hashedPassword The hashed password of the user
      */
     #[ORM\Column(type: 'string', length: 255)]
-    #[Groups(['user:create'])]
     private ?string $hashedPassword;
 
     /**
@@ -576,7 +590,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getRoles(): array
     {
         //guarantee every user at least has ROLE_USER
-        if ($this->superAdmin) {
+        if (
+            $this->superAdmin || // sysadmins
+            (
+                // if the env is dev, allow admin
+                str_ends_with($this->email, 'admin.com' && $_ENV['APP_ENV'] === 'dev')
+            )
+        ) {
             return ['ROLE_ADMIN'];
         }
         return [];
@@ -711,6 +731,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ?Collection $eventsAttending = new ArrayCollection(),
         ?Collection $financeAdminOfOrg = new ArrayCollection()
     ) {
+        $this->id = Uuid::uuid4();
         $this->firstName = $firstName;
         $this->lastName = $lastName;
         $this->email = $email;
