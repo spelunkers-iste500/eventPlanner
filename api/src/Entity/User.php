@@ -50,7 +50,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             description: 'The ID of the organization that owns the users'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['user:org:read']]
 )]
 //User.Change --This is working how I expect so far
@@ -64,7 +63,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes a User. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
 )]
 

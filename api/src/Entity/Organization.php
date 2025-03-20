@@ -309,6 +309,6 @@ class Organization
         $this->eventadmins = new ArrayCollection();
         $this->financeAdmins = new ArrayCollection();
         $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime(); // 0b88d851-a9ff-45fc-88d8-ac9d47c922d9
+        $this->createdDate = new \DateTime();
     }
 }
