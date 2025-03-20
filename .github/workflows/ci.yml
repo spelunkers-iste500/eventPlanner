@@ -36,9 +36,9 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Stop existing services
         run: docker compose down
-      - name: import test data
+      - name: update composer
         run: |
-          cd /api
+          cd api/
           composer update
       - name: Build Docker images
         uses: docker/bake-action@v6
