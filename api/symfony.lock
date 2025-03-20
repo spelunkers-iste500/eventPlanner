@@ -480,6 +480,15 @@
     "symfony/security-http": {
         "version": "v6.0.2"
     },
+    "symfony/sendgrid-mailer": {
+        "version": "6.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "4.4",
+            "ref": "224aedffb66812dc2b0965dabc14d5f800941da6"
+        }
+    },
     "symfony/serializer": {
         "version": "v6.0.2"
     },
