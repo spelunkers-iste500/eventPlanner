@@ -157,6 +157,29 @@ img {
     gap: 0.5rem;
 }
 
+.input-field:disabled {
+    background-color: var(--gray-200);
+    color: var(--gray-400);
+    cursor: not-allowed;
+}
+
+.select-menu.vanilla {
+    width: calc(100% - 0.75rem);
+    border: 2px solid var(--black);
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    color: var(--blue-500);
+
+    &:has(option:disabled:checked) {
+        color: var(--gray-400);
+    }
+
+    option {
+        color: var(--blue-500);
+    }
+}
+
 .select__option {
     padding: 0.5rem;
 }
@@ -173,9 +196,17 @@ img {
     max-width: 100%;
 }
 
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
 .react-datepicker__input-container svg {
     top: 50%;
     transform: translateY(-50%);
+}
+
+.react-datepicker__input-container .input-field {
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
 }
 
 .error-msg {
