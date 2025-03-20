@@ -83,17 +83,19 @@ class EventTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Get All Events");
         echo $executionMessage;
     }*/
-    /*
     public function testCreateEvent(): void
     {
         $startTime = microtime(true);
+        //createorg
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $orgid = $org->getId();
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
 
         $client = static::createClient();
-        $client->request('POST', '/events', [
+        $client->request('POST', "/organizations/{$orgid}/events/", [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
                 "eventTitle"=> "Pizza Party",
@@ -102,7 +104,8 @@ class EventTest extends ApiTestCase
                 "location"=> "Gosnell",
                 "maxAttendees"=> 20,
                 'startFlightBooking' => "2025-01-29T18:30:00+00:00",
-                'endFlightBooking' => "2025-01-29T19:01:00+00:00"
+                'endFlightBooking' => "2025-01-29T19:01:00+00:00",
+                'organization' => "/organizations/$orgid"
             ],
             'auth_bearer' => $jwttoken['token']
         ]);
@@ -125,7 +128,6 @@ class EventTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
         echo $executionMessage;
     }
-    */
     public function testUpdateEvent(): void
     {
         $startTime = microtime(true);
@@ -138,7 +140,7 @@ class EventTest extends ApiTestCase
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // create event
-        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager', 'organization' => $org]);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
