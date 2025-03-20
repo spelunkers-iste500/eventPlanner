@@ -27,6 +27,17 @@ class Flight
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     public string $flightCost;
 
+    public function getFlightCost(): string
+    {
+        return $this->flightCost;
+    }
+
+    public function setFlightCost(string $flightCost): self
+    {
+        $this->flightCost = $flightCost;
+        return $this;
+    }
+
     //Relationships
 
     //eventOrganization -> Event

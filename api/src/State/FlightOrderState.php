@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface as Logger;
 use Symfony\Bundle\SecurityBundle\Security;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\State\ProviderInterface;
+use App\Entity\Event;
 use App\Repository\UserRepository;
 use App\Entity\Flight;
 
@@ -104,7 +105,6 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
             birthday: $responseData['passengers'][0]['born_on'],
             phone_number: $responseData['passengers'][0]['phone_number']
         );
-        // before return value, should persist a Flight object as well so that the budget gets updated
         return $flightOrder;
     }
 
@@ -188,6 +188,13 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         );
 
         $flightOrder->setData(json_decode($responseData));
+
+        // before return value, should persist a Flight object as well so that the budget gets updated
+        $flight = new Flight();
+        $flight->setFlightCost($responseData['total_amount']['amount']);
+        $flight->setEvent($data->event);
+        $this->entityManager->persist($flight);
+        $this->entityManager->flush();
 
         // Example: Budget validation and updating
         // Fetch the budget (assuming only one budget exists)
