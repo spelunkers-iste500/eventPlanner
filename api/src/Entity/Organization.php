@@ -57,7 +57,6 @@ use Ramsey\Uuid\Uuid;
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes an organization. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
 )]
 #[ORM\Table(name: 'organization')]
