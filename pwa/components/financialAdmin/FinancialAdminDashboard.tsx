@@ -2,15 +2,13 @@
 import React, { useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./FinancialAdminDashboard.module.css";
+import dialogStyles from "../common/Dialog.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "Types/events";
-import { Stack, Text } from "@chakra-ui/react";
-import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from "Components/ui/accordion";
+import { Button, Dialog, DialogBackdrop, DialogBody, DialogContent, DialogHeader, DialogRoot, DialogTitle, Stack, Text } from "@chakra-ui/react";
+import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "Components/ui/accordion";
+import Input from "Components/common/Input";
+import { X } from "lucide-react";
 
 // Dummy data for events (replace with API call data later)
 const events: Event[] = [
@@ -87,19 +85,19 @@ const events: Event[] = [
 ];
 
 // Filtering events into current and past events based on the current date
-const currentEvents = events.filter(event => new Date(event.startDateTime) > new Date());
-const pastEvents = events.filter(event => new Date(event.startDateTime) <= new Date());
+const pendingEvents = events.filter(event => new Date(event.startDateTime) > new Date());
+const approvedEvents = events.filter(event => new Date(event.startDateTime) <= new Date());
 
-// Defining accordion items for current events, past events, and CSV export
+// Defining accordion items for current events and past events
 const items = [
-  { value: "current-events", title: "Current Events", events: currentEvents },
-  { value: "past-events", title: "Past Events", events: pastEvents },
-  { value: "csv-export", title: "Export CSV", events: [] },
+  { value: "pending-events", title: "Events Pending Approval", events: pendingEvents },
+  { value: "approved-events", title: "Approved Events", events: approvedEvents },
 ];
 
 const FinancialAdminDashboard: React.FC = () => {
   const { data: session } = useSession();
-  const [value, setValue] = useState(["current-events"]);
+  const [value, setValue] = useState(["pending-events"]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // CSV Export Search State
   const [csvSearchTerm, setCsvSearchTerm] = useState("");
@@ -114,7 +112,12 @@ const FinancialAdminDashboard: React.FC = () => {
   const budgetSpent = "$45,000";
   const remainingBudget = "$55,000";
 
+  const handleExportClick = () => {
+      setIsDialogOpen(true); // Open modal
+    };
+
   return (
+    <>
     <div className={styles.plannerDashboardContainer}>
       <h1>Welcome, {session?.user?.name}!</h1>
       
@@ -132,6 +135,12 @@ const FinancialAdminDashboard: React.FC = () => {
           <div className={styles.orgDetails}>
             <h2 className={styles.orgName}>Organization Name</h2>
             <p className={styles.orgType}>Financial Management Organization</p>
+          </div>
+          {/* Export CSV Button */}
+          <div className={styles.exportButtonContainer}>
+            <button className={styles.exportButton} onClick={handleExportClick}>
+              Export CSV
+            </button>
           </div>
         </div>
         
@@ -158,86 +167,99 @@ const FinancialAdminDashboard: React.FC = () => {
             <AccordionItem key={index} value={item.value}>
               <AccordionItemTrigger>{item.title}</AccordionItemTrigger>
               <AccordionItemContent>
-              {item.value === "csv-export" ? (
-                // CSV Export Section with a simple search bar
-                <div className={styles.exportCSVContainer}>
-                    <h3>Export Budget CSV</h3>
-                    <div className={styles.exportCSVForm}>
-                    <input
-                        type="text"
-                        placeholder="Search events..."
-                        value={csvSearchTerm}
-                        onChange={(e) => {
-                        setCsvSearchTerm(e.target.value);
-                        // Clear any previous selection if the user types something new
-                        if (e.target.value.trim() === "") {
-                            setSelectedExportEvent(null);
-                        }
-                        }}
-                        className={styles.searchInput}
-                    />
-                    {/* Only show search results when the search term is non-empty and no event is selected */}
-                    {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
-                        <div className={styles.searchResults}>
-                        {filteredExportEvents.length > 0 ? (
-                            filteredExportEvents.map((event) => (
-                            <div
-                                key={event.id}
-                                className={styles.searchResultItem}
-                                onClick={() => {
-                                setSelectedExportEvent(event.id);
-                                setCsvSearchTerm(event.eventTitle);
-                                }}
-                            >
-                                {event.eventTitle}
-                            </div>
-                            ))
-                        ) : (
-                            <div className={styles.noResults}>No events found</div>
-                        )}
-                        </div>
-                    )}
-                    {/* Display the selected event and a clear option */}
-                    {selectedExportEvent && (
-                        <div className={styles.selectedEventDisplay}>
-                        <span>
-                            Selected Event:{" "}
-                            {events.find((e) => e.id === selectedExportEvent)?.eventTitle}
-                        </span>
-                        <button
-                            className={styles.clearButton}
-                            onClick={() => {
-                            setSelectedExportEvent(null);
-                            setCsvSearchTerm("");
-                            }}
-                        >
-                            Clear
-                        </button>
-                        </div>
-                    )}
-                    <button
-                        className={styles.exportButton}
-                        onClick={() => {
-                        // Insert export logic here
-                        }}
-                    >
-                        Export CSV
-                    </button>
-                    </div>
-                </div>
-                ) : item.events.length > 0 ? (
-                // Pass the prop buttonText so that EventList renders "Edit Budget" on the cards
-                <EventList heading={item.title} events={item.events} />
+                {item.events.length > 0 ? (
+                  <EventList heading={item.title} events={item.events} isFinance />
                 ) : (
-                <Text>No events available</Text>
+                  <Text>No events available</Text>
                 )}
-
               </AccordionItemContent>
             </AccordionItem>
           ))}
         </AccordionRoot>
       </Stack>
     </div>
+
+    <div className={`${dialogStyles.dialogWrapper} ${isDialogOpen ? dialogStyles.open : ''}`}>
+        <DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
+            <DialogBackdrop />
+            <DialogContent className={dialogStyles.dialogContent}>
+                <DialogHeader>
+          <div className={dialogStyles.dialogHeader}>
+              <div>
+                  <DialogTitle>Export CSV</DialogTitle>
+              </div>
+              <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
+          </div>
+                </DialogHeader>
+                <DialogBody className={dialogStyles.dialogBody}>
+                  <div className={styles.exportCSVContainer}>
+                    <h3>Export Budget CSV</h3>
+                    <div className={styles.exportCSVForm}>
+                      <Input
+                        label="Search Events"
+                        placeholder="Search events..."
+                        onChange={(value) => {
+                          setCsvSearchTerm(value);
+                          // Clear any previous selection if the user types something new
+                          if (value.trim() === "") {
+                            setSelectedExportEvent(null);
+                          }
+                        }}
+                      />
+                      {/* Only show search results when the search term is non-empty and no event is selected */}
+                      {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
+                        <div className={styles.searchResults}>
+                          {filteredExportEvents.length > 0 ? (
+                            filteredExportEvents.map((event) => (
+                              <div
+                                key={event.id}
+                                className={styles.searchResultItem}
+                                onClick={() => {
+                                  setSelectedExportEvent(event.id);
+                                  setCsvSearchTerm(event.eventTitle);
+                                }}
+                              >
+                                {event.eventTitle}
+                              </div>
+                            ))
+                          ) : (
+                            <div className={styles.noResults}>No events found</div>
+                          )}
+                        </div>
+                      )}
+                      {/* Display the selected event and a clear option */}
+                      {selectedExportEvent && (
+                        <div className={styles.selectedEventDisplay}>
+                          <span>
+                            Selected Event:{" "}
+                            {events.find((e) => e.id === selectedExportEvent)?.eventTitle}
+                          </span>
+                          <button
+                            className={styles.clearButton}
+                            onClick={() => {
+                              setSelectedExportEvent(null);
+                              setCsvSearchTerm("");
+                            }}
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      )}
+                      <button
+                        className={styles.exportButton}
+                        onClick={() => {
+                          // Insert export logic here
+                        }}
+                      >
+                        Export CSV
+                      </button>
+                    </div>
+                  </div>
+                </DialogBody>
+            </DialogContent>
+        </DialogRoot>
+    </div>
+    </>
   );
 };
 

@@ -33,6 +33,7 @@
 
 import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
+import dialogStyles from "../common/Dialog.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
 import { Event, formatDate, formatTime } from "Types/events";
@@ -45,11 +46,14 @@ interface EventListProps {
     events: Event[];
 	classes?: string;
 	hasAddBtn?: boolean;
+	isFinance?: boolean;
+	pendingEvent?: boolean;
 }
 
-const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn }) => {
+const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance }) => {
 	const isBookCard = heading === "Event Invitations";
-	const buttonText = isBookCard ? "Book Now" : "View More";
+	const pendingEvent = heading === "Events Pending Approval";
+	const buttonText = isFinance ? (pendingEvent ? "Set Budget" : "View Budget") : isBookCard ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
@@ -135,6 +139,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 						key={event.id}
 						event={event}
 						buttonText={buttonText}
+						isFinance
 						onClick={() => handleCardClick(event)}
 					/>
 				))}
@@ -142,43 +147,45 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 		</div>
 
 		{/* Chakra UI Dialog */}
-		<DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
-            <DialogBackdrop />
-            <DialogContent className={styles.dialogContent}>
-                <DialogHeader>
-                    <img src={'/media/event_image.jpg'} alt={selectedEvent?.eventTitle} className={styles.dialogImg} />
-                </DialogHeader>
-                <DialogBody className={styles.dialogBody}>
-                    <div className={styles.dialogBodyHeader}>
-                        <div>
-                            <DialogTitle>{selectedEvent?.eventTitle}</DialogTitle>
-                            <p className={styles.dialogOrg}>{selectedEvent?.organization}</p>
-                        </div>
-                        <Button className={styles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
-                    </div>
-
-					<div className={styles.dialogBodyContent}>
-						<div className={styles.dialogDetails}>
-							<h3>Event Details</h3>
-							<p><MapPin size={16}/><span>{selectedEvent?.location}</span></p>
-							<p><Calendar size={16}/><span>{formatDate(selectedEvent?.startDateTime)} {formatDate(selectedEvent?.endDateTime) !== formatDate(selectedEvent?.startDateTime) ? `- ${formatDate(selectedEvent?.endDateTime)}` : ''}</span></p>
-							<p><Clock size={16}/><span>{formatTime(selectedEvent?.startDateTime)} {selectedEvent?.endDateTime ? `- ${formatTime(selectedEvent?.endDateTime)}` : ''}</span></p>
-							<p><Users size={16}/><span>{selectedEvent?.maxAttendees} Attendees</span></p>
-							{/* <p><HandCoins size={16}/><span>${selectedEvent?.attendeeBudget}/attendee</span></p> */}
+		<div className={`${dialogStyles.dialogWrapper} ${isDialogOpen ? dialogStyles.open : ''}`}>
+			<DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
+	            <DialogBackdrop />
+	            <DialogContent className={dialogStyles.dialogContent}>
+	                <DialogHeader>
+	                    <img src={'/media/event_image.jpg'} alt={selectedEvent?.eventTitle} className={dialogStyles.dialogImg} />
+	                </DialogHeader>
+	                <DialogBody className={dialogStyles.dialogBody}>
+	                    <div className={dialogStyles.dialogBodyHeader}>
+	                        <div>
+	                            <DialogTitle>{selectedEvent?.eventTitle}</DialogTitle>
+	                            <p className={dialogStyles.dialogOrg}>{selectedEvent?.organization}</p>
+	                        </div>
+	                        <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
+	                    </div>
+	
+						<div className={dialogStyles.dialogBodyContent}>
+							<div className={dialogStyles.dialogDetails}>
+								<h3>Event Details</h3>
+								<p><MapPin size={16}/><span>{selectedEvent?.location}</span></p>
+								<p><Calendar size={16}/><span>{formatDate(selectedEvent?.startDateTime)} {formatDate(selectedEvent?.endDateTime) !== formatDate(selectedEvent?.startDateTime) ? `- ${formatDate(selectedEvent?.endDateTime)}` : ''}</span></p>
+								<p><Clock size={16}/><span>{formatTime(selectedEvent?.startDateTime)} {selectedEvent?.endDateTime ? `- ${formatTime(selectedEvent?.endDateTime)}` : ''}</span></p>
+								<p><Users size={16}/><span>{selectedEvent?.maxAttendees} Attendees</span></p>
+								{/* <p><HandCoins size={16}/><span>${selectedEvent?.attendeeBudget}/attendee</span></p> */}
+							</div>
+							<div className={dialogStyles.dialogDetails}>
+								<h3>Your Details</h3>
+								{/* <p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>{selectedEvent?.originAirport} <ArrowRight /> {selectedEvent?.destinationAirport}</span></p> */}
+								<p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></p>
+								<p><PlaneTakeoff size={16}/><span>{formatDate(selectedEvent?.startFlightBooking)} • {formatTime(selectedEvent?.startFlightBooking)}</span></p>
+								<p><PlaneLanding size={16}/><span>{formatDate(selectedEvent?.endFlightBooking)} • {formatTime(selectedEvent?.endFlightBooking)}</span></p>
+								<p><CircleDollarSign size={16}/><span>$315/$500 used</span></p>
+								{/* <p><CircleDollarSign size={16}/><span>{selectedEvent?.usedBudget}/{selectedEvent?.attendeeBudget} used</span></p> */}
+							</div>
 						</div>
-						<div className={styles.dialogDetails}>
-							<h3>Your Details</h3>
-							{/* <p><TowerControl size={16}/><span className={styles.dialogAirports}>{selectedEvent?.originAirport} <ArrowRight /> {selectedEvent?.destinationAirport}</span></p> */}
-							<p><TowerControl size={16}/><span className={styles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></p>
-							<p><PlaneTakeoff size={16}/><span>{formatDate(selectedEvent?.startFlightBooking)} • {formatTime(selectedEvent?.startFlightBooking)}</span></p>
-							<p><PlaneLanding size={16}/><span>{formatDate(selectedEvent?.endFlightBooking)} • {formatTime(selectedEvent?.endFlightBooking)}</span></p>
-							<p><CircleDollarSign size={16}/><span>$315/$500 used</span></p>
-							{/* <p><CircleDollarSign size={16}/><span>{selectedEvent?.usedBudget}/{selectedEvent?.attendeeBudget} used</span></p> */}
-						</div>
-					</div>
-                </DialogBody>
-            </DialogContent>
-        </DialogRoot>
+	                </DialogBody>
+	            </DialogContent>
+	        </DialogRoot>
+		</div>
 		</>
   	);
 };
