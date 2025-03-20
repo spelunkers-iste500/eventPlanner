@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiProperty;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -12,7 +13,11 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\State\EventStateProcessor;
+use App\State\LoggerStateProcessor;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -38,7 +43,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
         ),
         'id' => 'id'
     ],
-    requirements: ['id' => '\d+', 'eventId' => '\d+', 'orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:user:budget']],
     security: 'is_granted("ROLE_USER")'
 )]
@@ -63,7 +67,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             description: 'The ID of the organization that owns the budget'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
@@ -84,7 +87,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
             description: 'The ID of the organization that owns the budget'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:budget']],
 )]
 /** 
@@ -94,22 +96,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Budget
 {
     // Table setup
+    #[ApiProperty(identifier: true)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'integer')]
+    #[ORM\Column(name: 'id', type: 'uuid')]
     #[Groups(['read:budget', 'write:budget'])]
-    public int $id;
+    private $id;
+    public function getId(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
     public string $total = "0.00";
-        /**
-     * @return int The user ID
-     */
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     /**
      * The spent budget is only visible to the org and finance admins
@@ -176,7 +179,7 @@ class Budget
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
-    
+
     public function getFinanceAdmins(): Collection
     {
         // should combine finance admins from the budget, the event, and the org,
