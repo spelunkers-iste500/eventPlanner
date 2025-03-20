@@ -46,7 +46,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(
-    //works similar to Org.Admin.View so it may need changed based since it has the same issues
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/organizations/{orgId}/events/.{_format}',
     uriVariables: [
@@ -79,10 +78,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Event.Admin.delete (WORKS)
 #[Delete(
-    security: "is_granted('ROLE_ADMIN')",
+    security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
+)]
+
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    processor: LoggerStateProcessor::class,
+    normalizationContext: ['groups' => ['test:attendees']]
 )]
 
 /**
@@ -187,7 +194,7 @@ class Event
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees'])]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
     private Collection $attendees;
 
     public function getAttendees(): Collection
