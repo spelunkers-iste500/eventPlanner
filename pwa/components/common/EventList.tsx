@@ -134,6 +134,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 					</div>
 				</div>
 				)}
+				{events.length === 0 && <p className={styles.noResults}>No events found.</p>}
 				{events.filter((event) => event.eventTitle.toLowerCase().includes(searchTerm.toLowerCase())).map((event) => (
 					<Card
 						key={event.id}
