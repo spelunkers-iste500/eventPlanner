@@ -24,7 +24,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[API\Post(
     processor: UserInviteState::class,
     // securityPostDenormalize: "is_granted('invite', object)",
-    normalizationContext: ['groups' => ['read:userInvite']],
+    // normalizationContext: ['groups' => ['read:userInvite']],
     denormalizationContext: ['groups' => ['write:userInvite']],
     uriTemplate: '/organizations/{organizationId}/invite',
     uriVariables: [
