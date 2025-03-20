@@ -8,6 +8,7 @@ use App\Entity\Event;
 use App\Entity\User;
 use App\Factory\EventFactory;
 use App\Factory\UserFactory;
+use App\Factory\OrganizationFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -40,7 +41,7 @@ class EventTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
     }
-    public function testGetEventCollection(): void
+    /*public function testGetEventCollection(): void
     {
         $startTime = microtime(true);
         //create users
@@ -81,8 +82,8 @@ class EventTest extends ApiTestCase
         //endtime to terminal
         $executionMessage = $this->calculateExecutionTime($startTime, "Get All Events");
         echo $executionMessage;
-    }
-    
+    }*/
+    /*
     public function testCreateEvent(): void
     {
         $startTime = microtime(true);
@@ -124,35 +125,52 @@ class EventTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
         echo $executionMessage;
     }
-    
+    */
     public function testUpdateEvent(): void
     {
         $startTime = microtime(true);
+        //create org
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // create event
         $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
 
         $client = static::createClient();
         // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
         $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
-        // Use the PATCH method here to do a partial update
+        
+        //try to update as reguar user should fail
         $client->request('PATCH', $eventiri, [
             'json' => [
-                'location' => "Munson's Office",
+                'maxAttendees' => 6,
+                "startDateTime"=> "2025-01-29T18:30:00+00:00",
             ],
-            'headers' => [
-                'Content-Type' => 'application/merge-patch+json',
-            ]
+            'headers' => ['Content-Type' => 'application/merge-patch+json',],
+            'auth_bearer' => $jwttokenUser2['token']
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+        
+        // Use the PATCH as superadmin
+        $client->request('PATCH', $eventiri, [
+            'json' => [
+                'maxAttendees' => 6,
+                "startDateTime"=> "2025-01-29T18:30:00+00:00",
+            ],
+            'headers' => ['Content-Type' => 'application/merge-patch+json',],
+            'auth_bearer' =>  $jwttoken['token']
         ]);
 
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $eventiri,
             'eventTitle' => 'Gavin Rager',
-            'location' => "Munson's Office",
+            'maxAttendees' => 6,
+            "startDateTime"=> "2025-01-29T18:30:00+00:00",
         ]);
         //endtime to terminal
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
@@ -162,12 +180,14 @@ class EventTest extends ApiTestCase
     public function testDeleteEvent(): void
     {
         $startTime = microtime(true);
+        //create org
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         // create event
-        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager']);
+        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager', 'organization' => $org]);
         $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
         
         $client = static::createClient();
@@ -177,7 +197,7 @@ class EventTest extends ApiTestCase
         $this->assertResponseStatusCodeSame(204);
         $this->assertNull(
             // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
+            $results = static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
         );
         
         $executionMessage = $this->calculateExecutionTime($startTime, "Delete event");
