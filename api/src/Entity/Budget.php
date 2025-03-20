@@ -112,28 +112,9 @@ class Budget
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
-    public string $total = "0.00";
+    public string $perUserTotal = "0.00";
 
-    /**
-     * The spent budget is only visible to the org and finance admins
-     */
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget'])]
-    public string $spentBudget = "0.00";
-
-    /** 
-     * The VIP budget should be divided by the number of VIP attendees of the associated event.
-     */
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget'])]
-    public string $vipBudget = "0.00";
-
-    /**
-     * The regular budget should be divided by the number of attendees of the associated event.
-     */
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget'])]
-    public string $regBudget;
+    // @todo: relate to Flight entity to allow calculating the budget used
 
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $lastModified;
@@ -159,6 +140,23 @@ class Budget
     {
         $this->event = $event;
         return $this;
+    }
+
+    public function getBudgetTotal(): string
+    {
+        // will multiply the perUserTotal by the number of users in the event
+        $countAttendees = count($this->event->getAttendees());
+        return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees));
+    }
+
+    public function getSpentBudget(): string
+    {
+        // will sum the total spent on flights for the event
+        $spent = "0.00";
+        foreach ($this->event->getFlights() as $flight) {
+            $spent = bcadd($spent, $flight->getPrice());
+        }
+        return $spent;
     }
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]

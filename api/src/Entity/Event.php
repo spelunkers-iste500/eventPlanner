@@ -235,6 +235,26 @@ class Event
         return $this;
     }
 
+    //Event -> Flight
+    #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
+    private Collection $flights;
+
+    public function getFlights(): Collection
+    {
+        return $this->flights;
+    }
+
+    public function addFlight(Flight $flight): self
+    {
+        if (!$this->flights->contains($flight)) {
+            $this->flights[] = $flight;
+            $flight->setEvent($this);
+        }
+        return $this;
+    }
+
+
     public function __construct()
     {
         $this->id = Uuid::uuid4();

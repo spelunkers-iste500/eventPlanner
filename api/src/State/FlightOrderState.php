@@ -13,6 +13,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\State\ProviderInterface;
 use App\Repository\UserRepository;
+use App\Entity\Flight;
 
 /**
  * Processes and provides the order info, updates related entities on persist.
@@ -103,6 +104,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
             birthday: $responseData['passengers'][0]['born_on'],
             phone_number: $responseData['passengers'][0]['phone_number']
         );
+        // before return value, should persist a Flight object as well so that the budget gets updated
         return $flightOrder;
     }
 
