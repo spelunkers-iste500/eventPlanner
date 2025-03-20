@@ -47,11 +47,13 @@ interface EventListProps {
 	classes?: string;
 	hasAddBtn?: boolean;
 	isFinance?: boolean;
+	pendingEvent?: boolean;
 }
 
 const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance }) => {
 	const isBookCard = heading === "Event Invitations";
-	const buttonText = isFinance ? "View Budget" : isBookCard ? "Book Now" : "View More";
+	const pendingEvent = heading === "Events Pending Approval";
+	const buttonText = isFinance ? (pendingEvent ? "Set Budget" : "View Budget") : isBookCard ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
