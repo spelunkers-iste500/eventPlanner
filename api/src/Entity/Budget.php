@@ -142,6 +142,7 @@ class Budget
         return $this;
     }
 
+    #[Groups(['read:budget'])]
     public function getBudgetTotal(): string
     {
         // will multiply the perUserTotal by the number of users in the event
@@ -149,6 +150,7 @@ class Budget
         return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees));
     }
 
+    #[Groups(['read:budget'])]
     public function getSpentBudget(): string
     {
         // will sum the total spent on flights for the event
