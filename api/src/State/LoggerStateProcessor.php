@@ -109,10 +109,6 @@ class LoggerStateProcessor implements ProcessorInterface
     {
         $changes = [];
 
-        // Debug: Log both before and after to check structure
-        error_log("Before Change: " . json_encode($before));
-        error_log("After Change: " . json_encode($after));
-
     
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
@@ -120,9 +116,6 @@ class LoggerStateProcessor implements ProcessorInterface
                 $changes[$key] = ['before' => $oldValue, 'after' => $newValue];
             }
         }
-
-        // Debug: Log computed changes
-        error_log("Detected Changes: " . json_encode($changes));
 
     
         return $changes;
