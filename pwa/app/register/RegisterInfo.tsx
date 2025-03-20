@@ -59,7 +59,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             { field: 'gender', message: 'Gender is required' },
             { field: 'birthday', message: 'Birthday is required' },
             { field: 'phoneNumber', message: 'Phone number is required' },
-            { field: 'orgCode', message: 'Organization code is required, ensure you clicked on the link from your email' }
+            // { field: 'orgCode', message: 'Organization code is required, ensure you clicked on the link from your email' }
         ];
 
         for (const { field, message } of requiredFields) {
