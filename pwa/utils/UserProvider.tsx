@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 
 interface User {
-    id: number;
+    id: string;
     name: string;
     email: string;
     emailVerified: boolean;
