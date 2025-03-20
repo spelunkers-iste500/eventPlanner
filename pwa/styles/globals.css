@@ -155,6 +155,38 @@ img {
     font-size: 1rem;
     background-color: var(--white);
     gap: 0.5rem;
+
+    &:focus {
+        background-color: var(--blue-300);
+    }
+}
+
+.input-field:disabled {
+    background-color: var(--gray-200);
+    color: var(--gray-400);
+    cursor: not-allowed;
+}
+
+.select-menu.vanilla {
+    width: calc(100% - 0.75rem);
+    border: 2px solid var(--black);
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    color: var(--blue-500);
+
+    &:focus {
+        background-color: var(--blue-300);
+    }
+
+    &:has(option:disabled:checked) {
+        color: var(--gray-400);
+    }
+
+    option {
+        color: var(--blue-500);
+        background-color: var(--white);
+    }
 }
 
 .select__option {
@@ -173,9 +205,17 @@ img {
     max-width: 100%;
 }
 
+.react-datepicker-wrapper {
+    width: 100%;
+}
+
 .react-datepicker__input-container svg {
     top: 50%;
     transform: translateY(-50%);
+}
+
+.react-datepicker__input-container .input-field {
+    padding: 0.75rem 0.75rem 0.75rem 2rem;
 }
 
 .error-msg {
