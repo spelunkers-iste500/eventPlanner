@@ -19,6 +19,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -39,8 +42,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
             toProperty: 'organization',
             description: 'The ID of the organization that owns the event'
         )
-        ],
-    requirements: ['orgId' => '\d+'],
+    ],
     denormalizationContext: ['groups' => ['write:event']],
     processor: LoggerStateProcessor::class
 )]
@@ -64,7 +66,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['write:event:changes']],
     processor: LoggerStateProcessor::class
 )]
@@ -72,7 +73,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}/addAttendees.{_format}',
-    requirements: ['id' => '\d+'],
     denormalizationContext: ['groups' => ['add:event:attendees']],
     processor: EventStateProcessor::class
 )]
@@ -80,14 +80,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Delete(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
 )]
 
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class,
     normalizationContext: ['groups' => ['test:attendees']]
 )]
@@ -98,14 +96,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Event
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
     #[ApiProperty(identifier: true)]
-    #[ORM\Column(name: 'id', type: 'integer')]
-    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
-    public int $id;
-    public function getId(): int
+    #[ORM\Column(name: 'id', type: 'uuid')]
+    #[Groups(['read:event', 'read:event:collection'])]
+    private $id;
+    public function getId(): UuidInterface | LazyUuidFromString
     {
         return $this->id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
     }
 
     #[ORM\Column(length: 55)]
@@ -173,7 +174,7 @@ class Event
         $this->organization = $organization;
         return $this;
     }
-    
+
     //Relationships
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
@@ -234,10 +235,9 @@ class Event
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
         $this->attendees = new ArrayCollection();
     }
-
-
 }

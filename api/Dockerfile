@@ -31,11 +31,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN set -eux; \
 	install-php-extensions \
-		@composer \
-		apcu \
-		intl \
-		opcache \
-		zip \
+	@composer \
+	apcu \
+	intl \
+	opcache \
+	zip \
 	;
 
 ###> recipes ###
@@ -64,10 +64,14 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
 	install-php-extensions \
-		xdebug \
+	xdebug \
 	;
 
 COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
+
+COPY --link composer.* symfony.* ./
+RUN set -eux; \
+	composer install --no-cache --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress
 
 CMD [ "frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--watch" ]
 
