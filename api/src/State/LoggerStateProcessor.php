@@ -29,7 +29,7 @@ class LoggerStateProcessor implements ProcessorInterface
         $this->security = $security;
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $username = $this->getCurrentUserFullName();
         $operationName = strtolower($operation->getMethod());
@@ -43,7 +43,7 @@ class LoggerStateProcessor implements ProcessorInterface
 
         // Execute the primary operation first (saving/deleting entity)
         $data = $this->entityManager->merge($data);
-        $this->entityManager->flush();
+        //$this->entityManager->flush();
 
         // Capture after state (should be extracted AFTER flush)
         $afterChange = ($operationName !== 'delete') ? $this->maskSensitiveFields($this->extractEntityData($data)) : [];
@@ -56,7 +56,7 @@ class LoggerStateProcessor implements ProcessorInterface
         $this->entityManager->persist($logEntry);
         $this->entityManager->flush();
 
-        return $data;
+        //return $data;
     }
 
     /**
@@ -77,7 +77,7 @@ class LoggerStateProcessor implements ProcessorInterface
         $data = [];
         foreach ($reflectionClass->getProperties() as $property) {
             $property->setAccessible(true);
-    
+
             // Check if the property is initialized before accessing it
             if ($property->isInitialized($entity)) {
                 $data[$property->getName()] = $property->getValue($entity);
@@ -87,7 +87,7 @@ class LoggerStateProcessor implements ProcessorInterface
         }
         return $data;
     }
-    
+
 
     /**
      * Masks sensitive fields in the given entity data.
@@ -108,10 +108,7 @@ class LoggerStateProcessor implements ProcessorInterface
     private function computeChanges(array $before, array $after): array
     {
         $changes = [];
-    
-        // Debug: Log both before and after to check structure
-        error_log("Before Change: " . json_encode($before));
-        error_log("After Change: " . json_encode($after));
+
     
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
@@ -119,11 +116,8 @@ class LoggerStateProcessor implements ProcessorInterface
                 $changes[$key] = ['before' => $oldValue, 'after' => $newValue];
             }
         }
-    
-        // Debug: Log computed changes
-        error_log("Detected Changes: " . json_encode($changes));
+
     
         return $changes;
     }
-    
 }
