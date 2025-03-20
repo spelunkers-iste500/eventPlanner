@@ -93,7 +93,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             title: formData.title,
             gender: formData.gender,
             plainPassword: formData.password,
-            orgCode: formData.orgCode
+            // orgCode: formData.orgCode
         };
 
         // send post request to /users using axios

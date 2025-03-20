@@ -82,8 +82,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: credentials.email,
                     password: credentials.password,
                     headers: {
-                        "Content-Type": "application/json",
-                        "accept": "application/json",
+                        "Content-Type": "application/ld+json",
+                        "accept": "application/ld+json",
                     }
                 })
                 // only query the db if the authResponse is successful

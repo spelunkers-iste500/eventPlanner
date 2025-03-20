@@ -155,6 +155,10 @@ img {
     font-size: 1rem;
     background-color: var(--white);
     gap: 0.5rem;
+
+    &:focus {
+        background-color: var(--blue-300);
+    }
 }
 
 .input-field:disabled {
@@ -171,12 +175,17 @@ img {
     border-radius: 0.25rem;
     color: var(--blue-500);
 
+    &:focus {
+        background-color: var(--blue-300);
+    }
+
     &:has(option:disabled:checked) {
         color: var(--gray-400);
     }
 
     option {
         color: var(--blue-500);
+        background-color: var(--white);
     }
 }
 

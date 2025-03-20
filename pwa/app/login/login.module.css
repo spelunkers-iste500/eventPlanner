@@ -19,7 +19,7 @@
     box-shadow: var(--shadow-400);
 
     &.register {
-        max-height: 800px;
+        max-height: 600px;
         max-width: 550px;
     }
 }
@@ -38,7 +38,7 @@
     max-height: calc(400px - 2rem);
     
     &.register {
-        max-height: calc(800px - 2rem);
+        max-height: calc(500px - 2rem);
     }
 }
 
