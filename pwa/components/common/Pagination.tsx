@@ -1,3 +1,24 @@
+// This file defines a React functional component named `Pagination` which is used to display pagination controls for navigating through a paginated collection of items.
+
+// The component imports the `Link` component from `next/link` to create navigational links.
+// It also imports the `PagedCollection` type from the `types/collection` module to define the shape of the paginated collection prop.
+
+// The `Props` interface defines the shape of the props that the `Pagination` component expects. It includes:
+// - `collection`: a `PagedCollection` object that contains the paginated data and navigation links.
+// - `getPagePath`: a function that takes a path string and returns a formatted page path string.
+
+// The `Pagination` component takes `collection` and `getPagePath` as props and returns a JSX structure that represents the pagination controls. This structure includes:
+// - A `div` container with a `text-center` class for centering the pagination controls.
+// - A `nav` element with various classes for styling the pagination controls, including text size, font weight, border, and hover effects.
+// - Several `Link` components for navigating to the first, previous, next, and last pages of the collection. Each link uses the `getPagePath` function to generate the href attribute and includes conditional classes to disable the link if the corresponding page is not available.
+
+// The `view` constant extracts the `hydra:view` property from the `collection` object, which contains the pagination links.
+// If the `view` is not available, the component returns `null` and does not render any pagination controls.
+
+// The `first`, `previous`, `next`, and `last` constants extract the corresponding pagination links from the `view` object.
+
+// Finally, the `Pagination` component is exported as the default export of the module.
+
 import Link from "next/link";
 import { PagedCollection } from "../../types/collection";
 
