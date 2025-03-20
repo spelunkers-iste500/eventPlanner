@@ -235,6 +235,7 @@ class Event
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
         $this->attendees = new ArrayCollection();
