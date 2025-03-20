@@ -13,7 +13,7 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
-use app\State\LoggerStateProcessor;
+use App\State\LoggerStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\InverseJoinColumn;
@@ -22,11 +22,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read:event']],
-    denormalizationContext: ['groups' => ['write:event']],
+    normalizationContext: ['groups' => ['read:event'], "enable_max_depth" => true],
+    denormalizationContext: ['groups' => ['write:event'], "enable_max_depth" => true],
 )]
 
 //Event.Admin.Create (WORKS)
@@ -196,6 +197,7 @@ class Event
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
     #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
+    #[MaxDepth(1)]
     private Collection $attendees;
 
     public function getAttendees(): Collection

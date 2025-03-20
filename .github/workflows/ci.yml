@@ -1,3 +1,4 @@
+# trunk-ignore-all(checkov/CKV2_GHA_1)
 name: CI
 
 on:
@@ -116,7 +117,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      - name: Backup Database
+        run: |
+          docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
       - name: Copy Repository
         run: |
           rsync -avhH --delete . /opt/appRoot
@@ -146,15 +149,15 @@ jobs:
       - name: Reset DB
         run: |
           cd /opt/appRoot
-          docker compose exec php bash -c "bin/console doctrine:database:drop -f && bin/console doctrine:database:create && bin/console doctrine:migrations:diff && bin/console doctrine:migrations:migrate --no-interaction --env=prod"
+          docker compose exec php bash -c "bin/console doctrine:database:drop -f && bin/console doctrine:database:create"
 
       - name: Generate JWT signing certificates
         run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
       
       - name: import test data
         run: |
-          cd /opt/appRoot
-          docker compose exec php bash -c "bin/console doctrine:fixtures:load"
+          cd /opt
+          cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
       
       - name: Clean Disk
         if: always()

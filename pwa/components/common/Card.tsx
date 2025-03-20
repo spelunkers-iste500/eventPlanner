@@ -38,16 +38,17 @@
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { Event, formatDate, formatTime } from "Types/events";
-import { Calendar, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
+import { Calendar, CircleDollarSign, HandCoins, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
 
 // Define types for the Card component props
 interface CardProps {
 	event: Event;
 	buttonText: string;
+    isFinance?: boolean;
 	onClick: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ event, buttonText, onClick }) => {
+const Card: React.FC<CardProps> = ({ event, buttonText, isFinance, onClick }) => {
 	return (
         <div className={styles.card}>
             <img src={'/media/event_image.jpg'} alt={event.eventTitle} className={styles.cardImage} />
@@ -63,17 +64,37 @@ const Card: React.FC<CardProps> = ({ event, buttonText, onClick }) => {
                             {formatDate(event.startDateTime)} • {formatTime(event.startDateTime)} {event.endDateTime ? `- ${formatTime(event.endDateTime)}` : ''}
                         </div>
         
-                        {event.startFlightBooking && buttonText !== "Book Now" && (
-                            <div className={styles.cardRow}>
-                                <PlaneTakeoff size={16} />
-                                {formatDate(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
-                            </div>
-                        )}
-                        {event.endFlightBooking && buttonText !== "Book Now" && (
-                            <div className={styles.cardRow}>
-                                <PlaneLanding size={16} />
-								{formatDate(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
-                            </div>
+                        {isFinance ? (
+                            <>
+                            {/* {event.budget && ( */}
+                                <div className={styles.cardRow}>
+                                    <HandCoins size={16} />
+                                    50000
+                                </div>
+                            {/* )} */}
+                            {/* {event.expenses && ( */}
+                                <div className={styles.cardRow}>
+                                    <CircleDollarSign size={16} />
+                                    6900
+                                    {/* Change ^ this back to {events.expenses or budget when weve got it} */}
+                                </div>
+                            {/* )} */}
+                            </>
+                        ) : (
+                            <>
+                            {event.startFlightBooking && buttonText !== "Book Now" && (
+                                <div className={styles.cardRow}>
+                                    <PlaneTakeoff size={16} />
+                                    {formatDate(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
+                                </div>
+                            )}
+                            {event.endFlightBooking && buttonText !== "Book Now" && (
+                                <div className={styles.cardRow}>
+                                    <PlaneLanding size={16} />
+                                    {formatDate(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
+                                </div>
+                            )}
+                            </>
                         )}
                     </div>
                 </div>
