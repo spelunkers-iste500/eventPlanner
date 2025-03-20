@@ -6,6 +6,7 @@ namespace App\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\Organization;
+use Ramsey\Uuid\UuidInterface;
 
 /**
  * @extends ServiceEntityRepository<Organization>
@@ -21,7 +22,7 @@ class OrganizationRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Organization::class);
     }
-    public function getOrganizationById(int $id): ?Organization
+    public function getOrganizationById(UuidInterface $id): ?Organization
     {
         return $this->find($id);
     }

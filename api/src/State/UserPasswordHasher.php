@@ -34,9 +34,11 @@ final readonly class UserPasswordHasher implements ProcessorInterface
             $data->getPlainPassword()
         );
         $data->setHashedPassword($hashedPassword);
-        $data->eraseCredentials(); 
-        
+        $data->eraseCredentials();
+
+        // this is where the user gets persisted / created
         $processedUser = $this->processor->process($data, $operation, $uriVariables, $context);
+        // after the user gets persisted, we need to add them to the orgnanization related to the optional invite code
 
         $this->changeLogger->process($processedUser, $operation, $uriVariables, $context);
 

@@ -46,6 +46,8 @@ interface InputProps {
     isPhoneNumber?: boolean;
     children?: React.ReactNode;
     maxlength?: number;
+    defaultValue?: string;
+    disabled?: boolean;
     inputMode?: 'email' | 'text' | 'search' | 'tel' | 'url' | 'none' | 'numeric' | 'decimal';
     onChange: (value: string) => void;
 }
@@ -61,13 +63,15 @@ interface InputProps {
  * @param {string} [props.placeholder] - The placeholder text for the input field.
  * @param {string} [props.classes] - Additional CSS classes for the input container.
  * @param {function} props.onChange - Callback function to handle the change event.
+ * @param {string} [props.defaultValue] - The default value of the input field.
  * @param {boolean} [props.isPhoneNumber] - Determines if the input is a phone number.
  * @param {number} [props.maxlength] - The maximum length of the input field.
  * @param {string} [props.inputMode] - The input mode for the input field.
+ * @param {boolean} [props.disabled] - Determines if the input field is disabled.
  * @param {React.ReactNode} [props.children] - Additional children to be rendered inside the input container.
  * @returns {JSX.Element} The rendered input component.
  */
-const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength, inputMode }) => {
+const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength, inputMode, defaultValue, disabled }) => {
     const [value, setValue] = useState('');
     const [error, setError] = useState('');
 
@@ -99,9 +103,10 @@ const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placehold
                     id={id ? id : label}
                     name={name ? name : label}
                     placeholder={placeholder}
-                    value={value}
+                    value={defaultValue ? defaultValue : value}
                     maxLength={maxlength}
                     inputMode={inputMode}
+                    disabled={disabled}
                     onChange={handleChange}
                 />
             )}

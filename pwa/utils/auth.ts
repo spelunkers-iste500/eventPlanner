@@ -19,7 +19,7 @@ export const pool = new Pool({
 
 declare module "next-auth" {
     interface Session {
-        id: number;
+        id: string;
         email: string;
         apiToken: string;
         secondFactor: boolean;
@@ -35,7 +35,7 @@ declare module "next-auth" {
         otp: string;
     }
     interface JWT {
-        id: number;
+        id: string;
         email: string;
         apiToken: string;
         secondFactor: boolean;
@@ -69,7 +69,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 otp: { label: "OTP", type: "text" },
             },
             async authorize(credentials, req) {
-                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php:8080/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : "http://php:8080/auth";
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id, users.first_name, users.last_name FROM users WHERE email = $1", [credentials.email]);
                 if (dbQuery.rowCount === 0) {
@@ -82,8 +82,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     email: credentials.email,
                     password: credentials.password,
                     headers: {
-                        "Content-Type": "application/json",
-                        "accept": "application/json",
+                        "Content-Type": "application/ld+json",
+                        "accept": "application/ld+json",
                     }
                 })
                 // only query the db if the authResponse is successful
@@ -118,7 +118,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             async authorize(credentials, req) {
                 // var sslRootCAs = require('ssl-root-cas/latest')
                 // sslRootCAs.inject()
-                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php:8080/auth" : (process.env.NEXTAUTH_URL?.endsWith("/")) ? process.env.NEXTAUTH_URL + "auth" : process.env.NEXTAUTH_URL + "/auth";
+                const apiUrl = (process.env.NEXTAUTH_URL?.includes('localhost')) ? "http://php/auth" : "http://php:8080/auth";
                 // const apiUrl = 'http://php/auth'
                 // Add logic here to look up the user from the credentials supplied
                 // query the backend to get a jwt token
@@ -155,7 +155,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         async session({ session, token }) {
             // console.log('Session callback: ', session, token);
             if (token) {
-                session.id = token.id as number;
+                session.id = token.id as string;
                 session.email = token.email as string;
                 session.apiToken = token.apiToken as string;
                 session.secondFactor = token.secondFactor as boolean;

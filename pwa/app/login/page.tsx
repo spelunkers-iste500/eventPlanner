@@ -36,7 +36,6 @@ const Login: React.FC = () => {
             return;
         }
 
-        console.log('Form data:', formData);
         // Attempt to sign in with credentials and OTP
         const isAuth = await signIn('credentials-2fa', {
             email: formData.email,
@@ -47,7 +46,11 @@ const Login: React.FC = () => {
 
         if (isAuth?.error) {
             console.error(isAuth.error);
-            setError('An error occurred during login');
+            if (isAuth.error === 'Configuration') {
+                setError('Invalid credentials');
+            } else {
+                setError('An error occurred during login');
+            }
         } else {
             router.push('/');
         }

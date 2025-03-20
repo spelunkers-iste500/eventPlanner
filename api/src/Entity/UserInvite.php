@@ -9,21 +9,9 @@ use App\State\UserInviteState;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[API\ApiResource]
-#[API\Get(
-    uriTemplate: '/organizations/{organizationId}/invite',
-    uriVariables: [
-        'organizationId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toProperty: 'organization',
-        ),
-    ],
-    provider: UserInviteState::class,
-    normalizationContext: ['groups' => ['read:userInvite']],
-)]
 #[API\Post(
     processor: UserInviteState::class,
-    // securityPostDenormalize: "is_granted('invite', object)",
+    securityPostDenormalize: "is_granted('invite', object)",
     normalizationContext: ['groups' => ['read:userInvite']],
     denormalizationContext: ['groups' => ['write:userInvite']],
     uriTemplate: '/organizations/{organizationId}/invite',

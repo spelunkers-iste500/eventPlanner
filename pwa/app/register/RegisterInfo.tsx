@@ -1,22 +1,21 @@
 'use client';
-import React, { useState, useId } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../login/login.module.css';
 import Input from 'Components/common/Input';
-import { Select } from 'chakra-react-select';
 import DatePicker from 'react-datepicker';
 import { Calendar } from 'lucide-react';
 import { PasswordInput } from 'Components/ui/password-input';
 import axios from 'axios';
 import { signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 
 interface RegisterInfoProps {
     onSuccess: () => void;
 }
 
 const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
+    const searchParams = useSearchParams();
     const [error, setError] = useState('');
-    const titleId = useId();
-    const genderId = useId();
 
     const [formData, setFormData] = useState({
         email: '',
@@ -27,8 +26,20 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
         title: '',
         gender: '',
         birthday: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        orgCode: ''
     });
+
+    useEffect(() => {
+        const orgCode = searchParams.get('orgCode');
+        const email = searchParams.get('email');
+        if (orgCode) {
+            setFormData((prevData) => ({ ...prevData, orgCode }));
+        }
+        if (email) {
+            setFormData((prevData) => ({ ...prevData, email }));
+        }
+    }, [searchParams]);
 
     const handleChange = (field: string, value: string) => {
         setFormData({ ...formData, [field]: value });
@@ -47,7 +58,8 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             { field: 'title', message: 'Title is required' },
             { field: 'gender', message: 'Gender is required' },
             { field: 'birthday', message: 'Birthday is required' },
-            { field: 'phoneNumber', message: 'Phone number is required' }
+            { field: 'phoneNumber', message: 'Phone number is required' },
+            { field: 'orgCode', message: 'Organization code is required, ensure you clicked on the link from your email' }
         ];
 
         for (const { field, message } of requiredFields) {
@@ -80,7 +92,8 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             birthday: new Date(formData.birthday).toISOString(),
             title: formData.title,
             gender: formData.gender,
-            plainPassword: formData.password
+            plainPassword: formData.password,
+            // orgCode: formData.orgCode
         };
 
         // send post request to /users using axios
@@ -124,26 +137,32 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
     return (
         <>
         {error && <div className='error-msg'>{error}</div>}
-        <form className={styles.sessionContainer} onSubmit={handleSubmit}>
+        <form className={`${styles.sessionContainer} ${styles.register}`} onSubmit={handleSubmit}>
+            <input type="hidden" value={formData.orgCode} />
             <Input
                 label="Email"
                 type="email"
                 placeholder="Enter your email"
+                defaultValue={formData.email}
                 onChange={(value) => handleChange('email', value)}
-            />
-            <Input
-                label="First Name"
-                type="text"
-                placeholder="Enter your first name"
-                onChange={(value) => handleChange('firstName', value)}
+                disabled={!!formData.email}
             />
 
-            <Input
-                label="Last Name"
-                type="text"
-                placeholder="Enter your last name"
-                onChange={(value) => handleChange('lastName', value)}
-            />
+            <div className={styles.twoColForm}>
+                <Input
+                    label="First Name"
+                    type="text"
+                    placeholder="Enter first name"
+                    onChange={(value) => handleChange('firstName', value)}
+                />
+    
+                <Input
+                    label="Last Name"
+                    type="text"
+                    placeholder="Enter last name"
+                    onChange={(value) => handleChange('lastName', value)}
+                />
+            </div>
 
             <Input label="Password" onChange={() => {}}>
                 <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" onChange={(e) => handleChange('password', e.target.value)} />
@@ -153,68 +172,64 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Confirm your password" onChange={(e) => handleChange('confirmPassword', e.target.value)} />
             </Input>
 
-            <Input label='Title' onChange={() => {}}>
-                <Select
-                    id={titleId}
-                    options={[
-                        { label: 'Mr', value: 'mr' },
-                        { label: 'Ms', value: 'ms' },
-                        { label: 'Mrs', value: 'mrs' },
-                        { label: 'Miss', value: 'miss' },
-                        { label: 'Dr', value: 'dr' },
-                    ]}
-                    placeholder="Select a title"
-                    size="md"
-                    isSearchable={false}
-                    className={`select-menu ${styles.tripType}`}
-                    classNamePrefix={'select'}
-                    onChange={(option) => handleChange('title', option?.value || '')}
-                />
-            </Input>
-            
-            <Input label='Gender' onChange={() => {}}>
-                <Select
-                    id={genderId}
-                    options={[
-                        { label: 'Male', value: 'm' },
-                        { label: 'Female', value: 'f' },
-                    ]}
-                    placeholder="Select a title"
-                    size="md"
-                    isSearchable={false}
-                    className={`select-menu ${styles.tripType}`}
-                    classNamePrefix={'select'}
-                    onChange={(option) => handleChange('gender', option?.value || '')}
-                />
-            </Input>
+            <div className={styles.twoColForm}>
+                <Input label='Title' onChange={() => {}}>
+                    <select
+                        value={formData.title}
+                        onChange={(e) => handleChange('title', e.target.value)}
+                        className={`select-menu vanilla`}
+                    >
+                        <option value="" disabled hidden>Select a title</option>
+                        <option value="mr">Mr</option>
+                        <option value="ms">Ms</option>
+                        <option value="mrs">Mrs</option>
+                        <option value="miss">Miss</option>
+                        <option value="dr">Dr</option>
+                    </select>
+                </Input>
+                
+                <Input label='Gender' onChange={() => {}}>
+                    <select
+                        value={formData.gender}
+                        onChange={(e) => handleChange('gender', e.target.value)}
+                        className={`select-menu vanilla`}
+                    >
+                        <option value="" disabled hidden>Select a gender</option>
+                        <option value="m">Male</option>
+                        <option value="f">Female</option>
+                    </select>
+                </Input>
+            </div>
 
-            <Input
-                label='Phone Number'
-                type='tel'
-                isPhoneNumber
-                placeholder='Enter your phone number'
-                onChange={(value) => handleChange('phoneNumber', value)}
-            />
-
-            <Input label='Email' onChange={() => {}}>
-                <DatePicker
-                    selected={startDate}
-                    startDate={startDate}
-                    maxDate={new Date()}
-                    onChange={(date) => {
-                        setStartDate(date);
-                        handleChange('birthday', formatDate(date));}
-                    }
-                    openToDate={new Date("2000/01/01")}
-                    showMonthDropdown
-                    showYearDropdown
-                    placeholderText="Enter your birthday"
-                    dateFormat="MM/dd/yyyy"
-                    className='input-field'
-                    showIcon
-                    icon={<Calendar size={32} />}
+            <div className={styles.twoColForm}>
+                <Input
+                    label='Phone Number'
+                    type='tel'
+                    isPhoneNumber
+                    placeholder='Enter your phone number'
+                    onChange={(value) => handleChange('phoneNumber', value)}
                 />
-            </Input>
+    
+                <Input label='Date of Birth' onChange={() => {}}>
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        maxDate={new Date()}
+                        onChange={(date) => {
+                            setStartDate(date);
+                            handleChange('birthday', formatDate(date));}
+                        }
+                        openToDate={new Date("2000/01/01")}
+                        showMonthDropdown
+                        showYearDropdown
+                        placeholderText="Enter your birthday"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        showIcon
+                        icon={<Calendar size={32} />}
+                    />
+                </Input>
+            </div>
             <button type="submit" className={styles.signinBtn}>Submit</button>
         </form>
         </>
