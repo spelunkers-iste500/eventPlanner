@@ -137,7 +137,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
     return (
         <>
         {error && <div className='error-msg'>{error}</div>}
-        <form className={styles.sessionContainer} onSubmit={handleSubmit}>
+        <form className={`${styles.sessionContainer} ${styles.register}`} onSubmit={handleSubmit}>
             <input type="hidden" value={formData.orgCode} />
             <Input
                 label="Email"
@@ -148,19 +148,21 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 disabled={!!formData.email}
             />
 
-            <Input
-                label="First Name"
-                type="text"
-                placeholder="Enter your first name"
-                onChange={(value) => handleChange('firstName', value)}
-            />
-
-            <Input
-                label="Last Name"
-                type="text"
-                placeholder="Enter your last name"
-                onChange={(value) => handleChange('lastName', value)}
-            />
+            <div className={styles.twoColForm}>
+                <Input
+                    label="First Name"
+                    type="text"
+                    placeholder="Enter first name"
+                    onChange={(value) => handleChange('firstName', value)}
+                />
+    
+                <Input
+                    label="Last Name"
+                    type="text"
+                    placeholder="Enter last name"
+                    onChange={(value) => handleChange('lastName', value)}
+                />
+            </div>
 
             <Input label="Password" onChange={() => {}}>
                 <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Enter your password" onChange={(e) => handleChange('password', e.target.value)} />
@@ -170,60 +172,64 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 <PasswordInput className={`${styles.passwordInput} input-field`} placeholder="Confirm your password" onChange={(e) => handleChange('confirmPassword', e.target.value)} />
             </Input>
 
-            <Input label='Title' onChange={() => {}}>
-                <select
-                    value={formData.title}
-                    onChange={(e) => handleChange('title', e.target.value)}
-                    className={`select-menu vanilla`}
-                >
-                    <option value="" disabled hidden>Select a title</option>
-                    <option value="mr">Mr</option>
-                    <option value="ms">Ms</option>
-                    <option value="mrs">Mrs</option>
-                    <option value="miss">Miss</option>
-                    <option value="dr">Dr</option>
-                </select>
-            </Input>
-            
-            <Input label='Gender' onChange={() => {}}>
-                <select
-                    value={formData.gender}
-                    onChange={(e) => handleChange('gender', e.target.value)}
-                    className={`select-menu vanilla`}
-                >
-                    <option value="" disabled hidden>Select a gender</option>
-                    <option value="m">Male</option>
-                    <option value="f">Female</option>
-                </select>
-            </Input>
+            <div className={styles.twoColForm}>
+                <Input label='Title' onChange={() => {}}>
+                    <select
+                        value={formData.title}
+                        onChange={(e) => handleChange('title', e.target.value)}
+                        className={`select-menu vanilla`}
+                    >
+                        <option value="" disabled hidden>Select a title</option>
+                        <option value="mr">Mr</option>
+                        <option value="ms">Ms</option>
+                        <option value="mrs">Mrs</option>
+                        <option value="miss">Miss</option>
+                        <option value="dr">Dr</option>
+                    </select>
+                </Input>
+                
+                <Input label='Gender' onChange={() => {}}>
+                    <select
+                        value={formData.gender}
+                        onChange={(e) => handleChange('gender', e.target.value)}
+                        className={`select-menu vanilla`}
+                    >
+                        <option value="" disabled hidden>Select a gender</option>
+                        <option value="m">Male</option>
+                        <option value="f">Female</option>
+                    </select>
+                </Input>
+            </div>
 
-            <Input
-                label='Phone Number'
-                type='tel'
-                isPhoneNumber
-                placeholder='Enter your phone number'
-                onChange={(value) => handleChange('phoneNumber', value)}
-            />
-
-            <Input label='Email' onChange={() => {}}>
-                <DatePicker
-                    selected={startDate}
-                    startDate={startDate}
-                    maxDate={new Date()}
-                    onChange={(date) => {
-                        setStartDate(date);
-                        handleChange('birthday', formatDate(date));}
-                    }
-                    openToDate={new Date("2000/01/01")}
-                    showMonthDropdown
-                    showYearDropdown
-                    placeholderText="Enter your birthday"
-                    dateFormat="MM/dd/yyyy"
-                    className='input-field'
-                    showIcon
-                    icon={<Calendar size={32} />}
+            <div className={styles.twoColForm}>
+                <Input
+                    label='Phone Number'
+                    type='tel'
+                    isPhoneNumber
+                    placeholder='Enter your phone number'
+                    onChange={(value) => handleChange('phoneNumber', value)}
                 />
-            </Input>
+    
+                <Input label='Date of Birth' onChange={() => {}}>
+                    <DatePicker
+                        selected={startDate}
+                        startDate={startDate}
+                        maxDate={new Date()}
+                        onChange={(date) => {
+                            setStartDate(date);
+                            handleChange('birthday', formatDate(date));}
+                        }
+                        openToDate={new Date("2000/01/01")}
+                        showMonthDropdown
+                        showYearDropdown
+                        placeholderText="Enter your birthday"
+                        dateFormat="MM/dd/yyyy"
+                        className='input-field'
+                        showIcon
+                        icon={<Calendar size={32} />}
+                    />
+                </Input>
+            </div>
             <button type="submit" className={styles.signinBtn}>Submit</button>
         </form>
         </>
