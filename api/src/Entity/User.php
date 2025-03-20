@@ -581,7 +581,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $superAdmin The super admin status of the user
      */
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['user:read'])] //remove write and create for prod
+    #[Groups(['user:read', 'user:create'])] //remove create and create for prod
     private bool $superAdmin;
 
     /**

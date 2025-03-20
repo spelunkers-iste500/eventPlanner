@@ -180,7 +180,7 @@ class Event
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event:booking',  'read:event:collection'])]
+    #[Groups(['read:event', 'read:event:booking',  'read:event:collection'])]
     public Budget $budget;
     public function getBudget(): Budget
     {
