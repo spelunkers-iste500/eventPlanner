@@ -29,7 +29,7 @@ class LoggerStateProcessor implements ProcessorInterface
         $this->security = $security;
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         $username = $this->getCurrentUserFullName();
         $operationName = strtolower($operation->getMethod());
@@ -43,7 +43,6 @@ class LoggerStateProcessor implements ProcessorInterface
 
         // Execute the primary operation first (saving/deleting entity)
         $data = $this->entityManager->merge($data);
-        $this->entityManager->flush();
 
         // Capture after state (should be extracted AFTER flush)
         $afterChange = ($operationName !== 'delete') ? $this->maskSensitiveFields($this->extractEntityData($data)) : [];
@@ -56,7 +55,7 @@ class LoggerStateProcessor implements ProcessorInterface
         $this->entityManager->persist($logEntry);
         $this->entityManager->flush();
 
-        return $data;
+        //return $data;
     }
 
     /**
