@@ -51,7 +51,7 @@ use Ramsey\Uuid\Uuid;
     security: "is_granted('ROLE_ADMIN')",
     description: "Creates a new organization. Users can only create if they're a platform admin",
     denormalizationContext: ['groups' => ['org:write']],
-    processor: LoggerStateProcessor::class
+    // processor: LoggerStateProcessor::class
 )]
 //org.orgadmin.delete
 #[Delete(
