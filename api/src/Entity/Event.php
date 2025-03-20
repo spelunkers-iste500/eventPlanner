@@ -25,30 +25,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']],
 )]
-//Event.User.Book (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
-#[Get(
-    security: "is_granted('view', object)",
-    uriTemplate: '/events/{id}.{_format}',
-    requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['read:event:booking']]
-)]
-//Event.User.Dashboard (DOES NOT WORK FOR NORMAL USER WITHOUT ADMIN)
-#[Get(
-    security: "is_granted('view', object)",
-    uriTemplate: '/organizations/{orgId}/events/{id}.{_format}',
-    uriVariables: [
-        'id' => 'id',
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Event::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        )
-    ],
-    requirements: ['id' => '\d+', 'orgId' => '\d+'],
-    normalizationContext: ['groups' => ['read:event']]
-)]
+
 //Event.Admin.Create (WORKS)
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
@@ -69,8 +46,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(
-    //works similar to Org.Admin.View so it may need changed based since it has the same issues
-    security: "is_granted('ROLE_ADMIN')",
+    //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/organizations/{orgId}/events/.{_format}',
     uriVariables: [
         'orgId' => new Link(
@@ -102,10 +78,18 @@ use Symfony\Component\Serializer\Annotation\Groups;
 )]
 //Event.Admin.delete (WORKS)
 #[Delete(
-    security: "is_granted('ROLE_ADMIN')",
+    security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
+)]
+
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/events/{id}.{_format}',
+    requirements: ['id' => '\d+'],
+    processor: LoggerStateProcessor::class,
+    normalizationContext: ['groups' => ['test:attendees']]
 )]
 
 /**
@@ -210,7 +194,7 @@ class Event
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees'])]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
     private Collection $attendees;
 
     public function getAttendees(): Collection

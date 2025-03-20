@@ -1,3 +1,27 @@
+// This file defines a React functional component named `Nav` which serves as the navigation bar for the application.
+// It uses several hooks and components from various libraries to manage state, handle user sessions, and render different parts of the navigation UI.
+
+// The `useSession` hook from `next-auth/react` is used to get the current user session data.
+// The `useContent` hook from a custom `ContentProvider` is used to manage the content displayed in the main area of the application.
+
+// The component imports several icons from the `lucide-react` library to visually represent different navigation options.
+// It also imports several other components that will be rendered as the content for different navigation links.
+
+// The component maintains two pieces of state using React's `useState` hook:
+// - `navCollapsed`: a boolean that determines whether the navigation bar is collapsed or expanded.
+// - `imageError`: a boolean that tracks if there was an error loading the user's profile image.
+
+// The `navLinks` array defines the different navigation options available in the application. Each link has a name, content component, and an icon.
+
+// The `Nav` component returns a JSX structure that represents the navigation bar. This structure includes:
+// - A header section with icons for the home page, notifications, user profile, and a menu button to collapse/expand the navigation bar.
+// - A body section that lists all the navigation links defined in the `navLinks` array. Clicking on a link sets the corresponding content in the main area.
+// - A footer section with a logout button that calls the `signOut` function from `next-auth/react` to log the user out.
+
+// The component uses CSS modules for styling, with classes imported from `nav.module.css`.
+
+// Finally, the `Nav` component is exported as the default export of the module.
+
 'use client';
 import React from 'react';
 import { signOut, useSession } from 'next-auth/react';
