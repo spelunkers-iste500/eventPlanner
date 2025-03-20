@@ -45,11 +45,12 @@ interface EventListProps {
     events: Event[];
 	classes?: string;
 	hasAddBtn?: boolean;
+	isFinance?: boolean;
 }
 
-const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn }) => {
+const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance }) => {
 	const isBookCard = heading === "Event Invitations";
-	const buttonText = isBookCard ? "Book Now" : "View More";
+	const buttonText = isFinance ? "View Budget" : isBookCard ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
@@ -135,6 +136,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 						key={event.id}
 						event={event}
 						buttonText={buttonText}
+						isFinance
 						onClick={() => handleCardClick(event)}
 					/>
 				))}

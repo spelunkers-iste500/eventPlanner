@@ -4,13 +4,9 @@ import EventList from "../common/EventList";
 import styles from "./FinancialAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "Types/events";
-import { Stack, Text } from "@chakra-ui/react";
-import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from "Components/ui/accordion";
+import { Button, Dialog, Field, Portal, Stack, Text } from "@chakra-ui/react";
+import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "Components/ui/accordion";
+import Input from "Components/common/Input";
 
 // Dummy data for events (replace with API call data later)
 const events: Event[] = [
@@ -133,6 +129,12 @@ const FinancialAdminDashboard: React.FC = () => {
             <h2 className={styles.orgName}>Organization Name</h2>
             <p className={styles.orgType}>Financial Management Organization</p>
           </div>
+          {/* Export CSV Button */}
+          <div className={styles.exportButtonContainer}>
+            <button className={styles.exportButton}>
+              Export CSV
+            </button>
+          </div>
         </div>
         
         {/* Budget Summary */}
@@ -163,18 +165,16 @@ const FinancialAdminDashboard: React.FC = () => {
                 <div className={styles.exportCSVContainer}>
                     <h3>Export Budget CSV</h3>
                     <div className={styles.exportCSVForm}>
-                    <input
-                        type="text"
+                    <Input
+                        label="Search Events"
                         placeholder="Search events..."
-                        value={csvSearchTerm}
-                        onChange={(e) => {
-                        setCsvSearchTerm(e.target.value);
+                        onChange={(value) => {
+                        setCsvSearchTerm(value);
                         // Clear any previous selection if the user types something new
-                        if (e.target.value.trim() === "") {
+                        if (value.trim() === "") {
                             setSelectedExportEvent(null);
                         }
                         }}
-                        className={styles.searchInput}
                     />
                     {/* Only show search results when the search term is non-empty and no event is selected */}
                     {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
@@ -226,8 +226,7 @@ const FinancialAdminDashboard: React.FC = () => {
                     </div>
                 </div>
                 ) : item.events.length > 0 ? (
-                // Pass the prop buttonText so that EventList renders "Edit Budget" on the cards
-                <EventList heading={item.title} events={item.events} />
+                <EventList heading={item.title} events={item.events} isFinance />
                 ) : (
                 <Text>No events available</Text>
                 )}
