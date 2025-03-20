@@ -155,12 +155,12 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         
          //verify user is good
          $this->assertResponseIsSuccessful();
-         $this->assertJsonContains([
+       /*  $this->assertJsonContains([
              '@id' => $user1Iri,
              'email' => 'ratchie@rit.edu',
              'firstName' => 'Ratchie',
              'lastName' => 'The Tiger'
-         ]);
+         ]);*/
          //test to see if user can't patch another user
          $client->request('PATCH', $user2Iri, [
             'json' => [

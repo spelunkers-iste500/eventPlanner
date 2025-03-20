@@ -51,13 +51,12 @@ use Ramsey\Uuid\Uuid;
     security: "is_granted('ROLE_ADMIN')",
     description: "Creates a new organization. Users can only create if they're a platform admin",
     denormalizationContext: ['groups' => ['org:write']],
-    processor: LoggerStateProcessor::class
+    // processor: LoggerStateProcessor::class
 )]
 //org.orgadmin.delete
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
     description: "Deletes an organization. Users can only delete if they're a platform admin",
-    requirements: ['id' => '\d+'],
     processor: LoggerStateProcessor::class
 )]
 #[ORM\Table(name: 'organization')]

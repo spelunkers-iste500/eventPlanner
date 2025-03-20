@@ -22,6 +22,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -66,7 +67,7 @@ use Ramsey\Uuid\Uuid;
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
-    denormalizationContext: ['groups' => ['write:event:changes']],
+    denormalizationContext: ['groups' => ['write:event:changes'], "enable_max_depth" => true],
     processor: LoggerStateProcessor::class
 )]
 //Event.Admin.AddAttendees (DOES NOT WORK)
@@ -196,6 +197,7 @@ class Event
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
     #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
+    #[MaxDepth(1)]
     private Collection $attendees;
 
     public function getAttendees(): Collection
