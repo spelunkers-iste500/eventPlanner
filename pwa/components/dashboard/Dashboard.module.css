@@ -200,3 +200,8 @@
 	color: var(--gray-700);
   }
   
+.no-results {
+	font-style: italic;
+	color: var(--gray-400);
+	margin-left: 0.5rem;
+}

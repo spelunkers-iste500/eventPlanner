@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { Event } from 'Types/events';
 
 interface User {
     id: string;
@@ -13,7 +14,7 @@ interface User {
     title: string;
     gender: string;
     OrgMembership: string[];
-    eventsAttending: string[];
+    eventsAttending: Event[];
     superAdmin: boolean;
     passengerId: string;
 }

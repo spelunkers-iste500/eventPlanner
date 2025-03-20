@@ -145,7 +145,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 placeholder="Enter your email"
                 defaultValue={formData.email}
                 onChange={(value) => handleChange('email', value)}
-                disabled={!!formData.email}
+                disabled={!!searchParams.get('email')}
             />
 
             <div className={styles.twoColForm}>
