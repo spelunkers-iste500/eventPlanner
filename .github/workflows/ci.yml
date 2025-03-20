@@ -36,10 +36,6 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Stop existing services
         run: docker compose down
-      - name: update composer
-        run: |
-          cd api/
-          composer update
       - name: Build Docker images
         uses: docker/bake-action@v6
         with:
@@ -155,7 +151,7 @@ jobs:
       - name: import test data
         run: |
           cd /opt/appRoot
-          docker compose exec php bash -c "bin/console doctrine:fixtures:load
+          docker compose exec php bash -c "bin/console doctrine:fixtures:load"
 
       - name: Generate JWT signing certificates
         run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
