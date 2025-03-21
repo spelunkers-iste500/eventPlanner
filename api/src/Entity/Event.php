@@ -70,7 +70,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     denormalizationContext: ['groups' => ['write:event:changes']],
     processor: LoggerStateProcessor::class
 )]
-//Event.Admin.AddAttendees (DOES NOT WORK)
+//Event.Admin.AddAttendees (WORKS)
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}/addAttendees.{_format}',
@@ -223,17 +223,19 @@ class Event
     }
 
     public function addAttendeeCollection(array $attendees): self
-    {
-        $this->attendees = new ArrayCollection(
-            array_unique(
-                array_merge(
-                    $this->attendees->toArray(),
-                    $attendees
-                )
-            )
-        );
-        return $this;
+{
+    $existingAttendees = $this->attendees->toArray();
+    
+    //Ensure only unique User objects are added
+    foreach ($attendees as $attendee) {
+        if (!in_array($attendee, $existingAttendees, true)) { // Strict check
+            $this->attendees->add($attendee);
+        }
     }
+
+    return $this;
+}
+
 
     //Event -> Flight
     #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]

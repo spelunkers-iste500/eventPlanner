@@ -70,7 +70,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/my/event/{id}.{_format}',
-    requirements: ['id' => '\d+'],
+    #requirements: ['id' => '\d+'],
     normalizationContext: ['groups' => ['read:event:booking']]
 )]
 
