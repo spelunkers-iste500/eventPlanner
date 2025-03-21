@@ -119,6 +119,12 @@ jobs:
         uses: actions/checkout@v4
       - name: Backup Database
         run: |
+          if docker ps --filter "name=approot-database-1" --format "{{.Names}}" | grep -q "approot-database-1"; then
+            docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
+          else
+            echo "Database container is not running. Skipping backup."
+          fi
+        run: |
           docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
       - name: Copy Repository
         run: |
