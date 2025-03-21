@@ -124,8 +124,6 @@ jobs:
           else
             echo "Database container is not running. Skipping backup."
           fi
-        run: |
-          docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
       - name: Copy Repository
         run: |
           rsync -avhH --delete . /opt/appRoot
