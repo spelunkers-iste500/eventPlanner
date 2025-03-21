@@ -63,11 +63,13 @@ final class TestingDataStory extends Story
         $eventadmin->addEventAdminOfOrg($org1);
         $budgetUser->addfinanceAdminOfOrg($org1);
         //create budgets and events
+        /*
         BudgetFactory::createMany(10, function() use ($org1, $eventadmin) {
             return [
                 'organization' => $org1,
                 'event' => EventFactory::new()->createOne(['organization' => $org1, 'attendees' =>  [$eventadmin]])
             ];
-        });
+        });*/
+        EventFactory::new()->createMany(10, ['organization' => $org1, 'attendees' =>  [$eventadmin,  $user]]);
     }
 }
