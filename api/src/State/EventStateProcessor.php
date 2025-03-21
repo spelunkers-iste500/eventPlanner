@@ -15,7 +15,7 @@ class EventStateProcessor implements ProcessorInterface
 {
     public function __construct(
         private EventRepository $eventRepository, 
-        private LoggerStateProcessor $changeLogger
+        private LoggerStateProcessor $changeLogger,
     ){}
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
@@ -26,6 +26,6 @@ class EventStateProcessor implements ProcessorInterface
         // add the attendees to the event
         $event->addAttendeeCollection($attendees);
         //record the change for logging
-        //$this->changeLogger->process($processedUser, $operation, $uriVariables, $context);
+        $this->changeLogger->process($event, $operation, $uriVariables, $context);
     }
 }
