@@ -23,6 +23,8 @@ use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use App\Attribute\UserAware;
+use Attribute;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -60,7 +62,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             description: 'The ID of the organization that owns the event'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event:collection']]
 )]
 //Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
@@ -91,6 +92,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['test:attendees']]
 )]
 
+#[GetCollection(
+    uriTemplate: '/my/events.{_format}',
+    normalizationContext: ['groups' => ['read:event:collection']]
+)]
 /**
  * The events that are organized by organizations.
  */
@@ -223,18 +228,18 @@ class Event
     }
 
     public function addAttendeeCollection(array $attendees): self
-{
-    $existingAttendees = $this->attendees->toArray();
-    
-    //Ensure only unique User objects are added
-    foreach ($attendees as $attendee) {
-        if (!in_array($attendee, $existingAttendees, true)) { // Strict check
-            $this->attendees->add($attendee);
-        }
-    }
+    {
+        $existingAttendees = $this->attendees->toArray();
 
-    return $this;
-}
+        //Ensure only unique User objects are added
+        foreach ($attendees as $attendee) {
+            if (!in_array($attendee, $existingAttendees, true)) { // Strict check
+                $this->attendees->add($attendee);
+            }
+        }
+
+        return $this;
+    }
 
 
     //Event -> Flight

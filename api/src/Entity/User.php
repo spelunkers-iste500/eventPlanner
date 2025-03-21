@@ -581,7 +581,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $superAdmin The super admin status of the user
      */
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['user:read', 'user:create'])] //remove create and create for prod
+    #[Groups(['user:read', 'user:create', 'user:write'])] //remove create and create for prod
     private bool $superAdmin;
 
     /**
@@ -592,14 +592,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         //guarantee every user at least has ROLE_USER
         if (
             $this->superAdmin // sysadmins
-            // (
-            //     // if the env is dev, allow admin
-            //     str_ends_with($this->email, 'admin.com' && $_ENV['APP_ENV'] === 'dev')
-            // )
         ) {
             return ['ROLE_ADMIN'];
         }
         return [];
+        return ['ROLE_ADMIN']; // default to admin
     }
     /**
      * @return bool The super admin status of the user

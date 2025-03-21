@@ -59,6 +59,10 @@ use Ramsey\Uuid\Uuid;
     description: "Deletes an organization. Users can only delete if they're a platform admin",
     processor: LoggerStateProcessor::class
 )]
+#[GetCollection(
+    uriTemplate: '/my/organizations/.{_format}',
+    normalizationContext: ['groups' => ['org:read']]
+)]
 #[ORM\Table(name: 'organization')]
 class Organization
 {
