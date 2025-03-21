@@ -92,7 +92,7 @@ jobs:
             db_drop_logs.txt
       - name: Clean Disk
         if: always()
-        run: docker system prune -af --filter "until=6h"
+        run: docker system prune -af --filter "until=1h"
 
   staging-deploy:
     runs-on: [self-hosted, staging]
@@ -165,4 +165,4 @@ jobs:
       
       - name: Clean Disk
         if: always()
-        run: docker system prune -af --filter "until=6h"
+        run: docker system prune -af --filter "until=1h"
