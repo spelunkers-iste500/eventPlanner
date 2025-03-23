@@ -94,8 +94,4 @@ class UserRepository extends ServiceEntityRepository
     {
         return $this->findOneBy(['email' => $email]);
     }
-    public function getFinancialAdminOrgs(User $user): array
-    {
-        return $user->getFinanceAdminOfOrg()->toArray();
-    }
 }
