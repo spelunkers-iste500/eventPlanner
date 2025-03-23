@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useEffect } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
 import { Event } from "Types/events";
 import { useUser } from "Utils/UserProvider";
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { log } from "console";
+import { useState } from "react";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {
-	const { user } = useUser();
+    const { user } = useUser();
+    const { data: session } = useSession();
+    const [ userEvents, setUserEvents ] = useState<Event | null>(null);
+
+    const getEvents = async () => {
+        if (user && session) {
+            try {
+                console.log('fetching user events');
+                const response = await axios.get(`/my/event/${user.id}`, { headers: { 'Authorization': `Bearer ${session.apiToken}` } });
+                console.log('User Events:', response.data);
+                if (response.status === 200) {
+                    setUserEvents(response.data);
+                    console.log('User Events:', response.data);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        getEvents();
+    }, [user]);
 
   	return (
 		<div className={styles.dashboardContainer}>
@@ -91,3 +117,7 @@ const events: Event[] = [
         eventAdmins: ["eventAdmin5@example.com"] 
     },
 ];
+function then(arg0: (response: any) => void) {
+    throw new Error("Function not implemented.");
+}
+
