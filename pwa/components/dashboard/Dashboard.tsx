@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
 		<div className={styles.dashboardContainer}>
 			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
 			<EventList heading="Event Invitations" events={events} />
-            <EventList heading="Your Events" events={user?.eventsAttending || []} />
+            <EventList heading="Your Events" events={events || []} />
 		</div>
   	);
 };

@@ -31,7 +31,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
     });
 
     useEffect(() => {
-        const orgCode = searchParams.get('orgCode');
+        const orgCode = searchParams.get('eventCode');
         const email = searchParams.get('email');
         if (orgCode) {
             setFormData((prevData) => ({ ...prevData, orgCode }));
