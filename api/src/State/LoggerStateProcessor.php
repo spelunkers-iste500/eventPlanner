@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\ChangeManagement\ChangeLogging;
 use ApiPlatform\Metadata\Operation;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Global Doctrine State Processor for Logging Entity Changes
@@ -17,14 +18,16 @@ class LoggerStateProcessor implements ProcessorInterface
      * Dependencies
      */
     private ProcessorInterface $processor;
+    private EntityManagerInterface $entityManager;
     private Security $security;
 
     /**
      * Constructor
      */
-    public function __construct(ProcessorInterface $processor, Security $security)
+    public function __construct(ProcessorInterface $processor, Security $security, EntityManagerInterface $entityManager)
     {
         $this->processor = $processor;
+        $this->entityManager = $entityManager;
         $this->security = $security;
     }
     /**
@@ -62,9 +65,15 @@ class LoggerStateProcessor implements ProcessorInterface
 
         // Create a ChangeLogging entity and populate it with the changes
         $logEntry = new ChangeLogging($username, $operationName, $beforeChange, $afterChange, $changes);
+        // Need to persist the log entry as it is a different operation
+        $this->entityManager->persist($logEntry);
+        $this->entityManager->flush();
 
         return $result;
     }
+
+
+
 
     // Helper methods
 
@@ -95,6 +104,12 @@ class LoggerStateProcessor implements ProcessorInterface
         }
         return $data;
     }
+
+    /**
+     * Sensitive fields to mask in logs
+     * @var $sensitiveFields array: Add any sensitive fields here
+     */
+    private array $sensitiveFields = ['hashedPassword'];
 
     /**
      * Mask sensitive fields in the data array

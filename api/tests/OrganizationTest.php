@@ -52,15 +52,16 @@ class OrganizationTest extends ApiTestCase
         //create user part of org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $orgiri = $this->findIriBy(User::class, ['id' => $org->getId()]);
-        $user2->addAdminOfOrg($org);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // Create 49 additional Organizations using our factory
         OrganizationFactory::createMany(49);
 
+        // test get organization as regular user should deny
+        $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $jwttokenUser2['token']]);
+        $this->assertResponseStatusCodeSame(403);
         // test get organization has super admin
-
         $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $jwttoken['token']]);
 
         $this->assertResponseIsSuccessful();
@@ -86,7 +87,45 @@ class OrganizationTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Get All Organizations");
         echo $executionMessage;
     }
+    //function to test get user permissions
+    public function testPermissionGetUser(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        //create user part of org
+        $org = OrganizationFactory::createOne([
+            "name" => "Information Technology Services",
+            "description" => "super cool description",
+            "industry" => "Information Technology",
+            "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
+        ]);
+        $orgiri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
 
+        $client = static::createClient();
+        // Use the get method to get info on user
+        $client->request('GET', $orgiri, ['auth_bearer' => $jwttoken['token']]);
+
+        //verify user is good
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => $orgiri,
+            "name" => "Information Technology Services",
+            "description" => "super cool description",
+            "industry" => "Information Technology",
+            "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
+        ]);
+        //test to see if user can't patch another user
+        $client->request('GET', $orgiri, ['auth_bearer' => $jwttokenUser2['token']]);
+        $this->assertResponseStatusCodeSame(403);
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get org");
+        echo $executionMessage;
+    }
     public function testCreateOrganization(): void
     {
         $startTime = microtime(true);
@@ -127,33 +166,33 @@ class OrganizationTest extends ApiTestCase
         ]);
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-      /*  $this->assertJsonContains([
-            '@context' => '/contexts/Organization',
-            '@type' => 'Organization',
-            "name" => "Information Technology Services",
-            "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
-            "description" => "super cool description",
-            "industry" => "Information Technology",
-            "primaryContact" => $useriri,
-        ]);
-        $this->assertMatchesResourceItemJsonSchema(Organization::class);
-*/
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Organizations");
         echo $executionMessage;
     }
-    /*     public function testUpdateOrganization(): void
+    public function testUpdateOrganization(): void
      {
         $startTime = microtime(true);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
-
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         $client = static::createClient();
         // create org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
-        $orgiri = $this->findIriBy(User::class, ['id' => $org->getId()]);
-        // Use the PATCH method here to do a partial update
+        $orgiri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
+        //try to update org as regular user should fail
+        $client->request('PATCH', $orgiri, [
+            'json' => [
+                "description" => "This is a super cool description"
+            ],
+            'headers' => ['Content-Type' => 'application/merge-patch+json'],
+            'auth_bearer' => $jwttokenUser2['token']
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        // update org as org admin
         $client->request('PATCH', $orgiri, [
             'json' => [
                 "description" => "This is a super cool description"
@@ -163,15 +202,10 @@ class OrganizationTest extends ApiTestCase
         ]);
         $endTime = microtime(true);
         $this->assertResponseIsSuccessful();
-        $this->assertJsonContains([
-            '@id' => $orgiri,
-            "name" => "Information Technology Services",
-            "description" => "This is a super cool description"
-        ]);
         $executionMessage = $this->calculateExecutionTime($startTime, "Update Organizations");
         echo $executionMessage;
      }
-*/
+
     public function testDeleteOrganization(): void
     {
         $startTime = microtime(true);
