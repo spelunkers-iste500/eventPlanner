@@ -32,10 +32,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'regBudget' => self::faker()->randomFloat(2, 1000, 100000),
-            'spentBudget' => self::faker()->randomFloat(2, 500, 100000),
-            'total' => self::faker()->randomFloat(2, 1500, 200000),
-            'vipBudget' => self::faker()->randomFloat(2, 100, 50000),
+            'perUserTotal' => self::faker()->randomFloat(2, 100, 1000),
         ];
     }
 
