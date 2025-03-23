@@ -25,3 +25,14 @@ export const formatTime = (dateString: string | undefined) => {
     const options: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: 'numeric', hour12: true };
     return new Date(dateString).toLocaleTimeString(undefined, options).replace(' AM', 'a').replace(' PM', 'p');
 };
+
+// Define types for the budget data
+export interface Budget {
+    id: string;
+    total: string;
+    spentBudget: string;
+    vipBudget: string;
+    regBudget: string;
+    event: string;
+    organization: string;
+}

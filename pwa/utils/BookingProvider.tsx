@@ -6,6 +6,7 @@ import { Event } from 'Types/events';
 interface BookingData {
     event: Event;
     content: ReactNode;
+    budget: number;
     isRoundTrip?: boolean;
     originAirport?: String;
     departDate?: string;
