@@ -53,7 +53,7 @@ class UserEvent
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:myEvents', 'write:myEvents'])]
+    #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
     // #[MaxDepth(2)]
     private Event $event;
 
@@ -90,9 +90,24 @@ class UserEvent
         return $this;
     }
 
+    #[ORM\Column]
+    #[Groups(['read:myEvents'])]
+    private bool $isDeclined;
+
+    public function getIsDeclined(): bool
+    {
+        return $this->isDeclined;
+    }
+    public function setIsDeclined(bool $isDeclined): self
+    {
+        $this->isDeclined = $isDeclined;
+        return $this;
+    }
+
     public function __construct()
     {
         $this->id = Uuid::uuid4();
         $this->isAccepted = false;
+        $this->isDeclined = false;
     }
 }
