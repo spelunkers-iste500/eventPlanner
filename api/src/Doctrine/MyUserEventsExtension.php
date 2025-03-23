@@ -37,8 +37,8 @@ final readonly class MyUserEventsExtension implements QueryCollectionExtensionIn
         } else if ($this->security->isGranted('ROLE_ADMIN')) {
             return;
         } else {
-            // `o.userid = :user`
             $queryBuilder->andWhere(':user = o.user')->setParameter('user', $user);
+            $this->logger->info('Query: ' . $queryBuilder->getQuery()->getSQL());
         }
     }
 }

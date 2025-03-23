@@ -41,7 +41,7 @@ final readonly class FinancialAdminOfExtension implements QueryCollectionExtensi
                     ->andWhere('o.id = :orgId')
                     ->setParameter('orgId', $orgId);
             } else {
-                $queryBuilder->andWhere('1 = 0');
+                // $queryBuilder->andWhere('1 = 0'); problematic
             }
         }
         // if the user is not a financial admin of any organization, return an empty result set

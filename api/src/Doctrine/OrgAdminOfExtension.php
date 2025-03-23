@@ -41,12 +41,12 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
                     ->andWhere('o.id = :orgId')
                     ->setParameter('orgId', $orgId);
             } else {
-                $queryBuilder->andWhere('1 = 0');
+                // $queryBuilder->andWhere('1 = 0'); problematic
             }
         }
         // if the user is not an admin of any organization, return an empty result set
         else {
-            $queryBuilder->andWhere('1 = 0'); // no results
+            // $queryBuilder->andWhere('1 = 0'); // problematic
         }
     }
 }

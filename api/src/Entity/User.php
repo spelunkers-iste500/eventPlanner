@@ -83,7 +83,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
-    #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create', 'user:org:read'])]
+    #[Groups(['user:read', 'user:read:offers', 'user:create', 'user:org:read'])]
     private $id;
 
     /**
