@@ -88,7 +88,6 @@ use Attribute;
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
-    processor: LoggerStateProcessor::class,
     normalizationContext: ['groups' => ['test:attendees']]
 )]
 

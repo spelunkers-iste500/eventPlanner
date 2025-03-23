@@ -90,9 +90,24 @@ class UserEvent
         return $this;
     }
 
+    #[ORM\Column]
+    #[Groups(['read:myEvents'])]
+    private bool $isDeclined;
+
+    public function getIsDeclined(): bool
+    {
+        return $this->isDeclined;
+    }
+    public function setIsDeclined(bool $isDeclined): self
+    {
+        $this->isDeclined = $isDeclined;
+        return $this;
+    }
+
     public function __construct()
     {
         $this->id = Uuid::uuid4();
         $this->isAccepted = false;
+        $this->isDeclined = false;
     }
 }
