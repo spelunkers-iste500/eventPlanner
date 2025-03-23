@@ -5,6 +5,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Event;
+use App\Entity\Organization;
 use App\Entity\User;
 use App\Factory\EventFactory;
 use App\Factory\UserFactory;
@@ -16,12 +17,16 @@ class EventTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function createUser(string $email, string $plainPassword, bool $superAdmin): User {
+    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org, bool $iseventadmin): User {
         $container = self::getContainer();
         $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
         $user->_save(); // Save the user after setting the password
+        if($iseventadmin){
+            $user->addEventAdminOfOrg($org);
+            $user->_save();
+        }
         return $user;
     }
     public function authenticateUser(string $email, string $password): array {
@@ -90,7 +95,7 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $orgid = $org->getId();
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
 
