@@ -11,6 +11,7 @@ use App\Factory\UserFactory;
 use App\Factory\OrganizationFactory;
 use App\Factory\EventFactory;
 use App\Factory\BudgetFactory;
+use App\Factory\UserEventFactory;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -70,9 +71,18 @@ final class TestingDataStory extends Story
         $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spelunkers123', true, $org1, $otpcode, "user");
         //create budgets and events
         BudgetFactory::createMany(10, function() use ($org1, $eventadmin, $user, $budgetUser) {
+            $event = EventFactory::new()->createOne([
+                'organization' => $org1,
+            ]);
+
+            // Create UserEvent objects to link users to the event
+            UserEventFactory::createOne(['user' => $eventadmin, 'event' => $event]);
+            UserEventFactory::createOne(['user' => $user, 'event' => $event]);
+            UserEventFactory::createOne(['user' => $budgetUser, 'event' => $event]);
+
             return [
                 'organization' => $org1,
-                'event' => EventFactory::new()->createOne(['organization' => $org1, 'attendees' =>  [$eventadmin, $user, $budgetUser]]),
+                'event' => $event,
                 'financialPlannerID' => $budgetUser
             ];
         });

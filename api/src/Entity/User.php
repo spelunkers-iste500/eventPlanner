@@ -449,12 +449,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @var Collection $adminOfEvents The events the user is attending
-     * Added on the event side. No setters needed here.
+     * @var Collection $eventsAttending The events the user is attending
      */
-    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'attendees', cascade: ['all'])]
-    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event'])]
-    private Collection $eventsAttending;
+    #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'user')]
+    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event', 'edit:user:limited'])]
+    protected Collection $eventsAttending;
 
     /**
      * @return Collection The events the user is attending
@@ -555,8 +554,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ) {
             return ['ROLE_ADMIN'];
         }
-        return [];
-        return ['ROLE_ADMIN']; // default to admin
+        return [null];
     }
     /**
      * @return bool The super admin status of the user

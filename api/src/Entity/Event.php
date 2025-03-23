@@ -92,10 +92,10 @@ use Attribute;
     normalizationContext: ['groups' => ['test:attendees']]
 )]
 
-#[GetCollection(
-    uriTemplate: '/my/events.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']]
-)]
+// #[GetCollection(
+//     uriTemplate: '/my/events.{_format}',
+//     normalizationContext: ['groups' => ['read:event:collection']]
+// )]
 /**
  * The events that are organized by organizations.
  */
@@ -104,7 +104,7 @@ class Event
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:event', 'read:event:collection'])]
+    #[Groups(['read:event', 'read:event:collection', 'read:myEvents'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -116,7 +116,7 @@ class Event
     }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes', 'read:myEvents'])]
     public string $eventTitle;
     public function getEventTitle(): string
     {
@@ -129,7 +129,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes', 'read:myEvents'])]
     public \DateTimeInterface $startDateTime;
     public function getStartDateTime(): \DateTimeInterface
     {
@@ -137,7 +137,7 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes', 'read:myEvents'])]
     public \DateTimeInterface $endDateTime;
     // Getter for endDateTime
     public function getEndDateTime(): \DateTimeInterface
@@ -146,19 +146,19 @@ class Event
     }
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes', 'read:myEvents'])]
     public \DateTimeInterface $startFlightBooking;
 
     #[ORM\Column(type: 'datetime')]
-    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'write:event:changes', 'read:myEvents'])]
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents'])]
     public string $location;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read:event', 'write:event', 'write:event:changes'])]
+    #[Groups(['read:event', 'write:event', 'write:event:changes', 'read:myEvents'])]
     public int $maxAttendees;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -169,7 +169,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'write:event'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
@@ -185,7 +185,7 @@ class Event
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class)]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'read:event:booking',  'read:event:collection'])]
+    #[Groups(['read:event', 'read:event:booking',  'read:event:collection', 'read:myEvents'])]
     public Budget $budget;
     public function getBudget(): Budget
     {
@@ -198,8 +198,7 @@ class Event
     }
 
     //Event -> User (attendees)
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
-    #[ORM\JoinTable(name: 'events_attendees')]
+    #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'event', cascade: ['all'])]
     #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
     #[MaxDepth(1)]
     private Collection $attendees;
