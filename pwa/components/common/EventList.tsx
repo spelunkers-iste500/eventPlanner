@@ -31,15 +31,16 @@
 
 // Finally, the `EventList` component is exported as the default export of the module.
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import dialogStyles from "../common/Dialog.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
-import { Event, formatDate, formatTime } from "Types/events";
+import { Budget, Event, formatDate, formatTime } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
-import { DialogRoot, DialogBackdrop, DialogContent, DialogCloseTrigger, DialogHeader, DialogTitle, DialogBody, DialogFooter, Button } from "@chakra-ui/react";
+import { DialogRoot, DialogBackdrop, DialogContent, DialogHeader, DialogTitle, DialogBody, Button, Skeleton } from "@chakra-ui/react";
+import axios from "axios";
 
 interface EventListProps {
     heading: string;
@@ -59,18 +60,36 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 	const [reverseSorting, setReverseSorting] = useState(false);
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+	const [selectedEventBudget, setSelectedEventBudget] = useState<Budget | null>(null);
+	const [budgetPerAttendee, setBudgetPerAttendee] = useState<number | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
+		getBudget(event.id);
 		if (isBookCard) {
-        	setContent(<EventForm eventData={event}/>, event.eventTitle);
+			setContent(<EventForm eventData={event} budget={budgetPerAttendee ?? 0} />, event.eventTitle);
 		} else {
 			setSelectedEvent(event); // Store event data
             setIsDialogOpen(true); // Open modal
 		}
     };
+
+	const getBudget = async (eventId: number) => {
+		try {
+			const response = await axios.get(`/budgets/${eventId}`);
+			setSelectedEventBudget(response.data);
+		} catch (error) {
+			console.error('Error fetching budget:', error);
+		}
+	}
+
+	useEffect(() => {
+		if (selectedEventBudget && selectedEvent) {
+			setBudgetPerAttendee(Number(selectedEventBudget.total) / selectedEvent.maxAttendees);
+		}
+	}, [selectedEventBudget]);
 
 	return (
 		<>
@@ -140,7 +159,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 						key={event.id}
 						event={event}
 						buttonText={buttonText}
-						isFinance
+						isFinance={isFinance}
 						onClick={() => handleCardClick(event)}
 					/>
 				))}
@@ -171,16 +190,13 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 								<p><Calendar size={16}/><span>{formatDate(selectedEvent?.startDateTime)} {formatDate(selectedEvent?.endDateTime) !== formatDate(selectedEvent?.startDateTime) ? `- ${formatDate(selectedEvent?.endDateTime)}` : ''}</span></p>
 								<p><Clock size={16}/><span>{formatTime(selectedEvent?.startDateTime)} {selectedEvent?.endDateTime ? `- ${formatTime(selectedEvent?.endDateTime)}` : ''}</span></p>
 								<p><Users size={16}/><span>{selectedEvent?.maxAttendees} Attendees</span></p>
-								{/* <p><HandCoins size={16}/><span>${selectedEvent?.attendeeBudget}/attendee</span></p> */}
 							</div>
 							<div className={dialogStyles.dialogDetails}>
 								<h3>Your Details</h3>
-								{/* <p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>{selectedEvent?.originAirport} <ArrowRight /> {selectedEvent?.destinationAirport}</span></p> */}
 								<p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></p>
 								<p><PlaneTakeoff size={16}/><span>{formatDate(selectedEvent?.startFlightBooking)} • {formatTime(selectedEvent?.startFlightBooking)}</span></p>
 								<p><PlaneLanding size={16}/><span>{formatDate(selectedEvent?.endFlightBooking)} • {formatTime(selectedEvent?.endFlightBooking)}</span></p>
-								<p><CircleDollarSign size={16}/><span>$315/$500 used</span></p>
-								{/* <p><CircleDollarSign size={16}/><span>{selectedEvent?.usedBudget}/{selectedEvent?.attendeeBudget} used</span></p> */}
+								<p><CircleDollarSign size={16}/><span>{budgetPerAttendee ? budgetPerAttendee : <Skeleton height='4' width='70%' />}</span></p>
 							</div>
 						</div>
 	                </DialogBody>
