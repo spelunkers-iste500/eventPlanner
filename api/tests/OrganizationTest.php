@@ -88,7 +88,7 @@ class OrganizationTest extends ApiTestCase
         echo $executionMessage;
     }
     //function to test get user permissions
-    public function testPermissionGetUser(): void
+    public function testPermissionGetOrganization(): void
     {
         $startTime = microtime(true);
         //create users
