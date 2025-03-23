@@ -138,6 +138,10 @@
     align-items: center;
     flex-direction: column;
     margin-bottom: 1rem;
+
+    .spinner {
+        margin: 1rem 0;
+    }
 }
 
 .success-msg {

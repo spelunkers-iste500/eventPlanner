@@ -94,7 +94,7 @@ use Attribute;
 
 #[GetCollection(
     uriTemplate: '/my/events.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']]
+    normalizationContext: ['groups' => ['read:event']]
 )]
 /**
  * The events that are organized by organizations.

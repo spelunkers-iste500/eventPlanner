@@ -41,6 +41,7 @@ import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
 import { DialogRoot, DialogBackdrop, DialogContent, DialogHeader, DialogTitle, DialogBody, Button, Skeleton } from "@chakra-ui/react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 interface EventListProps {
     heading: string;
@@ -65,6 +66,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const { setContent } = useContent();
+	const { data: session } = useSession();
 
     const handleCardClick = (event: Event) => {
 		getBudget(event.id);
@@ -78,7 +80,7 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 
 	const getBudget = async (eventId: number) => {
 		try {
-			const response = await axios.get(`/budgets/${eventId}`);
+			const response = await axios.get(`/budgets/${eventId}`, { headers: { 'Authorization': `Bearer ${session?.apiToken}` } });
 			setSelectedEventBudget(response.data);
 		} catch (error) {
 			console.error('Error fetching budget:', error);
