@@ -398,41 +398,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         $this->gender = $gender;
     }
-
-    /**
-     * @var Collection $OrgMembership The organization memberships of the user
-     * Only the organization admin can add users, so no setters are needed on this side.
-     */
-    #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'users', cascade: ['all'])]
-    #[ORM\JoinTable(name: 'organizations_members')]
-    #[Groups(['user:read', 'user:write', 'edit:user:limited'])]
-    private Collection $OrgMembership;
-
-    /**
-     * @return Collection The organization memberships of the user
-     */
-    public function getOrgMembership(): Collection
-    {
-        return $this->OrgMembership;
-    }
-    public function setOrgMembership(Collection $OrgMembership): void
-    {
-        $this->OrgMembership = $OrgMembership;
-    }
-    public function addOrgMembership(Organization $org): void
-    {
-        if (!$this->OrgMembership->contains($org)) {
-            $this->OrgMembership[] = $org;
-            //$org->addUser($this);
-        }
-    }
-    public function removeOrgMembership(Organization $org): void
-    {
-        if ($this->OrgMembership->contains($org)) {
-            $this->OrgMembership->removeElement($org);
-            //$org->removeUser($this);
-        }
-    }
     /**
      * @var Collection $AdminOfOrg The organizations the user is an admin of
      * Added on the organization side. No setters needed here.
@@ -557,11 +522,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             //$org->addEventAdmin($this);
         }
     }
-    /**
-     * @var Collection $primaryContactOfOrg The organizations the user is the primary contact of
-     */
-    #[ORM\OneToMany(targetEntity: Organization::class, mappedBy: 'primaryContact')]
-    private Collection $primaryContactOfOrg;
 
     /**
      * @var \DateTimeInterface The date the user was created
@@ -581,7 +541,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var bool $superAdmin The super admin status of the user
      */
     #[ORM\Column(type: 'boolean')]
-    #[Groups(['user:read', 'user:create'])] //remove create and create for prod
+    #[Groups(['user:read', 'user:create', 'user:write'])] //remove create and create for prod
     private bool $superAdmin;
 
     /**
@@ -592,10 +552,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         //guarantee every user at least has ROLE_USER
         if (
             $this->superAdmin // sysadmins
-            // (
-            //     // if the env is dev, allow admin
-            //     str_ends_with($this->email, 'admin.com' && $_ENV['APP_ENV'] === 'dev')
-            // )
         ) {
             return ['ROLE_ADMIN'];
         }
@@ -706,7 +662,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @param bool $emailVerified The email verification status of the user
      * @param bool $superAdmin The super admin status of the user
      * @param string|null $plainPassword The plain password of the user
-     * @param Collection|null $OrgMembership The organization memberships of the user
      * @param Collection|null $AdminOfOrg The organizations the user is an admin of
      * @param Collection|null $flights The flights the user has booked/held
      * @param Collection|null $eventsAttending The events the user is attending
@@ -745,7 +700,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->createdOn = ($createdOn) ? $createdOn : new \DateTime(); // set create date to now if not provided
         $this->plainPassword = $plainPassword;
         // set the collections to empty if not provided
-        $this->OrgMembership = $OrgMembership;
         $this->AdminOfOrg = $AdminOfOrg;
         $this->flights = $flights;
         $this->eventsAttending = $eventsAttending;

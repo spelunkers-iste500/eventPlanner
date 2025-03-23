@@ -117,6 +117,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Clean Disk
+        run: docker system prune -af --filter "until=1h"
       - name: Backup Database
         run: |
           if docker ps --filter "name=approot-database-1" --format "{{.Names}}" | grep -q "approot-database-1"; then

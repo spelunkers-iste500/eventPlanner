@@ -19,10 +19,6 @@ class ChangeLogging
     #[ORM\Column(type: "integer")]
     private ?int $changeID = null;
 
-    /** Timestamp of the last modification.*/
-    #[ORM\Column(type: "datetime")]
-    private \DateTimeInterface $lastModified;
-
     /** Timestamp of when the log entry was created.*/
     #[ORM\Column(type: "datetime")]
     private \DateTimeInterface $createdDate;
@@ -51,7 +47,6 @@ class ChangeLogging
     public function __construct(string $modifiedBy, string $operationType, array $beforeChange, array $afterChange, array $changes)
     {
         $this->createdDate = new \DateTime();
-        $this->lastModified = new \DateTime();
         $this->modifiedBy = $modifiedBy;
         $this->beforeChange = $beforeChange;
         $this->afterChange = $afterChange;
