@@ -33,7 +33,7 @@ final readonly class EventAminOfExtension implements QueryCollectionExtensionInt
 
         if ($user === null || !$user instanceof UserInterface) {
             // No access for unauthenticated users
-            // $queryBuilder->andWhere('1 = 0');
+            $queryBuilder->andWhere('1 = 0');
             return;
         }
 
