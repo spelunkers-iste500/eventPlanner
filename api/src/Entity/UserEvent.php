@@ -53,7 +53,7 @@ class UserEvent
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:myEvents', 'write:myEvents'])]
+    #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
     // #[MaxDepth(2)]
     private Event $event;
 

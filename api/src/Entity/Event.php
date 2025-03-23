@@ -104,7 +104,7 @@ class Event
     #[ORM\Id]
     #[ApiProperty(identifier: true)]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:event', 'read:event:collection', 'read:myEvents'])]
+    #[Groups(['read:event', 'read:event:collection', 'read:myEvents', 'user:read'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {

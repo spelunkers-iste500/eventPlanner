@@ -29,8 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
-    normalizationContext: ['groups' => ['user:read']],
-    processor: LoggerStateProcessor::class
+    normalizationContext: ['groups' => ['user:read']]
 )]
 //User.Create --This is working how I expect so far
 #[Post(
