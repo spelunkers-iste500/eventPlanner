@@ -144,7 +144,6 @@
 	font-size: 1.25rem;
 	font-weight: 600;
 	white-space: nowrap;
-
 }
 
 .time-divider {
@@ -162,6 +161,10 @@
 
 .flight-price {
 	font-size: 1.25rem;
+}
+
+.over-budget {
+	color: var(--red-400);
 }
 
 .flight-class {

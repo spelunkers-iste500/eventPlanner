@@ -156,7 +156,8 @@ img {
     background-color: var(--white);
     gap: 0.5rem;
 
-    &:focus {
+    &:focus,
+    &:focus-within {
         background-color: var(--blue-300);
     }
 }

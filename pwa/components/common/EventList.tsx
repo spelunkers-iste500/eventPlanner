@@ -67,10 +67,10 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 	const { setContent } = useContent();
 
     const handleCardClick = (event: Event) => {
+		getBudget(event.id);
 		if (isBookCard) {
-        	setContent(<EventForm eventData={event}/>, event.eventTitle);
+			setContent(<EventForm eventData={event} budget={budgetPerAttendee ?? 0} />, event.eventTitle);
 		} else {
-			getBudget(event.id);
 			setSelectedEvent(event); // Store event data
             setIsDialogOpen(true); // Open modal
 		}
