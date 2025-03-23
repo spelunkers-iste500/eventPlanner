@@ -10,21 +10,17 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
-use ApiPlatform\Metadata\Put;
 use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping\InverseJoinColumn;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
-use App\Attribute\UserAware;
-use Attribute;
+
 
 #[ORM\Entity]
 #[ApiResource(

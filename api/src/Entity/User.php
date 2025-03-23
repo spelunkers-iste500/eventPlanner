@@ -647,6 +647,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return null;
     }
 
+    #[Groups(['user:create'])]
+    private ?string $userEventId = null;
+
+    public function getUserEventId(): ?string
+    {
+        return $this->userEventId;
+    }
+    public function setUserEventId(string $userEventId): void
+    {
+        $this->userEventId = $userEventId;
+    }
+
     /**
      * @param string $firstName The first name of the user
      * @param string $lastName The last name of the user

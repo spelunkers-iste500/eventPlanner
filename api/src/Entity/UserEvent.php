@@ -25,6 +25,11 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
     securityPostDenormalize: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:myEvents']],
 )]
+/**
+ * User <-> Event relationship, also functions as an event invite, with a status of accepted or declined
+ * When a user doesn't exist in the database, the user id is null until they register. The ID of the UserEvent
+ * is used to identify the event invite, and associate the user to the event post registration.
+ */
 class UserEvent
 {
     #[ORM\Id]
@@ -47,7 +52,7 @@ class UserEvent
     }
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
-    #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
     #[Groups(['write:myEvents'])]
     private User $user;
 
