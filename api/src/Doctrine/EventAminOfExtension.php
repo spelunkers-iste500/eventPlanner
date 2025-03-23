@@ -24,6 +24,11 @@ final readonly class EventAminOfExtension implements QueryCollectionExtensionInt
             return;
         }
 
+        if ($operation && $operation->getName() == '_api_/events{._format}_get_collection') {
+            // Only apply this extension to the specific collection operation
+            return;
+        }
+
         $user = $this->security->getUser();
 
         if ($user === null || !$user instanceof UserInterface) {
@@ -46,7 +51,7 @@ final readonly class EventAminOfExtension implements QueryCollectionExtensionInt
 
         // Get organizations where the user is an Org or Event Admin
         $adminOrgs = $this->userRepo->getAdminOrgs($user);
-        $eventOrgs = $this->userRepo->getEventAdminOrgs($user); 
+        $eventOrgs = $this->userRepo->getEventAdminOrgs($user);
 
         // Merge both roles to check if user is allowed
         $allowedOrgs = array_unique(array_merge($adminOrgs, $eventOrgs));

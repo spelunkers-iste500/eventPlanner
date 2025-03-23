@@ -34,7 +34,7 @@ class EventRepository extends ServiceEntityRepository
         }
     }
 
-    public function getEventById(int $id): ?Event
+    public function getEventById(string $id): ?Event
     {
         return $this->find($id);
     }

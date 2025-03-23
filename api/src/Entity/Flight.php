@@ -5,43 +5,54 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\UuidInterface;
 
 #[ORM\Entity]
 #[ApiResource]
 class Flight
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(name: 'id', type: 'string', length: 10)]
-    public string $id;
+    #[ORM\Column(name: 'id', type: 'uuid')]
+    private $id;
+    public function getId(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
 
-    #[ORM\Column(length: 20, nullable: true, unique: true)]
-    public string $flightNumber;
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    public string $flightCost;
+
+    public function getFlightCost(): string
+    {
+        return $this->flightCost;
+    }
+
+    public function setFlightCost(string $flightCost): self
+    {
+        $this->flightCost = $flightCost;
+        return $this;
+    }
 
     //Relationships
 
     //eventOrganization -> Event
-    #[ORM\ManyToOne(targetEntity: Event::class)]
-    #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: true)]
-    public Event $event;
+    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'flights')]
+    private Event $event;
 
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $departureTime;
-
-    #[ORM\Column(type: 'datetime')]
-    public \DateTimeInterface $arrivalTime;
-
-    #[ORM\Column(length: 55)]
-    public string $departureLocation;
-
-    #[ORM\Column(length: 55)]
-    public string $arrivalLocation;
-
-    #[ORM\Column(length: 55)]
-    public string $airline;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    public ?string $flightTracker;
+    public function getEvent(): Event
+    {
+        return $this->event;
+    }
+    public function setEvent(Event $event): self
+    {
+        $this->event = $event;
+        return $this;
+    }
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'flights')]
     private Collection $users;
