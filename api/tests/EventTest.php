@@ -96,10 +96,29 @@ class EventTest extends ApiTestCase
         $orgid = $org->getId();
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
 
         $client = static::createClient();
+        //create event as regular user this should fail
+        $client->request('POST', "/organizations/{$orgid}/events/", [
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => [
+                "eventTitle"=> "Pizza Party",
+                "startDateTime"=> "2025-01-29T18:30:00+00:00",
+                "endDateTime"=> "2025-01-29T19:01:00+00:00",
+                "location"=> "Gosnell",
+                "maxAttendees"=> 20,
+                'startFlightBooking' => "2025-01-29T18:30:00+00:00",
+                'endFlightBooking' => "2025-01-29T19:01:00+00:00",
+                'organization' => "/organizations/$orgid"
+            ],
+            'auth_bearer' => $jwttokenUser2['token']
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+        //create event as event admin
         $client->request('POST', "/organizations/{$orgid}/events/", [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
@@ -116,18 +135,6 @@ class EventTest extends ApiTestCase
         ]);
         $this->assertResponseStatusCodeSame(201);
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-     /*   $this->assertJsonContains([
-            '@context' => '/contexts/Event',
-            '@type' => 'Event',
-            "eventTitle"=> "Pizza Party",
-            "startDateTime"=> "2025-01-29T18:30:00+00:00",
-            "endDateTime"=> "2025-01-29T19:01:00+00:00",
-            "location"=> "Gosnell",
-            "maxAttendees"=> 20,
-            'startFlightBooking' => "2025-01-29T18:30:00+00:00",
-            'endFlightBooking' => "2025-01-29T19:01:00+00:00"
-
-        ]);*/
         //endtime to terminal
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
         echo $executionMessage;
@@ -138,8 +145,8 @@ class EventTest extends ApiTestCase
         //create org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
@@ -184,8 +191,8 @@ class EventTest extends ApiTestCase
         //create org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
