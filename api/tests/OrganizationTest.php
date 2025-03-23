@@ -15,13 +15,15 @@ class OrganizationTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function createUser(string $email, string $plainPassword, bool $superAdmin): User
+    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org): User
     {
         $container = self::getContainer();
         $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
         $user->_save(); // Save the user after setting the password
+        $user->addAdminOfOrg($org);
+        $user->_save();
         return $user;
     }
     public function authenticateUser(string $email, string $password): array
@@ -46,17 +48,19 @@ class OrganizationTest extends ApiTestCase
     public function testGetOrganizationCollection(): void
     {
         $startTime = microtime(true);
-        //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
-        //create user part of org
+        //create orgs
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true,$org );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2);
+        //get org iri
         $orgiri = $this->findIriBy(User::class, ['id' => $org->getId()]);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // Create 49 additional Organizations using our factory
-        OrganizationFactory::createMany(49);
+        OrganizationFactory::createMany(48);
 
         // test get organization as regular user should deny
         $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $jwttokenUser2['token']]);
@@ -88,19 +92,21 @@ class OrganizationTest extends ApiTestCase
         echo $executionMessage;
     }
     //function to test get user permissions
-    public function testPermissionGetUser(): void
+    public function testPermissionGetOrganization(): void
     {
         $startTime = microtime(true);
-        //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
-        //create user part of org
+        //create orgs
         $org = OrganizationFactory::createOne([
             "name" => "Information Technology Services",
             "description" => "super cool description",
             "industry" => "Information Technology",
             "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
         ]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false,$org );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2);
+
         $orgiri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
@@ -129,12 +135,12 @@ class OrganizationTest extends ApiTestCase
     public function testCreateOrganization(): void
     {
         $startTime = microtime(true);
+        //create orgs
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
-        $useriri = $this->findIriBy(User::class, ['id' => $user->getId()]);
-        // Authenticate the user
-
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true,$org2 );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2);
+        //auth tokens
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
 
@@ -146,7 +152,6 @@ class OrganizationTest extends ApiTestCase
                 "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
                 "description" => "super cool description",
                 "industry" => "Information Technology",
-                "primaryContact" => $useriri,
             ],
             'auth_bearer' =>  $jwttokenUser2['token']
         ]);
@@ -160,7 +165,6 @@ class OrganizationTest extends ApiTestCase
                 "address" => "1 Lomb Memorial Dr, Rochester, NY 14623",
                 "description" => "super cool description",
                 "industry" => "Information Technology",
-                "primaryContact" => $useriri,
             ],
             'auth_bearer' =>  $jwttoken['token']
         ]);
@@ -172,15 +176,18 @@ class OrganizationTest extends ApiTestCase
     public function testUpdateOrganization(): void
      {
         $startTime = microtime(true);
+        //create orgs
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
-        // Authenticate the user
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false,$org );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2);
+        //auth tokens// Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         $client = static::createClient();
-        // create org
-        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        // get org iri
+
         $orgiri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
         //try to update org as regular user should fail
         $client->request('PATCH', $orgiri, [
@@ -209,14 +216,17 @@ class OrganizationTest extends ApiTestCase
     public function testDeleteOrganization(): void
     {
         $startTime = microtime(true);
+        //create orgs
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true, $org2);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // Only create the org we need with given info
-        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+
         $orgiri = $this->findIriBy(Organization::class, ['id' => $org->getId()]);
 
 

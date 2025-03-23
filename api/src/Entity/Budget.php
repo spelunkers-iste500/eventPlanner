@@ -48,7 +48,8 @@ use Ramsey\Uuid\Uuid;
 )]
 #[Get(
     uriTemplate: '/budgets/{id}',
-    normalizationContext: ['groups' => ['read:budget']]
+    normalizationContext: ['groups' => ['read:budget']],
+    security: "is_granted('view', object)"
 )]
 #[Post(
     uriTemplate: '/budgets',
@@ -70,11 +71,11 @@ use Ramsey\Uuid\Uuid;
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
-#[GetCollection(
+/**#[GetCollection(
     uriTemplate: '/budgets',
     normalizationContext: ['groups' => ['read:budget']],
-    security: 'is_granted("ROLE_ADMIN")'
-)]
+    security: "is_granted('ROLE_ADMIN')"
+)]*/
 #[GetCollection(
     description: 'Get all budgets for an organization',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
