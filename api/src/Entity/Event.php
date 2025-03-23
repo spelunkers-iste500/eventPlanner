@@ -197,7 +197,6 @@ class Event
         return $this;
     }
 
-
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
@@ -241,6 +240,18 @@ class Event
         return $this;
     }
 
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private ?string $inviteCode;
+
+    public function getInviteCode(): string
+    {
+        return $this->inviteCode;
+    }
+    public function setInviteCode(string $inviteCode): void
+    {
+        $this->inviteCode = $inviteCode;
+    }
 
     //Event -> Flight
     #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]

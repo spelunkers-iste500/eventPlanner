@@ -4,7 +4,7 @@ namespace App\State;
 
 use ApiPlatform\State\ProcessorInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\ChangeManagement\ChangeLogging;
 use ApiPlatform\Metadata\Operation;
 
@@ -109,7 +109,7 @@ class LoggerStateProcessor implements ProcessorInterface
     {
         $changes = [];
 
-    
+
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
             if ($oldValue !== $newValue) {
@@ -117,7 +117,7 @@ class LoggerStateProcessor implements ProcessorInterface
             }
         }
 
-    
+
         return $changes;
     }
 }
