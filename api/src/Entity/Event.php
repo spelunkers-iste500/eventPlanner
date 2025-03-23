@@ -23,6 +23,8 @@ use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use App\Attribute\UserAware;
+use Attribute;
 
 #[ORM\Entity]
 #[ApiResource(
@@ -60,7 +62,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             description: 'The ID of the organization that owns the event'
         )
     ],
-    requirements: ['orgId' => '\d+'],
     normalizationContext: ['groups' => ['read:event:collection']]
 )]
 //Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
@@ -70,7 +71,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     denormalizationContext: ['groups' => ['write:event:changes']],
     processor: LoggerStateProcessor::class
 )]
-//Event.Admin.AddAttendees (DOES NOT WORK)
+//Event.Admin.AddAttendees (WORKS)
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}/addAttendees.{_format}',
@@ -91,6 +92,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['test:attendees']]
 )]
 
+#[GetCollection(
+    uriTemplate: '/my/events.{_format}',
+    normalizationContext: ['groups' => ['read:event:collection']]
+)]
 /**
  * The events that are organized by organizations.
  */
@@ -192,7 +197,6 @@ class Event
         return $this;
     }
 
-
     //Event -> User (attendees)
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinTable(name: 'events_attendees')]
@@ -224,15 +228,29 @@ class Event
 
     public function addAttendeeCollection(array $attendees): self
     {
-        $this->attendees = new ArrayCollection(
-            array_unique(
-                array_merge(
-                    $this->attendees->toArray(),
-                    $attendees
-                )
-            )
-        );
+        $existingAttendees = $this->attendees->toArray();
+
+        //Ensure only unique User objects are added
+        foreach ($attendees as $attendee) {
+            if (!in_array($attendee, $existingAttendees, true)) { // Strict check
+                $this->attendees->add($attendee);
+            }
+        }
+
         return $this;
+    }
+
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    #[Groups(['event:read', 'event:write'])]
+    private ?string $inviteCode;
+
+    public function getInviteCode(): string
+    {
+        return $this->inviteCode;
+    }
+    public function setInviteCode(string $inviteCode): void
+    {
+        $this->inviteCode = $inviteCode;
     }
 
     //Event -> Flight

@@ -4,63 +4,73 @@ namespace App\State;
 
 use ApiPlatform\State\ProcessorInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Security\Core\Security;
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\ChangeManagement\ChangeLogging;
 use ApiPlatform\Metadata\Operation;
 
 /**
  * Global Doctrine State Processor for Logging Entity Changes
- * This processor logs all create, update, and delete operations
- * for all entities, tracking before/after states and masking sensitive fields.
  */
 class LoggerStateProcessor implements ProcessorInterface
 {
-    private EntityManagerInterface $entityManager;
+    /**
+     * Dependencies
+     */
+    private ProcessorInterface $processor;
     private Security $security;
 
     /**
-     * List of sensitive fields that should be masked in logs.
+     * Constructor
      */
-    private array $sensitiveFields = ['hashedPassword'];
-
-    public function __construct(EntityManagerInterface $entityManager, Security $security)
+    public function __construct(ProcessorInterface $processor, Security $security)
     {
-        $this->entityManager = $entityManager;
+        $this->processor = $processor;
         $this->security = $security;
     }
-
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
+    /**
+     * Process the state of an entity and log changes
+     * @param mixed $data The data to process (entity object)
+     * @param Operation $operation The operation being executed
+     * @param array $uriVariables URI variables for the operation
+     * @param array $context Additional context for the operation
+     * @return mixed The processed data (usually the persisted entity)
+     */
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
+        // Get the current user's full name
         $username = $this->getCurrentUserFullName();
+
+        // Determine the operation name (e.g., 'put', 'patch', 'delete', 'post')
         $operationName = strtolower($operation->getMethod());
 
-        // Capture before state for updates and deletes
+        // Capture before state (for put, patch, delete)
         $beforeChange = [];
-        if (($operationName === 'put' || $operationName === 'patch' || $operationName === 'delete') && method_exists($data, 'getId')) {
-            $originalData = $this->entityManager->getUnitOfWork()->getOriginalEntityData($data);
-            $beforeChange = $this->maskSensitiveFields($originalData);
+        if (in_array($operationName, ['put', 'patch', 'delete'], true)) {
+            $beforeChange = $this->maskSensitiveFields($this->extractEntityData($data));
         }
 
-        // Execute the primary operation first (saving/deleting entity)
-        $data = $this->entityManager->merge($data);
-        //$this->entityManager->flush();
+        // Process the operation (persist, update, delete)
+        $result = $this->processor->process($data, $operation, $uriVariables, $context);
 
-        // Capture after state (should be extracted AFTER flush)
-        $afterChange = ($operationName !== 'delete') ? $this->maskSensitiveFields($this->extractEntityData($data)) : [];
+        // Capture after state (for all operations except delete)
+        $afterChange = ($operationName !== 'delete')
+            ? $this->maskSensitiveFields($this->extractEntityData($result))
+            : [];
 
-        // Compute differences
+        // Compute changes between before and after and records it in $changes
         $changes = $this->computeChanges($beforeChange, $afterChange);
 
-        // Save the change log
+        // Create a ChangeLogging entity and populate it with the changes
         $logEntry = new ChangeLogging($username, $operationName, $beforeChange, $afterChange, $changes);
-        $this->entityManager->persist($logEntry);
-        $this->entityManager->flush();
 
-        //return $data;
+        return $result;
     }
 
+    // Helper methods
+
     /**
-     * Retrieves the full name of the authenticated user.
+     * Get the full name of the current user
+     * @return string The full name of the current user or 'Unknown User' if not available
      */
     private function getCurrentUserFullName(): string
     {
@@ -69,7 +79,9 @@ class LoggerStateProcessor implements ProcessorInterface
     }
 
     /**
-     * Extracts entity data into an array, ensuring only relevant fields are captured.
+     * Extracts the data from an entity into an associative array
+     * @param object $entity The entity object to extract data from
+     * @return array Associative array of entity data
      */
     private function extractEntityData(object $entity): array
     {
@@ -77,20 +89,17 @@ class LoggerStateProcessor implements ProcessorInterface
         $data = [];
         foreach ($reflectionClass->getProperties() as $property) {
             $property->setAccessible(true);
-
-            // Check if the property is initialized before accessing it
-            if ($property->isInitialized($entity)) {
-                $data[$property->getName()] = $property->getValue($entity);
-            } else {
-                $data[$property->getName()] = null; // Set default value
-            }
+            $data[$property->getName()] = $property->isInitialized($entity)
+                ? $property->getValue($entity)
+                : null;
         }
         return $data;
     }
 
-
     /**
-     * Masks sensitive fields in the given entity data.
+     * Mask sensitive fields in the data array
+     * @param array $data The data array to mask
+     * @return array The masked data array
      */
     private function maskSensitiveFields(array $data): array
     {
@@ -103,13 +112,16 @@ class LoggerStateProcessor implements ProcessorInterface
     }
 
     /**
-     * Computes changes between before and after entity states.
+     * Compute the changes between before and after states
+     * @param array $before The before state data
+     * @param array $after The after state data
+     * @return array An array of changes with 'before' and 'after' values
      */
     private function computeChanges(array $before, array $after): array
     {
         $changes = [];
 
-    
+
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
             if ($oldValue !== $newValue) {
@@ -117,7 +129,8 @@ class LoggerStateProcessor implements ProcessorInterface
             }
         }
 
-    
+
         return $changes;
     }
 }
+// End of LoggerStateProcessor.php

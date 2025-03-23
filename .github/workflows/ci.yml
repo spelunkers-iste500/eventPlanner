@@ -92,7 +92,7 @@ jobs:
             db_drop_logs.txt
       - name: Clean Disk
         if: always()
-        run: docker system prune -af --filter "until=6h"
+        run: docker system prune -af --filter "until=1h"
 
   staging-deploy:
     runs-on: [self-hosted, staging]
@@ -117,9 +117,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Clean Disk
+        run: docker system prune -af --filter "until=1h"
       - name: Backup Database
         run: |
-          docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
+          if docker ps --filter "name=approot-database-1" --format "{{.Names}}" | grep -q "approot-database-1"; then
+            docker exec -t approot-database-1 pg_dump -U app app > /opt/backup.sql
+          else
+            echo "Database container is not running. Skipping backup."
+          fi
       - name: Copy Repository
         run: |
           rsync -avhH --delete . /opt/appRoot
@@ -161,4 +167,4 @@ jobs:
       
       - name: Clean Disk
         if: always()
-        run: docker system prune -af --filter "until=6h"
+        run: docker system prune -af --filter "until=1h"
