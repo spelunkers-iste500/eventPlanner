@@ -25,6 +25,7 @@ use Ramsey\Uuid\Uuid;
 // TODO: implement filters to reduce the amount of data that
 // is returned to the user when searching for all organizations
 #[GetCollection(
+    security: "is_granted('ROLE_ADMIN')",
     denormalizationContext: ['groups' => ['org:collectionRead']],
     description: "Gets all organizations, requires admin role",
     normalizationContext: ['groups' => ['org:read:collection']]

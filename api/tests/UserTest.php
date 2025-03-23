@@ -155,12 +155,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         
          //verify user is good
          $this->assertResponseIsSuccessful();
-       /*  $this->assertJsonContains([
-             '@id' => $user1Iri,
-             'email' => 'ratchie@rit.edu',
-             'firstName' => 'Ratchie',
-             'lastName' => 'The Tiger'
-         ]);*/
          //test to see if user can't patch another user
          $client->request('PATCH', $user2Iri, [
             'json' => [
@@ -204,12 +198,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $client->request('DELETE', $user3Iri, ['auth_bearer' => $jwttokenUser1['token']]);
         $this->assertResponseStatusCodeSame(204);
 
-        // Verify that the user is deleted
-        /*$dataresult = static::getContainer()->get('doctrine')->getRepository(User::class)->findOneBy(['email' => 'casey@rit.edu']);
-       // $this->assertNull(
-            $dataresult,
-            'User should be deleted from the database'
-        );*/
 
         // End time calculation
         $executionMessage = $this->calculateExecutionTime($startTime, "Delete User");

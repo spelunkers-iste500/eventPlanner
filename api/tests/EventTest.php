@@ -167,14 +167,9 @@ class EventTest extends ApiTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-      /*  $this->assertJsonContains([
-            '@id' => $eventiri,
-            'eventTitle' => 'Gavin Rager',
-            'maxAttendees' => 6,
-            "startDateTime"=> "2025-01-29T18:30:00+00:00",
-        ]);*/
+
         //endtime to terminal
-        $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
+        $executionMessage = $this->calculateExecutionTime($startTime, "Update Event");
         echo $executionMessage;
     }
     
@@ -185,21 +180,21 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // create event
         $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager', 'organization' => $org]);
         $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
-        
         $client = static::createClient();
-        
+        //test delete event as regular user this should fail
+        $client->request('DELETE', $eventiri, ['auth_bearer' =>$jwttokenUser2['token']]);
+        $this->assertResponseStatusCodeSame(403);
+        //actually delete the event
         $client->request('DELETE', $eventiri, ['auth_bearer' =>$jwttoken['token']]);
         
         $this->assertResponseStatusCodeSame(204);
-      /*  $this->assertNull(
-            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            $results = static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
-        );*/
         
         
         $executionMessage = $this->calculateExecutionTime($startTime, "Delete event");
