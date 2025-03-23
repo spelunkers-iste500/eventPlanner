@@ -14,12 +14,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
     securityPostDenormalize: "is_granted('invite', object)",
     normalizationContext: ['groups' => ['read:userInvite']],
     denormalizationContext: ['groups' => ['write:userInvite']],
-    uriTemplate: '/organizations/{organizationId}/invite',
+    uriTemplate: '/events/{eventId}/invite',
     uriVariables: [
-        'organizationId' => new Link(
-            fromClass: Organization::class,
+        'eventId' => new Link(
+            fromClass: Event::class,
             fromProperty: 'id',
-            toProperty: 'organization',
+            toProperty: 'event',
         ),
     ]
 )]
@@ -32,30 +32,30 @@ class UserInvite
     // }
     public function __construct()
     {
-        $this->organization = new Organization();
+        $this->event = new Event();
         $this->emails = [];
     }
-    // the organization the user is being invited to
+    // the event the user is being invited to
     // #[Groups(['write:userInvite'])]
-    private Organization $organization;
-    public function setOrganization(Organization $organization): void
+    private Event $event;
+    public function setEvent(Event $event): void
     {
-        $this->organization = $organization;
+        $this->event = $event;
     }
-    public function getOrganization(): Organization
+    public function getEvent(): Event
     {
-        return $this->organization;
+        return $this->event;
     }
 
     #[Groups(['read:userInvite'])]
-    public function getOrganizationInviteCode(): string
+    public function getEventInviteCode(): string
     {
-        if ($this->organization === null) {
+        if ($this->event === null) {
             return 'abc';
         } else {
-            return $this->organization->getInviteCode();
+            return $this->event->getInviteCode();
         }
-        // return $this->organization->getInviteCode();
+        // return $this->event->getInviteCode();
     }
 
     #[Groups(['read:userInvite', 'write:userInvite'])]

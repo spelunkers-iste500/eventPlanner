@@ -25,6 +25,7 @@ use Ramsey\Uuid\Uuid;
 // TODO: implement filters to reduce the amount of data that
 // is returned to the user when searching for all organizations
 #[GetCollection(
+    security: "is_granted('ROLE_ADMIN')",
     denormalizationContext: ['groups' => ['org:collectionRead']],
     description: "Gets all organizations, requires admin role",
     normalizationContext: ['groups' => ['org:read:collection']]
@@ -150,29 +151,6 @@ class Organization
         $this->address = $address;
     }
 
-    /**
-     * @var User $primaryContact the primary contact of the organization
-     */
-    // #[ORM\Column(length: 55)]
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'primaryContactOfOrg')]
-    #[JoinTable(name: 'org_user_primary_contact')]
-    #[Groups(['org:read', 'org:write'])]
-    private User $primaryContact;
-    /**
-     * @return User the primary contact of the organization
-     */
-    public function getPrimaryContact(): User
-    {
-        return $this->primaryContact;
-    }
-    /**
-     * @param User $primaryContact the primary contact of the organization
-     */
-    public function setPrimaryContact(User $primaryContact): void
-    {
-        $this->primaryContact = $primaryContact;
-    }
-
     #[ORM\Column(length: 55)]
     #[Groups(['org:read', 'org:write'])]
     private string $industry;
@@ -183,14 +161,6 @@ class Organization
     public function setIndustry(string $industry): void
     {
         $this->industry = $industry;
-    }
-
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'OrgMembership')]
-    #[Groups(['org:read'])]
-    private Collection $users;
-    public function getUsers(): Collection
-    {
-        return $this->users;
     }
 
     // All users that are org admins
@@ -221,7 +191,15 @@ class Organization
     private Collection $eventadmins;
     public function getEventAdmins(): Collection
     {
-        return $this->eventadmins;
+        // org admins should also function as event admins
+        return new ArrayCollection(
+            array_unique(
+                array_merge(
+                    $this->eventadmins->toArray(),
+                    $this->admins->toArray()
+                )
+            )
+        );
     }
     public function addEventAdmin(User $user): self
     {
@@ -260,22 +238,10 @@ class Organization
     #[ORM\Column(type: 'datetime', nullable: true)]
     private \DateTimeInterface $createdDate;
 
-    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    #[Groups(['org:read', 'org:write'])]
-    private ?string $inviteCode;
-
-    public function getInviteCode(): string
-    {
-        return $this->inviteCode;
-    }
-    public function setInviteCode(string $inviteCode): void
-    {
-        $this->inviteCode = $inviteCode;
-    }
 
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'financeAdminOfOrg', cascade: ['all'])]
     #[Groups(['org:read', 'org:write'])]
-    private collection $financeAdmins;
+    private Collection $financeAdmins;
 
     public function getFinanceAdmins(): Collection
     {
@@ -307,7 +273,6 @@ class Organization
     public function __construct()
     {
         $this->id = Uuid::uuid4();
-        $this->users = new ArrayCollection();
         $this->admins = new ArrayCollection();
         $this->eventadmins = new ArrayCollection();
         $this->financeAdmins = new ArrayCollection();

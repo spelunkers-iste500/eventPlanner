@@ -3,7 +3,8 @@
 namespace App\State;
 
 use ApiPlatform\State\ProcessorInterface;
-use Symfony\Component\Security\Core\Security;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use App\Entity\ChangeManagement\ChangeLogging;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\EntityManagerInterface;
@@ -36,7 +37,7 @@ class LoggerStateProcessor implements ProcessorInterface
      * @param array $uriVariables URI variables for the operation
      * @param array $context Additional context for the operation
      * @return mixed The processed data (usually the persisted entity)
-     */ 
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): mixed
     {
         // Get the current user's full name
@@ -134,12 +135,16 @@ class LoggerStateProcessor implements ProcessorInterface
     private function computeChanges(array $before, array $after): array
     {
         $changes = [];
+
+
         foreach ($after as $key => $newValue) {
             $oldValue = $before[$key] ?? null;
             if ($oldValue !== $newValue) {
                 $changes[$key] = ['before' => $oldValue, 'after' => $newValue];
             }
         }
+
+
         return $changes;
     }
 }
