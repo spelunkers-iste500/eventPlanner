@@ -62,6 +62,7 @@ const FlightBooking = () => {
             offerId: bookingData.selectedOffer.id
         }, {
             headers: {
+                    'Authorization': `Bearer ${session?.apiToken}`,
                     'Content-Type': 'application/ld+json',
                     'accept': 'application/ld+json',
                 }
