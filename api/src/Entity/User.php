@@ -554,8 +554,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ) {
             return ['ROLE_ADMIN'];
         }
-        return [];
-        return ['ROLE_ADMIN']; // default to admin
+        return ['ROLE_ADMIN'];
     }
     /**
      * @return bool The super admin status of the user
