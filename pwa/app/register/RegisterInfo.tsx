@@ -8,6 +8,7 @@ import { PasswordInput } from 'Components/ui/password-input';
 import axios from 'axios';
 import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
+import { formatDateSubmit } from 'Types/events';
 
 interface RegisterInfoProps {
     onSuccess: () => void;
@@ -129,10 +130,6 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
     };
 
     const [startDate, setStartDate] = useState<Date | null>(null);
-    
-    const formatDate = (date: Date | null) => {
-        return date ? date.toISOString().split('T')[0] : '';
-    };
 
     return (
         <>
@@ -217,7 +214,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                         maxDate={new Date()}
                         onChange={(date) => {
                             setStartDate(date);
-                            handleChange('birthday', formatDate(date));}
+                            handleChange('birthday', formatDateSubmit(date));}
                         }
                         openToDate={new Date("2000/01/01")}
                         showMonthDropdown

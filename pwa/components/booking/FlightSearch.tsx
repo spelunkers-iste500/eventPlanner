@@ -23,7 +23,7 @@
 
 // The `loadOptions` function is defined to debounce the input and call the `fetchAirports` function to load airport options for the select dropdowns.
 
-// The `formatDate` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
+// The `formatDateSubmit` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
 
 // The `FlightSearch` component returns a JSX structure that represents the flight search form. This structure includes:
 // - A select dropdown for trip type (round-trip or one-way).
@@ -45,6 +45,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { formatDateSubmit } from 'Types/events';
 
 interface SelectOption {
     label: string;
@@ -112,10 +113,6 @@ const FlightSearch: React.FC = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
 
-    const formatDate = (date: Date | null) => {
-        return date ? date.toISOString().split('T')[0] : '';
-    };
-
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
             <div className='input-container'>
@@ -180,8 +177,8 @@ const FlightSearch: React.FC = () => {
                             setEndDate(end);
                             setFormData({ 
                                 ...formData, 
-                                departDate: formatDate(start), 
-                                returnDate: formatDate(end) 
+                                departDate: formatDateSubmit(start), 
+                                returnDate: formatDateSubmit(end) 
                             });
                         }}
                         selectsRange
@@ -200,7 +197,7 @@ const FlightSearch: React.FC = () => {
                         minDate={new Date()}
                         onChange={(date) => {
                             setStartDate(date);
-                            setFormData({ ...formData, departDate: formatDate(date)})}
+                            setFormData({ ...formData, departDate: formatDateSubmit(date)})}
                         }
                         showMonthDropdown
                         placeholderText="Select a date"
