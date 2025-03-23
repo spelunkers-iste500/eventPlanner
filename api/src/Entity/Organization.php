@@ -64,6 +64,10 @@ use Ramsey\Uuid\Uuid;
     uriTemplate: '/my/organizations/.{_format}',
     normalizationContext: ['groups' => ['org:read']]
 )]
+
+/**
+ * @ORM\Entity(repositoryClass="App\Repository\OrganizationRepository")
+ */
 #[ORM\Table(name: 'organization')]
 class Organization
 {
