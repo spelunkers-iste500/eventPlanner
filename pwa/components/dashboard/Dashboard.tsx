@@ -1,18 +1,33 @@
-import React from "react";
+import React, { useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
 import { Event } from "Types/events";
 import { useUser } from "Utils/UserProvider";
+import ViewEventModal from "./ViewEventModal";
 
 // Main EventList Component
 const Dashboard: React.FC = () => {
 	const { user } = useUser();
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+
+    const handleOpenDialog = (event: Event) => {
+        setSelectedEvent(event);
+        setIsDialogOpen(true);
+    };
+
+    const handleCloseDialog = () => {
+        setIsDialogOpen(false);
+        setSelectedEvent(null);
+    };
 
   	return (
 		<div className={styles.dashboardContainer}>
 			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
 			<EventList heading="Event Invitations" events={events} />
-            <EventList heading="Your Events" events={events || []} />
+            <EventList heading="Your Events" events={events || []} onOpenDialog={handleOpenDialog} />
+
+            <ViewEventModal isOpen={isDialogOpen} onClose={handleCloseDialog} event={selectedEvent} />
 		</div>
   	);
 };

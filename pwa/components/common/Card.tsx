@@ -23,7 +23,7 @@
 
 // The `loadOptions` function is defined to debounce the input and call the `fetchAirports` function to load airport options for the select dropdowns.
 
-// The `formatDate` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
+// The `formatDateDisplay` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
 
 // The `FlightSearch` component returns a JSX structure that represents the flight search form. This structure includes:
 // - A select dropdown for trip type (round-trip or one-way).
@@ -37,7 +37,7 @@
 
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { Event, formatDate, formatTime } from "Types/events";
+import { Event, formatDateDisplay, formatTime } from "Types/events";
 import { Calendar, CircleDollarSign, HandCoins, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
 
 // Define types for the Card component props
@@ -61,7 +61,7 @@ const Card: React.FC<CardProps> = ({ event, buttonText, isFinance, onClick }) =>
                     <div className={styles.cardDetails}>
                         <div className={styles.cardRow}>
                             <Calendar size={16} />
-                            {formatDate(event.startDateTime)} • {formatTime(event.startDateTime)} {event.endDateTime ? `- ${formatTime(event.endDateTime)}` : ''}
+                            {formatDateDisplay(event.startDateTime)} • {formatTime(event.startDateTime)} {event.endDateTime ? `- ${formatTime(event.endDateTime)}` : ''}
                         </div>
         
                         {isFinance ? (
@@ -85,13 +85,13 @@ const Card: React.FC<CardProps> = ({ event, buttonText, isFinance, onClick }) =>
                             {event.startFlightBooking && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneTakeoff size={16} />
-                                    {formatDate(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
+                                    {formatDateDisplay(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
                                 </div>
                             )}
                             {event.endFlightBooking && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneLanding size={16} />
-                                    {formatDate(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
+                                    {formatDateDisplay(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
                                 </div>
                             )}
                             </>
