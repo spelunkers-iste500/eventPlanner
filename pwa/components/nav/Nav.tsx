@@ -32,6 +32,7 @@ import Preferences from '../preferences/Preferences';
 import EventAdminDashboard from 'Components/eventAdmin/EventAdminDashboard';
 import About from '../about/About';
 import styles from './nav.module.css';
+import FinancialAdminDashboard from 'Components/financialAdmin/FinancialAdminDashboard';
 
 const Nav: React.FC= () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
@@ -48,6 +49,11 @@ const Nav: React.FC= () => {
         {
             name: 'Event Planner',
             content: <EventAdminDashboard />,
+            icon: <LayoutDashboard size={28} />
+        },
+        {
+            name: 'Finance Planner',
+            content: <FinancialAdminDashboard />,
             icon: <LayoutDashboard size={28} />
         },
         {
