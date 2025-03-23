@@ -44,7 +44,7 @@ final class OrganizationVoter extends Voter
     private static function canView(UserInterface $user, \App\Entity\Organization $organization): bool
     {
         return (
-            $organization->getUsers()->contains($user) || // is the user a member
+            $organization->getEventAdmins()->contains($user) || // is the user a member
             $organization->getAdmins()->contains($user) || // indirect membership
             in_array('ROLE_ADMIN', $user->getRoles()) // is the user a full admin
         );

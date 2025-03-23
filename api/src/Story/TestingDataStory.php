@@ -53,11 +53,11 @@ final class TestingDataStory extends Story
         $org5 = OrganizationFactory::new()->createOne(['name' => 'CAD']);
         $otpcode = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ";
         //create users
-        $user = $this->createUser('Spleunkers', 'user','user@rit.edu', 'spleunkers123', false, $org1,$otpcode );
-        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin','budgetadmin@rit.edu', 'spleunkers123', false, $org1, $otpcode);
-        $orgAdmin = $this->createUser('Spleunkers', 'orgAdmin', 'orgadmin@rit.edu', 'spleunkers123', false, $org1, $otpcode);
-        $eventadmin = $this->createUser('Spleunkers', 'eventAdmin','eventadmin@rit.edu', 'spleunkers123', false, $org1, $otpcode);
-        $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spleunkers123', true, $org1, $otpcode);
+        $user = $this->createUser('Spleunkers', 'user','user@rit.edu', 'spelunkers123', false, $org1,$otpcode );
+        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin','budgetadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode);
+        $orgAdmin = $this->createUser('Spleunkers', 'orgAdmin', 'orgadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode);
+        $eventadmin = $this->createUser('Spleunkers', 'eventAdmin','eventadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode);
+        $platformadmin = $this->createUser('Spleunkers', 'God Mode','superadmin@rit.edu', 'spelunkers123', true, $org1, $otpcode);
         //add user permissions
         $orgAdmin->addAdminOfOrg($org1);
         $eventadmin->addEventAdminOfOrg($org1);

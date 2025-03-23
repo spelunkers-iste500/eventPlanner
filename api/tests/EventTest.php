@@ -5,6 +5,7 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\Event;
+use App\Entity\Organization;
 use App\Entity\User;
 use App\Factory\EventFactory;
 use App\Factory\UserFactory;
@@ -16,12 +17,16 @@ class EventTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function createUser(string $email, string $plainPassword, bool $superAdmin): User {
+    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org, bool $iseventadmin): User {
         $container = self::getContainer();
         $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
         $user->_save(); // Save the user after setting the password
+        if($iseventadmin){
+            $user->addEventAdminOfOrg($org);
+            $user->_save();
+        }
         return $user;
     }
     public function authenticateUser(string $email, string $password): array {
@@ -90,7 +95,7 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $orgid = $org->getId();
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
 
@@ -167,14 +172,9 @@ class EventTest extends ApiTestCase
         ]);
 
         $this->assertResponseIsSuccessful();
-      /*  $this->assertJsonContains([
-            '@id' => $eventiri,
-            'eventTitle' => 'Gavin Rager',
-            'maxAttendees' => 6,
-            "startDateTime"=> "2025-01-29T18:30:00+00:00",
-        ]);*/
+
         //endtime to terminal
-        $executionMessage = $this->calculateExecutionTime($startTime, "Create Event");
+        $executionMessage = $this->calculateExecutionTime($startTime, "Update Event");
         echo $executionMessage;
     }
     
@@ -185,21 +185,21 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // create event
         $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager', 'organization' => $org]);
         $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
-        
         $client = static::createClient();
-        
+        //test delete event as regular user this should fail
+        $client->request('DELETE', $eventiri, ['auth_bearer' =>$jwttokenUser2['token']]);
+        $this->assertResponseStatusCodeSame(403);
+        //actually delete the event
         $client->request('DELETE', $eventiri, ['auth_bearer' =>$jwttoken['token']]);
         
         $this->assertResponseStatusCodeSame(204);
-      /*  $this->assertNull(
-            // Through the container, you can access all your services from the tests, including the ORM, the mailer, remote API clients...
-            $results = static::getContainer()->get('doctrine')->getRepository(Event::class)->findOneBy(['eventTitle' => 'Gavin Rager'])
-        );*/
         
         
         $executionMessage = $this->calculateExecutionTime($startTime, "Delete event");
