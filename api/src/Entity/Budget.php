@@ -29,7 +29,7 @@ use Ramsey\Uuid\Uuid;
 //User.Get.Budget
 #[Get(
     uriTemplate: '/budgets/{id}',
-    normalizationContext: ['groups' => ['read:budget']],
+    normalizationContext: ['groups' => ['user:read:budget']],
     security: "is_granted('view', object)"
 )]
 
@@ -87,7 +87,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -119,7 +119,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade:["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Event $event;
     public function getEvent(): Event
     {
@@ -132,12 +132,13 @@ class Budget
         return $this;
     }
 
-    #[Groups(['read:budget'])]
+    #[Groups(['read:budget', 'user:read:budget'])]
     public function getBudgetTotal(): string
     {
         // will multiply the perUserTotal by the number of users in the event
         $countAttendees = count($this->event->getAttendees());
-        return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees));
+        //return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees)); this does not return
+        return "TOTAL BUDGET";
     }
 
     #[Groups(['read:budget'])]
@@ -152,7 +153,7 @@ class Budget
     }
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
