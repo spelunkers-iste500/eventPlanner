@@ -33,18 +33,32 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         const fetchUser = async () => {
-            console.log('Fetching user data...', session);
+            console.log('Fetching user data w/ session creds', session);
             if (session?.id) {
-                try {
-                    const response = await axios.get(`/users/${session.id}`, {
-                        headers: { 'Content-Type': 'application/ld+json',
-                        Authorization : 'Bearer ' + session.apiToken } 
-                    });
-                    setUser(response.data);
-                    console.log('User data fetched:', response.data);
+                const cachedUser = localStorage.getItem('user');
+                const cachedSessionId = localStorage.getItem('sessionId');
+
+                if (cachedUser && cachedSessionId === session.id) {
+                    setUser(JSON.parse(cachedUser));
+                    console.log('User data fetched from cache:', JSON.parse(cachedUser));
                     setLoading(false);
-                } catch (err) {
-                    console.error('Failed to fetch user data');
+                } else {
+                    try {
+                        const response = await axios.get(`/users/${session.id}`, {
+                            headers: { 
+                                'Content-Type': 'application/ld+json',
+                                Authorization: 'Bearer ' + session.apiToken 
+                            }
+                        });
+                        setUser(response.data);
+                        localStorage.setItem('user', JSON.stringify(response.data));
+                        localStorage.setItem('sessionId', session.id);
+                        console.log('User data fetched from API:', response.data);
+                        setLoading(false);
+                    } catch (err) {
+                        console.error('Failed to fetch user data');
+                        setLoading(false);
+                    }
                 }
             } else {
                 setLoading(false);
