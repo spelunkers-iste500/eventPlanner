@@ -76,12 +76,6 @@ class UserEvent
         return $this;
     }
 
-    #[Groups(['read:myEvents'])]
-    public function getEventBudget(): ?Budget
-    {
-        return $this->event->getBudget();
-    }
-
     #[ORM\Column]
     #[Groups(['read:myEvents'])]
     private bool $isAccepted;
