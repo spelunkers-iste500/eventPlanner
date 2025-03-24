@@ -4,7 +4,7 @@ import BaseDialog from 'Components/common/BaseDialog';
 import { X, MapPin, Calendar, Clock, Users, TowerControl, ArrowRight, PlaneTakeoff, PlaneLanding, CircleDollarSign } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { Event, formatDateDisplay, formatTime } from 'Types/events';
-import dialogStyles from '../common/Dialog.module.css';
+import styles from '../common/Dialog.module.css';
 import { useSession } from 'next-auth/react';
 
 interface ViewEventModalProps {
@@ -33,36 +33,36 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose 
 		if (event) {
             getBudget(event);
         }
-	}, []);
+	}, [event]);
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader>
-                <img src={'/media/event_image.jpg'} alt={event?.eventTitle} className={dialogStyles.dialogImg} />
+                <img src={'/media/event_image.jpg'} alt={event?.eventTitle} className={styles.dialogImg} />
             </DialogHeader>
-            <DialogBody className={dialogStyles.dialogBody}>
-                <div className={dialogStyles.dialogBodyHeader}>
+            <DialogBody className={styles.dialogBody}>
+                <div className={styles.dialogBodyHeader}>
                     <div>
                         <DialogTitle>{event?.eventTitle}</DialogTitle>
-                        <p className={dialogStyles.dialogOrg}>{event?.organization}</p>
+                        <p className={styles.dialogOrg}>{event?.organization.name}</p>
                     </div>
-                    <Button className={dialogStyles.dialogClose} onClick={onClose}><X /></Button>
+                    <Button className={styles.dialogClose} onClick={onClose}><X /></Button>
                 </div>
 
-                <div className={dialogStyles.dialogBodyContent}>
-                    <div className={dialogStyles.dialogDetails}>
+                <div className={styles.dialogBodyContent}>
+                    <div className={styles.dialogDetails}>
                         <h3>Event Details</h3>
-                        <p><MapPin size={16}/><span>{event?.location}</span></p>
-                        <p><Calendar size={16}/><span>{formatDateDisplay(event?.startDateTime)} {formatDateDisplay(event?.endDateTime) !== formatDateDisplay(event?.startDateTime) ? `- ${formatDateDisplay(event?.endDateTime)}` : ''}</span></p>
-                        <p><Clock size={16}/><span>{formatTime(event?.startDateTime)} {event?.endDateTime ? `- ${formatTime(event?.endDateTime)}` : ''}</span></p>
-                        <p><Users size={16}/><span>{event?.maxAttendees} Attendees</span></p>
+                        <div className={styles.location}><MapPin size={16}/><span>{event?.location}</span></div>
+                        <div><Calendar size={16}/><span>{formatDateDisplay(event?.startDateTime)} {formatDateDisplay(event?.endDateTime) !== formatDateDisplay(event?.startDateTime) ? `- ${formatDateDisplay(event?.endDateTime)}` : ''}</span></div>
+                        <div><Clock size={16}/><span>{formatTime(event?.startDateTime)} {event?.endDateTime ? `- ${formatTime(event?.endDateTime)}` : ''}</span></div>
+                        <div><Users size={16}/><span>{event?.maxAttendees} Attendees</span></div>
                     </div>
-                    <div className={dialogStyles.dialogDetails}>
+                    <div className={styles.dialogDetails}>
                         <h3>Your Details</h3>
-                        <p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></p>
-                        <p><PlaneTakeoff size={16}/><span>{formatDateDisplay(event?.startFlightBooking)} • {formatTime(event?.startFlightBooking)}</span></p>
-                        <p><PlaneLanding size={16}/><span>{formatDateDisplay(event?.endFlightBooking)} • {formatTime(event?.endFlightBooking)}</span></p>
-                        <p><CircleDollarSign size={16}/><span>{budgetPerAttendee ? budgetPerAttendee : <Skeleton height='4' width='70%' />}</span></p>
+                        <div><TowerControl size={16}/><span className={styles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></div>
+                        <div><PlaneTakeoff size={16}/><span>{formatDateDisplay(event?.startFlightBooking)} • {formatTime(event?.startFlightBooking)}</span></div>
+                        <div><PlaneLanding size={16}/><span>{formatDateDisplay(event?.endFlightBooking)} • {formatTime(event?.endFlightBooking)}</span></div>
+                        <div><CircleDollarSign size={16}/><span>{budgetPerAttendee ? budgetPerAttendee : <Skeleton height='4' width='70%' />}</span></div>
                     </div>
                 </div>
             </DialogBody>

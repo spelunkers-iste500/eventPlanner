@@ -35,7 +35,7 @@
 
 // Finally, the `FlightSearch` component is exported as the default export of the module.
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { AsyncSelect, Select } from 'chakra-react-select';
 import FlightResults from './FlightResults';
@@ -66,11 +66,35 @@ const FlightSearch: React.FC = () => {
         destinationInput: ''
     });
 
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
+    useEffect(() => {
+        if (bookingData) {
+            setFormData({
+                trip: bookingData.trip || 'round-trip',
+                origin: bookingData.originAirport || '',
+                destination: bookingData.destinationAirport || '',
+                departDate: bookingData.departDate || '',
+                returnDate: bookingData.returnDate || '',
+                originInput: '',
+                destinationInput: ''
+            });
+
+            if (bookingData.departDate) {
+                setStartDate(new Date(bookingData.departDate));
+            }
+            if (bookingData.returnDate) {
+                setEndDate(new Date(bookingData.returnDate));
+            }
+        }
+    }, [bookingData]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setBookingData({
             ...bookingData,
-            isRoundTrip: formData.trip === 'round-trip',
+            trip: formData.trip,
             originAirport: formData.origin,
             destinationAirport: formData.destination,
             departDate: formData.departDate,
@@ -110,9 +134,6 @@ const FlightSearch: React.FC = () => {
         }, 120);
     };
 
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
             <div className='input-container'>
@@ -125,7 +146,7 @@ const FlightSearch: React.FC = () => {
                     placeholder="Trip Type"
                     size="md"
                     isSearchable={false}
-                    defaultValue={{ label: 'Round Trip', value: 'round-trip' }}
+                    value={{ label: formData.trip === 'round-trip' ? 'Round Trip' : 'One Way', value: formData.trip }}
                     className={`select-menu ${styles.tripType}`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
@@ -144,6 +165,7 @@ const FlightSearch: React.FC = () => {
                         classNamePrefix={'select'}
                         onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
                         onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
+                        value={formData.origin ? { label: formData.origin, value: formData.origin } : null}
                     />
                 </div>
     
@@ -158,6 +180,7 @@ const FlightSearch: React.FC = () => {
                         classNamePrefix={'select'}
                         onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
                         onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
+                        value={formData.destination ? { label: formData.destination, value: formData.destination } : null}
                     />
                 </div>
             </div>

@@ -3,15 +3,15 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { Offer } from 'Types/airports';
 import { Event } from 'Types/events';
 
-interface BookingData {
+export interface BookingData {
     event: Event;
     content: ReactNode;
     budget: number;
-    isRoundTrip?: boolean;
-    originAirport?: String;
+    trip?: string;
+    originAirport?: string;
     departDate?: string;
     departTime?: string;
-    destinationAirport?: String;
+    destinationAirport?: string;
     returnDate?: string;
     returnTime?: string;
     maxConnections?: number;

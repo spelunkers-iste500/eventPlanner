@@ -63,7 +63,7 @@ const FlightResults: React.FC = () => {
                 origin: bookingData.originAirport,
                 destination: bookingData.destinationAirport,
                 departureDate: bookingData.departDate,
-                returnDate: (bookingData.isRoundTrip) ? bookingData.returnDate : null,
+                returnDate: bookingData.trip === 'round-trip' ? bookingData.returnDate : null,
                 maxConnections: 1,
             }, {
                 headers: {
