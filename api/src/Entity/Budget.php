@@ -87,7 +87,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -99,7 +99,7 @@ class Budget
     }
 
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents'])]
     public string $perUserTotal = "0.00";
 
     // @todo: relate to Flight entity to allow calculating the budget used
@@ -117,7 +117,7 @@ class Budget
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public ?User $financialPlannerID;
 
-    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade:["persist"])]
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
     #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Event $event;
