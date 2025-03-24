@@ -98,9 +98,30 @@ class Budget
         $this->id = $id;
     }
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
+    #[ORM\Column]
     #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents'])]
-    public string $perUserTotal = "0.00";
+    /**
+     * The per user budget for an event.
+     */
+    private int $perUserTotal = 0;
+
+    /**
+     * @return float The per user budget for the event, in dollars.cents "0.00"
+     */
+    public function getPerUserTotal(): float
+    {
+        return (float) ($this->perUserTotal / 100);
+    }
+    /**
+     * @param float $perUserTotal The per user budget for the event, in dollars.cents "0.00"
+     * @return self
+     * Converts the float to an integer for storage
+     */
+    public function setPerUserTotal(float $perUserTotal): self
+    {
+        $this->perUserTotal = (int) $perUserTotal * 100;
+        return $this;
+    }
 
     // @todo: relate to Flight entity to allow calculating the budget used
 
@@ -133,7 +154,7 @@ class Budget
     }
 
     #[Groups(['read:budget', 'user:read:budget'])]
-    public function getBudgetTotal(): string
+    public function getBudgetTotal(): float|int
     {
         // will multiply the perUserTotal by the number of users in the event
         $countAttendees = count($this->event->getAttendees());
@@ -170,6 +191,7 @@ class Budget
         $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->perUserTotal = 0;
     }
 
     public function getFinanceAdmins(): Collection
