@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -14,6 +15,9 @@ class Flight
 {
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
