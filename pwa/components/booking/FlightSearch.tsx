@@ -146,7 +146,7 @@ const FlightSearch: React.FC = () => {
                     placeholder="Trip Type"
                     size="md"
                     isSearchable={false}
-                    defaultValue={{ label: formData.trip === 'round-trip' ? 'Round Trip' : 'One Way', value: formData.trip }}
+                    value={{ label: formData.trip === 'round-trip' ? 'Round Trip' : 'One Way', value: formData.trip }}
                     className={`select-menu ${styles.tripType}`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
