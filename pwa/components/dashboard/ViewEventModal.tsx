@@ -33,7 +33,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose 
 		if (event) {
             getBudget(event);
         }
-	}, []);
+	}, [event]);
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
@@ -52,7 +52,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose 
                 <div className={dialogStyles.dialogBodyContent}>
                     <div className={dialogStyles.dialogDetails}>
                         <h3>Event Details</h3>
-                        <p><MapPin size={16}/><span>{event?.location}</span></p>
+                        <p className={dialogStyles.location}><MapPin size={16}/><span>{event?.location}</span></p>
                         <p><Calendar size={16}/><span>{formatDateDisplay(event?.startDateTime)} {formatDateDisplay(event?.endDateTime) !== formatDateDisplay(event?.startDateTime) ? `- ${formatDateDisplay(event?.endDateTime)}` : ''}</span></p>
                         <p><Clock size={16}/><span>{formatTime(event?.startDateTime)} {event?.endDateTime ? `- ${formatTime(event?.endDateTime)}` : ''}</span></p>
                         <p><Users size={16}/><span>{event?.maxAttendees} Attendees</span></p>

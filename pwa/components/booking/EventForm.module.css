@@ -12,6 +12,7 @@
 	flex-direction: column;
 	margin-bottom: 1rem;
 	align-items: center;
+	text-align: center;
 }
 
 .form-card {

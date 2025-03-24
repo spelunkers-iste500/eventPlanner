@@ -25,6 +25,8 @@ const Dashboard: React.FC = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
+    const [ loading, setLoading ] = useState(true);
+
     const handleOpenDialog = (event: Event) => {
         setSelectedEvent(event);
         setIsDialogOpen(true);
@@ -50,6 +52,7 @@ const Dashboard: React.FC = () => {
                     setPendingEvents(pending);
                     console.log('Accepted Events:', accepted);
                     console.log('Pending Events:', pending);
+                    setLoading(false);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -60,6 +63,10 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         getEvents();
     }, [user]);
+
+    if (loading) {
+        return <h2 className='loading'>Loading...</h2>;
+    }
 
   	return (
 		<div className={styles.dashboardContainer}>
