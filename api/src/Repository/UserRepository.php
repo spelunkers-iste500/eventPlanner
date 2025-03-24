@@ -6,6 +6,7 @@ namespace App\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -47,27 +48,34 @@ class UserRepository extends ServiceEntityRepository
         return $this->find($id);
     }
 
-    public function getUsersCurrentEventsByUserId(int $id): array
+    public function getUsersCurrentEventsByUserId(string $id): array
     {
-        $qb = $this->createQueryBuilder('u')
-            ->join('u.eventsAttending', 'e')
-            ->where('u.id = :id')
-            ->andWhere('e.endDateTime >= :currentDate')
-            ->setParameter('id', $id)
-            ->setParameter('currentDate', new \DateTime())
-            ->getQuery();
+        if (!Uuid::isValid($id)) {
+            return [];
+        } else {
+            $qb = $this->createQueryBuilder('u')
+                ->join('u.eventsAttending', 'ue')
+                ->join('ue.event', 'e')
+                ->where('u.id = :id')
+                ->andWhere('e.endDateTime >= :currentDate')
+                ->setParameter('id', $id)
+                ->setParameter('currentDate', new \DateTime())
+                ->getQuery();
 
-        return $qb->getResult();
+            return $qb->getResult();
+        }
     }
 
-    public function doesUserHaveCurrentEvents(int|string $id): bool
+    public function doesUserHaveCurrentEvents(string $id): bool
     {
-
+        // if the string has an @ symbol, it's an email otherwise UUID
+        // check if uuid is valid
         $qb = $this->createQueryBuilder('u')
-            ->join('u.eventsAttending', 'e')
-            ->where((is_int($id)) ? 'u.id = :id' : 'u.email = :email')
+            ->join('u.eventsAttending', 'ue')
+            ->join('ue.event', 'e')
+            ->where((Uuid::isValid($id)) ? 'u.id = :id' : 'u.email = :email')
             ->andWhere('e.endDateTime >= :currentDate')
-            ->setParameter((is_int($id)) ? 'id' : 'email', $id)
+            ->setParameter((($id)) ? 'id' : 'email', $id)
             ->setParameter('currentDate', new \DateTime())
             ->getQuery();
 

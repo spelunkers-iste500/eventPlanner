@@ -5,7 +5,6 @@ namespace App\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
