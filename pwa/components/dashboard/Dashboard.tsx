@@ -7,11 +7,20 @@ import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import ViewEventModal from "./ViewEventModal";
 
+// Define the UserEvent interface
+interface UserEvent {
+    id: string;
+    event: Event;
+    isAccepted: boolean;
+    isDeclined: boolean;
+}
+
 // Main EventList Component
 const Dashboard: React.FC = () => {
     const { user } = useUser();
     const { data: session } = useSession();
-    const [ userEvents, setUserEvents ] = useState<Event | null>(null);
+    const [acceptedEvents, setAcceptedEvents] = useState<Event[]>([]);
+    const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -30,11 +39,17 @@ const Dashboard: React.FC = () => {
         if (user && session) {
             try {
                 console.log('fetching user events');
-                const response = await axios.get(`/my/event/${user.id}`, { headers: { 'Authorization': `Bearer ${session.apiToken}` } });
-                console.log('User Events:', response.data);
+                const response = await axios.get(`/my/events`, {
+                    headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                });
                 if (response.status === 200) {
-                    setUserEvents(response.data);
-                    console.log('User Events:', response.data);
+                    const userEvents: UserEvent[] = response.data['hydra:member'];
+                    const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
+                    const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
+                    setAcceptedEvents(accepted);
+                    setPendingEvents(pending);
+                    console.log('Accepted Events:', accepted);
+                    console.log('Pending Events:', pending);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -49,8 +64,8 @@ const Dashboard: React.FC = () => {
   	return (
 		<div className={styles.dashboardContainer}>
 			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
-			<EventList heading="Event Invitations" events={events} />
-            <EventList heading="Your Events" events={events || []} onOpenDialog={handleOpenDialog} />
+			<EventList heading="Event Invitations" events={pendingEvents} />
+            <EventList heading="Your Events" events={acceptedEvents} onOpenDialog={handleOpenDialog} />
 
             <ViewEventModal isOpen={isDialogOpen} onClose={handleCloseDialog} event={selectedEvent} />
 		</div>
