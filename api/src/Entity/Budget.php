@@ -29,7 +29,7 @@ use Ramsey\Uuid\Uuid;
 //User.Get.Budget
 #[Get(
     uriTemplate: '/budgets/{id}',
-    normalizationContext: ['groups' => ['read:budget']],
+    normalizationContext: ['groups' => ['user:read:budget']],
     security: "is_granted('view', object)"
 )]
 
@@ -87,7 +87,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -98,9 +98,30 @@ class Budget
         $this->id = $id;
     }
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
-    public string $perUserTotal = "0.00";
+    #[ORM\Column]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents'])]
+    /**
+     * The per user budget for an event.
+     */
+    private int $perUserTotal = 0;
+
+    /**
+     * @return float The per user budget for the event, in dollars.cents "0.00"
+     */
+    public function getPerUserTotal(): float
+    {
+        return (float) ($this->perUserTotal / 100);
+    }
+    /**
+     * @param float $perUserTotal The per user budget for the event, in dollars.cents "0.00"
+     * @return self
+     * Converts the float to an integer for storage
+     */
+    public function setPerUserTotal(float $perUserTotal): self
+    {
+        $this->perUserTotal = (int) $perUserTotal * 100;
+        return $this;
+    }
 
     // @todo: relate to Flight entity to allow calculating the budget used
 
@@ -117,9 +138,9 @@ class Budget
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public ?User $financialPlannerID;
 
-    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade:["persist"])]
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Event $event;
     public function getEvent(): Event
     {
@@ -132,12 +153,13 @@ class Budget
         return $this;
     }
 
-    #[Groups(['read:budget'])]
-    public function getBudgetTotal(): string
+    #[Groups(['read:budget', 'user:read:budget'])]
+    public function getBudgetTotal(): float|int
     {
         // will multiply the perUserTotal by the number of users in the event
         $countAttendees = count($this->event->getAttendees());
-        return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees));
+        //return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees)); this does not return
+        return "TOTAL BUDGET";
     }
 
     #[Groups(['read:budget'])]
@@ -152,7 +174,7 @@ class Budget
     }
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
@@ -169,6 +191,7 @@ class Budget
         $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->perUserTotal = 0;
     }
 
     public function getFinanceAdmins(): Collection
