@@ -31,7 +31,7 @@ import styles from './EventForm.module.css';
 import { Event, formatDateDisplay, formatTime } from 'Types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
-import { useBooking } from 'Utils/BookingProvider';
+import { BookingData, useBooking } from 'Utils/BookingProvider';
 import { X } from 'lucide-react';
 import FlightSearch from './FlightSearch';
 
@@ -51,6 +51,7 @@ const EventForm: React.FC<EventData> = ({ eventData, budget }) => {
 
     function handleBackClick() {
       	setContent(<Dashboard />, 'Dashboard');
+		setBookingData({} as BookingData);
     }
 
     if (!bookingData.event) {
@@ -68,7 +69,7 @@ const EventForm: React.FC<EventData> = ({ eventData, budget }) => {
 
 			<div className={styles.eventInfo}>
 				<h1>{bookingData.event.eventTitle}</h1>
-				<h2 className='h4'>{bookingData.event.organization}</h2>
+				<h2 className='h4'>{bookingData.event.organization.name}</h2>
 				<p>{formatDateDisplay(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
 			</div>
 
