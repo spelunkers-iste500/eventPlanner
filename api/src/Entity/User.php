@@ -435,6 +435,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users', cascade: ['all'])]
     #[ORM\JoinTable(name: 'users_flights')]
+    #[Groups([
+        'read:myEvents',
+        'user:read'
+    ])]
     private Collection $flights;
     /**
      * @param Collection $flights The flights the user has booked/held
