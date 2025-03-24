@@ -24,8 +24,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource(
-    normalizationContext: ['groups' => ['read:event'], "enable_max_depth" => true],
-    denormalizationContext: ['groups' => ['write:event'], "enable_max_depth" => true],
+    normalizationContext: ['groups' => ['read:event']],
+    denormalizationContext: ['groups' => ['write:event']],
 )]
 
 //Event.Admin.Create (WORKS)

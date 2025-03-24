@@ -55,7 +55,6 @@ class UserEvent
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
     #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
-    // #[MaxDepth(2)]
     private Event $event;
 
     public function getUser(): User
@@ -75,6 +74,12 @@ class UserEvent
     {
         $this->event = $event;
         return $this;
+    }
+
+    #[Groups(['read:myEvents'])]
+    public function getEventBudget(): ?Budget
+    {
+        return $this->event->getBudget();
     }
 
     #[ORM\Column]
