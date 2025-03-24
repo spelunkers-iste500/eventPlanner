@@ -21,11 +21,10 @@ const Dashboard: React.FC = () => {
     const { data: session } = useSession();
     const [acceptedEvents, setAcceptedEvents] = useState<Event[]>([]);
     const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
+    const [ loading, setLoading ] = useState(true);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-
-    const [ loading, setLoading ] = useState(true);
 
     const handleOpenDialog = (event: Event) => {
         setSelectedEvent(event);

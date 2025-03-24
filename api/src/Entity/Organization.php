@@ -25,7 +25,6 @@ use Ramsey\Uuid\Uuid;
 // TODO: implement filters to reduce the amount of data that
 // is returned to the user when searching for all organizations
 #[GetCollection(
-    security: "is_granted('ROLE_ADMIN')",
     denormalizationContext: ['groups' => ['org:collectionRead']],
     description: "Gets all organizations, requires admin role",
     normalizationContext: ['groups' => ['org:read:collection']]
@@ -94,7 +93,7 @@ class Organization
      * @var string $name the name of the organization
      */
     #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write'])]
+    #[Groups(['org:read', 'org:write', 'read:myEvents'])]
     private string $name;
 
     /**
