@@ -6,7 +6,6 @@ import { Event } from 'Types/events';
 export interface BookingData {
     event: Event;
     content: ReactNode;
-    budget: number;
     trip?: string;
     originAirport?: string;
     departDate?: string;

@@ -14,26 +14,7 @@ interface ViewEventModalProps {
 }
 
 const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose }) => {
-    const [ budgetPerAttendee, setBudgetPerAttendee ] = React.useState<number | null>(null);
     const { data: session } = useSession();
-
-    const getBudget = async (event: Event) => {
-		try {
-			const response = await axios.get(`/budgets/${event.id}`, { headers: { 'Authorization': `Bearer ${session?.apiToken}` } });
-
-            if (response.status === 200) {
-                setBudgetPerAttendee(Number(response.data.total) / event.maxAttendees);
-            }
-		} catch (error) {
-			console.error('Error fetching budget:', error);
-		}
-	}
-
-	useEffect(() => {
-		if (event) {
-            getBudget(event);
-        }
-	}, [event]);
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
@@ -62,7 +43,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose 
                         <div><TowerControl size={16}/><span className={styles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></div>
                         <div><PlaneTakeoff size={16}/><span>{formatDateDisplay(event?.startFlightBooking)} • {formatTime(event?.startFlightBooking)}</span></div>
                         <div><PlaneLanding size={16}/><span>{formatDateDisplay(event?.endFlightBooking)} • {formatTime(event?.endFlightBooking)}</span></div>
-                        <div><CircleDollarSign size={16}/><span>{budgetPerAttendee ? budgetPerAttendee : <Skeleton height='4' width='70%' />}</span></div>
+                        <div><CircleDollarSign size={16}/><span>${event?.budget.perUserTotal}/Attendee</span></div>
                     </div>
                 </div>
             </DialogBody>

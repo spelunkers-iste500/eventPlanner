@@ -1,6 +1,7 @@
 // Define types for the event data
 export interface Event {
     id: number;
+    budget: Budget;
     eventTitle: string;
     startDateTime: string; // date-time
     endDateTime: string; // date-time
@@ -35,16 +36,9 @@ export const formatDateSubmit = (date: Date | null) => {
     return date ? date.toISOString().split('T')[0] : '';
 };
 
-
-// Define types for the budget data
-export interface Budget {
+interface Budget {
     id: string;
-    total: string;
-    spentBudget: string;
-    vipBudget: string;
-    regBudget: string;
-    event: string;
-    organization: string;
+    perUserTotal: number;
 }
 
 export interface Organization {
