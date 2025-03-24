@@ -23,39 +23,23 @@ use Ramsey\Uuid\Uuid;
 #[ApiResource]
 // Access the budget through the org/event
 // this route should be used by the end user, who is 
-// viewing the budget they are allocated for the event.
-#[Get(
-    uriTemplate: '/organizations/{orgId}/events/{eventId}/budget/{id}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        ),
-        'eventId' => new Link(
-            fromClass: Event::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'event',
-            description: 'The ID of the event that owns the budget'
-        ),
-        'id' => 'id'
-    ],
-    normalizationContext: ['groups' => ['read:user:budget']],
-    security: 'is_granted("ROLE_USER")'
-)]
+// viewing the budget they are allocated for the event
+
+//User.Get.Budget
 #[Get(
     uriTemplate: '/budgets/{id}',
     normalizationContext: ['groups' => ['read:budget']],
     security: "is_granted('view', object)"
 )]
+
+//financial.admin.create
 #[Post(
     uriTemplate: '/budgets',
     denormalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
+
+//financial.admin.patch
 #[Patch(
     description: 'Get all budgets for an organization',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
@@ -76,6 +60,8 @@ use Ramsey\Uuid\Uuid;
     normalizationContext: ['groups' => ['read:budget']],
     security: "is_granted('ROLE_ADMIN')"
 )]*/
+
+//Fincial.Admin.View
 #[GetCollection(
     description: 'Get all budgets for an organization',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
