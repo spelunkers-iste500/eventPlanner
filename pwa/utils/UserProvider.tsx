@@ -33,8 +33,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         const fetchUser = async () => {
-            console.log('Fetching user data w/ session creds', session);
             if (session?.id) {
+                console.log('Fetching user data w/ session creds', session);
                 const cachedUser = localStorage.getItem('user');
                 const cachedSessionId = localStorage.getItem('sessionId');
 

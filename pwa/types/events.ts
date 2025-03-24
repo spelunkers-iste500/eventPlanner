@@ -1,6 +1,7 @@
 // Define types for the event data
 export interface Event {
     id: number;
+    budget: string;
     eventTitle: string;
     startDateTime: string; // date-time
     endDateTime: string; // date-time

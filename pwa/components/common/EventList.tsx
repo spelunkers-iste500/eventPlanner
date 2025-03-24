@@ -78,9 +78,10 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 	const getBudget = async (event: Event) => {
 		try {
 			console.log('fetching budget for event:', event);
-			const response = await axios.get(`/budgets/${event.id}`, { headers: { 'Authorization': `Bearer ${session?.apiToken}` } });
+			const response = await axios.get(event.budget, { headers: { 'Authorization': `Bearer ${session?.apiToken}` } });
 
             if (response.status === 200) {
+				console.log('Budget response:', response.data);
                 setBudgetPerAttendee(Number(response.data.total) / event.maxAttendees);
             }
 		} catch (error) {

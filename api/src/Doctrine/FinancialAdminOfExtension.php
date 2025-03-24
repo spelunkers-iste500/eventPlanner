@@ -19,17 +19,26 @@ final readonly class FinancialAdminOfExtension implements QueryCollectionExtensi
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
+        // _api_/organizations/{orgId}/budgets.{_format}_get_collection
+        if ($operation && $operation->getName() == '_api_/organizations/{orgId}/budgets.{_format}_get_collection') {
+            // Only apply this extension to the specific collection operation
+            return;
+        }
         // return only the users that are part of the organizations the user is a financial admin of
         if ($this->security->isGranted('ROLE_ADMIN')) { // allow superadmin
             return;
         }
         $user = $this->security->getUser();
-        if ($user === null) {
-            // throw new HttpExceptionInterface('User is not authenticated');
+        if ($user === null || !$user instanceof UserInterface) {
+            // No access for unauthenticated users
+            $queryBuilder->andWhere('1 = 0');
+            return;
         }
         // add where restriction to the query builder to filter users by the organizations the current user is a financial admin of
         if ($user instanceof UserInterface) {
-            $orgs = $this->uRepo->getFinancialAdminOrgs($user);
+            $fullUserObject = $this->uRepo->getUserByEmail($user->getUserIdentifier());
+            $orgs = $fullUserObject->getFinanceAdminOfOrg()->toArray();
+
             // if the uriVariables has an orgId, return that organization's members
             // only if that user is a financial admin of that organization
             if (isset($context['uriVariables']['orgId']) && (count($orgs) > 0)) {
