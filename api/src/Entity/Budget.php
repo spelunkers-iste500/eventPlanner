@@ -14,6 +14,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
+use PhpCsFixer\Tokenizer\Analyzer\Analysis\CaseAnalysis;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
@@ -116,7 +117,8 @@ class Budget
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public ?User $financialPlannerID;
 
-    #[ORM\OneToOne(targetEntity: Event::class)]
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade:["persist"])]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
     #[Groups(['read:budget', 'write:budget'])]
     public Event $event;
     public function getEvent(): Event
@@ -126,6 +128,7 @@ class Budget
     public function setEvent(Event $event): self
     {
         $this->event = $event;
+        $event->setBudget($this);
         return $this;
     }
 
