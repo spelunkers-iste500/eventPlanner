@@ -178,7 +178,7 @@ class Event
 
     //Relationships
     //Event -> Budget
-    #[ORM\OneToOne(targetEntity: Budget::class)]
+    #[ORM\OneToOne(targetEntity: Budget::class, mappedBy: 'event', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true)]
     #[Groups(['read:event', 'read:event:booking',  'read:event:collection', 'read:myEvents'])]
     public Budget $budget;
