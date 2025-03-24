@@ -100,6 +100,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     {
         return $this->id;
     }
+    public function __toString(): string
+    {
+        return $this->getId()->toString();
+    }
     /**
      * @return string $email The users email for logging in
      */
