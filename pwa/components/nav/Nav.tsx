@@ -26,7 +26,7 @@
 import React from 'react';
 import { signOut, useSession } from 'next-auth/react';
 import { useContent } from 'Utils/ContentProvider';
-import { LayoutDashboard, Settings2, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound } from 'lucide-react';
+import { LayoutDashboard, Settings2, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound, Network, HandCoins } from 'lucide-react';
 import Dashboard from '../dashboard/Dashboard';
 import Preferences from '../preferences/Preferences';
 import EventAdminDashboard from 'Components/eventAdmin/EventAdminDashboard';
@@ -49,12 +49,12 @@ const Nav: React.FC= () => {
         {
             name: 'Event Planner',
             content: <EventAdminDashboard />,
-            icon: <LayoutDashboard size={28} />
+            icon: <Network size={28} />
         },
         {
             name: 'Finance Planner',
             content: <FinancialAdminDashboard />,
-            icon: <LayoutDashboard size={28} />
+            icon: <HandCoins size={28} />
         },
         {
             name: 'Preferences',
