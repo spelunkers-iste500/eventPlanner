@@ -242,8 +242,51 @@ class EventTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Update Event");
         echo $executionMessage;
     }
-    
-    public function testDeleteEvent(): void
+    public function testaddAttendeeToEvent(): void
+    {
+        $startTime = microtime(true);
+        //create org
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "RIT"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org2, true);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
+        // create event
+        $event = EventFactory::createOne(['eventTitle' => 'Gavin Rager', 'organization' => $org]);
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
+
+        //try to update as reguar user should fail
+        $client->request('PATCH', "$eventiri/addAttendees", [
+            'json' => [
+                'attendees' => $user,
+            ],
+            'headers' => ['Content-Type' => 'application/merge-patch+json',],
+            'auth_bearer' => $jwttokenUser2['token']
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+
+        // Use the PATCH as superadmin
+        $client->request('PATCH', "$eventiri/addAttendees", [
+            'json' => [
+                'attendees' => $user,
+            ],
+            'headers' => ['Content-Type' => 'application/merge-patch+json',],
+            'auth_bearer' =>  $jwttoken['token']
+        ]);
+
+        $this->assertResponseIsSuccessful();
+
+        //endtime to terminal
+        $executionMessage = $this->calculateExecutionTime($startTime, "add Event attendee");
+        echo $executionMessage;
+    }
+
+        public function testDeleteEvent(): void
     {
         $startTime = microtime(true);
         //create org
