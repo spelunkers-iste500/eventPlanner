@@ -110,7 +110,7 @@ class Budget
      */
     public function getPerUserTotal(): float
     {
-        return (float) ($this->perUserTotal / 100);
+        return $this->perUserTotal / 100;
     }
     /**
      * @param float $perUserTotal The per user budget for the event, in dollars.cents "0.00"
@@ -156,10 +156,9 @@ class Budget
     #[Groups(['read:budget', 'user:read:budget'])]
     public function getBudgetTotal(): float|int
     {
-        // will multiply the perUserTotal by the number of users in the event
-        $countAttendees = count($this->event->getAttendees());
-        //return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees)); this does not return
-        return "TOTAL BUDGET";
+        $perUserTotal = ($this->perUserTotal / 100);
+        $attendeeCount = $this->event->getAttendees()->count();
+        return $perUserTotal * $attendeeCount;
     }
 
     #[Groups(['read:budget'])]
