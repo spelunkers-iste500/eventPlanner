@@ -75,7 +75,7 @@ class UserRepository extends ServiceEntityRepository
             ->join('ue.event', 'e')
             ->where((Uuid::isValid($id)) ? 'u.id = :id' : 'u.email = :email')
             ->andWhere('e.endDateTime >= :currentDate')
-            ->setParameter((($id)) ? 'id' : 'email', $id)
+            ->setParameter((Uuid::isValid($id)) ? 'id' : 'email', $id)
             ->setParameter('currentDate', new \DateTime())
             ->getQuery();
 
