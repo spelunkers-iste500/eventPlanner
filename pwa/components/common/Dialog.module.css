@@ -83,7 +83,7 @@
 	border-right: 2px solid var(--gray-200);
 }
 
-.dialog-details p {
+.dialog-details div {
 	display: flex;
 	align-items: center;
 	white-space: nowrap;
@@ -95,7 +95,7 @@
 	align-items: flex-start;
 }
 
-.dialog-details p span {
+.dialog-details div span {
 	width: 100%;
 }
 

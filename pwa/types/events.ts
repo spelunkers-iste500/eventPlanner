@@ -8,7 +8,7 @@ export interface Event {
     endFlightBooking: string; // date-time
     location: string;
     maxAttendees: number;
-    organization: string | null;
+    organization: Organization;
     attendees: string[];
     financeAdmins: string[];
     eventAdmins: string[];
@@ -45,4 +45,9 @@ export interface Budget {
     regBudget: string;
     event: string;
     organization: string;
+}
+
+export interface Organization {
+    id: number;
+    name: string;
 }
