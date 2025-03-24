@@ -31,16 +31,13 @@
 
 // Finally, the `EventList` component is exported as the default export of the module.
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import dialogStyles from "../common/Dialog.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
-import { Budget, Event } from "Types/events";
+import { Event } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
-import { DialogRoot, DialogBackdrop, DialogContent, DialogHeader, DialogTitle, DialogBody, Button, Skeleton } from "@chakra-ui/react";
-import axios from "axios";
 import { useSession } from "next-auth/react";
 
 interface EventListProps {
@@ -59,8 +56,6 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [budgetPerAttendee, setBudgetPerAttendee] = useState<number | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const { setContent } = useContent();
@@ -68,26 +63,11 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 
     const handleCardClick = (event: Event) => {
 		if (isBookCard) {
-			getBudget(event);
-			setContent(<EventForm eventData={event} budget={budgetPerAttendee ?? 0} />, event.eventTitle);
+			setContent(<EventForm eventData={event} />, event.eventTitle);
 		} else if (onOpenDialog) {
 			onOpenDialog(event);
 		}
     };
-
-	const getBudget = async (event: Event) => {
-		try {
-			console.log('fetching budget for event:', event);
-			const response = await axios.get(event.budget, { headers: { 'Authorization': `Bearer ${session?.apiToken}` } });
-
-            if (response.status === 200) {
-				console.log('Budget response:', response.data);
-                setBudgetPerAttendee(Number(response.data.total) / event.maxAttendees);
-            }
-		} catch (error) {
-			console.error('Error fetching budget:', error);
-		}
-	};
 
 	return (
 		<div className={`${styles.eventList}`}>

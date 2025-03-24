@@ -37,15 +37,14 @@ import FlightSearch from './FlightSearch';
 
 interface EventData {
   	eventData: Event;
-	budget: number;
 }
 
-const EventForm: React.FC<EventData> = ({ eventData, budget }) => {
+const EventForm: React.FC<EventData> = ({ eventData }) => {
     const { setContent } = useContent();
 	const { bookingData, setBookingData } = useBooking();
 
     useEffect(() => {
-        setBookingData({ event: eventData, content: <FlightSearch />, budget: budget });
+        setBookingData({ event: eventData, content: <FlightSearch /> });
     }, [eventData, setBookingData]);
     
 
