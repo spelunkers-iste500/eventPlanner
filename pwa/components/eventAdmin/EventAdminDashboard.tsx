@@ -2,6 +2,8 @@
 import React from "react";
 import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
+import CreateEventModal from "./CreateEventModal";
+import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "Types/events";
@@ -17,9 +19,10 @@ import { useState } from "react"
 // Defining the Dashboard component
 const Dashboard: React.FC = () => {
   // Using the useSession hook to get the current session data
+  const { user } = useUser();
   const { data: session } = useSession();
   // Defining a state variable to manage the accordion's value
-  const [value, setValue] = useState(["current-events"]);
+  const [value, setValue] = useState(["pending-events"]);
 
   // Filtering events into current and past events based on the current date
   const currentEvents = events.filter(event => new Date(event.startDateTime) > new Date());
@@ -27,15 +30,31 @@ const Dashboard: React.FC = () => {
 
   // Defining items for the accordion, including current events, past events, and members list
   const items = [
-    { value: "current-events", title: "Current Events", events: currentEvents },
-    { value: "past-events", title: "Past Events", events: pastEvents },
+    { value: "pending-events", title: "Events Pending Approval", events: currentEvents },
+    { value: "approved-events", title: "Approved Events", events: pastEvents },
     { value: "members-list", title: "Members List", events: [] },
   ]
+
+  const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+
+  const handleOpenCreateEventModal = () => {
+    setIsCreateEventModalOpen(true);
+  };
+
+  const handleCloseCreateEventModal = () => {
+      setIsCreateEventModalOpen(false);
+  };
+
+  const handleCreateEvent = (eventData: { eventTitle: string; startDateTime: Date; endDateTime: Date; location: string }) => {
+      // Handle event creation logic here
+      console.log('Event created:', eventData);
+      setIsCreateEventModalOpen(false);
+  };
 
   // Returning the JSX for the dashboard
   return (
     <div className={styles.plannerDashboardContainer}>
-      <h1>Welcome, {session?.user?.name}!</h1>
+      <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
       
       <div className={styles.infoContainer}>
         <div className={styles.orgInfoBox}>
@@ -76,7 +95,7 @@ const Dashboard: React.FC = () => {
               {item.value === "members-list" ? (
                 <MemberList members={members} />
               ) : item.events.length > 0 ? (
-                <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Current Events' && true} />
+                <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Events Pending Approval' && true} onAddEventClick={handleOpenCreateEventModal} />
               ) : (
                 <Text>No events available</Text>
               )}
@@ -85,6 +104,7 @@ const Dashboard: React.FC = () => {
         ))}
       </AccordionRoot>
     </Stack>
+      <CreateEventModal isOpen={isCreateEventModalOpen} onClose={handleCloseCreateEventModal} onSubmit={handleCreateEvent} />
     </div>
   );
 };
