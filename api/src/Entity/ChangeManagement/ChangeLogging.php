@@ -1,6 +1,9 @@
 <?php
 
 namespace App\Entity\ChangeManagement;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Rfc4122\UuidInterface;
+use Ramsey\Uuid\Uuid;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,15 +16,35 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: "change_logging")]
 class ChangeLogging
 {
-    /** Unique identifier for each change log entry.*/
-    #[ApiProperty(identifier: true)]
+    /**
+     * @var UuidInterface $id The user ID
+     */
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
+    #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
+    #[Groups(['user:read', 'user:read:offers', 'user:create', 'user:org:read'])]
     private $id;
+
+     /**
+     * @return UuidInterface The user ID
+     */
     public function getId(): UuidInterface | LazyUuidFromString
     {
         return $this->id;
+    }
+    /**
+     * @return uuid The user ID
+     */
+    public function getUuid(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    public function __toString(): string
+    {
+        return $this->getId()->toString();
+    }
+    public function setUuid(UuidInterface $id): void
+    {
+        $this->id = $id;
     }
     public function setId(UuidInterface $id): void
     {
@@ -55,6 +78,7 @@ class ChangeLogging
     /** Constructor to initialize log entry with user, before/after states, and changes.*/
     public function __construct(string $modifiedBy, string $operationType, array $beforeChange, array $afterChange, array $changes)
     {
+        $this->id = Uuid::uuid4();
         $this->createdDate = new \DateTime();
         $this->modifiedBy = $modifiedBy;
         $this->beforeChange = $beforeChange;
