@@ -20,12 +20,16 @@ class UserEventsTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function createUser(string $email, string $plainPassword, bool $superAdmin): User {
+    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org, bool $iseventadmin): User {
         $container = self::getContainer();
         $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
         $user->_save(); // Save the user after setting the password
+        if($iseventadmin){
+            $user->addEventAdminOfOrg($org);
+            $user->_save();
+        }
         return $user;
     }
     public function authenticateUser(string $email, string $password): array {
@@ -63,8 +67,8 @@ class UserEventsTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
@@ -119,6 +123,52 @@ class UserEventsTest extends ApiTestCase
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         $this->assertMatchesResourceCollectionJsonSchema(UserEvent::class);
         $executionMessage = $this->calculateExecutionTime($startTime, "get all my events");
+        echo $executionMessage;
+    }
+    public function testCreateUserEvent(): Void {
+        $startTime = microtime(true);
+        //create orgs
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true, $org, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org, false);
+        //usre iris
+        $user1iri = $this->findIriBy(User::class, ['id' => $user->getId()]);
+        $user2iri = $this->findIriBy(User::class, ['id' => $user2->getId()]);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
+        //create events 
+        $event = EventFactory::new()->createOne(['organization' => $org]);
+        $eventiri = $this->findIriBy(Event::class, ['id' => $event->getId()]);
+        //create budget
+        BudgetFactory::createOne(['organization' => $org, 'event' => $event]);
+        //test create user event as normal user 
+        $client = static::createClient();
+        //create event as regular user this should fail
+        $client->request('POST', "/user_events", [
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => [
+                "user"=> $user2iri,
+                "event"=> $eventiri
+            ],
+            'auth_bearer' => $jwttokenUser2['token']
+        ]);
+        $this->assertResponseStatusCodeSame(403);
+        //create event as event admin
+        /*
+        $client->request('POST', "/user_events", [
+            'headers' => ['Content-Type' => 'application/ld+json'],
+            'json' => [
+                "user"=> $user2iri,
+                "event"=> $eventiri
+            ],
+            'auth_bearer' => $jwttoken['token']
+        ]);
+        //$this->assertResponseStatusCodeSame(201);
+        
+        */
+        $executionMessage = $this->calculateExecutionTime($startTime, "create user events");
         echo $executionMessage;
     }
 }
