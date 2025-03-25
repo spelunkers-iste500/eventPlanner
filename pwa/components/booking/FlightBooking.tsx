@@ -31,20 +31,20 @@ import React, { useEffect, useState } from 'react';
 import { toaster } from 'Components/ui/toaster';
 import { useSession } from 'next-auth/react';
 import { useBooking } from 'Utils/BookingProvider';
-import Input from 'Components/common/Input';
 import axios from 'axios';
 import styles from './EventForm.module.css';
-import { Select } from 'chakra-react-select';
-import DatePicker from 'react-datepicker';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, User } from 'lucide-react';
 import FlightResults from './FlightResults';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
+import { useUser } from 'Utils/UserProvider';
+import { formatDateDisplay, formatTime } from 'Types/events';
 
 const FlightBooking = () => {
     const { bookingData, setBookingData } = useBooking();
     const { setContent } = useContent();
     const { data: session } = useSession();
+    const { user } = useUser();
 
     const onPrevious = () => {
 		setBookingData({ ...bookingData, content: <FlightResults /> });
@@ -94,17 +94,40 @@ const FlightBooking = () => {
         });
     };
 
+    const capitalize = (string: string | undefined): string => {
+        if (!string) return '';
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    };
+
     return (
         <form className={styles.bookingForm} onSubmit={handleSubmit}>
             <div className={styles.resultsHeader}>
                 <button className={`text-btn ${styles.backBtn}`} onClick={onPrevious}><ArrowLeft /> Back</button>
                 <div>
-                    <h2>Passenger Information</h2>
-                    <p>Fill out the form below to book your flight.</p>
+                    <h2>Confirm Booking</h2>
+                    <p>Verify all the listed information is correct.</p>
                 </div>
             </div>
 
-            <p>TEMP NOTE: This data is now collected on registration</p>
+            <div className={styles.bookingInfo}>
+                <div>
+                    <h3>Passenger Information</h3>
+                    <p><strong>Name:</strong> {user?.name}</p>
+                    <p><strong>Email:</strong> {user?.email}</p>
+                    <p><strong>Phone:</strong> {user?.phoneNumber}</p>
+                    <p><strong>Birthday:</strong> {formatDateDisplay(user?.birthday)}</p>
+                    <p><strong>Gender:</strong> {user?.gender === 'm' ? 'Male' : 'Female'}</p>
+                    <p><strong>Title:</strong> {capitalize(user?.title)}</p>
+                </div>
+                <div>
+                    <h3>Flight Information</h3>
+                    <p><strong>Trip:</strong> {bookingData.trip === 'round-trip' ? 'Round Trip' : 'One Way'}</p>
+                    <p><strong>Origin:</strong> {bookingData.originAirport}</p>
+                    <p><strong>Destination:</strong> {bookingData.destinationAirport}</p>
+                    <p><strong>Departure Date:</strong> {formatDateDisplay(bookingData.departDate)} • {formatTime(bookingData.selectedOffer?.slices[0].segments[0].departing_at)}</p>
+                    {bookingData.returnDate && <p><strong>Return Date:</strong> {formatDateDisplay(bookingData.returnDate)} • {formatTime(bookingData.selectedOffer?.slices[1].segments[0].departing_at)}</p>}
+                </div>
+            </div>
 
             <button type='submit'>Book Flight</button>
         </form>

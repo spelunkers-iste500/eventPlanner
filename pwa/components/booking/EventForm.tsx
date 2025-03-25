@@ -70,6 +70,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 				<h1>{bookingData.event.eventTitle}</h1>
 				<h2 className='h4'>{bookingData.event.organization.name}</h2>
 				<p>{formatDateDisplay(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
+				<p>Allowed Budget: ${bookingData.event.budget.perUserTotal}</p>
 			</div>
 
 			<div className={styles.formCard}>

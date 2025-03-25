@@ -113,6 +113,7 @@ const FlightResults: React.FC = () => {
                     <h2>Flight Results</h2>
                     {!loading ? <p>Displaying {displayedResults.length} of {flightResults.length} Results</p> : ''}
                 </div>
+                <p className={styles.overBudget}>*Offers in red are over budget</p>
             </div>
 
             <div className={`${styles.flightResults}`}>
@@ -126,7 +127,7 @@ const FlightResults: React.FC = () => {
                                     <div className={styles.flightDetails}>
                                         <div className={styles.flightInfo}>
                                         {offer.slices.map((slice: Slice, sliceIndex: number) => (
-                                                <>
+                                                <div key={sliceIndex}>
                                                 {slice.segments.map((segment: Segment, segmentIndex: number) => {
                                                     const departureDate = parseISO(segment.departing_at);
                                                     const arrivalDate = parseISO(segment.arriving_at);
@@ -153,7 +154,7 @@ const FlightResults: React.FC = () => {
                                                         </div>
                                                     );
                                                 })}
-                                                </>
+                                                </div>
                                             ))}
                                         </div>
                                         <div className={styles.flightPriceInfo}>
