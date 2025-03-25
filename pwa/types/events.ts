@@ -42,6 +42,7 @@ interface Budget {
 }
 
 export interface Organization {
-    id: number;
+    id: string;
+    type: string;
     name: string;
 }
