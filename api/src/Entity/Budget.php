@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
 use PhpCsFixer\Tokenizer\Analyzer\Analysis\CaseAnalysis;
@@ -77,6 +78,12 @@ use Ramsey\Uuid\Uuid;
     ],
     normalizationContext: ['groups' => ['read:budget']],
 )]
+
+#[Delete(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/budget/{id}.{_format}',
+)]
+
 /** 
  * An events budget, a subresource of events
  * Viewable by finance admins, org admins, and the user can only see allocated per person budget.
@@ -99,7 +106,7 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
     /**
      * The per user budget for an event.
      */
@@ -153,7 +160,6 @@ class Budget
         return $this;
     }
 
-    #[Groups(['read:budget', 'user:read:budget'])]
     public function getBudgetTotal(): float|int
     {
         $perUserTotal = ($this->perUserTotal / 100);

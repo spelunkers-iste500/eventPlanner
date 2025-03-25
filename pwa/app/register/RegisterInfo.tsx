@@ -37,9 +37,6 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
         if (orgCode) {
             setFormData((prevData) => ({ ...prevData, orgCode }));
         }
-        if (email) {
-            setFormData((prevData) => ({ ...prevData, email }));
-        }
     }, [searchParams]);
 
     const handleChange = (field: string, value: string) => {
@@ -142,7 +139,6 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
                 placeholder="Enter your email"
                 defaultValue={formData.email}
                 onChange={(value) => handleChange('email', value)}
-                disabled={!!searchParams.get('email')}
             />
 
             <div className={styles.twoColForm}>
