@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
 use PhpCsFixer\Tokenizer\Analyzer\Analysis\CaseAnalysis;
@@ -42,17 +43,9 @@ use Ramsey\Uuid\Uuid;
 
 //financial.admin.patch
 #[Patch(
-    description: 'Get all budgets for an organization',
-    uriTemplate: '/organizations/{orgId}/budgets.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the budget'
-        )
-    ],
+    description: 'update a budget for an organization',
+    uriTemplate: '/budgets/{id}.{_format}',
+    security: "is_granted('edit', object)",
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
@@ -77,6 +70,12 @@ use Ramsey\Uuid\Uuid;
     ],
     normalizationContext: ['groups' => ['read:budget']],
 )]
+
+#[Delete(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/budgets/{id}.{_format}',
+)]
+
 /** 
  * An events budget, a subresource of events
  * Viewable by finance admins, org admins, and the user can only see allocated per person budget.
@@ -99,7 +98,7 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
     /**
      * The per user budget for an event.
      */
@@ -110,7 +109,7 @@ class Budget
      */
     public function getPerUserTotal(): float
     {
-        return (float) ($this->perUserTotal / 100);
+        return $this->perUserTotal / 100;
     }
     /**
      * @param float $perUserTotal The per user budget for the event, in dollars.cents "0.00"
@@ -140,7 +139,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
+    #[Groups(['read:budget', 'user:read:budget'])] //should we be able to change events for a budget? 'write:budget'
     public Event $event;
     public function getEvent(): Event
     {
@@ -153,22 +152,20 @@ class Budget
         return $this;
     }
 
-    #[Groups(['read:budget', 'user:read:budget'])]
     public function getBudgetTotal(): float|int
     {
-        // will multiply the perUserTotal by the number of users in the event
-        $countAttendees = count($this->event->getAttendees());
-        //return bcadd($this->perUserTotal, bcmul($this->perUserTotal, $countAttendees)); this does not return
-        return "TOTAL BUDGET";
+        $perUserTotal = ($this->perUserTotal / 100);
+        $attendeeCount = $this->event->getAttendees()->count();
+        return $perUserTotal * $attendeeCount;
     }
 
     #[Groups(['read:budget'])]
     public function getSpentBudget(): string
     {
         // will sum the total spent on flights for the event
-        $spent = "0.00";
+        $spent = 0;
         foreach ($this->event->getFlights() as $flight) {
-            $spent = bcadd($spent, $flight->getPrice());
+            $spent += $flight->getFlightCost();
         }
         return $spent;
     }

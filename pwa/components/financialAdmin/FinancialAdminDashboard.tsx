@@ -184,12 +184,12 @@ const FinancialAdminDashboard: React.FC = () => {
             <DialogBackdrop />
             <DialogContent className={dialogStyles.dialogContent}>
                 <DialogHeader>
-          <div className={dialogStyles.dialogHeader}>
-              <div>
-                  <DialogTitle>Export CSV</DialogTitle>
-              </div>
-              <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
-          </div>
+                  <div className={dialogStyles.dialogHeader}>
+                      <div>
+                          <DialogTitle>Export CSV</DialogTitle>
+                      </div>
+                      <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
+                  </div>
                 </DialogHeader>
                 <DialogBody className={dialogStyles.dialogBody}>
                   <div className={styles.exportCSVContainer}>

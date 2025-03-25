@@ -43,106 +43,107 @@ import { useSession } from "next-auth/react";
 interface EventListProps {
     heading: string;
     events: Event[];
-	classes?: string;
-	hasAddBtn?: boolean;
-	isFinance?: boolean;
-	onOpenDialog?: (event: Event) => void;
+    classes?: string;
+    hasAddBtn?: boolean;
+    isFinance?: boolean;
+    onOpenDialog?: (event: Event) => void;
+    onAddEventClick?: () => void; // Add this line
 }
 
-const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance, onOpenDialog }) => {
-	const isBookCard = heading === "Event Invitations";
-	const pendingEvent = heading === "Events Pending Approval";
-	const buttonText = isFinance ? (pendingEvent ? "Set Budget" : "View Budget") : isBookCard ? "Book Now" : "View More";
-	const [searchTerm, setSearchTerm] = useState("");
-	const [isExpanded, setIsExpanded] = useState(false);
-	const [reverseSorting, setReverseSorting] = useState(false);
-	const inputRef = useRef<HTMLInputElement>(null);
+const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance, onOpenDialog, onAddEventClick }) => {
+    const isBookCard = heading === "Event Invitations";
+    const pendingEvent = heading === "Events Pending Approval";
+    const buttonText = isFinance ? (pendingEvent ? "Set Budget" : "View Budget") : isBookCard ? "Book Now" : "View More";
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [reverseSorting, setReverseSorting] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-	const { setContent } = useContent();
-	const { data: session } = useSession();
+    const { setContent } = useContent();
+    const { data: session } = useSession();
 
     const handleCardClick = (event: Event) => {
-		if (isBookCard) {
-			setContent(<EventForm eventData={event} />, event.eventTitle);
-		} else if (onOpenDialog) {
-			onOpenDialog(event);
-		}
+        if (isBookCard) {
+            setContent(<EventForm eventData={event} />, event.eventTitle);
+        } else if (onOpenDialog) {
+            onOpenDialog(event);
+        }
     };
 
-	return (
-		<div className={`${styles.eventList}`}>
+    return (
+        <div className={`${styles.eventList}`}>
             <div className={styles.eventListHeader}>
                 <h2>{heading}</h2>
 
-				<div className={styles.eventListButtons}>
-					{/* Search Bar Wrapper */}
-					<div className={`${styles.searchWrapper} ${isExpanded ? styles.expanded : ""}`}>
-						<input
-							ref={inputRef}
-							className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
-							onFocus={() => setIsExpanded(true)}
-							onBlur={() => searchTerm === "" && setIsExpanded(false)}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							type="text"
-							placeholder="Search"
-							value={searchTerm}
-						/>
-	
-							<button
-								aria-label="Search"
-								className={styles.iconWrapper}
-								onClick={isExpanded ? () => {
-									setIsExpanded(false);
-									setSearchTerm("") 
-								} : () => {
-									setIsExpanded(true)
-									inputRef.current?.focus();
-								}}
-							>
-								{!isExpanded ? (
-									<Search size={20} />
-								) : (
-									<XCircle size={20} />
-								)}
-							</button>
-					</div>
-	
-					{/* Sort Button */}
-					<button
-						className={styles.iconWrapper}
-						aria-label="Sort"
-						onClick={() => setReverseSorting(!reverseSorting)}
-					>
-						{reverseSorting ? (
-							<ArrowUpWideNarrow size={20} />
-						) : (
-							<ArrowDownWideNarrow size={20} />
-						)}
-					</button>
-				</div>
-			</div>
-			<div className={`${styles.eventCardRow} ${reverseSorting ? styles.reverse : ""} ${classes}`}>
-				{/* if hasAddBtn is true, render a card with a button to add a new event */}
-				{hasAddBtn && (
-					<div className={styles.addEventCard} onClick={() => void 0}>
-						<div className={styles.addEventBox}>
-						<Plus size={36} className={styles.plusIcon} />
-					</div>
-				</div>
-				)}
-				{events.length === 0 && <p className={styles.noResults}>No events found.</p>}
-				{events.filter((event) => event.eventTitle.toLowerCase().includes(searchTerm.toLowerCase())).map((event) => (
-					<Card
-						key={event.id}
-						event={event}
-						buttonText={buttonText}
-						isFinance={isFinance}
-						onClick={() => handleCardClick(event)}
-					/>
-				))}
-			</div>
-		</div>
-  	);
+                <div className={styles.eventListButtons}>
+                    {/* Search Bar Wrapper */}
+                    <div className={`${styles.searchWrapper} ${isExpanded ? styles.expanded : ""}`}>
+                        <input
+                            ref={inputRef}
+                            className={`${styles.searchInput} ${isExpanded ? styles.visible : ""}`}
+                            onFocus={() => setIsExpanded(true)}
+                            onBlur={() => searchTerm === "" && setIsExpanded(false)}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            type="text"
+                            placeholder="Search"
+                            value={searchTerm}
+                        />
+
+                        <button
+                            aria-label="Search"
+                            className={styles.iconWrapper}
+                            onClick={isExpanded ? () => {
+                                setIsExpanded(false);
+                                setSearchTerm("")
+                            } : () => {
+                                setIsExpanded(true)
+                                inputRef.current?.focus();
+                            }}
+                        >
+                            {!isExpanded ? (
+                                <Search size={20} />
+                            ) : (
+                                <XCircle size={20} />
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Sort Button */}
+                    <button
+                        className={styles.iconWrapper}
+                        aria-label="Sort"
+                        onClick={() => setReverseSorting(!reverseSorting)}
+                    >
+                        {reverseSorting ? (
+                            <ArrowUpWideNarrow size={20} />
+                        ) : (
+                            <ArrowDownWideNarrow size={20} />
+                        )}
+                    </button>
+                </div>
+            </div>
+            <div className={`${styles.eventCardRow} ${reverseSorting ? styles.reverse : ""} ${classes}`}>
+                {/* if hasAddBtn is true, render a card with a button to add a new event */}
+                {hasAddBtn && (
+                    <div className={styles.addEventCard} onClick={onAddEventClick}>
+                        <div className={styles.addEventBox}>
+                            <Plus size={36} className={styles.plusIcon} />
+                        </div>
+                    </div>
+                )}
+                {events.length === 0 && <p className={styles.noResults}>No events found.</p>}
+                {events.filter((event) => event.eventTitle.toLowerCase().includes(searchTerm.toLowerCase())).map((event) => (
+                    <Card
+                        key={event.id}
+                        event={event}
+                        buttonText={buttonText}
+                        isFinance={isFinance}
+                        onClick={() => handleCardClick(event)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
 };
 
 export default EventList;
