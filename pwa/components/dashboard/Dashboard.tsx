@@ -69,7 +69,7 @@ const Dashboard: React.FC = () => {
 
   	return (
 		<div className={styles.dashboardContainer}>
-			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
+			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>;
 			<EventList heading="Event Invitations" events={pendingEvents} />
             <EventList heading="Your Events" events={acceptedEvents} onOpenDialog={handleOpenDialog} />
 
