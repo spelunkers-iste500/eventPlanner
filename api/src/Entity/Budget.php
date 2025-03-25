@@ -43,17 +43,9 @@ use Ramsey\Uuid\Uuid;
 
 //financial.admin.patch
 #[Patch(
-    description: 'Get all budgets for an organization',
-    uriTemplate: '/organizations/{orgId}/budgets.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the budget'
-        )
-    ],
+    description: 'update a budget for an organization',
+    uriTemplate: '/budgets/{id}.{_format}',
+    security: "is_granted('edit', object)",
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
@@ -147,7 +139,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
+    #[Groups(['read:budget', 'user:read:budget'])] //should we be able to change events for a budget? 'write:budget'
     public Event $event;
     public function getEvent(): Event
     {
