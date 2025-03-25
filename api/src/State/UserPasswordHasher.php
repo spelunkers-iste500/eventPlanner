@@ -8,6 +8,7 @@ use ApiPlatform\State\ProcessorInterface;
 use App\State\LoggerStateProcessor;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Entity\User;
+use App\Repository\OrganizationInviteRepository;
 use App\Repository\UserEventRepository;
 
 /**
@@ -19,7 +20,9 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         private ProcessorInterface $processor,
         private UserPasswordHasherInterface $passwordHasher,
         private LoggerStateProcessor $changeLogger,
-        private UserEventRepository $userEventRepository
+        private UserEventRepository $userEventRepository,
+        private OrganizationInviteState $orgInviteState,
+        private OrganizationInviteRepository $orgInviteRepository
     ) {}
 
     /**
@@ -42,6 +45,24 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         $processedUser = $this->processor->process($data, $operation, $uriVariables, $context);
         // after the user gets persisted, we need to add them to the events related to the optional invite code
         $inviteCode = $data->getUserEventId();
+        // on create getOrganizationInvites() should return exactly one OrganizationInvite
+        $orgInvite = $data->getOrganizationInvites();
+        if ($orgInvite->count() >= 2) {
+            throw new \Exception('User must have exactly zero or one OrganizationInvite');
+        } else if ($orgInvite->count() === 1) {
+            $orgInvite = $orgInvite->first();
+        } else {
+            $orgInvite = null;
+        }
+        $allowedOrganizationInvites = $this->orgInviteRepository->findBy(['expectedEmail' => $data->getEmail()]);
+        if ($orgInvite) {
+            // check to see if orgInvite is in the allowedOrganizationInvites
+            if (in_array($orgInvite, $allowedOrganizationInvites)) {
+                $orgInvite->setAccepted(true);
+                $orgInvite->setInvitedUser($processedUser);
+                $this->orgInviteState->process($orgInvite, $operation, $uriVariables, $context);
+            }
+        } else
         if ($inviteCode) {
             $userEvent = $this->userEventRepository->getUserEventById($inviteCode);
             if ($userEvent) {

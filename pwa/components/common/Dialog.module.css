@@ -156,3 +156,63 @@
 	align-items: center;
 	gap: 0.25rem;
 }
+
+.file-upload {
+	width: fit-content;
+}
+
+.file-upload-trigger {
+	background: none;
+	border: 2px solid var(--blue-500);
+	color: var(--blue-500);
+	line-height: 0.8;
+	width: fit-content;
+
+	&:hover {
+		background: var(--blue-500);
+		color: white;
+	}
+}
+
+.file-upload:hover svg {
+	stroke: var(--white);
+}
+
+.file-upload-trigger.has-file {
+	padding: 0.5rem 2rem;
+    height: fit-content;
+
+	&:hover {
+		background: none;
+		color: var(--blue-500);
+	}
+}
+
+.file-upload svg {
+    width: 16px;
+    height: 16px;
+    margin-left: 0.5rem;
+	stroke: var(--blue-500);
+	transition: all 0.3s ease;
+}
+
+.file-upload-clear {
+	background: none;
+	border: none;
+	color: var(--blue-700);
+
+	&:hover {
+		color: var(--black);
+		background: none;
+	}
+}
+
+.file-upload-clear:hover svg {
+	stroke: var(--black);
+}
+
+.file-upload-clear svg {
+	stroke: var(--blue-700);
+	margin: 0;
+	transition: all 0.1s ease;
+}

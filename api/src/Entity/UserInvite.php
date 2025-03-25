@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata as API;
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\Link;
 use App\State\UserInviteState;
 use Symfony\Component\Serializer\Attribute\Groups;
