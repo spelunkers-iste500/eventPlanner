@@ -508,6 +508,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventadmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_event_admins')]
+    #[Groups(['user:read'])]
     private Collection $eventAdminOfOrg;
 
     /**
@@ -658,6 +659,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Groups(['user:create'])]
     private ?string $userEventId = null;
 
+    /**
+     * @var Collection<int, OrganizationInvite>
+     */
+    #[ORM\OneToMany(mappedBy: 'invitedUser', targetEntity: OrganizationInvite::class)]
+    #[Groups('user:create')]
+    private Collection $organizationInvites;
+
     public function getUserEventId(): ?string
     {
         return $this->userEventId;
@@ -722,9 +730,40 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->flights = $flights;
         $this->eventsAttending = $eventsAttending;
         $this->financeAdminOfOrg = $financeAdminOfOrg;
+        $this->organizationInvites = new ArrayCollection();
     }
     public function eraseCredentials(): void
     {
         $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, OrganizationInvite>
+     */
+    public function getOrganizationInvites(): Collection
+    {
+        return $this->organizationInvites;
+    }
+
+    public function addOrganizationInvite(OrganizationInvite $organizationInvite): static
+    {
+        if (!$this->organizationInvites->contains($organizationInvite)) {
+            $this->organizationInvites->add($organizationInvite);
+            $organizationInvite->setInvitedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizationInvite(OrganizationInvite $organizationInvite): static
+    {
+        if ($this->organizationInvites->removeElement($organizationInvite)) {
+            // set the owning side to null (unless already changed)
+            if ($organizationInvite->getInvitedUser() === $this) {
+                $organizationInvite->setInvitedUser(null);
+            }
+        }
+
+        return $this;
     }
 }

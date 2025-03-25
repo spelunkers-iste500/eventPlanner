@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -36,9 +37,19 @@ use Ramsey\Uuid\Uuid;
 
 //financial.admin.create
 #[Post(
-    uriTemplate: '/budgets',
+    uriTemplate: '/events/{eventID}/budgets/.{_format}',
     denormalizationContext: ['groups' => ['write:budget']],
-    processor: LoggerStateProcessor::class
+    uriVariables: [
+        'eventID' => new Link(
+            fromClass: Event::class,
+            fromProperty: 'id',
+            toClass: Budget::class,
+            toProperty: 'event',
+            description: 'The ID of the event that'
+        )
+    ],
+    securityPostDenormalize: "is_granted('edit', object)"
+    //processor: LoggerStateProcessor::class
 )]
 
 //financial.admin.patch
@@ -46,8 +57,8 @@ use Ramsey\Uuid\Uuid;
     description: 'update a budget for an organization',
     uriTemplate: '/budgets/{id}.{_format}',
     security: "is_granted('edit', object)",
-    normalizationContext: ['groups' => ['write:budget']],
-    processor: LoggerStateProcessor::class
+    denormalizationContext: ['groups' => ['replace:budget']],
+    //processor: LoggerStateProcessor::class GAVIN OR GEORGE MUST FIX ME
 )]
 /**#[GetCollection(
     uriTemplate: '/budgets',
@@ -98,7 +109,8 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget'])]
+    #[MaxDepth(1)]
     /**
      * The per user budget for an event.
      */
@@ -139,7 +151,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'user:read:budget'])] //should we be able to change events for a budget? 'write:budget'
+    #[Groups(['read:budget', 'user:read:budget', 'write:budget'])] //should we be able to change events for a budget?
     public Event $event;
     public function getEvent(): Event
     {

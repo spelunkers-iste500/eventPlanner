@@ -2,7 +2,7 @@ import { DialogHeader, DialogBody, DialogTitle, Button, Skeleton, CloseButton, F
 import axios from 'axios';
 import BaseDialog from 'Components/common/BaseDialog';
 import { X, MapPin, Calendar } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import styles from '../common/Dialog.module.css';
@@ -32,47 +32,38 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, on
         if (eventImage) {
             console.log(`Image received: ${eventImage.name}`);
         }
-    };
+    };  
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
-            <DialogHeader>
+            <DialogHeader className={styles.dialogHeader}>
                 <DialogTitle>Create Event</DialogTitle>
+                    <button className={styles.dialogClose} onClick={onClose}><X /></button>
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
-                <div className='input-container'>
-                    <Button className={styles.dialogClose} onClick={onClose}><X /></Button>
-                </div>
 
                 <div className='input-container'>
                     <label className='input-label'>Event Image</label>
-                    <FileUpload.Root gap="1" maxWidth="300px" maxFiles={1}>
+                    <FileUpload.Root className={styles.fileUpload} gap="1" maxWidth="300px" maxFiles={1}>
                         <FileUpload.HiddenInput onChange={(e) => setEventImage(e.target.files?.[0] || null)} />
                         <InputGroup
                             startElement={<LuFileUp />}
                             endElement={
                                 <FileUpload.ClearTrigger asChild>
                                     <CloseButton
-                                        me="-1"
                                         size="xs"
-                                        variant="plain"
-                                        focusVisibleRing="inside"
-                                        focusRingWidth="2px"
-                                        pointerEvents="auto"
+                                        className={styles.fileUploadClear}
                                     />
                                 </FileUpload.ClearTrigger>
                             }
                         >
                             <Input asChild>
-                                <FileUpload.Trigger>
-                                    <FileUpload.FileText lineClamp={1} />
-                                    {/*<span>Select File</span>
-
-
-                                    Need to figure out way to remove exisiting button text because it says "File(s)" and user cannot upload more than 1
-
-
-                                     */}
+                                <FileUpload.Trigger className={`${styles.fileUploadTrigger} ${eventImage ? styles.hasFile : ''}`} asChild>
+                                    {eventImage ? (
+                                        <FileUpload.FileText className={styles.fileUploadTexts} />
+                                    ) : (
+                                        <button>Upload File</button>
+                                    )}
                                 </FileUpload.Trigger>
                             </Input>
                         </InputGroup>

@@ -120,13 +120,13 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionMessage = $this->calculateExecutionTime($startTime, "Get all Budgets");
         echo $executionMessage;
      }    
-     /*public function testCreateBudget(): void
+     public function testCreateBudget(): void
      {
         $startTime = microtime(true);
         //create org
         $org = OrganizationFactory::createOne(['name' => 'ITS']);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true, $org, true);
         $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
@@ -170,7 +170,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertMatchesResourceItemJsonSchema(Budget::class);
         $executionMessage = $this->calculateExecutionTime($startTime, "Create Budget");
         echo $executionMessage;
-     }*/
+     }
     public function testGetBudget(): void{
         $startTime = microtime(true);
         //create org
@@ -208,7 +208,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionMessage = $this->calculateExecutionTime($startTime, "Get a Budget");
         echo $executionMessage;
     }
-    /*
+    
     public function testUpdateBudget(): void
     {
         $startTime = microtime(true);
@@ -254,7 +254,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         //ending message
         $executionMessage = $this->calculateExecutionTime($startTime, "Update Budget");
         echo $executionMessage;
-    }*/
+    }
 
     public function testDeleteBudget(): void
     {
