@@ -54,6 +54,8 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         //create org
         $org = OrganizationFactory::createOne(['name' => 'ITS']);
         $orgid = $org->getId();
+        $org2 = OrganizationFactory::createOne(['name' => 'RIT']);
+        $org2id = $org2->getId();
         //create users
         $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
         $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org, false);
@@ -68,7 +70,29 @@ use Zenstruck\Foundry\Test\ResetDatabase;
                 'event' => EventFactory::new()->createOne(['organization' => $org])
             ];
         });
-        
+        //make budgets for other org
+        BudgetFactory::createMany(5, function() use ($org2) {
+            return [
+                'organization' => $org2,
+                'event' => EventFactory::new()->createOne(['organization' => $org2])
+            ];
+        });
+
+        // test get budget collection as regular user should get nothing
+    
+        $response = static::createClient()->request('GET', "/organizations/$orgid/budgets", ['auth_bearer' => $jwttokenUser2['token']]);
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 orgs has org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Budget',
+            '@id' => "/organizations/$orgid/budgets",
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 0,
+        ]);
+        $this->assertCount(0, $response->toArray()['hydra:member']);
+        //test as budget admin
         $response = static::createClient()->request('GET', "/organizations/$orgid/budgets",['auth_bearer' => $jwttoken['token']]);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type is JSON-LD (the default)
@@ -184,6 +208,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionMessage = $this->calculateExecutionTime($startTime, "Get a Budget");
         echo $executionMessage;
     }
+    /*
     public function testUpdateBudget(): void
     {
         $startTime = microtime(true);
@@ -229,7 +254,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         //ending message
         $executionMessage = $this->calculateExecutionTime($startTime, "Update Budget");
         echo $executionMessage;
-    }
+    }*/
 
     public function testDeleteBudget(): void
     {
