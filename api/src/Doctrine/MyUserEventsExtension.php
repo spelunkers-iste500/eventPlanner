@@ -28,7 +28,7 @@ final readonly class MyUserEventsExtension implements QueryCollectionExtensionIn
         // if ($operation && $operation-> !== '/organizations/{orgId}/events/.{_format}') {
         //     return;
         // }
-        if ($operation && $operation->getName() !== '_api_/my/events.{_format}_get_collection') {
+        if ($operation && ($operation->getName() !== '_api_/my/events.{_format}_get_collection' || $operation->getName() !== '_api_/my/organizations/events.{_format}_get_collection')) {
             return;
         } else if ($user === null || !$user instanceof UserInterface) {
             // No access for unauthenticated users
@@ -36,9 +36,11 @@ final readonly class MyUserEventsExtension implements QueryCollectionExtensionIn
             return;
         } else if ($this->security->isGranted('ROLE_ADMIN')) {
             return;
+        } else if ($operation->getName() !== '_api_/my/organizations/events.{_format}_get_collection') {
+            $userObj = $this->userRepo->findOneBy(['email' => $user->getUserIdentifier()]);
+            $queryBuilder->andWhere(':organization MEMBER OF o.organizations')->setParameter('organization', $userObj->getEventAdminOfOrg());
         } else {
             $queryBuilder->andWhere(':user = o.user')->setParameter('user', $user);
-            $this->logger->info('Query: ' . $queryBuilder->getQuery()->getSQL());
         }
     }
 }

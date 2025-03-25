@@ -88,7 +88,7 @@ class EventTest extends ApiTestCase
         $executionMessage = $this->calculateExecutionTime($startTime, "Get All Events");
         echo $executionMessage;
     }*/
-    public function testGetOrganizationCollection(): void
+    public function testGetEventCollection(): void
     {
         $startTime = microtime(true);
         //create orgs

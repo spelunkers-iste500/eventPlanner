@@ -204,6 +204,7 @@ class Organization
             )
         );
     }
+
     public function addEventAdmin(User $user): self
     {
         if (!$this->eventadmins->contains($user)) {
@@ -246,6 +247,12 @@ class Organization
     #[Groups(['org:read', 'org:write'])]
     private Collection $financeAdmins;
 
+    /**
+     * @var Collection<int, OrganizationInvite>
+     */
+    #[ORM\OneToMany(mappedBy: 'organization', targetEntity: OrganizationInvite::class, orphanRemoval: true)]
+    private Collection $organizationInvites;
+
     public function getFinanceAdmins(): Collection
     {
         return new ArrayCollection(
@@ -281,5 +288,36 @@ class Organization
         $this->financeAdmins = new ArrayCollection();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->organizationInvites = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, OrganizationInvite>
+     */
+    public function getOrganizationInvites(): Collection
+    {
+        return $this->organizationInvites;
+    }
+
+    public function addOrganizationInvite(OrganizationInvite $organizationInvite): static
+    {
+        if (!$this->organizationInvites->contains($organizationInvite)) {
+            $this->organizationInvites->add($organizationInvite);
+            $organizationInvite->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrganizationInvite(OrganizationInvite $organizationInvite): static
+    {
+        if ($this->organizationInvites->removeElement($organizationInvite)) {
+            // set the owning side to null (unless already changed)
+            if ($organizationInvite->getOrganization() === $this) {
+                $organizationInvite->setOrganization(null);
+            }
+        }
+
+        return $this;
     }
 }
