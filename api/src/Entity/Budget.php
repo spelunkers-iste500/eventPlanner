@@ -73,7 +73,7 @@ use Ramsey\Uuid\Uuid;
 
 #[Delete(
     security: "is_granted('edit', object)",
-    uriTemplate: '/budget/{id}.{_format}',
+    uriTemplate: '/budgets/{id}.{_format}',
 )]
 
 /** 
