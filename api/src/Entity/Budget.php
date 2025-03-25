@@ -46,7 +46,7 @@ use Ramsey\Uuid\Uuid;
     description: 'update a budget for an organization',
     uriTemplate: '/budgets/{id}.{_format}',
     security: "is_granted('edit', object)",
-    normalizationContext: ['groups' => ['write:budget']],
+    normalizationContext: ['groups' => ['replace:budget']],
     processor: LoggerStateProcessor::class
 )]
 /**#[GetCollection(
@@ -98,7 +98,7 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget'])]
     /**
      * The per user budget for an event.
      */
@@ -139,7 +139,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'user:read:budget'])] //should we be able to change events for a budget? 'write:budget'
+    #[Groups(['read:budget', 'user:read:budget', 'write:budget'])] //should we be able to change events for a budget?
     public Event $event;
     public function getEvent(): Event
     {
