@@ -14,10 +14,19 @@ use Doctrine\ORM\Mapping as ORM;
 class ChangeLogging
 {
     /** Unique identifier for each change log entry.*/
+    #[ApiProperty(identifier: true)]
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column(type: "integer")]
-    private ?int $changeID = null;
+    #[ORM\Column(name: 'id', type: 'uuid')]
+    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
+    private $id;
+    public function getId(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
 
     /** Timestamp of when the log entry was created.*/
     #[ORM\Column(type: "datetime")]
