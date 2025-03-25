@@ -43,17 +43,9 @@ use Ramsey\Uuid\Uuid;
 
 //financial.admin.patch
 #[Patch(
-    description: 'Get all budgets for an organization',
-    uriTemplate: '/organizations/{orgId}/budgets.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the budget'
-        )
-    ],
+    security: "is_granted('edit', object)",
+    description: 'update a budget for an organization',
+    uriTemplate: '/budgets/{id}.{_format}',
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
@@ -81,7 +73,7 @@ use Ramsey\Uuid\Uuid;
 
 #[Delete(
     security: "is_granted('edit', object)",
-    uriTemplate: '/budget/{id}.{_format}',
+    uriTemplate: '/budgets/{id}.{_format}',
 )]
 
 /** 
