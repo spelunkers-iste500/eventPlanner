@@ -29,8 +29,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
-    normalizationContext: ['groups' => ['user:read']],
-    processor: LoggerStateProcessor::class
+    normalizationContext: ['groups' => ['user:read']]
 )]
 //User.Create --This is working how I expect so far
 #[Post(
@@ -84,7 +83,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
-    #[Groups(['user:read', 'user:write', 'user:read:offers', 'user:create', 'user:org:read'])]
+    #[Groups(['user:read', 'user:read:offers', 'user:create', 'user:org:read'])]
     private $id;
 
     /**
@@ -100,6 +99,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function getUuid(): UuidInterface | LazyUuidFromString
     {
         return $this->id;
+    }
+    public function __toString(): string
+    {
+        return $this->getId()->toString();
     }
     /**
      * @return string $email The users email for logging in
@@ -432,6 +435,10 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\ManyToMany(targetEntity: Flight::class, inversedBy: 'users', cascade: ['all'])]
     #[ORM\JoinTable(name: 'users_flights')]
+    #[Groups([
+        'read:myEvents',
+        'user:read'
+    ])]
     private Collection $flights;
     /**
      * @param Collection $flights The flights the user has booked/held
@@ -449,12 +456,11 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @var Collection $adminOfEvents The events the user is attending
-     * Added on the event side. No setters needed here.
+     * @var Collection $eventsAttending The events the user is attending
      */
-    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'attendees', cascade: ['all'])]
-    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event'])]
-    private Collection $eventsAttending;
+    #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'user')]
+    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event', 'edit:user:limited'])]
+    protected Collection $eventsAttending;
 
     /**
      * @return Collection The events the user is attending
@@ -555,8 +561,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ) {
             return ['ROLE_ADMIN'];
         }
-        return [];
-        return ['ROLE_ADMIN']; // default to admin
+        return [null];
     }
     /**
      * @return bool The super admin status of the user
@@ -648,6 +653,18 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         //Get users from org given that the user has permissions
         //return users from that org via filters
         return null;
+    }
+
+    #[Groups(['user:create'])]
+    private ?string $userEventId = null;
+
+    public function getUserEventId(): ?string
+    {
+        return $this->userEventId;
+    }
+    public function setUserEventId(string $userEventId): void
+    {
+        $this->userEventId = $userEventId;
     }
 
     /**

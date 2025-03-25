@@ -5,7 +5,6 @@ namespace App\Doctrine;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
-use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\QueryBuilder;
 use Psr\Log\LoggerInterface;
@@ -41,12 +40,12 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
                     ->andWhere('o.id = :orgId')
                     ->setParameter('orgId', $orgId);
             } else {
-                $queryBuilder->andWhere('1 = 0');
+                // $queryBuilder->andWhere('1 = 0'); problematic
             }
         }
         // if the user is not an admin of any organization, return an empty result set
         else {
-            $queryBuilder->andWhere('1 = 0'); // no results
+            // $queryBuilder->andWhere('1 = 0'); // problematic
         }
     }
 }

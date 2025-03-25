@@ -7,7 +7,7 @@
 // The `useContent` hook from a custom `ContentProvider` is used to manage the content displayed in the main area of the application.
 // The `useBooking` hook from a custom `BookingProvider` is used to manage the booking data for the event.
 
-// The component imports several utility functions and types from other modules, such as `formatDate` and `formatTime` from `Types/events` to format the event date and time.
+// The component imports several utility functions and types from other modules, such as `formatDateDisplay` and `formatTime` from `Types/events` to format the event date and time.
 
 // The `EventData` interface defines the shape of the `eventData` prop that the `EventForm` component expects. It includes an `eventData` object of type `Event`.
 
@@ -28,10 +28,10 @@
 
 import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
-import { Event, formatDate, formatTime } from 'Types/events';
+import { Event, formatDateDisplay, formatTime } from 'Types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
-import { useBooking } from 'Utils/BookingProvider';
+import { BookingData, useBooking } from 'Utils/BookingProvider';
 import { X } from 'lucide-react';
 import FlightSearch from './FlightSearch';
 
@@ -50,6 +50,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 
     function handleBackClick() {
       	setContent(<Dashboard />, 'Dashboard');
+		setBookingData({} as BookingData);
     }
 
     if (!bookingData.event) {
@@ -67,8 +68,8 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 
 			<div className={styles.eventInfo}>
 				<h1>{bookingData.event.eventTitle}</h1>
-				<h2 className='h4'>{bookingData.event.organization}</h2>
-				<p>{formatDate(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
+				<h2 className='h4'>{bookingData.event.organization.name}</h2>
+				<p>{formatDateDisplay(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
 			</div>
 
 			<div className={styles.formCard}>

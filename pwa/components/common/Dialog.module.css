@@ -78,14 +78,25 @@
 	flex: 1;
 	gap: 0.5rem;
 }
+
 .dialog-details:first-child {
 	border-right: 2px solid var(--gray-200);
 }
 
-.dialog-details p {
+.dialog-details div {
 	display: flex;
 	align-items: center;
+	white-space: nowrap;
 	gap: 0.5rem;
+}
+
+.dialog-details .location {
+	white-space: normal;
+	align-items: flex-start;
+}
+
+.dialog-details div span {
+	width: 100%;
 }
 
 .dialog-close {
@@ -137,13 +148,6 @@
 
 .dialog-details h3 {
 	margin-bottom: 0.25rem;
-}
-
-.dialog-details p {
-	display: flex;
-	align-items: center;
-	white-space: nowrap;
-	gap: 0.5rem;
 }
 
 .dialog-airports {

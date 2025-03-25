@@ -3,6 +3,7 @@
 namespace App\Security\Voter;
 
 use App\Entity\Budget;
+use App\Entity\UserEvent;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -43,7 +44,8 @@ final class BudgetVoter extends Voter
         // - the user must be a platform admin
         return (
             // subject has a method to return all finance admins
-            $subject->getFinanceAdmins()->contains($user) ||
+            $subject->getOrganization()->getFinanceAdmins()->contains($user)||
+            $subject->getOrganization()->getAdmins()->contains($user)||
             in_array('ROLE_ADMIN', $user->getRoles())
         );
     }
@@ -55,11 +57,21 @@ final class BudgetVoter extends Voter
         // - the user must be a finance admin of the budget
         // - the user must be an event admin
         // - the user must be a platform admin
+
+        $new_collection = $subject->getEvent()->getAttendees();
+        $org_confirmation = False;
+        foreach ($new_collection as $userEvent) {
+            if ($userEvent->getUser() === $user) {
+                $org_confirmation = True;
+            }
+        }
+
+
         return (
+            $org_confirmation ||
             $subject->getOrganization()->getFinanceAdmins()->contains($user) ||
-            $subject->getEvent()->getBudget()->getFinanceAdmins()->contains($user) ||
-            $subject->getFinanceAdmins()->contains($user) ||
-            $subject->getEvent()->getOrganization()->getEventAdmins()->contains($user) ||
+            $subject->getOrganization()->getAdmins()->contains($user)||
+            $subject->getOrganization()->getEventAdmins()->contains($user) ||
             in_array('ROLE_ADMIN', $user->getRoles())
         );
     }

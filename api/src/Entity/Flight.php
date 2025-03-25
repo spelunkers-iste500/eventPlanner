@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\ApiResource;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -14,6 +15,9 @@ class Flight
 {
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -24,23 +28,23 @@ class Flight
         $this->id = $id;
     }
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    public string $flightCost;
+    #[ORM\Column]
+    public int $flightCost;
 
-    public function getFlightCost(): string
+    public function getFlightCost(): int
     {
         return $this->flightCost;
     }
 
-    public function setFlightCost(string $flightCost): self
+    public function setFlightCost(int $flightCost): self
     {
-        $this->flightCost = $flightCost;
+        $this->flightCost = (int) $flightCost * 100;
         return $this;
     }
 
     //Relationships
 
-    //eventOrganization -> Event
+    //Flight <-> Event
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'flights')]
     private Event $event;
 
@@ -54,6 +58,8 @@ class Flight
         return $this;
     }
 
+    // One flight per user, per event
+    // Flight <-> User
     #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'flights')]
     private Collection $users;
 

@@ -10,16 +10,17 @@ use App\Repository\UserRepository;
 use Psr\Log\LoggerInterface;
 use Doctrine\ORM\QueryBuilder;
 use ApiPlatform\Metadata\Operation;
+use App\Entity\UserEvent;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-final readonly class MyEventsExtension implements QueryCollectionExtensionInterface
+final readonly class MyUserEventsExtension implements QueryCollectionExtensionInterface
 {
     public function __construct(private Security $security, private UserRepository $userRepo, private LoggerInterface $logger) {}
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         // Ensure this extension only applies to the Event entity
-        if ($resourceClass !== Event::class) {
+        if ($resourceClass !== UserEvent::class) {
             return;
         }
         $user = $this->security->getUser();
@@ -27,20 +28,17 @@ final readonly class MyEventsExtension implements QueryCollectionExtensionInterf
         // if ($operation && $operation-> !== '/organizations/{orgId}/events/.{_format}') {
         //     return;
         // }
-        if ($operation && $operation->getName() !== '_api_/my/events{._format}_get_collection') {
+        if ($operation && $operation->getName() !== '_api_/my/events.{_format}_get_collection') {
             return;
-        }
-        if ($user === null || !$user instanceof UserInterface) {
+        } else if ($user === null || !$user instanceof UserInterface) {
             // No access for unauthenticated users
-            $queryBuilder->andWhere('1 = 0');
+            $queryBuilder->where('1 = 0');
             return;
-        }
-        // Allow superadmins full access
-        if ($this->security->isGranted('ROLE_ADMIN')) {
+        } else if ($this->security->isGranted('ROLE_ADMIN')) {
             return;
+        } else {
+            $queryBuilder->andWhere(':user = o.user')->setParameter('user', $user);
+            $this->logger->info('Query: ' . $queryBuilder->getQuery()->getSQL());
         }
-        $queryBuilder
-            ->andWhere(':user MEMBER OF o.attendees')
-            ->setParameter('user', $user);
     }
 }

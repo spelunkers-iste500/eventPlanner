@@ -23,7 +23,7 @@
 
 // The `loadOptions` function is defined to debounce the input and call the `fetchAirports` function to load airport options for the select dropdowns.
 
-// The `formatDate` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
+// The `formatDateSubmit` function is defined to format a date object into a string in the `YYYY-MM-DD` format.
 
 // The `FlightSearch` component returns a JSX structure that represents the flight search form. This structure includes:
 // - A select dropdown for trip type (round-trip or one-way).
@@ -35,7 +35,7 @@
 
 // Finally, the `FlightSearch` component is exported as the default export of the module.
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useBooking } from 'Utils/BookingProvider';
 import { AsyncSelect, Select } from 'chakra-react-select';
 import FlightResults from './FlightResults';
@@ -45,6 +45,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Calendar } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { formatDateSubmit } from 'Types/events';
 
 interface SelectOption {
     label: string;
@@ -65,11 +66,35 @@ const FlightSearch: React.FC = () => {
         destinationInput: ''
     });
 
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+
+    useEffect(() => {
+        if (bookingData) {
+            setFormData({
+                trip: bookingData.trip || 'round-trip',
+                origin: bookingData.originAirport || '',
+                destination: bookingData.destinationAirport || '',
+                departDate: bookingData.departDate || '',
+                returnDate: bookingData.returnDate || '',
+                originInput: '',
+                destinationInput: ''
+            });
+
+            if (bookingData.departDate) {
+                setStartDate(new Date(bookingData.departDate));
+            }
+            if (bookingData.returnDate) {
+                setEndDate(new Date(bookingData.returnDate));
+            }
+        }
+    }, [bookingData]);
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setBookingData({
             ...bookingData,
-            isRoundTrip: formData.trip === 'round-trip',
+            trip: formData.trip,
             originAirport: formData.origin,
             destinationAirport: formData.destination,
             departDate: formData.departDate,
@@ -109,13 +134,6 @@ const FlightSearch: React.FC = () => {
         }, 120);
     };
 
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-
-    const formatDate = (date: Date | null) => {
-        return date ? date.toISOString().split('T')[0] : '';
-    };
-
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
             <div className='input-container'>
@@ -128,7 +146,7 @@ const FlightSearch: React.FC = () => {
                     placeholder="Trip Type"
                     size="md"
                     isSearchable={false}
-                    defaultValue={{ label: 'Round Trip', value: 'round-trip' }}
+                    value={{ label: formData.trip === 'round-trip' ? 'Round Trip' : 'One Way', value: formData.trip }}
                     className={`select-menu ${styles.tripType}`}
                     classNamePrefix={'select'}
                     onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
@@ -147,6 +165,7 @@ const FlightSearch: React.FC = () => {
                         classNamePrefix={'select'}
                         onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
                         onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
+                        value={formData.origin ? { label: formData.origin, value: formData.origin } : null}
                     />
                 </div>
     
@@ -161,6 +180,7 @@ const FlightSearch: React.FC = () => {
                         classNamePrefix={'select'}
                         onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
                         onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
+                        value={formData.destination ? { label: formData.destination, value: formData.destination } : null}
                     />
                 </div>
             </div>
@@ -180,8 +200,8 @@ const FlightSearch: React.FC = () => {
                             setEndDate(end);
                             setFormData({ 
                                 ...formData, 
-                                departDate: formatDate(start), 
-                                returnDate: formatDate(end) 
+                                departDate: formatDateSubmit(start), 
+                                returnDate: formatDateSubmit(end) 
                             });
                         }}
                         selectsRange
@@ -200,7 +220,7 @@ const FlightSearch: React.FC = () => {
                         minDate={new Date()}
                         onChange={(date) => {
                             setStartDate(date);
-                            setFormData({ ...formData, departDate: formatDate(date)})}
+                            setFormData({ ...formData, departDate: formatDateSubmit(date)})}
                         }
                         showMonthDropdown
                         placeholderText="Select a date"

@@ -2,13 +2,13 @@
 
 namespace App\Factory;
 
-use App\Entity\Budget;
+use App\Entity\UserEvent;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 
 /**
- * @extends PersistentProxyObjectFactory<Budget>
+ * @extends PersistentProxyObjectFactory<UserEvent>
  */
-final class BudgetFactory extends PersistentProxyObjectFactory
+final class UserEventFactory extends PersistentProxyObjectFactory
 {
     /**
      * @see https://symfony.com/bundles/ZenstruckFoundryBundle/current/index.html#factories-as-services
@@ -21,7 +21,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
 
     public static function class(): string
     {
-        return Budget::class;
+        return UserEvent::class;
     }
 
     /**
@@ -32,7 +32,9 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'perUserTotal' => self::faker()->randomFloat(2, 100, 1000),
+            'event' => null,
+            'isAccepted' => self::faker()->boolean(),
+            'user' => null,
         ];
     }
 
@@ -42,7 +44,7 @@ final class BudgetFactory extends PersistentProxyObjectFactory
     protected function initialize(): static
     {
         return $this
-            // ->afterInstantiate(function(Budget $budget): void {})
+            // ->afterInstantiate(function(UserEvent $userEvent): void {})
         ;
     }
 }

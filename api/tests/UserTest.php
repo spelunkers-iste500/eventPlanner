@@ -4,7 +4,10 @@ namespace App\Tests;
 
 use ApiPlatform\Symfony\Bundle\Test\ApiTestCase;
 use App\Entity\User;
+use App\Entity\UserEvent;
 use App\Factory\UserFactory;
+use App\Factory\EventFactory;
+use App\Factory\UserEventFactory;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
  class UserTest extends ApiTestCase
@@ -124,6 +127,48 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertResponseStatusCodeSame(403);
         //end time calculation
         $executionMessage = $this->calculateExecutionTime($startTime, "Get User");
+        echo $executionMessage;
+    }
+    public function testmyEvents(): void{
+        $startTime = microtime(true);
+        //create users
+        $user1 = $this->createUser('ratchie@rit.edu', 'spleunkers123', false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false);
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        //user id
+        $user1id = $user1->getid();
+        $user1Iri = $this->findIriBy(User::class, ['id' => $user1id]);
+        $user2id = $user2->getid();
+        //create event
+        EventFactory::createMany(3);
+        $event1 = EventFactory::createOne();
+        $event2 = EventFactory::createOne();
+        //add events to user
+        $userevent1 = UserEventFactory::createOne(['user' => $user1, 'event' => $event1]);
+        $userevent2 = UserEventFactory::createOne(['user' => $user1, 'event' => $event2]);
+        $userevent1Iri= $this->findIriBy(UserEvent::class, ['id' => $userevent1->getId()]);
+        $userevent2Iri= $this->findIriBy(UserEvent::class, ['id' => $userevent2->getId()]);
+
+        //make request
+        $client = static::createClient();
+        $client->request('GET', "/my/event/$user1id", ['auth_bearer' => $jwttoken['token']]);
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@context' => '/contexts/User',
+            '@id' => "/my/event/$user1id",
+            '@type' => 'User',
+            'eventsAttending' => [
+                $userevent1Iri,
+                $userevent2Iri
+            ]
+        ]);
+
+        //test deny functionality
+        $client->request('GET', "/my/event/$user2id", ['auth_bearer' => $jwttoken['token']]);
+        $this->assertResponseStatusCodeSame(403);
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get my events");
         echo $executionMessage;
     }
      //function to test if a user can patch themselves and not others
