@@ -51,7 +51,7 @@ interface CardProps {
 const Card: React.FC<CardProps> = ({ event, buttonText, isFinance, onClick }) => {
 	return (
         <div className={styles.card}>
-            <img src={'/media/event_image.jpg'} alt={event.eventTitle} className={styles.cardImage} />
+            <img src={'/media/placeholder-event.jpg'} alt={`Image of ${event.eventTitle}`} className={styles.cardImage} />
 
             <div className={styles.cardContent}>
                 <div>

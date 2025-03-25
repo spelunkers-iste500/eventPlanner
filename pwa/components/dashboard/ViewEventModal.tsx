@@ -19,7 +19,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader>
-                <img src={'/media/event_image.jpg'} alt={event?.eventTitle} className={styles.dialogImg} />
+                <img src={'/media/placeholder-event.jpg'} alt={event?.eventTitle} className={styles.dialogImg} />
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
                 <div className={styles.dialogBodyHeader}>
