@@ -24,7 +24,7 @@ final readonly class EventAminOfExtension implements QueryCollectionExtensionInt
             return;
         }
 
-        if ($operation && $operation->getName() == '_api_/events{._format}_get_collection') {
+        if ($operation && $operation->getName() !== '_api_/events{._format}_get_collection') {
             // Only apply this extension to the specific collection operation
             return;
         }

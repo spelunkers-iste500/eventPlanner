@@ -63,7 +63,7 @@ const FlightResults: React.FC = () => {
                 origin: bookingData.originAirport,
                 destination: bookingData.destinationAirport,
                 departureDate: bookingData.departDate,
-                returnDate: (bookingData.isRoundTrip) ? bookingData.returnDate : null,
+                returnDate: bookingData.trip === 'round-trip' ? bookingData.returnDate : null,
                 maxConnections: 1,
             }, {
                 headers: {
@@ -157,7 +157,7 @@ const FlightResults: React.FC = () => {
                                             ))}
                                         </div>
                                         <div className={styles.flightPriceInfo}>
-                                            <p className={`${styles.flightPrice} ${Number(offer.total_amount) > bookingData.budget ? styles.overBudget : ''}`}>${offer.total_amount}</p>
+                                            <p className={`${styles.flightPrice} ${Number(offer.total_amount) > bookingData.event.budget.perUserTotal ? styles.overBudget : ''}`}>${offer.total_amount}</p>
                                             <p className={styles.flightClass}>{offer.slices[0].segments[0].passengers[0].cabin_class_marketing_name}</p>
                                         </div>
                                     </div>

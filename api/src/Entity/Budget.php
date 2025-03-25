@@ -12,8 +12,10 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
+use PhpCsFixer\Tokenizer\Analyzer\Analysis\CaseAnalysis;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
@@ -23,38 +25,23 @@ use Ramsey\Uuid\Uuid;
 #[ApiResource]
 // Access the budget through the org/event
 // this route should be used by the end user, who is 
-// viewing the budget they are allocated for the event.
-#[Get(
-    uriTemplate: '/organizations/{orgId}/events/{eventId}/budget/{id}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        ),
-        'eventId' => new Link(
-            fromClass: Event::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'event',
-            description: 'The ID of the event that owns the budget'
-        ),
-        'id' => 'id'
-    ],
-    normalizationContext: ['groups' => ['read:user:budget']],
-    security: 'is_granted("ROLE_USER")'
-)]
+// viewing the budget they are allocated for the event
+
+//User.Get.Budget
 #[Get(
     uriTemplate: '/budgets/{id}',
-    normalizationContext: ['groups' => ['read:budget']]
+    normalizationContext: ['groups' => ['user:read:budget']],
+    security: "is_granted('view', object)"
 )]
+
+//financial.admin.create
 #[Post(
     uriTemplate: '/budgets',
     denormalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
+
+//financial.admin.patch
 #[Patch(
     description: 'Get all budgets for an organization',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
@@ -70,11 +57,13 @@ use Ramsey\Uuid\Uuid;
     normalizationContext: ['groups' => ['write:budget']],
     processor: LoggerStateProcessor::class
 )]
-#[GetCollection(
+/**#[GetCollection(
     uriTemplate: '/budgets',
     normalizationContext: ['groups' => ['read:budget']],
-    security: 'is_granted("ROLE_ADMIN")'
-)]
+    security: "is_granted('ROLE_ADMIN')"
+)]*/
+
+//Fincial.Admin.View
 #[GetCollection(
     description: 'Get all budgets for an organization',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
@@ -89,6 +78,12 @@ use Ramsey\Uuid\Uuid;
     ],
     normalizationContext: ['groups' => ['read:budget']],
 )]
+
+#[Delete(
+    security: "is_granted('edit', object)",
+    uriTemplate: '/budget/{id}.{_format}',
+)]
+
 /** 
  * An events budget, a subresource of events
  * Viewable by finance admins, org admins, and the user can only see allocated per person budget.
@@ -99,7 +94,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -110,9 +105,30 @@ class Budget
         $this->id = $id;
     }
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget'])]
-    public string $perUserTotal = "0.00";
+    #[ORM\Column]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
+    /**
+     * The per user budget for an event.
+     */
+    private int $perUserTotal = 0;
+
+    /**
+     * @return float The per user budget for the event, in dollars.cents "0.00"
+     */
+    public function getPerUserTotal(): float
+    {
+        return (float) ($this->perUserTotal / 100);
+    }
+    /**
+     * @param float $perUserTotal The per user budget for the event, in dollars.cents "0.00"
+     * @return self
+     * Converts the float to an integer for storage
+     */
+    public function setPerUserTotal(float $perUserTotal): self
+    {
+        $this->perUserTotal = (int) $perUserTotal * 100;
+        return $this;
+    }
 
     // @todo: relate to Flight entity to allow calculating the budget used
 
@@ -129,8 +145,9 @@ class Budget
     // #[ORM\JoinColumn(name: 'id', referencedColumnName: 'id', nullable: true)]
     public ?User $financialPlannerID;
 
-    #[ORM\OneToOne(targetEntity: Event::class)]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
+    #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Event $event;
     public function getEvent(): Event
     {
@@ -139,11 +156,11 @@ class Budget
     public function setEvent(Event $event): self
     {
         $this->event = $event;
+        $event->setBudget($this);
         return $this;
     }
 
-    #[Groups(['read:budget'])]
-    public function getBudgetTotal(): string
+    public function getBudgetTotal(): float|int
     {
         // will multiply the perUserTotal by the number of users in the event
         $countAttendees = count($this->event->getAttendees());
@@ -162,7 +179,7 @@ class Budget
     }
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'budgets')]
-    #[Groups(['read:budget', 'write:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
@@ -179,6 +196,7 @@ class Budget
         $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
+        $this->perUserTotal = 0;
     }
 
     public function getFinanceAdmins(): Collection

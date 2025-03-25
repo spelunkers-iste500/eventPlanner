@@ -30,18 +30,15 @@ final readonly class MyUserEventsExtension implements QueryCollectionExtensionIn
         // }
         if ($operation && $operation->getName() !== '_api_/my/events.{_format}_get_collection') {
             return;
-        }
-        if ($user === null || !$user instanceof UserInterface) {
+        } else if ($user === null || !$user instanceof UserInterface) {
             // No access for unauthenticated users
-            $queryBuilder->andWhere('1 = 0');
+            $queryBuilder->where('1 = 0');
             return;
-        }
-        // Allow superadmins full access
-        if ($this->security->isGranted('ROLE_ADMIN')) {
+        } else if ($this->security->isGranted('ROLE_ADMIN')) {
             return;
+        } else {
+            $queryBuilder->andWhere(':user = o.user')->setParameter('user', $user);
+            $this->logger->info('Query: ' . $queryBuilder->getQuery()->getSQL());
         }
-        $queryBuilder
-            ->andWhere(`o.userid = :user`)
-            ->setParameter('user', $user);
     }
 }

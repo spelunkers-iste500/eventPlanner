@@ -31,16 +31,14 @@
 
 // Finally, the `EventList` component is exported as the default export of the module.
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import dialogStyles from "../common/Dialog.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
-import { Budget, Event, formatDate, formatTime } from "Types/events";
+import { Event } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
-import { DialogRoot, DialogBackdrop, DialogContent, DialogHeader, DialogTitle, DialogBody, Button, Skeleton } from "@chakra-ui/react";
-import axios from "axios";
+import { useSession } from "next-auth/react";
 
 interface EventListProps {
     heading: string;
@@ -48,51 +46,30 @@ interface EventListProps {
 	classes?: string;
 	hasAddBtn?: boolean;
 	isFinance?: boolean;
-	pendingEvent?: boolean;
+	onOpenDialog?: (event: Event) => void;
 }
 
-const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance }) => {
+const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddBtn, isFinance, onOpenDialog }) => {
 	const isBookCard = heading === "Event Invitations";
 	const pendingEvent = heading === "Events Pending Approval";
 	const buttonText = isFinance ? (pendingEvent ? "Set Budget" : "View Budget") : isBookCard ? "Book Now" : "View More";
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [reverseSorting, setReverseSorting] = useState(false);
-	const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-	const [selectedEventBudget, setSelectedEventBudget] = useState<Budget | null>(null);
-	const [budgetPerAttendee, setBudgetPerAttendee] = useState<number | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const { setContent } = useContent();
+	const { data: session } = useSession();
 
     const handleCardClick = (event: Event) => {
-		getBudget(event.id);
 		if (isBookCard) {
-			setContent(<EventForm eventData={event} budget={budgetPerAttendee ?? 0} />, event.eventTitle);
-		} else {
-			setSelectedEvent(event); // Store event data
-            setIsDialogOpen(true); // Open modal
+			setContent(<EventForm eventData={event} />, event.eventTitle);
+		} else if (onOpenDialog) {
+			onOpenDialog(event);
 		}
     };
 
-	const getBudget = async (eventId: number) => {
-		try {
-			const response = await axios.get(`/budgets/${eventId}`);
-			setSelectedEventBudget(response.data);
-		} catch (error) {
-			console.error('Error fetching budget:', error);
-		}
-	}
-
-	useEffect(() => {
-		if (selectedEventBudget && selectedEvent) {
-			setBudgetPerAttendee(Number(selectedEventBudget.total) / selectedEvent.maxAttendees);
-		}
-	}, [selectedEventBudget]);
-
 	return (
-		<>
 		<div className={`${styles.eventList}`}>
             <div className={styles.eventListHeader}>
                 <h2>{heading}</h2>
@@ -165,45 +142,6 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
 				))}
 			</div>
 		</div>
-
-		{/* Chakra UI Dialog */}
-		<div className={`${dialogStyles.dialogWrapper} ${isDialogOpen ? dialogStyles.open : ''}`}>
-			<DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
-	            <DialogBackdrop />
-	            <DialogContent className={dialogStyles.dialogContent}>
-	                <DialogHeader>
-	                    <img src={'/media/event_image.jpg'} alt={selectedEvent?.eventTitle} className={dialogStyles.dialogImg} />
-	                </DialogHeader>
-	                <DialogBody className={dialogStyles.dialogBody}>
-	                    <div className={dialogStyles.dialogBodyHeader}>
-	                        <div>
-	                            <DialogTitle>{selectedEvent?.eventTitle}</DialogTitle>
-	                            <p className={dialogStyles.dialogOrg}>{selectedEvent?.organization}</p>
-	                        </div>
-	                        <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
-	                    </div>
-	
-						<div className={dialogStyles.dialogBodyContent}>
-							<div className={dialogStyles.dialogDetails}>
-								<h3>Event Details</h3>
-								<p><MapPin size={16}/><span>{selectedEvent?.location}</span></p>
-								<p><Calendar size={16}/><span>{formatDate(selectedEvent?.startDateTime)} {formatDate(selectedEvent?.endDateTime) !== formatDate(selectedEvent?.startDateTime) ? `- ${formatDate(selectedEvent?.endDateTime)}` : ''}</span></p>
-								<p><Clock size={16}/><span>{formatTime(selectedEvent?.startDateTime)} {selectedEvent?.endDateTime ? `- ${formatTime(selectedEvent?.endDateTime)}` : ''}</span></p>
-								<p><Users size={16}/><span>{selectedEvent?.maxAttendees} Attendees</span></p>
-							</div>
-							<div className={dialogStyles.dialogDetails}>
-								<h3>Your Details</h3>
-								<p><TowerControl size={16}/><span className={dialogStyles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></p>
-								<p><PlaneTakeoff size={16}/><span>{formatDate(selectedEvent?.startFlightBooking)} • {formatTime(selectedEvent?.startFlightBooking)}</span></p>
-								<p><PlaneLanding size={16}/><span>{formatDate(selectedEvent?.endFlightBooking)} • {formatTime(selectedEvent?.endFlightBooking)}</span></p>
-								<p><CircleDollarSign size={16}/><span>{budgetPerAttendee ? budgetPerAttendee : <Skeleton height='4' width='70%' />}</span></p>
-							</div>
-						</div>
-	                </DialogBody>
-	            </DialogContent>
-	        </DialogRoot>
-		</div>
-		</>
   	);
 };
 

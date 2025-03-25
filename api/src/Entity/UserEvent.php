@@ -2,18 +2,14 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
-use Symfony\Component\Serializer\Attribute\MaxDepth;
 
 #[ORM\Entity]
 #[ApiResource()]
@@ -25,6 +21,11 @@ use Symfony\Component\Serializer\Attribute\MaxDepth;
     securityPostDenormalize: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:myEvents']],
 )]
+/**
+ * User <-> Event relationship, also functions as an event invite, with a status of accepted or declined
+ * When a user doesn't exist in the database, the user id is null until they register. The ID of the UserEvent
+ * is used to identify the event invite, and associate the user to the event post registration.
+ */
 class UserEvent
 {
     #[ORM\Id]
@@ -47,14 +48,13 @@ class UserEvent
     }
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
-    #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id', nullable: false)]
+    #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
     #[Groups(['write:myEvents'])]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:myEvents', 'write:myEvents'])]
-    // #[MaxDepth(2)]
+    #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
     private Event $event;
 
     public function getUser(): User
@@ -90,9 +90,24 @@ class UserEvent
         return $this;
     }
 
+    #[ORM\Column]
+    #[Groups(['read:myEvents'])]
+    private bool $isDeclined;
+
+    public function getIsDeclined(): bool
+    {
+        return $this->isDeclined;
+    }
+    public function setIsDeclined(bool $isDeclined): self
+    {
+        $this->isDeclined = $isDeclined;
+        return $this;
+    }
+
     public function __construct()
     {
         $this->id = Uuid::uuid4();
         $this->isAccepted = false;
+        $this->isDeclined = false;
     }
 }
