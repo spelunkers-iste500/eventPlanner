@@ -3,7 +3,11 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
 use App\Repository\OrganizationInviteRepository;
+use App\State\OrganizationInviteState;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
@@ -11,6 +15,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganizationInviteRepository::class)]
 #[ApiResource]
+#[Post(
+    processor: OrganizationInviteState::class
+)]
+#[Get()]
+#[GetCollection()]
 class OrganizationInvite
 {
     #[ORM\Id]
