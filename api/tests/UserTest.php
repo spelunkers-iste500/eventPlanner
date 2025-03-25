@@ -168,7 +168,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $client->request('GET', "/my/event/$user2id", ['auth_bearer' => $jwttoken['token']]);
         $this->assertResponseStatusCodeSame(403);
         //end time calculation
-        $executionMessage = $this->calculateExecutionTime($startTime, "Get my events");
+        $executionMessage = $this->calculateExecutionTime($startTime, "user Get my event");
         echo $executionMessage;
     }
      //function to test if a user can patch themselves and not others

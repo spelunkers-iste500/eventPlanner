@@ -43,18 +43,10 @@ use Ramsey\Uuid\Uuid;
 
 //financial.admin.patch
 #[Patch(
-    description: 'Get all budgets for an organization',
-    uriTemplate: '/organizations/{orgId}/budgets.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the budget'
-        )
-    ],
-    normalizationContext: ['groups' => ['write:budget']],
+    description: 'update a budget for an organization',
+    uriTemplate: '/budgets/{id}.{_format}',
+    security: "is_granted('edit', object)",
+    normalizationContext: ['groups' => ['replace:budget']],
     processor: LoggerStateProcessor::class
 )]
 /**#[GetCollection(
@@ -81,7 +73,7 @@ use Ramsey\Uuid\Uuid;
 
 #[Delete(
     security: "is_granted('edit', object)",
-    uriTemplate: '/budget/{id}.{_format}',
+    uriTemplate: '/budgets/{id}.{_format}',
 )]
 
 /** 
@@ -106,7 +98,7 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget'])]
     /**
      * The per user budget for an event.
      */
@@ -147,7 +139,7 @@ class Budget
 
     #[ORM\OneToOne(targetEntity: Event::class, inversedBy: 'budget', cascade: ["persist"])]
     #[ORM\JoinColumn(name: 'event_id', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:budget', 'write:budget', 'user:read:budget'])]
+    #[Groups(['read:budget', 'user:read:budget', 'write:budget'])] //should we be able to change events for a budget?
     public Event $event;
     public function getEvent(): Event
     {
