@@ -28,17 +28,17 @@ class Flight
         $this->id = $id;
     }
 
-    #[ORM\Column(type: 'decimal', precision: 10, scale: 2)]
-    public string $flightCost;
+    #[ORM\Column]
+    public int $flightCost;
 
-    public function getFlightCost(): string
+    public function getFlightCost(): int
     {
         return $this->flightCost;
     }
 
-    public function setFlightCost(string $flightCost): self
+    public function setFlightCost(int $flightCost): self
     {
-        $this->flightCost = $flightCost;
+        $this->flightCost = (int) $flightCost * 100;
         return $this;
     }
 

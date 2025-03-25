@@ -165,9 +165,9 @@ class Budget
     public function getSpentBudget(): string
     {
         // will sum the total spent on flights for the event
-        $spent = "0.00";
+        $spent = 0;
         foreach ($this->event->getFlights() as $flight) {
-            $spent = bcadd($spent, $flight->getPrice());
+            $spent += $flight->getFlightCost();
         }
         return $spent;
     }
