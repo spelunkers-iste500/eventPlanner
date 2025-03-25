@@ -70,7 +70,7 @@ final class TestingDataStory extends Story
         $eventadmin = $this->createUser('Spleunkers', 'eventAdmin', 'eventadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode, "eventAdmin");
         $platformadmin = $this->createUser('Spleunkers', 'God Mode', 'superadmin@rit.edu', 'spelunkers123', true, $org1, $otpcode, "user");
         //create budgets and events
-        BudgetFactory::createMany(1000, function () use ($org1, $eventadmin, $user, $budgetUser) {
+        BudgetFactory::createMany(50, function () use ($org1, $eventadmin, $user, $budgetUser) {
             $event = EventFactory::new()->createOne([
                 'organization' => $org1,
             ]);
