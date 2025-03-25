@@ -508,6 +508,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'eventadmins', cascade: ['all'])]
     #[JoinTable(name: 'organizations_event_admins')]
+    #[Groups(['user:read'])]
     private Collection $eventAdminOfOrg;
 
     /**
