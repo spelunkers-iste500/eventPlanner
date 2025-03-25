@@ -79,6 +79,7 @@ class ChangeLogging
     public function __construct(string $modifiedBy, string $operationType, array $beforeChange, array $afterChange, array $changes)
     {
         $this->id = Uuid::uuid4();
+        #Ponder
         $this->createdDate = new \DateTime();
         $this->modifiedBy = $modifiedBy;
         $this->beforeChange = $beforeChange;
