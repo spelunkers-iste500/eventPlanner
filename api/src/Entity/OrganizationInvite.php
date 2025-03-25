@@ -7,6 +7,7 @@ use App\Repository\OrganizationInviteRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganizationInviteRepository::class)]
 #[ApiResource]
@@ -25,6 +26,13 @@ class OrganizationInvite
 
     #[ORM\Column]
     private bool $accepted = false;
+
+    #[ORM\Column(length: 255)]
+    private ?string $expectedEmail = null;
+
+    #[ORM\Column(length: 255)]
+    #[Assert\Choice(choices: ['admin', 'eventAdmin', 'financeAdmin'])]
+    private ?string $inviteType = null;
 
     public function getId(): ?UuidInterface
     {
@@ -79,5 +87,29 @@ class OrganizationInvite
     {
         // set uuid on creation
         $this->id = Uuid::uuid4();
+    }
+
+    public function getExpectedEmail(): ?string
+    {
+        return $this->expectedEmail;
+    }
+
+    public function setExpectedEmail(string $expectedEmail): static
+    {
+        $this->expectedEmail = $expectedEmail;
+
+        return $this;
+    }
+
+    public function getInviteType(): ?string
+    {
+        return $this->inviteType;
+    }
+
+    public function setInviteType(string $inviteType): static
+    {
+        $this->inviteType = $inviteType;
+
+        return $this;
     }
 }

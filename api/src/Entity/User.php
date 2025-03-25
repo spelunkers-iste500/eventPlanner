@@ -662,6 +662,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var Collection<int, OrganizationInvite>
      */
     #[ORM\OneToMany(mappedBy: 'invitedUser', targetEntity: OrganizationInvite::class)]
+    #[Groups('user:create')]
     private Collection $organizationInvites;
 
     public function getUserEventId(): ?string
