@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
-import { Event, EventWithUserEventId, UserEvent } from "Types/events";
+import { UserEvent } from "Types/events";
 import { useUser } from "Utils/UserProvider";
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -12,14 +12,14 @@ import { signOut } from "next-auth/react";
 const Dashboard: React.FC = () => {
     const { user } = useUser();
     const { data: session } = useSession();
-    const [acceptedEvents, setAcceptedEvents] = useState<EventWithUserEventId[]>([]);
-    const [pendingEvents, setPendingEvents] = useState<EventWithUserEventId[]>([]);
+    const [acceptedEvents, setAcceptedEvents] = useState<UserEvent[]>([]);
+    const [pendingEvents, setPendingEvents] = useState<UserEvent[]>([]);
     const [ loading, setLoading ] = useState(true);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
 
-    const handleOpenDialog = (event: Event) => {
+    const handleOpenDialog = (event: UserEvent) => {
         setSelectedEvent(event);
         setIsDialogOpen(true);
     };
@@ -38,10 +38,12 @@ const Dashboard: React.FC = () => {
             .then((response) => {
                 if (response.status === 200) {
                     const userEvents: UserEvent[] = response.data['hydra:member'];
+                    console.log('User Events:', userEvents);
+                    
                     // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
                     // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
-                    const accepted: EventWithUserEventId[] = userEvents.filter(event => event.status === 'accepted').map(event => ({ userEventId: event.id, event: event.event }));
-                    const pending: EventWithUserEventId[] = userEvents.filter(event => event.status === 'pending').map(event => ({ userEventId: event.id, event: event.event }));
+                    const accepted: UserEvent[] = userEvents.filter(event => event.status === 'accepted').map(userEvent => ( userEvent ));
+                    const pending: UserEvent[] = userEvents.filter(event => event.status === 'pending').map(userEvent => ( userEvent ));
                     setAcceptedEvents(accepted);
                     setPendingEvents(pending);
                     console.log('Accepted Events:', accepted);
@@ -74,7 +76,7 @@ const Dashboard: React.FC = () => {
 			<EventList heading="Event Invitations" events={pendingEvents} />
             <EventList heading="Your Events" events={acceptedEvents} onOpenDialog={handleOpenDialog} />
 
-            <ViewEventModal isOpen={isDialogOpen} onClose={handleCloseDialog} event={selectedEvent} />
+            <ViewEventModal isOpen={isDialogOpen} onClose={handleCloseDialog} userEvent={selectedEvent} />
 		</div>
   	);
 };

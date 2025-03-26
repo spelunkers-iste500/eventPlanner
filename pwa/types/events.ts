@@ -1,3 +1,5 @@
+import { Flight } from "./airports";
+
 // Define types for the event data
 export interface Event {
     id: number;
@@ -53,9 +55,10 @@ export interface UserEvent {
     id: string;
     event: Event;
     status: string;
+    user: UserEventUser;
 }
 
-export interface EventWithUserEventId {
-    userEventId: string;
-    event: Event;
+interface UserEventUser {
+    id: string;
+    flights: Flight[];
 }

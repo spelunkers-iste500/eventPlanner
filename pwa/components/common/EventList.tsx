@@ -35,18 +35,17 @@ import React, { useRef, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { ArrowDownWideNarrow, ArrowUpWideNarrow, Calendar, CircleDollarSign, Clock, HandCoins, MapPin, PlaneLanding, PlaneTakeoff, Search, TowerControl, X, XCircle, Plus, MoveRight, Users, ArrowRight, Scale } from "lucide-react";
 import Card from "./Card";
-import { Event, EventWithUserEventId } from "Types/events";
+import { UserEvent } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
-import { useSession } from "next-auth/react";
 
 interface EventListProps {
     heading: string;
-    events: EventWithUserEventId[];
+    events: UserEvent[];
     classes?: string;
     hasAddBtn?: boolean;
     isFinance?: boolean;
-    onOpenDialog?: (event: Event) => void;
+    onOpenDialog?: (event: UserEvent) => void;
     onAddEventClick?: () => void; // Add this line
 }
 
@@ -60,13 +59,12 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
     const inputRef = useRef<HTMLInputElement>(null);
 
     const { setContent } = useContent();
-    const { data: session } = useSession();
 
-    const handleCardClick = (eventWithUserEventId: EventWithUserEventId) => {
+    const handleCardClick = (userEvent: UserEvent) => {
         if (isBookCard) {
-            setContent(<EventForm eventData={eventWithUserEventId} />, eventWithUserEventId.event.eventTitle);
+            setContent(<EventForm eventData={userEvent} />, userEvent.event.eventTitle);
         } else if (onOpenDialog) {
-            onOpenDialog(eventWithUserEventId.event);
+            onOpenDialog(userEvent);
         }
     };
 
@@ -132,13 +130,13 @@ const EventList: React.FC<EventListProps> = ({ heading, events, classes, hasAddB
                     </div>
                 )}
                 {events.length === 0 && <p className={styles.noResults}>No events found.</p>}
-                {events.filter((eventWithUserEventId) => eventWithUserEventId.event.eventTitle.toLowerCase().includes(searchTerm.toLowerCase())).map((eventWithUserEventId, index) => (
+                {events.filter((userEvent) => userEvent.event.eventTitle.toLowerCase().includes(searchTerm.toLowerCase())).map((userEvent, index) => (
                     <Card
-                        key={`${eventWithUserEventId.userEventId}-${index}`}
-                        event={eventWithUserEventId.event}
+                        key={`${userEvent.id}-${index}`}
+                        userEvent={userEvent}
                         buttonText={buttonText}
                         isFinance={isFinance}
-                        onClick={() => handleCardClick(eventWithUserEventId)}
+                        onClick={() => handleCardClick(userEvent)}
                     />
                 ))}
             </div>
