@@ -37,19 +37,10 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 //financial.admin.create
 #[Post(
-    uriTemplate: '/events/{eventID}/budgets/.{_format}',
+    securityPostDenormalize: "is_granted('edit', object)",
+    uriTemplate: '/budgets.{_format}',
     denormalizationContext: ['groups' => ['write:budget']],
-    uriVariables: [
-        'eventID' => new Link(
-            fromClass: Event::class,
-            fromProperty: 'id',
-            toClass: Budget::class,
-            toProperty: 'event',
-            description: 'The ID of the event that'
-        )
-    ],
-    securityPostDenormalize: "is_granted('edit', object)"
-    //processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class
 )]
 
 //financial.admin.patch

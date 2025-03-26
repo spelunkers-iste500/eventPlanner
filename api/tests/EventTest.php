@@ -161,7 +161,7 @@ class EventTest extends ApiTestCase
 
         $client = static::createClient();
         //create event as regular user this should fail
-        $client->request('POST', "/organizations/{$orgid}/events/", [
+        $client->request('POST', "/events", [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
                 "eventTitle"=> "Pizza Party",
@@ -177,7 +177,7 @@ class EventTest extends ApiTestCase
         ]);
         $this->assertResponseStatusCodeSame(403);
         //create event as event admin
-        $client->request('POST', "/organizations/{$orgid}/events/", [
+        $client->request('POST', "/events", [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
                 "eventTitle"=> "Pizza Party",
