@@ -11,6 +11,7 @@ use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource()]
@@ -87,36 +88,21 @@ class UserEvent
 
     #[ORM\Column]
     #[Groups(['read:myEvents', 'update:myEvents'])]
-    private bool $isAccepted;
+    #[Assert\Choice(choices: ['pending', 'accepted', 'declined', 'cancelled'])]
+    private string $status = 'pending';
 
-    public function getIsAccepted(): bool
+    public function getStatus(): string
     {
-        return $this->isAccepted;
+        return $this->status;
     }
-    public function setIsAccepted(bool $isAccepted): self
+    public function setStatus(string $status): self
     {
-        $this->isAccepted = $isAccepted;
-        return $this;
-    }
-
-    #[ORM\Column]
-    #[Groups(['read:myEvents', 'update:myEvents'])]
-    private bool $isDeclined;
-
-    public function getIsDeclined(): bool
-    {
-        return $this->isDeclined;
-    }
-    public function setIsDeclined(bool $isDeclined): self
-    {
-        $this->isDeclined = $isDeclined;
+        $this->status = $status;
         return $this;
     }
 
     public function __construct()
     {
         $this->id = Uuid::uuid4();
-        $this->isAccepted = false;
-        $this->isDeclined = false;
     }
 }

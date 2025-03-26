@@ -31,12 +31,9 @@ final class UserEventVoter extends Voter
         switch ($attribute) {
             case self::USEREDIT:
                 // check to see if the user is on the UserEvent object, and it's the correct route
-                // var_dump($subject->getUser());
-                // var_dump($token->getUser());
-                // if ($subject->getUser() === $token->getUser()) {
-                //     return true;
-                // }
-                return true;
+                if ($subject->getUser() === $token->getUser()) {
+                    return true;
+                }
             case self::EDIT:
                 // is the user a full admin?
                 if ($token->getUser()->getRoles() === 'ROLE_ADMIN') {
@@ -55,7 +52,6 @@ final class UserEventVoter extends Voter
                 }
                 break;
         }
-
         return false;
     }
 }
