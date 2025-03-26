@@ -29,9 +29,10 @@ final class UserEventFactory extends PersistentProxyObjectFactory
      */
     protected function defaults(): array|callable
     {
+        $statuses = ['accepted', 'declined', 'pending', 'cancelled'];
         return [
             'event' => null,
-            'status' => array_rand(['accepted', 'declined', 'pending', 'cancelled']),
+            'status' => $statuses[array_rand($statuses)],
             'user' => null,
         ];
     }
