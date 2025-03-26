@@ -8,6 +8,8 @@ use ApiPlatform\State\ProcessorInterface;
 use App\State\LoggerStateProcessor;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Entity\User;
+use App\Entity\UserEvent;
+use App\Repository\EventRepository;
 use App\Repository\OrganizationInviteRepository;
 use App\Repository\UserEventRepository;
 
@@ -22,7 +24,8 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         private LoggerStateProcessor $changeLogger,
         private UserEventRepository $userEventRepository,
         private OrganizationInviteState $orgInviteState,
-        private OrganizationInviteRepository $orgInviteRepository
+        private OrganizationInviteRepository $orgInviteRepository,
+        private EventRepository $eventRepository
     ) {}
 
     /**
@@ -44,8 +47,8 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         // this is where the user gets persisted / created
         $processedUser = $this->processor->process($data, $operation, $uriVariables, $context);
         // after the user gets persisted, we need to add them to the events related to the optional invite code
-        $inviteCode = $data->getUserEventId();
-        // on create getOrganizationInvites() should return exactly one OrganizationInvite
+        $inviteCode = $data->getEventCode();
+        // get optional event code
         $orgInvite = $data->getUserOrgInviteId();
         $orgInviteObject = $this->orgInviteRepository->findOneBy(['id' => $orgInvite]);
         if ($orgInvite && $orgInviteObject) {
@@ -56,10 +59,13 @@ final readonly class UserPasswordHasher implements ProcessorInterface
             }
         } else
         if ($inviteCode) {
-            $userEvent = $this->userEventRepository->getUserEventById($inviteCode);
-            if ($userEvent) {
+            $event = $this->eventRepository->findOneBy(['inviteCode' => $inviteCode]);
+            if ($event) {
                 // if the user is already set, don't overwrite it
-                ($userEvent->getUser()) ? null :  $userEvent->setUser($processedUser);
+                // make a new userEvent object and set the user to the processed user
+                $userEvent = new UserEvent();
+                $userEvent->setEvent($event);
+                $userEvent->setUser($processedUser);
                 $this->userEventRepository->save($userEvent, true);
             }
         }
