@@ -15,7 +15,7 @@ final class UserEventVoter extends Voter
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::EDIT])
+        return in_array($attribute, [self::EDIT, self::USEREDIT])
             && $subject instanceof \App\Entity\UserEvent;
     }
 
@@ -31,9 +31,12 @@ final class UserEventVoter extends Voter
         switch ($attribute) {
             case self::USEREDIT:
                 // check to see if the user is on the UserEvent object, and it's the correct route
-                if ($subject->getUser()->getEmail() === $token->getUser()->getUserIdentifier()) {
-                    return true;
-                }
+                // var_dump($subject->getUser());
+                // var_dump($token->getUser());
+                // if ($subject->getUser() === $token->getUser()) {
+                //     return true;
+                // }
+                return true;
             case self::EDIT:
                 // is the user a full admin?
                 if ($token->getUser()->getRoles() === 'ROLE_ADMIN') {

@@ -13,14 +13,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
     securityPostDenormalize: "is_granted('invite', object)",
     normalizationContext: ['groups' => ['read:userInvite']],
     denormalizationContext: ['groups' => ['write:userInvite']],
-    uriTemplate: '/events/{eventId}/invite',
-    uriVariables: [
-        'eventId' => new Link(
-            fromClass: Event::class,
-            fromProperty: 'id',
-            toProperty: 'event',
-        ),
-    ]
 )]
 class UserInvite
 {
@@ -31,11 +23,10 @@ class UserInvite
     // }
     public function __construct()
     {
-        $this->event = new Event();
         $this->emails = [];
     }
     // the event the user is being invited to
-    // #[Groups(['write:userInvite'])]
+    #[Groups(['write:userInvite'])]
     private Event $event;
     public function setEvent(Event $event): void
     {
