@@ -28,7 +28,7 @@
 
 import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
-import { Event, formatDateDisplay, formatTime } from 'Types/events';
+import { Event, EventWithUserEventId, formatDateDisplay, formatTime } from 'Types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { BookingData, useBooking } from 'Utils/BookingProvider';
@@ -36,7 +36,7 @@ import { X } from 'lucide-react';
 import FlightSearch from './FlightSearch';
 
 interface EventData {
-  	eventData: Event;
+  	eventData: EventWithUserEventId;
 }
 
 const EventForm: React.FC<EventData> = ({ eventData }) => {
@@ -44,7 +44,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 	const { bookingData, setBookingData } = useBooking();
 
     useEffect(() => {
-        setBookingData({ event: eventData, content: <FlightSearch /> });
+        setBookingData({ event: eventData.event, userEventId: eventData.userEventId, content: <FlightSearch /> });
     }, [eventData, setBookingData]);
     
 

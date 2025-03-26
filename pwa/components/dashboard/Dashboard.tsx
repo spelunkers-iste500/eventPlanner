@@ -1,27 +1,19 @@
 import React, { useEffect, useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
-import { Event } from "Types/events";
+import { Event, EventWithUserEventId, UserEvent } from "Types/events";
 import { useUser } from "Utils/UserProvider";
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import ViewEventModal from "./ViewEventModal";
 import { signOut } from "next-auth/react";
 
-// Define the UserEvent interface
-interface UserEvent {
-    id: string;
-    event: Event;
-    isAccepted: boolean;
-    isDeclined: boolean;
-}
-
 // Main EventList Component
 const Dashboard: React.FC = () => {
     const { user } = useUser();
     const { data: session } = useSession();
-    const [acceptedEvents, setAcceptedEvents] = useState<Event[]>([]);
-    const [pendingEvents, setPendingEvents] = useState<Event[]>([]);
+    const [acceptedEvents, setAcceptedEvents] = useState<EventWithUserEventId[]>([]);
+    const [pendingEvents, setPendingEvents] = useState<EventWithUserEventId[]>([]);
     const [ loading, setLoading ] = useState(true);
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -46,8 +38,10 @@ const Dashboard: React.FC = () => {
             .then((response) => {
                 if (response.status === 200) {
                     const userEvents: UserEvent[] = response.data['hydra:member'];
-                    const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
-                    const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
+                    // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
+                    // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
+                    const accepted: EventWithUserEventId[] = userEvents.filter(event => event.isAccepted).map(event => ({ userEventId: event.id, event: event.event }));
+                    const pending: EventWithUserEventId[] = userEvents.filter(event => !event.isAccepted).map(event => ({ userEventId: event.id, event: event.event }));
                     setAcceptedEvents(accepted);
                     setPendingEvents(pending);
                     console.log('Accepted Events:', accepted);

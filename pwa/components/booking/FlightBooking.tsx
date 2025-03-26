@@ -67,9 +67,7 @@ const FlightBooking = () => {
     }
 
     const updateEvent = async () => {
-        axios.patch(`/user_events/${user?.id}`, {
-            user: user,
-            event: bookingData.event,
+        axios.patch(`/user_events/${bookingData.userEventId}`, {
             isAccepted: true,
         }, {
             headers: {

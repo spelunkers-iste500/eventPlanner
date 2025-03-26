@@ -48,3 +48,15 @@ export interface Organization {
     type: string;
     name: string;
 }
+
+export interface UserEvent {
+    id: string;
+    event: Event;
+    isAccepted: boolean;
+    isDeclined: boolean;
+}
+
+export interface EventWithUserEventId {
+    userEventId: string;
+    event: Event;
+}

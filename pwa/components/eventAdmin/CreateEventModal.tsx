@@ -36,7 +36,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                     // console.log('${user?.eventAdminOfOrg[0]}');
                     console.log('creating event');
                     // const response = await 
-                    axios.post(`/organizations/${user?.eventAdminOfOrg[0]}/events`, {
+                    axios.post(`/organizations/${user?.eventAdminOfOrg[0]}/events/`, {
                         title: eventTitle,
                         startDateTime: startDate,
                         endDateTime: endDate,
