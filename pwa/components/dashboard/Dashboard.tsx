@@ -6,6 +6,7 @@ import { useUser } from "Utils/UserProvider";
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import ViewEventModal from "./ViewEventModal";
+import { signOut } from "next-auth/react";
 
 // Define the UserEvent interface
 interface UserEvent {
@@ -38,11 +39,11 @@ const Dashboard: React.FC = () => {
 
     const getEvents = async () => {
         if (user && session) {
-            try {
-                console.log('fetching user events');
-                const response = await axios.get(`/my/events`, {
-                    headers: { 'Authorization': `Bearer ${session.apiToken}` }
-                });
+            console.log('fetching user events');
+            axios.get(`/my/events`, {
+                headers: { 'Authorization': `Bearer ${session.apiToken}` }
+            })
+            .then((response) => {
                 if (response.status === 200) {
                     const userEvents: UserEvent[] = response.data['hydra:member'];
                     const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
@@ -53,9 +54,15 @@ const Dashboard: React.FC = () => {
                     console.log('Pending Events:', pending);
                     setLoading(false);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            })
+            .catch((error) => {
+                if (error.response && error.response.status === 401) {
+                    // this should happen when there's an expired jwt token
+                    signOut();
+                } else {
+                    console.error('Error fetching events:', error);
+                }
+            });
         }
     };
 
@@ -69,7 +76,7 @@ const Dashboard: React.FC = () => {
 
   	return (
 		<div className={styles.dashboardContainer}>
-			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>;
+			<h1 className={styles.heading}>Welcome, {user?.name}!</h1>
 			<EventList heading="Event Invitations" events={pendingEvents} />
             <EventList heading="Your Events" events={acceptedEvents} onOpenDialog={handleOpenDialog} />
 

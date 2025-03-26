@@ -54,6 +54,37 @@ const FlightBooking = () => {
         e.preventDefault();
         bookOffer();
     };
+
+    const bookingSuccess = () => {
+        setContent(<Dashboard />, 'Dashboard');
+        toaster.create({
+            title: "Flight Reserved",
+            description: "Your flight has successfully been reserved.",
+            type: "success",
+            duration: 3000,
+        });
+        updateEvent();
+    }
+
+    const updateEvent = async () => {
+        axios.patch(`/user_events/${user?.id}`, {
+            user: user,
+            event: bookingData.event,
+            isAccepted: true,
+        }, {
+            headers: {
+                'Authorization': `Bearer ${session?.apiToken}`,
+                'Content-Type': 'application/merge-patch+json',
+                'accept': 'application/ld+json',
+            }
+        })
+        .then((response) => {
+            console.log('Event updated:', response.data);
+        })
+        .catch((error) => {
+            console.error('Error updating event:', error);
+        });
+    }
     
     const bookOffer = async () => {
         if (!bookingData.selectedOffer) return;
@@ -62,35 +93,22 @@ const FlightBooking = () => {
             offerId: bookingData.selectedOffer.id
         }, {
             headers: {
-                    'Authorization': `Bearer ${session?.apiToken}`,
-                    'Content-Type': 'application/ld+json',
-                    'accept': 'application/ld+json',
-                }
+                'Authorization': `Bearer ${session?.apiToken}`,
+                'Content-Type': 'application/ld+json',
+                'accept': 'application/ld+json',
+            }
         })
         .then((response) => {
             console.log('Booking response:', response.data);
             if (response.status == 200) {
-                setContent(<Dashboard />, 'Dashboard');
+                bookingSuccess();
             }
-            toaster.create({
-                title: "Flight Reserved",
-                description: "Your flight has successfully been reserved.",
-                type: "success",
-                duration: 3000,
-                placement: 'top-end'
-            });
         })
         .catch((error) => {
             console.error('Error fetching flight offers:', error);
 
             // temporarily here until api returns a 200
-            setContent(<Dashboard />, 'Dashboard');
-            toaster.create({
-                title: "Flight Reserved",
-                description: "Your flight has successfully been reserved.",
-                type: "success",
-                duration: 3000,
-            });
+            bookingSuccess();
         });
     };
 

@@ -13,6 +13,8 @@ export interface Event {
     attendees: string[];
     financeAdmins: string[];
     eventAdmins: string[];
+    isAccepted: boolean;
+    isDeclined: boolean;
 }
 
 // Format the date to be in the format 'Month Day, Year'
