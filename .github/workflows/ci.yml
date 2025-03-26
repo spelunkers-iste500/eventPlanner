@@ -70,7 +70,7 @@ jobs:
       - name: Generate JWT signing certificates
         run: docker compose exec php bin/console lexik:jwt:generate-keypair | tee jwt_logs.txt 2>&1
       - name: Run PHPUnit
-        run: docker compose exec -T php bin/phpunit | tee phpunit_logs.txt
+        run: docker compose exec -T php bin/phpunit --stop-on-failure | tee phpunit_logs.txt
       - name: Doctrine Schema Validator
         run: docker compose exec -T php bin/console -e test doctrine:schema:validate | tee schema_validate_logs.txt 2>&1
       - name: Remove database
