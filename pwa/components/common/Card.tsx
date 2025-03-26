@@ -37,21 +37,23 @@
 
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { Event, formatDateDisplay, formatTime } from "Types/events";
+import { formatDateDisplay, formatTime, UserEvent } from "Types/events";
 import { Calendar, CircleDollarSign, HandCoins, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
 
 // Define types for the Card component props
 interface CardProps {
-	event: Event;
+	userEvent: UserEvent;
 	buttonText: string;
     isFinance?: boolean;
 	onClick: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ event, buttonText, isFinance, onClick }) => {
+const Card: React.FC<CardProps> = ({ userEvent, buttonText, isFinance, onClick }) => {
+    const event = userEvent?.event;
+
 	return (
         <div className={styles.card}>
-            <img src={'/media/event_image.jpg'} alt={event.eventTitle} className={styles.cardImage} />
+            <img src={'/media/placeholder-event.jpg'} alt={`Image of ${event.eventTitle}`} className={styles.cardImage} />
 
             <div className={styles.cardContent}>
                 <div>

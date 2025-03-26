@@ -127,7 +127,7 @@ const FinancialAdminDashboard: React.FC = () => {
         <div className={styles.orgInfoBox}>
           <div className={styles.orgImageWrapper}>
             <img 
-              src="/media/event_image.jpg"
+              src="/media/placeholder-event.jpg"
               alt="Organization Logo"
               className={styles.orgImage}
             />

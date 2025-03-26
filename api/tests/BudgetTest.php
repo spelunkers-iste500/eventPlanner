@@ -152,7 +152,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $response = static::createClient()->request('POST', '/budgets', [
             'headers' => ['Content-Type' => 'application/ld+json'],
             'json' => [
-                "perUserTotal"=> "50000",
+                "perUserTotal"=> 50000,
                 "organization" => $orgIri,
                 "event" => $eventIri
             ],
@@ -163,7 +163,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertJsonContains([
             '@context' => '/contexts/Budget',
             '@type' => 'Budget',
-            "perUserTotal"=> "50000",
+            "perUserTotal"=> 50000,
             "organization" => $orgIri,
             "event" => $eventIri
         ]);
