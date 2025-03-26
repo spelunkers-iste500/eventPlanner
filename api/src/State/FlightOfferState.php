@@ -195,20 +195,6 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
 
         $data = $response->toArray();
 
-        // $offers = [];
-        // foreach ($data['data']['offers'] as $offer) {
-        //     $flightOffer = new FlightOffer(
-        //         origin: $data['data']['offers'][0]['slices'][0]['origin']['iata_city_code'],
-        //         destination: $data['data']['offers'][0]['slices'][0]['destination']['iata_city_code'],
-        //         departureDate: $departureDate,
-        //         returnDate: $returnDate,
-        //         offerId: $offer['id'],
-        //         // offers: $data['data']['offers'],
-        //         slices: $data['data']['slices'], // slices are per offer, so should be multiple flight offer objects
-        //         passengerId: $data['data']['passengers'][0]['id']
-        //     );
-        //     array_push($offers, $flightOffer);
-        // }
         $offers = self::mapFlightOffersFromResponse($data);
         return $offers;
     }
@@ -254,7 +240,9 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
                     offerId: $offer['id'],
                     offerRequestId: $data['data']['id'],
                     slices: $offer['slices'], // slices are per offer, so should be multiple flight offer objects
-                    passengerId: $data['data']['passengers'][0]['id']
+                    passengerId: $data['data']['passengers'][0]['id'],
+                    owner: $offer['owner'],
+                    totalCost: $offer['total_amount'],
                 )
             );
         }
