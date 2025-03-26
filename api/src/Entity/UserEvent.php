@@ -58,12 +58,12 @@ class UserEvent
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
-    #[Groups(['write:myEvents', 'read:myEvents', 'update:myEvents'])]
+    #[Groups(['write:myEvents', 'read:myEvents'])]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:myEvents', 'write:myEvents', 'user:read', 'update:myEvents'])]
+    #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
     private Event $event;
 
     public function getUser(): User
