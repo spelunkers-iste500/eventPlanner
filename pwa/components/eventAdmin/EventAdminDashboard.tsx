@@ -35,11 +35,11 @@ const Dashboard: React.FC = () => {
     const getEvents = async () => {
         if (user && session) {
             try {
-                console.log('fetching organization events');
-                const response = await axios.get(`/organizations/${user.eventAdminOfOrg}/events`, {
+                const response = await axios.get(`${user.eventAdminOfOrg}/events`, {
                     headers: { 'Authorization': `Bearer ${session.apiToken}` }
                 });
                 if (response.status === 200) {
+                    console.log('fetched organization events: ', response.data['hydra:member']);
                     setEvents(response.data['hydra:member']);
                     setLoading(false);
                 }

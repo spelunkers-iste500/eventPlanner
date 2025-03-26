@@ -28,73 +28,52 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
     const [eventImage, setEventImage] = useState<File | null>(null);
     const [inviteUsers, setInviteUsers] = useState(false);
 
+    const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
+
     const handleSubmit = () => {
         if (eventTitle && startDate && endDate && location) {
             // make api request to create event
             const createEvent = async () => {
-                try {
-                    // console.log('${user?.eventAdminOfOrg[0]}');
-                    console.log('creating event');
-                    // const response = await 
-                    axios.post(`/organizations/${user?.eventAdminOfOrg[0]}/events/`, {
-                        title: eventTitle,
-                        startDateTime: startDate,
-                        endDateTime: endDate,
-                        location: location
-                    }, {
-                        headers: { 
-                            'Authorization': `Bearer ${session?.apiToken}`,
-                            'Content-Type': 'application/ld+json',
-                            'accept': 'application/ld+json',
-                        }
-                    })
-                    .then((response) => {
-                        console.log('Event Post response:', response.data);
-                        if (response.status == 200) {
-                        //     setContent(<Dashboard />, 'Dashboard');
-                        }
-                        toaster.create({
-                            title: "Event Created",
-                            description: "Your event has successfully been created.",
-                            type: "success",
-                            duration: 3000,
-                            placement: 'top-end'
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Error occured during event creation:', error);
-            
-                        // temporarily here until api returns a 200
-                        // setContent(<Dashboard />, 'Dashboard');
-                        toaster.create({
-                            title: "What does this do",
-                            description: "Chase the money Chase the Money.",
-                            type: "success",
-                            duration: 3000,
-                        });
-                    });
-                } catch (error) {
-                    console.error('Error creating event:', error);
+                axios.post(`/events`, {
+                    eventTitle: eventTitle,
+                    startDateTime: startDate,
+                    endDateTime: endDate,
+                    startFlightBooking: startDate,
+                    endFlightBooking: endDate,
+                    location: location,
+                    organization: user?.eventAdminOfOrg[0],
+                    maxAttendees: 20,
+                }, {
+                    headers: { 
+                        'Authorization': `Bearer ${session?.apiToken}`,
+                        'Content-Type': 'application/ld+json',
+                        'accept': 'application/ld+json',
+                    }
+                })
+                .then((response) => {
+                    console.log('Event Post response:', response.data);
+                    setCreatedEvent(response.data);
                     toaster.create({
-                        title: "Error",
-                        description: "An error occurred while creating the event.",
-                        type: "error",
+                        title: "Event Created",
+                        description: "Your event has successfully been created.",
+                        type: "success",
                         duration: 3000,
                         placement: 'top-end'
                     });
-                }
+                })
+                .catch((error) => {
+                    console.error('Error occurred during event creation:', error);
+                    toaster.create({
+                        title: "An error occurred",
+                        description: "An error occurred while creating the event.",
+                        type: "error",
+                        duration: 3000,
+                    });
+                });
             };
             createEvent();
         }
     };
-            
-    // useEffect(() => {
-    //     getEvents();
-    // }, [user]);
-
-    // if (loading) {
-    //     return <h2 className='loading'>Loading...</h2>;
-    // }
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
@@ -190,7 +169,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                 </div>
 
                 {/* Conditionally render the InviteAttendantsExt component */}
-                {inviteUsers && <InviteAttendantExt />}
+                {inviteUsers && <InviteAttendantExt createdEvent={createdEvent} />}
                 <br></br>
                 <div className='input-container'>
                     <Button onClick={handleSubmit}>Create Event</Button>
