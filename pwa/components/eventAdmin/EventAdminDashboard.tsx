@@ -43,12 +43,6 @@ const Dashboard: React.FC = () => {
         setIsCreateEventModalOpen(false);
     };
 
-    const handleCreateEvent = (eventData: { eventTitle: string; startDateTime: Date; endDateTime: Date; location: string }) => {
-        // Handle event creation logic here
-        console.log('Event created:', eventData);
-        setIsCreateEventModalOpen(false);
-    };
-
     // const getEvents = async () => {
     //     if (user && session) {
     //         try {
@@ -133,7 +127,7 @@ const Dashboard: React.FC = () => {
                     ))}
                 </AccordionRoot>
             </Stack>
-            <CreateEventModal isOpen={isCreateEventModalOpen} onClose={handleCloseCreateEventModal} onSubmit={handleCreateEvent} />
+            <CreateEventModal isOpen={isCreateEventModalOpen} onClose={handleCloseCreateEventModal} />
         </div>
     );
 };
