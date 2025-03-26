@@ -73,7 +73,7 @@ const FlightResults: React.FC = () => {
                 }
             })
             .then((response) => {
-                setFlightResults(response.data.offers);
+                setFlightResults(response.data.flightOffers);
                 setLoading(false);
             })
             .catch((error) => {
@@ -122,7 +122,7 @@ const FlightResults: React.FC = () => {
                         {displayedResults.map((offer: Offer, index: number) => (
                             <div className={styles.resultCard} key={index} onClick={() => handleClick(offer)}>
                                 
-                                <img className={styles.airlinerLogo} src={offer.owner.logo_symbol_url} alt={`${offer.owner.name} logo`} />
+                                <img className={styles.airlinerLogo} src={offer.slices[0].segments[0].marketing_carrier.logo_symbol_url} alt={`${offer.slices[0].segments[0].marketing_carrier.name} logo`} />
                                 <div className={styles.flightDetailsWrapper}>
                                     <div className={styles.flightDetails}>
                                         <div className={styles.flightInfo}>
@@ -162,7 +162,7 @@ const FlightResults: React.FC = () => {
                                             <p className={styles.flightClass}>{offer.slices[0].segments[0].passengers[0].cabin_class_marketing_name}</p>
                                         </div>
                                     </div>
-                                    <p className={styles.airliner}>{offer.owner.name}</p>
+                                    <p className={styles.airliner}>{offer.slices[0].segments[0].marketing_carrier.name}</p>
                                 </div>
                             </div>
                         ))}

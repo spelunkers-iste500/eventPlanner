@@ -27,6 +27,10 @@ export interface Segment {
         iata_code: string;
     };
     passengers: Passenger[];
+    marketing_carrier: {
+        name: string;
+        logo_symbol_url: string;
+    }
 }
 
 export interface Slice {
@@ -44,16 +48,10 @@ export interface Passenger {
     cabin_class_marketing_name: string;
 }
 
-export interface Owner {
-    name: string;
-    logo_symbol_url: string;
-}
-
 export interface Offer {
     id: string;
     base_amount: string;
     total_amount: string;
     passengers: Passenger[];
-    owner: Owner;
     slices: Slice[];
 }
