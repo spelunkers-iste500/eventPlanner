@@ -3,23 +3,23 @@ import axios from 'axios';
 import BaseDialog from 'Components/common/BaseDialog';
 import { X, MapPin, Calendar, Clock, Users, TowerControl, ArrowRight, PlaneTakeoff, PlaneLanding, CircleDollarSign } from 'lucide-react';
 import React, { useEffect } from 'react';
-import { Event, formatDateDisplay, formatTime } from 'Types/events';
+import { UserEvent, formatDateDisplay, formatTime } from 'Types/events';
 import styles from '../common/Dialog.module.css';
 import { useSession } from 'next-auth/react';
 
 interface ViewEventModalProps {
-    event: Event | null;
+    userEvent: UserEvent | null;
     isOpen: boolean;
     onClose: () => void;
 }
 
-const ViewEventModal: React.FC<ViewEventModalProps> = ({ event, isOpen, onClose }) => {
-    const { data: session } = useSession();
+const ViewEventModal: React.FC<ViewEventModalProps> = ({ userEvent, isOpen, onClose }) => {
+    const event = userEvent?.event;
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader>
-                <img src={'/media/event_image.jpg'} alt={event?.eventTitle} className={styles.dialogImg} />
+                <img src={'/media/placeholder-event.jpg'} alt={event?.eventTitle} className={styles.dialogImg} />
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
                 <div className={styles.dialogBodyHeader}>

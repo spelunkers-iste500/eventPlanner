@@ -28,14 +28,22 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
         gender: '',
         birthday: '',
         phoneNumber: '',
-        orgCode: ''
+        eventCode: '',
+        orgInviteId: ''
     });
 
     useEffect(() => {
-        const orgCode = searchParams.get('eventCode');
+        const eventCode = searchParams.get('eventCode');
+        const orgInviteId = searchParams.get('orgInviteId');
         const email = searchParams.get('email');
-        if (orgCode) {
-            setFormData((prevData) => ({ ...prevData, orgCode }));
+        if (email) {
+            setFormData((prevData) => ({ ...prevData, email }));
+        }
+        if (eventCode) {
+            setFormData((prevData) => ({ ...prevData, eventCode }));
+        }
+        if (orgInviteId) {
+            setFormData((prevData) => ({ ...prevData, orgInviteId }));
         }
     }, [searchParams]);
 
@@ -57,7 +65,6 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             { field: 'gender', message: 'Gender is required' },
             { field: 'birthday', message: 'Birthday is required' },
             { field: 'phoneNumber', message: 'Phone number is required' },
-            // { field: 'orgCode', message: 'Organization code is required, ensure you clicked on the link from your email' }
         ];
 
         for (const { field, message } of requiredFields) {
@@ -91,9 +98,9 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
             title: formData.title,
             gender: formData.gender,
             plainPassword: formData.password,
-            // orgCode: formData.orgCode
+            ...(formData.eventCode ? { eventCode: formData.eventCode } : { orgInviteId: formData.orgInviteId })
         };
-
+        
         // send post request to /users using axios
         try {
             const response = await axios.post('/users', requestData, {
@@ -132,7 +139,7 @@ const RegisterInfo: React.FC<RegisterInfoProps> = ({ onSuccess }) => {
         <>
         {error && <div className='error-msg'>{error}</div>}
         <form className={`${styles.sessionContainer} ${styles.register}`} onSubmit={handleSubmit}>
-            <input type="hidden" value={formData.orgCode} />
+            <input type="hidden" value={formData.eventCode ? formData.eventCode : formData.orgInviteId} />
             <Input
                 label="Email"
                 type="email"

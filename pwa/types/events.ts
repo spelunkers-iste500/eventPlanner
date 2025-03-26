@@ -1,3 +1,5 @@
+import { Flight } from "./airports";
+
 // Define types for the event data
 export interface Event {
     id: number;
@@ -13,6 +15,8 @@ export interface Event {
     attendees: string[];
     financeAdmins: string[];
     eventAdmins: string[];
+    isAccepted: boolean;
+    isDeclined: boolean;
 }
 
 // Format the date to be in the format 'Month Day, Year'
@@ -42,6 +46,19 @@ interface Budget {
 }
 
 export interface Organization {
-    id: number;
+    id: string;
+    type: string;
     name: string;
+}
+
+export interface UserEvent {
+    id: string;
+    event: Event;
+    status: string;
+    user: UserEventUser;
+}
+
+interface UserEventUser {
+    id: string;
+    flights: Flight[];
 }

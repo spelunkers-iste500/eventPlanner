@@ -28,7 +28,7 @@
 
 import React, { useEffect } from 'react';
 import styles from './EventForm.module.css';
-import { Event, formatDateDisplay, formatTime } from 'Types/events';
+import { UserEvent, formatDateDisplay, formatTime } from 'Types/events';
 import { useContent } from 'Utils/ContentProvider';
 import Dashboard from 'Components/dashboard/Dashboard';
 import { BookingData, useBooking } from 'Utils/BookingProvider';
@@ -36,7 +36,7 @@ import { X } from 'lucide-react';
 import FlightSearch from './FlightSearch';
 
 interface EventData {
-  	eventData: Event;
+  	eventData: UserEvent;
 }
 
 const EventForm: React.FC<EventData> = ({ eventData }) => {
@@ -44,7 +44,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 	const { bookingData, setBookingData } = useBooking();
 
     useEffect(() => {
-        setBookingData({ event: eventData, content: <FlightSearch /> });
+        setBookingData({ event: eventData.event, userEventId: eventData.id, content: <FlightSearch /> });
     }, [eventData, setBookingData]);
     
 
@@ -70,6 +70,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 				<h1>{bookingData.event.eventTitle}</h1>
 				<h2 className='h4'>{bookingData.event.organization.name}</h2>
 				<p>{formatDateDisplay(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
+				<p>Allowed Budget: ${bookingData.event.budget.perUserTotal}</p>
 			</div>
 
 			<div className={styles.formCard}>

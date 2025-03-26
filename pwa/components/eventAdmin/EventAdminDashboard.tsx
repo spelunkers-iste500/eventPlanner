@@ -7,7 +7,7 @@ import CreateEventModal from "./CreateEventModal";
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event } from "Types/events";
+import { Event, UserEvent } from "Types/events";
 import { Stack, Text } from "@chakra-ui/react"
 import {AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot} from "Components/ui/accordion"
 import { useState, useEffect } from "react"
@@ -18,69 +18,68 @@ const Dashboard: React.FC = () => {
     const { user } = useUser();
     const { data: session } = useSession();
     const [ loading, setLoading ] = useState(true);
+    const [events, setEvents] = useState<Event[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+    
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
     
     // Defining a state variable to manage the accordion's value
     const [value, setValue] = useState(["pending-events"]);
 
+    const getEvents = async () => {
+        if (user && session) {
+            try {
+                console.log('fetching organization events');
+                const response = await axios.get(`/organizations/${user.eventAdminOfOrg}/events`, {
+                    headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                });
+                if (response.status === 200) {
+                    setEvents(response.data['hydra:member']);
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        getEvents();
+    }, [user]);
+
+    if (loading) {
+        return <h2 className='loading'>Loading...</h2>;
+    }
+
     // Filtering events into current and past events based on the current date
     const currentEvents = events.filter(event => new Date(event.startDateTime) > new Date());
     const pastEvents = events.filter(event => new Date(event.startDateTime) <= new Date());
-
+    
+    const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
+        return events.map(event => ({
+            id: event.id.toString(),
+            event,
+            status: 'pending', // or 'accepted' based on your logic
+            user: {
+                id: user?.id || '',
+                flights: []
+            }
+        }));
+    };
+    
     // Defining items for the accordion, including current events, past events, and members list
     const items = [
-        { value: "pending-events", title: "Events Pending Approval", events: currentEvents },
-        { value: "approved-events", title: "Approved Events", events: pastEvents },
+        { value: "pending-events", title: "Events Pending Approval", events: mapEventsToUserEvents(currentEvents) },
+        { value: "approved-events", title: "Approved Events", events: mapEventsToUserEvents(pastEvents) },
         { value: "members-list", title: "Members List", events: [] },
-    ]
-    
-    const [isCreateEventModalOpen, setIsCreateEventModalOpen] = useState(false);
+    ];
 
-    const handleOpenCreateEventModal = () => {
-        setIsCreateEventModalOpen(true);
-    };
-
-    const handleCloseCreateEventModal = () => {
-        setIsCreateEventModalOpen(false);
-    };
-
-    const handleCreateEvent = (eventData: { eventTitle: string; startDateTime: Date; endDateTime: Date; location: string }) => {
-        // Handle event creation logic here
-        console.log('Event created:', eventData);
-        setIsCreateEventModalOpen(false);
-    };
-
-    // const getEvents = async () => {
-    //     if (user && session) {
-    //         try {
-    //             console.log('fetching organization events');
-    //             const response = await axios.get(`/organizations/${user.OrgMembership}/events`, {
-    //                 headers: { 'Authorization': `Bearer ${session.apiToken}` }
-    //             });
-    //             if (response.status === 200) {
-    //                 // const userEvents: UserEvent[] = response.data['hydra:member'];
-    //                 // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
-    //                 // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
-    //                 // setAcceptedEvents(accepted);
-    //                 // setPendingEvents(pending);
-    //                 // console.log('Accepted Events:', accepted);
-    //                 // console.log('Pending Events:', pending);
-    //                 setLoading(false);
-    //             }
-    //         } catch (error) {
-    //             console.error('Error:', error);
-    //         }
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     getEvents();
-    // }, [user]);
-
-    // if (loading) {
-    //     return <h2 className='loading'>Loading...</h2>;
-    // }
-
-    // Returning the JSX for the dashboard
     return (
         <div className={styles.plannerDashboardContainer}>
             <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
@@ -124,7 +123,7 @@ const Dashboard: React.FC = () => {
                                 {item.value === "members-list" ? (
                                     <MemberList members={members} />
                                 ) : item.events.length > 0 ? (
-                                    <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Events Pending Approval' && true} onAddEventClick={handleOpenCreateEventModal} />
+                                    <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Events Pending Approval' && true} onAddEventClick={handleOpenModal} />
                                 ) : (
                                     <Text>No events available</Text>
                                 )}
@@ -133,7 +132,7 @@ const Dashboard: React.FC = () => {
                     ))}
                 </AccordionRoot>
             </Stack>
-            <CreateEventModal isOpen={isCreateEventModalOpen} onClose={handleCloseCreateEventModal} onSubmit={handleCreateEvent} />
+            <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} />
         </div>
     );
 };
@@ -146,6 +145,7 @@ const events: Event[] = [
     { 
         id: 1, 
         eventTitle: "Event Name", 
+        budget: { id: "1", perUserTotal: 50000 },
         startDateTime: "2025-07-10T09:00:00", 
         endDateTime: "2025-07-10T17:00:00", 
         startFlightBooking: "2024-12-06T09:00:00", 
@@ -155,63 +155,77 @@ const events: Event[] = [
         organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
         attendees: ["attendee1@example.com", "attendee2@example.com"], 
         financeAdmins: ["financeAdmin1@example.com"], 
-        eventAdmins: ["eventAdmin1@example.com"] 
+        eventAdmins: ["eventAdmin1@example.com"],
+        isAccepted: false,
+        isDeclined: false
     },
     { 
         id: 2, 
         eventTitle: "Event Steff", 
+        budget: { id: "1", perUserTotal: 50000 },
         startDateTime: "2024-04-15T09:00:00", 
         endDateTime: "2024-04-15T17:00:00", 
         startFlightBooking: "2024-12-10T09:00:00", 
         endFlightBooking: "2024-12-15T17:00:00", 
         location: "Location Two", 
         maxAttendees: 150, 
-        organization: "Organization Ethan", 
+        organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
         attendees: ["attendee3@example.com", "attendee4@example.com"], 
         financeAdmins: ["financeAdmin2@example.com"], 
-        eventAdmins: ["eventAdmin2@example.com"] 
+        eventAdmins: ["eventAdmin2@example.com"],
+        isAccepted: false,
+        isDeclined: false
     },
     { 
         id: 3, 
         eventTitle: "Event Four", 
+        budget: { id: "1", perUserTotal: 50000 },
         startDateTime: "2024-12-03T09:00:00", 
         endDateTime: "2024-12-03T17:00:00", 
         startFlightBooking: "2024-12-01T09:00:00", 
         endFlightBooking: "2024-12-04T17:00:00", 
         location: "Location Three", 
         maxAttendees: 200, 
-        organization: "Organization Three", 
+        organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
         attendees: ["attendee5@example.com", "attendee6@example.com"], 
         financeAdmins: ["financeAdmin3@example.com"], 
-        eventAdmins: ["eventAdmin3@example.com"] 
+        eventAdmins: ["eventAdmin3@example.com"],
+        isAccepted: false,
+        isDeclined: false
     },
     { 
         id: 4, 
         eventTitle: "Event Ethan", 
+        budget: { id: "1", perUserTotal: 50000 },
         startDateTime: "2025-01-25T09:00:00", 
         endDateTime: "2025-01-25T17:00:00", 
         startFlightBooking: "2025-01-23T09:00:00", 
         endFlightBooking: "2025-01-26T17:00:00", 
         location: "Location Four", 
         maxAttendees: 250, 
-        organization: "Organization Steff", 
+        organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
         attendees: ["attendee7@example.com", "attendee8@example.com"], 
         financeAdmins: ["financeAdmin4@example.com"], 
-        eventAdmins: ["eventAdmin4@example.com"] 
+        eventAdmins: ["eventAdmin4@example.com"],
+        isAccepted: false,
+        isDeclined: false
     },
     { 
         id: 5, 
         eventTitle: "Event Sixty", 
+        budget: { id: "1", perUserTotal: 50000 },
         startDateTime: "2024-08-05T10:00:00", 
         endDateTime: "2024-08-05T18:00:00", 
         startFlightBooking: "2024-08-03T09:00:00", 
         endFlightBooking: "2024-08-06T17:00:00", 
         location: "Location Five", 
         maxAttendees: 300, 
-        organization: "Organization Sixty", 
+        organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
         attendees: ["attendee9@example.com", "attendee10@example.com"], 
         financeAdmins: ["financeAdmin5@example.com"], 
-        eventAdmins: ["eventAdmin5@example.com"] 
+        eventAdmins: ["eventAdmin5@example.com"],
+        isAccepted: false,
+        isDeclined: false
     },
 ];
 
