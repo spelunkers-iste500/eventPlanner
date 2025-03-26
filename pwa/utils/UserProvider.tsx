@@ -13,8 +13,9 @@ interface User {
     birthday: string;
     title: string;
     gender: string;
-    OrgMembership: string[];
+    // OrgMembership: string[];
     eventsAttending: Event[];
+    eventAdminOfOrg: string[];
     superAdmin: boolean;
     passengerId: string;
 }
