@@ -28,7 +28,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['read:event']],
     denormalizationContext: ['groups' => ['write:event']]
 )]
-
 //Event.Admin.Create (WORKS)
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
@@ -44,7 +43,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         )
     ],
     denormalizationContext: ['groups' => ['write:event']],
-    // processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(
@@ -165,7 +164,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'write:event', 'read:myEvents'])]
+    #[Groups(['read:event', 'read:myEvents'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {

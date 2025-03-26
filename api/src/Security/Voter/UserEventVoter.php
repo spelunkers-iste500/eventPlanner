@@ -9,6 +9,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class UserEventVoter extends Voter
 {
     public const EDIT = 'edit';
+    public const USEREDIT = 'userEdit';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
@@ -28,6 +29,11 @@ final class UserEventVoter extends Voter
 
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
+            case self::USEREDIT:
+                // check to see if the user is on the UserEvent object, and it's the correct route
+                if ($subject->getUser() === $token->getUser()) {
+                    return true;
+                }
             case self::EDIT:
                 // is the user a full admin?
                 if ($token->getUser()->getRoles() === 'ROLE_ADMIN') {

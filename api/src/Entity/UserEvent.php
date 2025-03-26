@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     denormalizationContext: ['groups' => ['write:myEvents']],
 )]
 #[Patch(
-    security: "is_granted('edit', object)",
+    security: "is_granted('userEdit', object)",
     denormalizationContext: ['groups' => ['update:myEvents']],
 )]
 /**
