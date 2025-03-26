@@ -40,8 +40,8 @@ const Dashboard: React.FC = () => {
                     const userEvents: UserEvent[] = response.data['hydra:member'];
                     // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
                     // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
-                    const accepted: EventWithUserEventId[] = userEvents.filter(event => event.isAccepted).map(event => ({ userEventId: event.id, event: event.event }));
-                    const pending: EventWithUserEventId[] = userEvents.filter(event => !event.isAccepted).map(event => ({ userEventId: event.id, event: event.event }));
+                    const accepted: EventWithUserEventId[] = userEvents.filter(event => event.status === 'accepted').map(event => ({ userEventId: event.id, event: event.event }));
+                    const pending: EventWithUserEventId[] = userEvents.filter(event => event.status === 'pending').map(event => ({ userEventId: event.id, event: event.event }));
                     setAcceptedEvents(accepted);
                     setPendingEvents(pending);
                     console.log('Accepted Events:', accepted);

@@ -68,7 +68,7 @@ const FlightBooking = () => {
 
     const updateEvent = async () => {
         axios.patch(`/user_events/${bookingData.userEventId}`, {
-            isAccepted: true,
+            status: "accepted",
         }, {
             headers: {
                 'Authorization': `Bearer ${session?.apiToken}`,

@@ -52,8 +52,7 @@ export interface Organization {
 export interface UserEvent {
     id: string;
     event: Event;
-    isAccepted: boolean;
-    isDeclined: boolean;
+    status: string;
 }
 
 export interface EventWithUserEventId {
