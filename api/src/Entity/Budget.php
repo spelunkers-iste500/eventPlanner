@@ -58,7 +58,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     uriTemplate: '/budgets/{id}.{_format}',
     security: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['replace:budget']],
-    //processor: LoggerStateProcessor::class GAVIN OR GEORGE MUST FIX ME
+    processor: LoggerStateProcessor::class
 )]
 /**#[GetCollection(
     uriTemplate: '/budgets',
@@ -80,11 +80,13 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         )
     ],
     normalizationContext: ['groups' => ['read:budget']],
+    processor: LoggerStateProcessor::class
 )]
 
 #[Delete(
     security: "is_granted('edit', object)",
     uriTemplate: '/budgets/{id}.{_format}',
+    processor: LoggerStateProcessor::class
 )]
 
 /** 
