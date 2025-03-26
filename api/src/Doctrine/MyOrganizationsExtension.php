@@ -33,7 +33,9 @@ final readonly class MyOrganizationsExtension implements QueryCollectionExtensio
             return;
         }
         $queryBuilder
-            ->andWhere(':user MEMBER OF o.users')
+            ->andwhere(':user MEMBER OF o.financeAdmins')
+            ->orWhere(':user MEMBER OF o.admins')
+            ->orWhere(':user MEMBER OF o.eventadmins')
             ->setParameter('user', $user);
     }
 }
