@@ -30,6 +30,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
 
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
+    const generateRandomString = (length: number) => {
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        let result = '';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    };
+
     const handleSubmit = () => {
         if (eventTitle && startDate && endDate && location) {
             // make api request to create event
@@ -42,7 +52,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                     endFlightBooking: endDate,
                     location: location,
                     organization: user?.eventAdminOfOrg[0],
-                    inviteCode: 'abc',
+                    inviteCode: generateRandomString(10),
                     maxAttendees: 20,
                 }, {
                     headers: { 
