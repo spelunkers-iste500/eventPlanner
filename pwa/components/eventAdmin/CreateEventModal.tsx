@@ -42,6 +42,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                     endFlightBooking: endDate,
                     location: location,
                     organization: user?.eventAdminOfOrg[0],
+                    inviteCode: 'abc',
                     maxAttendees: 20,
                 }, {
                     headers: { 
