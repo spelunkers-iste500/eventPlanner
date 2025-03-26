@@ -60,7 +60,7 @@ jobs:
         run: |
           set -o pipefail && curl -v --fail-with-body http://localhost | tee http_logs.txt
       - name: Check PWA reachability
-        run: set -o pipefail && curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login | tee pwa_logs.txt 2>&1
+        run: "set -o pipefail && curl -vk --fail-with-body -H 'Accept: text/html' https://localhost/login | tee pwa_logs.txt 2>&1"
       - name: Create database
         run: |
           set -o pipefail && docker compose exec -T php bin/console -e test doctrine:database:create | tee db_create_logs.txt
