@@ -141,15 +141,6 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         );
 
         $data = $response->toArray();
-        // $flightOffer = new FlightOffer(
-        //     origin: $data['data']['slices'][0]['origin']['iata_city_code'],
-        //     destination: $data['data']['slices'][0]['destination']['iata_city_code'],
-        //     departureDate: new DateTime($data['data']['slices'][0]['departure_date']),
-        //     returnDate: (isset($data['data']['slices'][1])) ? new DateTime($data['slices'][1]['departure_date']) : null,
-        //     offerId: $data['data']['id'],
-        //     slices: $data['data']['slices'],
-        //     passengerId: $data['data']['passengers'][0]['id']
-        // );
         $flightOffer = self::mapFlightOffersFromResponse($data)[0];
         return $flightOffer;
     }
