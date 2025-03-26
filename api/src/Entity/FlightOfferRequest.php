@@ -3,27 +3,18 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
-use App\State\DuffelOfferProvider;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
-use App\State\FlightOfferState;
-use DateTime;
+use App\State\FlightOfferRequestState;
 use DateTimeInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ApiResource]
 #[Get(
-    provider: FlightOfferState::class,
-    // security: "is_granted('view', object)"
+    // provider: FlightOfferRequestState::class,
+    normalizationContext: ['groups' => ['read:flightOffer']]
 )]
-#[Post(
-    processor: FlightOfferState::class,
-    securityPostDenormalize: "is_granted('book', object)",
-    normalizationContext: ['groups' => ['read:flightOffer']],
-    denormalizationContext: ['groups' => ['write:flightOffer']]
-)]
-
-class FlightOffer
+class FlightOfferRequest
 {
     #[ApiResource(identifier: true)]
     #[Groups(['read:flightOffer'])]
@@ -36,45 +27,27 @@ class FlightOffer
     public DateTimeInterface $departureDate;
     #[Groups(['read:flightOffer', 'write:flightOffer'])]
     public ?DateTimeInterface $returnDate = null;
-    #[Groups(['read:flightOffer'])]
-    public ?int $totalCost;
-    #[Groups(['read:flightOffer'])]
-    public ?array $slices;
-    #[Groups(['read:flightOffer'])]
-    public ?string $passengerId;
-    #[Groups(['read:flightOffer'])]
-    public ?string $offerRequestId;
-    #[Groups(['read:flightOffer'])]
-    public ?array $owner;
     #[Groups(['read:flightOffer', 'write:flightOffer'])]
     public int $maxConnections;
 
+    #[Groups(['read:flightOffer'])]
+    public ?array $flightOffers;
     public function __construct(
         string $origin,
         string $destination,
         DateTimeInterface $departureDate,
-        ?array $slices = null,
-        ?string $passengerId = null,
         int $maxConnections = 1,
         ?DateTimeInterface $returnDate = null,
-        ?string $offerId = null,
-        ?int $totalCost = null,
-        ?array $owner = null,
-        ?string $offerRequestId = null,
-        ?string $id = null
+        ?string $id = null,
+        ?array $flightOffers = null,
     ) {
+        $this->id = $id;
+        $this->flightOffers = $flightOffers;
         $this->origin = $origin;
         $this->destination = $destination;
         $this->departureDate = $departureDate;
-        $this->returnDate = $returnDate; // if return date is null, then not round trip
-        $this->id = $offerId;
-        $this->slices = $slices;
-        $this->passengerId = $passengerId;
+        $this->returnDate = $returnDate;
         $this->maxConnections = $maxConnections;
-        $this->totalCost = $totalCost;
-        $this->owner = $owner;
-        $this->offerRequestId = $offerRequestId;
-        $this->id = $id;
     }
 
     public function getId(): string
