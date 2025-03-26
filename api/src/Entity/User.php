@@ -655,17 +655,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         return $this;
     }
 
-    //WHERE I LEFT OFF
-    public function getUsersForOrganization(int $orgId)
-    {
-        //Getting org by it's ORG id that the user belongs to
-        //Get users from org given that the user has permissions
-        //return users from that org via filters
-        return null;
-    }
-
     #[Groups(['user:create'])]
-    private ?string $userEventId = null;
+    private ?string $eventCode = null;
 
     #[Groups(['user:create'])]
     private ?string $userOrgInviteId = null;
@@ -685,13 +676,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     // #[Groups('user:create')]
     private Collection $organizationInvites;
 
-    public function getUserEventId(): ?string
+    public function getEventCode(): ?string
     {
-        return $this->userEventId;
+        return $this->eventCode;
     }
-    public function setUserEventId(string $userEventId): void
+    public function setEventCode(string $eventCode): void
     {
-        $this->userEventId = $userEventId;
+        $this->eventCode = $eventCode;
     }
 
     /**

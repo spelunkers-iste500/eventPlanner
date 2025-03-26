@@ -226,7 +226,7 @@ class Event
     }
 
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    #[Groups(['event:read', 'event:write'])]
+    #[Groups(['event:read', 'event:write', 'write:event:changes'])]
     private ?string $inviteCode;
 
     public function getInviteCode(): string
