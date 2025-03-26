@@ -229,7 +229,7 @@ class Event
     #[Groups(['event:read', 'event:write', 'write:event:changes'])]
     private ?string $inviteCode;
 
-    public function getInviteCode(): string
+    public function getInviteCode(): ?string
     {
         return $this->inviteCode;
     }
