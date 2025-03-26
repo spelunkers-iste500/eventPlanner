@@ -32,16 +32,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
-    uriTemplate: '/organizations/{orgId}/events.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Event::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        )
-    ],
+    uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']],
     processor: LoggerStateProcessor::class
 )]
@@ -164,7 +155,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'read:myEvents'])]
+    #[Groups(['read:event', 'read:myEvents', 'write:event'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
