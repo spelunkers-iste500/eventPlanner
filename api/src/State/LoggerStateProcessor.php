@@ -63,13 +63,13 @@ class LoggerStateProcessor implements ProcessorInterface
         $changes = $this->computeChanges($beforeChange, $afterChange);
 
         // Only log if something actually changed
-        if (!empty($changes)) {
-            $logEntry = new ChangeLogging($username, $operationName, $beforeChange, $afterChange, $changes);
-            $this->entityManager->persist($logEntry);
-        }
+        // if (!empty($changes)) {
+        //     $logEntry = new ChangeLogging($username, $operationName, $beforeChange, $afterChange, $changes);
+        //     $this->entityManager->persist($logEntry);
+        // }
 
         //Flush
-        $this->entityManager->flush();
+        // $this->entityManager->flush();
 
         return $result;
     }

@@ -12,6 +12,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Link;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\UserRepository;
+use App\State\CurrentUserProvider;
 use App\State\UserPasswordHasher;
 use App\State\LoggerStateProcessor;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -22,6 +23,7 @@ use Doctrine\ORM\Mapping\JoinTable;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -30,6 +32,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Get(
     security: "is_granted('view', object)",
     normalizationContext: ['groups' => ['user:read']]
+)]
+#[Get(
+    uriTemplate: '/my/user.{_format}',
+    security: "is_granted('view', object)",
+    normalizationContext: ['groups' => ['user:read']],
+    provider: CurrentUserProvider::class
 )]
 //User.Create --This is working how I expect so far
 #[Post(
