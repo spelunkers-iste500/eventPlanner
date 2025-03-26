@@ -91,7 +91,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
-    #[Groups(['user:read', 'user:read:offers', 'user:create', 'user:org:read'])]
+    #[Groups(['user:read', 'user:read:offers', 'user:org:read'])]
     private $id;
 
     /**
@@ -667,11 +667,22 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Groups(['user:create'])]
     private ?string $userEventId = null;
 
+    #[Groups(['user:create'])]
+    private ?string $userOrgInviteId = null;
+
+    public function getUserOrgInviteId(): ?string
+    {
+        return $this->userOrgInviteId;
+    }
+    public function setUserOrgInviteId(string $userOrgInviteId): void
+    {
+        $this->userOrgInviteId = $userOrgInviteId;
+    }
     /**
      * @var Collection<int, OrganizationInvite>
      */
     #[ORM\OneToMany(mappedBy: 'invitedUser', targetEntity: OrganizationInvite::class)]
-    #[Groups('user:create')]
+    // #[Groups('user:create')]
     private Collection $organizationInvites;
 
     public function getUserEventId(): ?string
