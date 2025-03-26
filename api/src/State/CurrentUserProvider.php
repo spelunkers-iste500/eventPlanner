@@ -13,7 +13,7 @@ class CurrentUserProvider implements ProviderInterface
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         $userId = $this->s->getUser()->getUserIdentifier();
-        $user = $this->uR->getUserById($userId);
+        $user = $this->uR->getUserByEmail($userId);
         return $user;
     }
 }

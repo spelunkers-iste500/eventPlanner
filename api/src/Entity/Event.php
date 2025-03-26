@@ -11,6 +11,7 @@ use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
+use App\Repository\EventRepository;
 use App\State\EventStateProcessor;
 use App\State\LoggerStateProcessor;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -22,10 +23,10 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['read:event']],
-    denormalizationContext: ['groups' => ['write:event']],
+    denormalizationContext: ['groups' => ['write:event']]
 )]
 
 //Event.Admin.Create (WORKS)
@@ -43,7 +44,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
         )
     ],
     denormalizationContext: ['groups' => ['write:event']],
-    processor: LoggerStateProcessor::class
+    // processor: LoggerStateProcessor::class
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(

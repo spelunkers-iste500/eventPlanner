@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
@@ -24,6 +25,10 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:myEvents']],
+)]
+#[Patch(
+    security: "is_granted('edit', object)",
+    denormalizationContext: ['groups' => ['update:myEvents']],
 )]
 /**
  * User <-> Event relationship, also functions as an event invite, with a status of accepted or declined
@@ -53,12 +58,12 @@ class UserEvent
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
-    #[Groups(['write:myEvents'])]
+    #[Groups(['write:myEvents', 'read:myEvents', 'update:myEvents'])]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
-    #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
+    #[Groups(['read:myEvents', 'write:myEvents', 'user:read', 'update:myEvents'])]
     private Event $event;
 
     public function getUser(): User
@@ -81,7 +86,7 @@ class UserEvent
     }
 
     #[ORM\Column]
-    #[Groups(['read:myEvents'])]
+    #[Groups(['read:myEvents', 'update:myEvents'])]
     private bool $isAccepted;
 
     public function getIsAccepted(): bool
@@ -95,7 +100,7 @@ class UserEvent
     }
 
     #[ORM\Column]
-    #[Groups(['read:myEvents'])]
+    #[Groups(['read:myEvents', 'update:myEvents'])]
     private bool $isDeclined;
 
     public function getIsDeclined(): bool
