@@ -32,7 +32,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
-    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriTemplate: '/organizations/{orgId}/events.{_format}',
     uriVariables: [
         'orgId' => new Link(
             fromClass: Organization::class,
@@ -48,7 +48,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 //Event.Admin.View (WORKS)
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
-    uriTemplate: '/organizations/{orgId}/events/.{_format}',
+    uriTemplate: '/organizations/{orgId}/events.{_format}',
     uriVariables: [
         'orgId' => new Link(
             fromClass: Organization::class,

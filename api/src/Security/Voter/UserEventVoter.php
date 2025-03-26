@@ -31,7 +31,7 @@ final class UserEventVoter extends Voter
         switch ($attribute) {
             case self::USEREDIT:
                 // check to see if the user is on the UserEvent object, and it's the correct route
-                if ($subject->getUser() === $token->getUser()) {
+                if ($subject->getUser()->getEmail() === $token->getUser()->getUserIdentifier()) {
                     return true;
                 }
             case self::EDIT:
