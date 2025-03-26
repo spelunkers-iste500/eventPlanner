@@ -15,9 +15,7 @@ final class UserEventFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function class(): string
     {
@@ -33,7 +31,7 @@ final class UserEventFactory extends PersistentProxyObjectFactory
     {
         return [
             'event' => null,
-            'isAccepted' => self::faker()->boolean(),
+            'status' => array_rand(['accepted', 'declined', 'pending', 'cancelled']),
             'user' => null,
         ];
     }
