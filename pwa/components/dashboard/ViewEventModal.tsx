@@ -43,7 +43,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ userEvent, isOpen, onCl
                         <div><TowerControl size={16}/><span className={styles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></div>
                         <div><PlaneTakeoff size={16}/><span>{formatDateDisplay(event?.startFlightBooking)} • {formatTime(event?.startFlightBooking)}</span></div>
                         <div><PlaneLanding size={16}/><span>{formatDateDisplay(event?.endFlightBooking)} • {formatTime(event?.endFlightBooking)}</span></div>
-                        <div><CircleDollarSign size={16}/><span>${event?.budget.perUserTotal}/Attendee</span></div>
+                        {event?.budget && <div><CircleDollarSign size={16}/><span>${event?.budget.perUserTotal}/Attendee</span></div>}
                     </div>
                 </div>
             </DialogBody>
