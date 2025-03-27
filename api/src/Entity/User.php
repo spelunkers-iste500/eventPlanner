@@ -715,7 +715,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ?string $hashedPassword = null,
         ?string $plainPassword = null,
         ?\DateTimeInterface $createdOn = null,
-        ?Collection $OrgMembership = new ArrayCollection(),
         ?Collection $AdminOfOrg = new ArrayCollection(),
         ?Collection $flights = new ArrayCollection(),
         ?Collection $eventsAttending = new ArrayCollection(),
