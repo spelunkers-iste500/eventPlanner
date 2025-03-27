@@ -191,7 +191,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
 
         // before return value, should persist a Flight object as well so that the budget gets updated
         $flight = new Flight();
-        $flight->setFlightCost($responseData['total_amount']['amount']);
+        $flight->setFlightCost($responseData['total_amount']);
         $flight->setEvent($data->event);
         $this->entityManager->persist($flight);
         $this->entityManager->flush();
