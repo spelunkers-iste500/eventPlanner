@@ -69,7 +69,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         }
         // check if offer id is in the users offer id array
         $userId = $this->security->getUser()->getUserIdentifier();
-        $user = $this->uRepo->getUserById($userId);
+        $user = $this->uRepo->findOneBy(['email' => $userId]);
         if (!in_array($data->offerId, $user->getOfferIds())) {
             throw new \Exception("Offer ID not found in user's offer IDs.");
         }
@@ -118,7 +118,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
     public function createOrder(FlightOrder $data): FlightOrder
     {
         $userId = $this->security->getUser()->getUserIdentifier();
-        $user = $this->uRepo->getUserById($userId);
+        $user = $this->uRepo->findOneBy(['email' => $userId]);
         // parse first and last name from users whole name
         $firstName = $user->getFirstName();
         $lastName = $user->getLastName();
