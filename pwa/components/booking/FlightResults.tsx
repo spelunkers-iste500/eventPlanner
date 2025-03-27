@@ -57,6 +57,8 @@ const FlightResults: React.FC = () => {
         return null;
     }
 
+    const budget = bookingData.event.budget ? bookingData.event.budget.perUserTotal : 0; 
+
     useEffect(() => {
         const fetchFlightOffers = async () => {
             axios.post(`/flight_offers`, {
@@ -158,7 +160,7 @@ const FlightResults: React.FC = () => {
                                             ))}
                                         </div>
                                         <div className={styles.flightPriceInfo}>
-                                            <p className={`${styles.flightPrice} ${Number(offer.total_amount) > bookingData.event.budget.perUserTotal ? styles.overBudget : ''}`}>${offer.total_amount}</p>
+                                            <p className={`${styles.flightPrice} ${Number(offer.totalCost) > budget ? styles.overBudget : ''}`}>${offer.totalCost}</p>
                                             <p className={styles.flightClass}>{offer.slices[0].segments[0].passengers[0].cabin_class_marketing_name}</p>
                                         </div>
                                     </div>

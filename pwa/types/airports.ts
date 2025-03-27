@@ -51,7 +51,7 @@ export interface Passenger {
 export interface Offer {
     id: string;
     base_amount: string;
-    total_amount: string;
+    totalCost: string;
     passengers: Passenger[];
     slices: Slice[];
 }
