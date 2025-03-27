@@ -41,6 +41,9 @@ class Flight
     }
 
     #[ORM\Column]
+    #[Groups([
+        'read:myEvents'
+    ])]
     public int $flightCost;
 
     public function getFlightCost(): int
@@ -58,9 +61,7 @@ class Flight
 
     //Flight <-> Event
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'flights')]
-    #[Groups([
-        'read:myEvents'
-    ])]
+
     private Event $event;
 
     public function getEvent(): Event
@@ -90,6 +91,9 @@ class Flight
     }
 
     #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?DateTimeInterface $departureDateTime = null;
 
     public function getDepartureDateTime(): ?DateTimeInterface
@@ -102,6 +106,9 @@ class Flight
         return $this;
     }
     #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?DateTimeInterface $arrivalDateTime = null;
 
     public function getArrivalDateTime(): ?DateTimeInterface
@@ -115,6 +122,9 @@ class Flight
     }
 
     #[ORM\Column(nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?string $departureLocation = null;
 
     public function getDepartureLocation(): ?string
@@ -128,6 +138,9 @@ class Flight
     }
 
     #[ORM\Column(nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?string $arrivalLocation = null;
 
     public function getArrivalLocation(): ?string
