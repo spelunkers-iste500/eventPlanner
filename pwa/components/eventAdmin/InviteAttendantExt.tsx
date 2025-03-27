@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from 'react';
+import React, { useState, ChangeEvent, useEffect } from 'react';
 import axios from 'axios';
 import styles from '../common/Dialog.module.css';
 import { Box, Button, Flex, Input, CloseButton, InputGroup } from '@chakra-ui/react';
@@ -6,10 +6,16 @@ import { X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { LuFileUp } from 'react-icons/lu';
 import { FileUpload } from '@chakra-ui/react';
+import { Event } from 'Types/events';
 
-const InviteAttendantExt: React.FC = () => {
+interface InviteAttendantExtProps {
+    createdEvent: Event | null;
+}
+
+const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent }) => {
     const [emailInput, setEmailInput] = useState('');
     const [emails, setEmails] = useState<string[]>([]);
+    const { data: session } = useSession();
 
     const validateEmail = (email: string) => {
         const re = /\S+@\S+\.\S+/;
@@ -54,8 +60,32 @@ const InviteAttendantExt: React.FC = () => {
         return potentialEmails.filter(email => email && validateEmail(email));
     };
 
+    useEffect(() => {
+        console.log('Created Event:', createdEvent);
+    }, [createdEvent]);
+
     const handleSubmit = () => {
         console.log('Submitted emails:', emails);
+        // send invites out to the emails
+        if (createdEvent && emails.length > 0) {
+            if (session) {
+                axios.post(`/user_invites`, {
+                    event: `/events/${createdEvent.id}`,
+                    emails: emails,
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${session.apiToken}`,
+                        'Content-Type': 'application/ld+json',
+                    }
+                })
+                .then((response) => {
+                    console.log('Invite sent:', response.data);
+                })
+                .catch((error) => {
+                    console.error('Error sending invite:', error);
+                });
+            }
+        }
     };
 
     return (
