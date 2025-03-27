@@ -15,6 +15,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\Entity\Event;
 use App\Repository\UserRepository;
 use App\Entity\Flight;
+use App\Repository\FlightRepository;
 
 /**
  * Processes and provides the order info, updates related entities on persist.
@@ -28,7 +29,8 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         private HttpClientInterface $client,
         private Security $security,
         private Logger $logger,
-        private UserRepository $uRepo
+        private UserRepository $uRepo,
+        private FlightRepository $fRepo
     ) {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -193,8 +195,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $flight = new Flight();
         $flight->setFlightCost($responseData['total_amount']);
         $flight->setEvent($data->event);
-        $this->entityManager->persist($flight);
-        $this->entityManager->flush();
+        $this->fRepo->save($flight, true);
 
         // Example: Budget validation and updating
         // Fetch the budget (assuming only one budget exists)
