@@ -441,7 +441,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var Collection $flights The flights the user has booked/held
      * @todo change to ManyToOne, since a flight can only be related to one user
      */
-    #[ORM\ManyToMany(targetEntity: Flight::class, mappedBy: 'user')]
+    #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'user')]
     #[Groups([
         'read:myEvents',
         'user:read'
