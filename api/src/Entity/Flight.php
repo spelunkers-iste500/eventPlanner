@@ -89,7 +89,7 @@ class Flight
         return $this;
     }
 
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $departureDateTime = null;
 
     public function getDepartureDateTime(): ?DateTimeInterface
@@ -101,7 +101,7 @@ class Flight
         $this->departureDateTime = $departureDateTime;
         return $this;
     }
-    #[ORM\Column(nullable: true)]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $arrivalDateTime = null;
 
     public function getArrivalDateTime(): ?DateTimeInterface
