@@ -8,6 +8,7 @@ use ApiPlatform\Metadata\Get;
 use App\State\CurrentUserProvider;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -80,6 +81,7 @@ class Flight
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
