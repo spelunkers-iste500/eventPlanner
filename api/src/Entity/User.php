@@ -718,7 +718,8 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ?Collection $AdminOfOrg = new ArrayCollection(),
         ?Collection $flights = new ArrayCollection(),
         ?Collection $eventsAttending = new ArrayCollection(),
-        ?Collection $financeAdminOfOrg = new ArrayCollection()
+        ?Collection $financeAdminOfOrg = new ArrayCollection(),
+        ?Collection $OrgMembership = new ArrayCollection(),
     ) {
         $this->id = Uuid::uuid4();
         $this->firstName = $firstName;
