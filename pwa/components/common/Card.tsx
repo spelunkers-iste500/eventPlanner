@@ -87,13 +87,13 @@ const Card: React.FC<CardProps> = ({ userEvent, buttonText, isFinance, onClick }
                             {event.startFlightBooking && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneTakeoff size={16} />
-                                    {formatDateDisplay(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
+                                    {formatDateDisplay(userEvent.flights[0].slices[0].segments[0].departing_at)} • {formatTime(userEvent.flights[0].slices[0].segments[0].departing_at)}
                                 </div>
                             )}
                             {event.endFlightBooking && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneLanding size={16} />
-                                    {formatDateDisplay(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
+                                    {formatDateDisplay(userEvent.flights[0].slices[0].segments[0].arriving_at)} • {formatTime(userEvent.flights[0].slices[0].segments[0].arriving_at)}
                                 </div>
                             )}
                             </>

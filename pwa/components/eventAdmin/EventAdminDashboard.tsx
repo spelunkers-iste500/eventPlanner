@@ -65,11 +65,8 @@ const Dashboard: React.FC = () => {
         return events.map(event => ({
             id: event.id.toString(),
             event,
-            status: 'pending', // or 'accepted' based on your logic
-            user: {
-                id: user?.id || '',
-                flights: []
-            }
+            status: 'pending',
+            flights: [], 
         }));
     };
     
