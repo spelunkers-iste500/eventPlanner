@@ -450,7 +450,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private Collection $flights;
     /**
      * @param Collection $flights The flights the user has booked/held
-     * @return void
+     * @return Collection
      */
 
     public function getFlights(): Collection
