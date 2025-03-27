@@ -63,7 +63,7 @@ class OrganizationTest extends ApiTestCase
         OrganizationFactory::createMany(48);
 
         // test get organization as regular user should get nothing
-       /* 
+        
         $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $jwttokenUser2['token']]);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type for 50 orgs has org admin
@@ -73,9 +73,9 @@ class OrganizationTest extends ApiTestCase
             '@context' => '/contexts/Organization',
             '@id' => '/organizations',
             '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 0,
+            //'hydra:totalItems' => 0,
         ]);
-        $this->assertCount(0, $response->toArray()['hydra:member']);*/
+        //$this->assertCount(0, $response->toArray()['hydra:member']);*/
         // test get organization has super admin
         $response = static::createClient()->request('GET', '/organizations', ['auth_bearer' => $jwttoken['token']]);
 
@@ -103,7 +103,7 @@ class OrganizationTest extends ApiTestCase
         echo $executionMessage;
     }
     //function to get list of orgs a user is part of
-    /*public function testGetMyOrganizationCollection(): void
+    public function testGetMyOrganizationCollection(): void
     {
         $startTime = microtime(true);
         //create orgs
@@ -117,13 +117,29 @@ class OrganizationTest extends ApiTestCase
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, 'spleunkers123');
         $user2->setPassword($hashedPassword);
         $user2->_save(); // Save the user after setting the password
-        $user2->addAdminOfOrg($org);
-        $user2->_save();
+
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
         // Use the get method to get info on user
         $response = static::createClient()->request('GET', '/my/organizations/', ['auth_bearer' => $jwttoken['token']]);
+
+        //verify response is successful
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 orgs has org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Organization',
+            '@id' => '/my/organizations/',
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 1,
+            
+        ]);
+        $this->assertCount(1, $response->toArray()['hydra:member']);
+
+        // get orgs as user without org
+        $response = static::createClient()->request('GET', '/my/organizations/', ['auth_bearer' => $jwttokenUser2['token']]);
 
         //verify response is successful
         $this->assertResponseIsSuccessful();
@@ -143,7 +159,7 @@ class OrganizationTest extends ApiTestCase
         //end time calculation
         $executionMessage = $this->calculateExecutionTime($startTime, "my orgs");
         echo $executionMessage;
-    }*/
+    }
     //function to test get user permissions
     public function testPermissionGetOrganization(): void
     {

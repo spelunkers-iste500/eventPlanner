@@ -32,16 +32,12 @@ final class FlightFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-           'airline' => self::faker()->randomElement([
-                'American Airlines', 'Delta Air Lines', 'United Airlines', 'Southwest Airlines', 
-                'JetBlue Airways', 'Alaska Airlines', 'Spirit Airlines', 'Frontier Airlines'
-            ]),
-            'arrivalLocation' => self::faker()->city(),
-            'arrivalTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-            'departureLocation' => self::faker()->city(),
-            'departureTime' => self::faker()->dateTimeBetween('now', '+1 year'),
-            'flightNumber' => self::faker()->regexify('[A-Z]{2}[0-9]{1,17}'),
-            'flightTracker' => self::faker()->regexify('https://www\.flighttracker\.com/[A-Za-z0-9]{1,200}')
+            'flightCost' => self::faker()->randomNumber(4), // Random flight cost
+            'departureDateTime' => self::faker()->dateTimeBetween('-1 year', '+1 year'), // Nullable departure date
+            'arrivalDateTime' => self::faker()->dateTimeBetween('-1 year', '+1 year'), // Nullable arrival date
+            'departureLocation' => self::faker()->city(), // Nullable departure location
+            'arrivalLocation' => self::faker()->city(), // Nullable arrival location
+            'flightNumber' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable flight number
         ];
     }
 
