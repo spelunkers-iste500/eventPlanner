@@ -58,7 +58,7 @@ const Card: React.FC<CardProps> = ({ userEvent, buttonText, isFinance, onClick }
             <div className={styles.cardContent}>
                 <div>
                     <h3 className={styles.cardTitle}>{event.eventTitle}</h3>
-                    <h4 className={`${styles.cardSubtitle} h5`}>{event.organization.name}</h4>
+                    {event.organization && <h4 className={`${styles.cardSubtitle} h5`}>{event.organization.name}</h4>}
     
                     <div className={styles.cardDetails}>
                         <div className={styles.cardRow}>
