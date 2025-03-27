@@ -55,7 +55,9 @@ const FinancialAdminDashboard: React.FC = () => {
     const { data: session } = useSession();
     const { user } = useUser();
     const [value, setValue] = useState(["pending-events"]);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+    const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
 
     // Filtering events into current and past events based on the current date
     const pendingEvents = events.filter(event => new Date(event.startDateTime) > new Date());
@@ -75,17 +77,6 @@ const FinancialAdminDashboard: React.FC = () => {
         { value: "pending-events", title: "Events Pending Approval", events: mapEventsToUserEvents(pendingEvents) },
         { value: "approved-events", title: "Approved Events", events: mapEventsToUserEvents(approvedEvents) },
     ];
-    
-    // CSV Export Search State
-    const [csvSearchTerm, setCsvSearchTerm] = useState("");
-    const [selectedExportEvent, setSelectedExportEvent] = useState<number | null>(null);
-    // Filter all events based on the CSV search term
-    const filteredExportEvents = events.filter((event) =>
-        event.eventTitle.toLowerCase().includes(csvSearchTerm.toLowerCase())
-    );
-
-    const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
 
     const handleOpenBudgetModal = (event: UserEvent) => {
         setSelectedEvent(event);
@@ -93,6 +84,7 @@ const FinancialAdminDashboard: React.FC = () => {
     };
 
     const handleCloseBudgetModal = () => {
+        setSelectedEvent(null);
         setIsBudgetModalOpen(false);
     };
 
@@ -101,8 +93,12 @@ const FinancialAdminDashboard: React.FC = () => {
     const budgetSpent = "$45,000";
     const remainingBudget = "$55,000";
 
-    const handleExportClick = () => {
-        setIsDialogOpen(true); // Open modal
+    const handleOpenExportDialog = () => {
+        setIsExportDialogOpen(true);
+    };
+
+    const handleCloseExportDialog = () => {
+        setIsExportDialogOpen(false);
     };
 
     return (
@@ -127,7 +123,7 @@ const FinancialAdminDashboard: React.FC = () => {
                     </div>
                     {/* Export CSV Button */}
                     <div className={styles.exportButtonContainer}>
-                        <button className={styles.exportButton} onClick={handleExportClick}>
+                        <button className={styles.exportButton} onClick={handleOpenExportDialog}>
                             Export CSV
                         </button>
                     </div>
@@ -179,7 +175,11 @@ const FinancialAdminDashboard: React.FC = () => {
             userEvent={selectedEvent}
 		/>
 
-		{/* <ExportCsvModal /> */}
+		<ExportCsvModal
+            isOpen={isExportDialogOpen}
+            onClose={handleCloseExportDialog}
+            events={events}
+        />
 		
     </>
     );

@@ -172,15 +172,15 @@
 	position: relative;
 	cursor: pointer;
 	transition: background-color 0.3s ease, backdrop-filter 0.3s ease;
-  }
+}
   
-  .add-event-card:hover {
+.add-event-card:hover {
 	/* background-color: var(--blue-300); */
 	backdrop-filter: blur(10px);
-  }
-  
-  /* Box inside the card */
-  .add-event-box {
+}
+
+/* Box inside the card */
+.add-event-box {
 	width: 30%;
 	aspect-ratio: 1;
 	background-color: var(--gray-200);
@@ -189,16 +189,16 @@
 	align-items: center;
 	justify-content: center;
 	transition: background-color 0.3s ease;
-  }
-  
-  .add-event-card:hover .add-event-box {
+}
+
+.add-event-card:hover .add-event-box {
 	background-color: var(--blue-400);
-  }
-  
-  /* Plus Icon */
-  .plus-icon {
+}
+
+/* Plus Icon */
+.plus-icon {
 	color: var(--gray-700);
-  }
+}
   
 .no-results {
 	font-style: italic;
