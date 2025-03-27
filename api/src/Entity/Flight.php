@@ -73,6 +73,11 @@ class Flight
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'flights')]
     private User $user; // this should be updated to be a single user
 
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
