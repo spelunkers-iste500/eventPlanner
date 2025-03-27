@@ -43,7 +43,6 @@ final class UserFactory extends PersistentProxyObjectFactory
             'phoneNumber' => self::faker()->numerify('+###########'), // Generates a phone 
             'superAdmin' => false,
             'title' => self::faker()->randomElement(['mr', 'mrs', 'ms', 'dr', 'miss']), // Generates a realistic title ['mr', 'mrs', 'ms', 'dr', 'miss']
-            'OrgMembership' => new ArrayCollection()
         ];
     }
 
