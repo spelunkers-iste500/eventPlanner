@@ -1,5 +1,3 @@
-import { Offer } from "./airports";
-
 // Define types for the event data
 export interface Event {
     id: number;
@@ -55,5 +53,14 @@ export interface UserEvent {
     id: string;
     event: Event;
     status: string;
-    flights: Offer[];
+    flights: Flight[];
+}
+
+interface Flight {
+    id: string;
+    arrivalDateTime: string;
+    arrivalLocation: string;
+    departureDateTime: string;
+    departureLocation: string
+    flightCost: number;
 }
