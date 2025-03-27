@@ -65,11 +65,8 @@ const Dashboard: React.FC = () => {
         return events.map(event => ({
             id: event.id.toString(),
             event,
-            status: 'pending', // or 'accepted' based on your logic
-            user: {
-                id: user?.id || '',
-                flights: []
-            }
+            status: 'pending',
+            flights: [], 
         }));
     };
     
@@ -122,10 +119,8 @@ const Dashboard: React.FC = () => {
                             <AccordionItemContent>
                                 {item.value === "members-list" ? (
                                     <MemberList members={members} />
-                                ) : item.events.length > 0 ? (
-                                    <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Events Pending Approval' && true} onAddEventClick={handleOpenModal} />
                                 ) : (
-                                    <Text>No events available</Text>
+                                    <EventList heading={item.title} events={item.events} hasAddBtn={item.title === 'Events Pending Approval' && true} onAddEventClick={handleOpenModal} />
                                 )}
                             </AccordionItemContent>
                         </AccordionItem>

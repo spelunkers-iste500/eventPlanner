@@ -15,6 +15,7 @@ use ApiPlatform\State\ProviderInterface;
 use App\Entity\Event;
 use App\Repository\UserRepository;
 use App\Entity\Flight;
+use App\Repository\FlightRepository;
 
 /**
  * Processes and provides the order info, updates related entities on persist.
@@ -28,7 +29,8 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         private HttpClientInterface $client,
         private Security $security,
         private Logger $logger,
-        private UserRepository $uRepo
+        private UserRepository $uRepo,
+        private FlightRepository $fRepo
     ) {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -69,7 +71,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         }
         // check if offer id is in the users offer id array
         $userId = $this->security->getUser()->getUserIdentifier();
-        $user = $this->uRepo->getUserById($userId);
+        $user = $this->uRepo->findOneBy(['email' => $userId]);
         if (!in_array($data->offerId, $user->getOfferIds())) {
             throw new \Exception("Offer ID not found in user's offer IDs.");
         }
@@ -118,7 +120,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
     public function createOrder(FlightOrder $data): FlightOrder
     {
         $userId = $this->security->getUser()->getUserIdentifier();
-        $user = $this->uRepo->getUserById($userId);
+        $user = $this->uRepo->findOneBy(['email' => $userId]);
         // parse first and last name from users whole name
         $firstName = $user->getFirstName();
         $lastName = $user->getLastName();
@@ -164,7 +166,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         );
 
 
-        if ($response->getStatusCode() > 204) {
+        if ($response->getStatusCode() != 201) {
             throw new \Exception("Error creating order: " . $response->getStatusCode());
         }
 
@@ -187,14 +189,22 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
             phone_number: $phoneNum
         );
 
-        $flightOrder->setData(json_decode($responseData));
+        $flightOrder->setData($responseData);
 
+        $sliceOne = $responseData['slices'][0];
+        $segments = $sliceOne['segments'];
+        $departing = $segments[0]['departing_at'];
+        $departing = $segments[0]['arriving_at'];
         // before return value, should persist a Flight object as well so that the budget gets updated
         $flight = new Flight();
-        $flight->setFlightCost($responseData['total_amount']['amount']);
+        $flight->setFlightCost($responseData['total_amount']);
         $flight->setEvent($data->event);
-        $this->entityManager->persist($flight);
-        $this->entityManager->flush();
+        $flight->setUser($user);
+        $flight->setDepartureDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['departing_at']));
+        $flight->setArrivalDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['arriving_at']));
+        $flight->setDepartureLocation($responseData['slices'][0]['segments'][0]['origin']['iata_code']);
+        $flight->setArrivalLocation($responseData['slices'][0]['segments'][0]['destination']['iata_code']);
+        $this->fRepo->save($flight, true);
 
         // Example: Budget validation and updating
         // Fetch the budget (assuming only one budget exists)

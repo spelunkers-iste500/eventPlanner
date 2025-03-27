@@ -3,19 +3,6 @@ export interface Airport {
     name: string;
 }
 
-/**
- * Represents a flight with details such as airline, flight number, date, time, and price.
- * Optionally, it can include additional notes.
- */
-export interface Flight {
-    airline: string;
-    flightNumber: string;
-    date: string;
-    time: string;
-    price: number;
-    notes?: string[];
-}
-
 export interface Segment {
     departing_at: string;
     arriving_at: string;

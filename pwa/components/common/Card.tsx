@@ -71,29 +71,29 @@ const Card: React.FC<CardProps> = ({ userEvent, buttonText, isFinance, onClick }
                             {/* {event.budget && ( */}
                                 <div className={styles.cardRow}>
                                     <HandCoins size={16} />
-                                    50000
+                                    $50000
                                 </div>
                             {/* )} */}
                             {/* {event.expenses && ( */}
                                 <div className={styles.cardRow}>
                                     <CircleDollarSign size={16} />
-                                    6900
+                                    $6900
                                     {/* Change ^ this back to {events.expenses or budget when weve got it} */}
                                 </div>
                             {/* )} */}
                             </>
                         ) : (
                             <>
-                            {event.startFlightBooking && buttonText !== "Book Now" && (
+                            {userEvent.flights.length > 0 && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneTakeoff size={16} />
-                                    {formatDateDisplay(event.startFlightBooking)} • {formatTime(event.startFlightBooking)}
+                                    {formatDateDisplay(userEvent.flights[0].departureDateTime)} • {formatTime(userEvent.flights[0].departureDateTime)}
                                 </div>
                             )}
-                            {event.endFlightBooking && buttonText !== "Book Now" && (
+                            {userEvent.flights.length > 0 && buttonText !== "Book Now" && (
                                 <div className={styles.cardRow}>
                                     <PlaneLanding size={16} />
-                                    {formatDateDisplay(event.endFlightBooking)} • {formatTime(event.endFlightBooking)}
+                                    {formatDateDisplay(userEvent.flights[0].arrivalDateTime)} • {formatTime(userEvent.flights[0].arrivalDateTime)}
                                 </div>
                             )}
                             </>

@@ -32,9 +32,9 @@ class FlightOrder
     public ?string $email;
     public ?string $birthday;
     public ?string $phone_number;
-    public ?string $data;
+    public ?array $data;
     #[Groups(['write:flightOrder'])]
-    public ?Event $event;
+    public ?Event $event = null;
 
     public function __construct(string $offerId, ?string $order_id = null, ?string $passenger_id = null, ?string $first_name = null, ?string $family_name = null, ?string $title = null, ?string $gender = null, ?string $email = null, ?string $birthday = null, ?string $phone_number = null)
     {
@@ -60,7 +60,7 @@ class FlightOrder
         $this->id = $id;
     }
 
-    public function setData(string $data)
+    public function setData(array $data)
     {
         $this->data = $data;
     }

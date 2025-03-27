@@ -5,17 +5,23 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\State\CurrentUserProvider;
+use DateTimeInterface;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
-#[Get(
-    provider: CurrentUserProvider::class,
+#[GetCollection(
     uriTemplate: '/my/flights.{_format}',
+)]
+#[Get(
+    uriTemplate: '/flights/{id}.{_format}',
+    security: "is_granted('view', object)"
 )]
 class Flight
 {
@@ -35,6 +41,9 @@ class Flight
     }
 
     #[ORM\Column]
+    #[Groups([
+        'read:myEvents'
+    ])]
     public int $flightCost;
 
     public function getFlightCost(): int
@@ -52,9 +61,7 @@ class Flight
 
     //Flight <-> Event
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'flights')]
-    #[Groups([
-        'read:myEvents'
-    ])]
+
     private Event $event;
 
     public function getEvent(): Event
@@ -72,6 +79,94 @@ class Flight
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'flights')]
     private User $user; // this should be updated to be a single user
 
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
+    private ?DateTimeInterface $departureDateTime = null;
+
+    public function getDepartureDateTime(): ?DateTimeInterface
+    {
+        return $this->departureDateTime;
+    }
+    public function setDepartureDateTime(DateTimeInterface $departureDateTime): self
+    {
+        $this->departureDateTime = $departureDateTime;
+        return $this;
+    }
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
+    private ?DateTimeInterface $arrivalDateTime = null;
+
+    public function getArrivalDateTime(): ?DateTimeInterface
+    {
+        return $this->arrivalDateTime;
+    }
+    public function setArrivalDateTime(DateTimeInterface $arrivalDateTime): self
+    {
+        $this->arrivalDateTime = $arrivalDateTime;
+        return $this;
+    }
+
+    #[ORM\Column(nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
+    private ?string $departureLocation = null;
+
+    public function getDepartureLocation(): ?string
+    {
+        return $this->departureLocation;
+    }
+    public function setDepartureLocation(string $departureLocation): self
+    {
+        $this->departureLocation = $departureLocation;
+        return $this;
+    }
+
+    #[ORM\Column(nullable: true)]
+    #[Groups([
+        'read:myEvents'
+    ])]
+    private ?string $arrivalLocation = null;
+
+    public function getArrivalLocation(): ?string
+    {
+        return $this->arrivalLocation;
+    }
+    public function setArrivalLocation(string $arrivalLocation): self
+    {
+        $this->arrivalLocation = $arrivalLocation;
+        return $this;
+    }
+
+    #[ORM\Column(nullable: true)]
+    private ?string $flightNumber = null;
+
+    public function getFlightNumber(): ?string
+    {
+        return $this->flightNumber;
+    }
+    public function setFlightNumber(string $flightNumber): self
+    {
+        $this->flightNumber = $flightNumber;
+        return $this;
+    }
+
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -80,6 +175,7 @@ class Flight
 
     public function __construct()
     {
+        $this->id = Uuid::uuid4();
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }

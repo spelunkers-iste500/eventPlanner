@@ -40,9 +40,15 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ userEvent, isOpen, onCl
                     </div>
                     <div className={styles.dialogDetails}>
                         <h3>Your Details</h3>
-                        <div><TowerControl size={16}/><span className={styles.dialogAirports}>ROC <ArrowRight size={16} /> ORL</span></div>
-                        <div><PlaneTakeoff size={16}/><span>{formatDateDisplay(event?.startFlightBooking)} • {formatTime(event?.startFlightBooking)}</span></div>
-                        <div><PlaneLanding size={16}/><span>{formatDateDisplay(event?.endFlightBooking)} • {formatTime(event?.endFlightBooking)}</span></div>
+                        {userEvent?.flights[0] ? (
+                            <>
+                            <div><TowerControl size={16}/><span className={styles.dialogAirports}>{userEvent?.flights[0].departureLocation}<ArrowRight size={16} />{userEvent?.flights[0].arrivalLocation}</span></div>
+                            <div><PlaneTakeoff size={16}/><span>{formatDateDisplay(userEvent.flights[0].departureDateTime)} • {formatTime(userEvent.flights[0].departureDateTime)}</span></div>
+                            <div><PlaneLanding size={16}/><span>{formatDateDisplay(userEvent.flights[0].arrivalDateTime)} • {formatTime(userEvent.flights[0].arrivalDateTime)}</span></div>
+                            </>
+                        ) : (
+                            <p>No flights found</p>
+                        )}
                         {event?.budget && <div><CircleDollarSign size={16}/><span>${event?.budget.perUserTotal}/Attendee</span></div>}
                     </div>
                 </div>
