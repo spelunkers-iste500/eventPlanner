@@ -4,14 +4,12 @@ namespace App\Doctrine;
 
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
-use App\Entity\Event;
 use Symfony\Bundle\SecurityBundle\Security;
 use App\Repository\UserRepository;
 use Psr\Log\LoggerInterface;
 use Doctrine\ORM\QueryBuilder;
 use ApiPlatform\Metadata\Operation;
 use App\Entity\Flight;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 final readonly class MyFlightsExtension implements QueryCollectionExtensionInterface
 {
@@ -19,15 +17,12 @@ final readonly class MyFlightsExtension implements QueryCollectionExtensionInter
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        // Ensure this extension only applies to the Event entity
+        // Ensure this extension only applies to the Flight entity
         if ($resourceClass !== Flight::class) {
             return;
         }
         $user = $this->security->getUser();
-        // check to see if route is the correct one to apply this extension to
-        // if ($operation && $operation-> !== '/organizations/{orgId}/events/.{_format}') {
-        //     return;
-        // }
+
         switch ($operation->getName()) {
             case '_api_/my/flights.{_format}_get_collection':
                 $queryBuilder->andWhere(':user = o.user')->setParameter('user', $user);
@@ -35,19 +30,5 @@ final readonly class MyFlightsExtension implements QueryCollectionExtensionInter
             default:
                 break;
         }
-        // if ($operation && ($operation->getName() !== '_api_/my/events.{_format}_get_collection' || $operation->getName() !== '_api_/my/organizations/events.{_format}_get_collection')) {
-        //     return;
-        // } else if ($user === null || !$user instanceof UserInterface) {
-        //     // No access for unauthenticated users
-        //     $queryBuilder->where('1 = 0');
-        //     return;
-        // } else if ($this->security->isGranted('ROLE_ADMIN')) {
-        //     return;
-        // } else if ($operation->getName() == '_api_/my/organizations/events.{_format}_get_collection') {
-        //     // $userObj = $this->userRepo->findOneBy(['email' => $user->getUserIdentifier()]);
-        //     // $queryBuilder->andWhere(':organization MEMBER OF o.organizations')->setParameter('organization', $userObj->getEventAdminOfOrg());
-        // } else {
-        //     
-        // }
     }
 }
