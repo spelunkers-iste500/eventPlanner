@@ -187,7 +187,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
             phone_number: $phoneNum
         );
 
-        $flightOrder->setData(json_decode($responseData));
+        $flightOrder->setData($responseData);
 
         // before return value, should persist a Flight object as well so that the budget gets updated
         $flight = new Flight();
