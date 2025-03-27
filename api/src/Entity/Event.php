@@ -78,6 +78,16 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     normalizationContext: ['groups' => ['test:attendees']]
 )]
 
+//grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/csv/events/{id}.{_format}',
+    normalizationContext: ['groups' => ['event:csv:export']]
+)
+]
+
+//ADD IMAGES HERE
+
 // #[GetCollection(
 //     uriTemplate: '/my/events.{_format}',
 //     normalizationContext: ['groups' => ['read:event:collection']]
@@ -102,7 +112,7 @@ class Event
     }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes', 'read:myEvents'])]
+    #[Groups(['read:event', 'write:event',  'read:event:collection', 'write:event:changes', 'read:myEvents', 'event:csv:export'])]
     public string $eventTitle;
     public function getEventTitle(): string
     {
@@ -144,7 +154,7 @@ class Event
     public string $location;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read:event', 'write:event', 'write:event:changes', 'read:myEvents'])]
+    #[Groups(['read:event', 'write:event', 'write:event:changes', 'read:myEvents', 'event:csv:export', 'event:csv:export'])]
     public int $maxAttendees;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
@@ -171,7 +181,7 @@ class Event
     //Event -> Budget
     #[ORM\OneToOne(targetEntity: Budget::class, mappedBy: 'event', cascade: ['persist', 'merge'])]
     #[ORM\JoinColumn(name: 'budgetID', referencedColumnName: 'id', nullable: true, onDelete: 'SET NULL')]
-    #[Groups(['read:event', 'read:event:booking',  'read:event:collection', 'read:myEvents'])]
+    #[Groups(['read:event', 'read:event:booking',  'read:event:collection', 'read:myEvents', 'event:csv:export'])]
     public Budget $budget;
     public function getBudget(): Budget
     {
@@ -240,7 +250,7 @@ class Event
 
     //Event -> Flight
     #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:event:collection', 'event:csv:export'])]
     private Collection $flights;
 
     public function getFlights(): Collection

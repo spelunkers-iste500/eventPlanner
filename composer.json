@@ -1,6 +1,7 @@
 {
     "require": {
         "doctrine/annotations": "^2.0",
-        "symfony/serializer": "^7.2"
+        "symfony/serializer": "^7.2",
+        "vich/uploader-bundle": "^2.6"
     }
 }

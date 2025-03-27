@@ -135,6 +135,22 @@ class Budget
     #[ORM\Column(type: 'datetime')]
     public \DateTimeInterface $createdDate;
 
+    //ADD OVERATE
+    #[ORM\Column]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget'])]
+    private int $overage = 0;
+
+    public function getOverage(): int
+    {
+        return $this->overage;
+    }
+
+    public function setOverage(int $overage): self
+    {
+        $this->overage = $overage;
+        return $this;
+    }
+
     //Relationships
 
     //Budget -> User

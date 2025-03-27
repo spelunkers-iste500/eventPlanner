@@ -107,7 +107,7 @@ class EventTest extends ApiTestCase
         // Create 49 additional Organizations using our factory
 
         // test get events as regular user should get nothing
-       /* 
+       
         $response = static::createClient()->request('GET', "/organizations/$orgid/events", ['auth_bearer' => $jwttokenUser2['token']]);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type for 50 eventshas org admin
@@ -119,7 +119,7 @@ class EventTest extends ApiTestCase
             '@type' => 'hydra:Collection',
             'hydra:totalItems' => 0,
         ]);
-        $this->assertCount(0, $response->toArray()['hydra:member']);*/
+        $this->assertCount(0, $response->toArray()['hydra:member']);
         // test get organization has super admin
         $response = static::createClient()->request('GET', "/organizations/$orgid/events", ['auth_bearer' => $jwttoken['token']]);
 
