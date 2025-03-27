@@ -7,6 +7,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
@@ -89,7 +90,7 @@ class UserEvent
     }
 
     #[Groups(['read:myEvents'])]
-    public function getFlights(): ?ArrayCollection
+    public function getFlights(): ?Collection
     {
         return $this->user->getFlights();
     }

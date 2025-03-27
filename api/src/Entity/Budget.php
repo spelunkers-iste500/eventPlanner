@@ -90,7 +90,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'write:budget', 'read:myEvents', 'user:read:budget'])]
+    #[Groups(['read:budget', 'read:myEvents', 'user:read:budget'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {

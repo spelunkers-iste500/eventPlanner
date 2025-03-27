@@ -69,8 +69,8 @@ class Flight
 
     // One flight per user, per event
     // Flight <-> User
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'flights')]
-    private Collection $users; // this should be updated to be a single user
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'flights')]
+    private User $user; // this should be updated to be a single user
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
