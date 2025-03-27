@@ -32,7 +32,7 @@ class FlightOrder
     public ?string $email;
     public ?string $birthday;
     public ?string $phone_number;
-    public ?string $data;
+    public ?array $data;
     #[Groups(['write:flightOrder'])]
     public ?Event $event;
 
@@ -60,7 +60,7 @@ class FlightOrder
         $this->id = $id;
     }
 
-    public function setData(string $data)
+    public function setData(array $data)
     {
         $this->data = $data;
     }
