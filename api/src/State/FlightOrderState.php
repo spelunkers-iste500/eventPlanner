@@ -164,7 +164,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         );
 
 
-        if ($response->getStatusCode() > 204) {
+        if ($response->getStatusCode() != 201) {
             throw new \Exception("Error creating order: " . $response->getStatusCode());
         }
 
