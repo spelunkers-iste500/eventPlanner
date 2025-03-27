@@ -129,6 +129,49 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $executionMessage = $this->calculateExecutionTime($startTime, "Get User");
         echo $executionMessage;
     }
+    public function testPermissionmyUser(): void
+    {
+        $startTime = microtime(true);
+        //create users
+        $container = self::getContainer();
+        //user user factory instead of function because i need specific fields
+        $user = UserFactory::createOne([
+            'email' => 'ratchie@rit.edu', 
+            'superAdmin' => false, 
+            'firstName' => 'Ratchie',
+            'lastName' => 'The Tiger',
+            'phoneNumber' => '585-555-5555',
+            'gender' => 'M',
+            'birthday' => new \DateTime('2000-01-01T00:00:00+00:00')
+            ]);
+        $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, 'spleunkers123');
+        $user->setPassword($hashedPassword);
+        $user->_save(); // Save the user after setting the password
+
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+
+        $client = static::createClient();
+        // findIriBy allows to retrieve the IRI of an item by searching for some of its properties.
+        $user1Iri = $this->findIriBy(User::class, ['id' => $user->getId()]);
+        
+        // Use the get method to get info on user
+        $client->request('GET', "/my/user", ['auth_bearer' => $jwttoken['token']]);
+       
+        //verify user is good
+        $this->assertResponseIsSuccessful();
+        $this->assertJsonContains([
+            '@id' => "/my/user",
+            'email' => 'ratchie@rit.edu',
+            'name' => 'Ratchie The Tiger',
+            'birthday' => '2000-01-01T00:00:00+00:00',
+            'gender' => 'M',
+            'phoneNumber' => '585-555-5555'
+        ]);
+        //end time calculation
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get my User");
+        echo $executionMessage;
+    }
     public function testmyEvents(): void{
         $startTime = microtime(true);
         //create users

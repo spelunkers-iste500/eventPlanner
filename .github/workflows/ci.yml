@@ -117,6 +117,7 @@ jobs:
       AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
       AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
       DUFFEL_BEARER: ${{ secrets.DUFFEL_KEY }}
+      MAILER_DSN: ${{ secrets.MAILER_DSN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -146,6 +147,7 @@ jobs:
           echo "APP_ENV=prod" >> api/.env
           echo "SERVER_NAME=${SERVER_NAME}" >> api/.env
           echo "DUFFEL_BEARER=${DUFFEL_BEARER}" >> api/.env.local
+          echo "MAILER_DSN=${MAILER_DSN}" >> api/.env.local
           rm -f api/frankenphp/Caddyfile
           mv api/frankenphp/Caddyfile.prod api/frankenphp/Caddyfile
           docker compose down -v && docker compose -f compose.yaml -f compose.prod.yaml build --no-cache && docker compose -f compose.yaml -f compose.prod.yaml up -d --wait
@@ -163,14 +165,14 @@ jobs:
       - name: Generate JWT signing certificates
         run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
       
-      - name: import test data
-        run: |
-          cd /opt
-          cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
+      #- name: import test data
+        #run: |
+        #  cd /opt
+        #  cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
       - name: update schema
         run: |
           cd /opt/appRoot
-          docker compose exec php bin/console doctrine:schema:update --force
+          docker compose exec php bin/console doctrine:schema:create
       - name: Clean Disk
         if: always()
         run: docker system prune -af --filter "until=1h"
