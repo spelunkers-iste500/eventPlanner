@@ -216,3 +216,10 @@
 	margin: 0;
 	transition: all 0.1s ease;
 }
+
+.no-results {
+	font-style: italic;
+	color: var(--gray-400);
+	margin-left: 0.25rem;
+	font-size: 0.9rem;
+}

@@ -47,7 +47,7 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({ userEvent, isOpen, onCl
                             <div><PlaneLanding size={16}/><span>{formatDateDisplay(userEvent.flights[0].arrivalDateTime)} • {formatTime(userEvent.flights[0].arrivalDateTime)}</span></div>
                             </>
                         ) : (
-                            <p>No flights found</p>
+                            <p className={styles.noResults}>No flights found</p>
                         )}
                         {event?.budget && <div><CircleDollarSign size={16}/><span>${event?.budget.perUserTotal}/Attendee</span></div>}
                     </div>
