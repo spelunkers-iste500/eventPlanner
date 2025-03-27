@@ -195,7 +195,10 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $flight = new Flight();
         $flight->setFlightCost($responseData['total_amount']);
         $flight->setEvent($data->event);
+        $this->logger->info("Flight created: " . $flight->getId());
         $this->fRepo->save($flight, true);
+        $this->logger->info("Flight saved: " . $flight->getId());
+        ($this->fRepo->findOneBy(['id' => $flight->getId()])) ? $this->logger->info("Flight found: " . $flight->getId()) : $this->logger->info("Flight not found: " . $flight->getId());
 
         // Example: Budget validation and updating
         // Fetch the budget (assuming only one budget exists)
