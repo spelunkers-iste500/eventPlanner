@@ -4,14 +4,23 @@ import { DialogHeader, DialogBody, DialogTitle, Button } from '@chakra-ui/react'
 import { X } from 'lucide-react';
 import Input from "Components/common/Input";
 import styles from '../common/Dialog.module.css';
+import { Event } from 'Types/events';
 
 interface CreateBudgetModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (budget: number) => void;
+    events: Event[];
 }
 
-const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({ events, isOpen, onClose }) => {
+
+    // CSV Export Search State
+    const [csvSearchTerm, setCsvSearchTerm] = useState("");
+    const [selectedExportEvent, setSelectedExportEvent] = useState<number | null>(null);
+    // Filter all events based on the CSV search term
+    const filteredExportEvents = events.filter((event) =>
+        event.eventTitle.toLowerCase().includes(csvSearchTerm.toLowerCase())
+    );
 
     const handleSubmit = () => {
 
