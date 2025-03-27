@@ -6,7 +6,9 @@ namespace App\Repository;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use App\Entity\User;
+use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -43,7 +45,7 @@ class UserRepository extends ServiceEntityRepository
         }
     }
 
-    public function getUserById(int $id): ?User
+    public function getUserById(UuidInterface|LazyUuidFromString|string $id): ?User
     {
         return $this->find($id);
     }
