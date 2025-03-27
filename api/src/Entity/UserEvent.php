@@ -88,7 +88,7 @@ class UserEvent
         return $this;
     }
 
-    #[Groups(['read:myEvents', 'update:myEvents'])]
+    #[Groups(['read:myEvents'])]
     public function getFlights(): ?ArrayCollection
     {
         return $this->user->getFlights();
