@@ -43,46 +43,43 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
     const handleSubmit = () => {
         if (eventTitle && startDate && endDate && location) {
             // make api request to create event
-            const createEvent = async () => {
-                axios.post(`/events`, {
-                    eventTitle: eventTitle,
-                    startDateTime: startDate,
-                    endDateTime: endDate,
-                    startFlightBooking: startDate,
-                    endFlightBooking: endDate,
-                    location: location,
-                    organization: user?.eventAdminOfOrg[0],
-                    inviteCode: generateRandomString(10),
-                    maxAttendees: 20,
-                }, {
-                    headers: { 
-                        'Authorization': `Bearer ${session?.apiToken}`,
-                        'Content-Type': 'application/ld+json',
-                        'accept': 'application/ld+json',
-                    }
-                })
-                .then((response) => {
-                    console.log('Event Post response:', response.data);
-                    setCreatedEvent(response.data);
-                    toaster.create({
-                        title: "Event Created",
-                        description: "Your event has successfully been created.",
-                        type: "success",
-                        duration: 3000,
-                        placement: 'top-end'
-                    });
-                })
-                .catch((error) => {
-                    console.error('Error occurred during event creation:', error);
-                    toaster.create({
-                        title: "An error occurred",
-                        description: "An error occurred while creating the event.",
-                        type: "error",
-                        duration: 3000,
-                    });
+            axios.post(`/events`, {
+                eventTitle: eventTitle,
+                startDateTime: startDate,
+                endDateTime: endDate,
+                startFlightBooking: startDate,
+                endFlightBooking: endDate,
+                location: location,
+                organization: user?.eventAdminOfOrg[0],
+                inviteCode: generateRandomString(10),
+                maxAttendees: 20,
+            }, {
+                headers: { 
+                    'Authorization': `Bearer ${session?.apiToken}`,
+                    'Content-Type': 'application/ld+json',
+                    'accept': 'application/ld+json',
+                }
+            })
+            .then((response) => {
+                console.log('Event Post response:', response.data);
+                setCreatedEvent(response.data);
+                toaster.create({
+                    title: "Event Created",
+                    description: "Your event has successfully been created.",
+                    type: "success",
+                    duration: 3000,
+                    placement: 'top-end'
                 });
-            };
-            createEvent();
+            })
+            .catch((error) => {
+                console.error('Error occurred during event creation:', error);
+                toaster.create({
+                    title: "An error occurred",
+                    description: "An error occurred while creating the event.",
+                    type: "error",
+                    duration: 3000,
+                });
+            });
         }
     };
 

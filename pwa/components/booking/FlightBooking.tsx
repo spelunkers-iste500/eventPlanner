@@ -88,7 +88,8 @@ const FlightBooking = () => {
         if (!bookingData.selectedOffer) return;
 
         axios.post(`/flight_orders`, {
-            offerId: bookingData.selectedOffer.id
+            offerId: bookingData.selectedOffer.id,
+            event: `/events/${bookingData.event.id}`,
         }, {
             headers: {
                 'Authorization': `Bearer ${session?.apiToken}`,
@@ -98,7 +99,7 @@ const FlightBooking = () => {
         })
         .then((response) => {
             console.log('Booking response:', response.data);
-            if (response.status == 200) {
+            if (response.status == 201) {
                 bookingSuccess();
             }
         })
@@ -106,7 +107,7 @@ const FlightBooking = () => {
             console.error('Error fetching flight offers:', error);
 
             // temporarily here until api returns a 200
-            bookingSuccess();
+            // bookingSuccess();
         });
     };
 

@@ -9,8 +9,9 @@ import { useUser } from "Utils/UserProvider";
 import { Event, UserEvent } from "Types/events";
 import { Button, Dialog, DialogBackdrop, DialogBody, DialogContent, DialogHeader, DialogRoot, DialogTitle, Stack, Text } from "@chakra-ui/react";
 import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoot } from "Components/ui/accordion";
-import Input from "Components/common/Input";
 import { X } from "lucide-react";
+import ExportCsvModal from "./ExportCsvModal";
+import { set } from "date-fns";
 
 // Dummy data for events (replace with API call data later)
 const events: Event[] = [
@@ -65,11 +66,7 @@ const FinancialAdminDashboard: React.FC = () => {
             id: event.id.toString(),
             event,
             status: 'pending', // or 'accepted' based on your logic
-            //flights: [],
-            user: {
-                id: user?.id || '',
-                flights: []
-            }
+            flights: [],
         }));
     };
 
@@ -88,8 +85,10 @@ const FinancialAdminDashboard: React.FC = () => {
     );
 
     const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
 
-    const handleOpenBudgetModal = () => {
+    const handleOpenBudgetModal = (event: UserEvent) => {
+        setSelectedEvent(event);
         setIsBudgetModalOpen(true);
     };
 
@@ -151,7 +150,7 @@ const FinancialAdminDashboard: React.FC = () => {
                 </div>
             </div>
 
-            <Stack gap="4">
+           		<Stack gap="4">
                     <AccordionRoot value={value} onValueChange={(e) => setValue(e.value)}>
                         {items.map((item, index) => (
                             <AccordionItem key={index} value={item.value}>
@@ -162,8 +161,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                             heading={item.title}
                                             events={item.events}
                                             isFinance
-                                            hasAddBtn={item.title === "Events Pending Approval"}
-                                            onAddEventClick={handleOpenBudgetModal} // Pass the callback
+											onOpenDialog={handleOpenBudgetModal}
                                         />
                                     ) : (
                                         <Text>No events available</Text>
@@ -173,96 +171,16 @@ const FinancialAdminDashboard: React.FC = () => {
                         ))}
                     </AccordionRoot>
                 </Stack>
-            </div>
+		</div>
 
-            <CreateBudgetModal
-                isOpen={isBudgetModalOpen}
-                onClose={handleCloseBudgetModal}
-                onSubmit={(budget) => {
-                    console.log("Budget submitted:", budget);
-                }}
-            />
+		<CreateBudgetModal
+			isOpen={isBudgetModalOpen}
+			onClose={handleCloseBudgetModal}
+            userEvent={selectedEvent}
+		/>
 
-    <div className={`${dialogStyles.dialogWrapper} ${isDialogOpen ? dialogStyles.open : ''}`}>
-        <DialogRoot open={isDialogOpen} onOpenChange={({ open }) => setIsDialogOpen(open)}>
-            <DialogBackdrop />
-            <DialogContent className={dialogStyles.dialogContent}>
-                <DialogHeader>
-                    <div className={dialogStyles.dialogHeader}>
-                        <div>
-                            <DialogTitle>Export CSV</DialogTitle>
-                        </div>
-                        <Button className={dialogStyles.dialogClose} onClick={() => setIsDialogOpen(false)}><X /></Button>
-                    </div>
-                </DialogHeader>
-                <DialogBody className={dialogStyles.dialogBody}>
-                    <div className={styles.exportCSVContainer}>
-                        <h3>Export Budget CSV</h3>
-                        <div className={styles.exportCSVForm}>
-                            <Input
-                                label="Search Events"
-                                placeholder="Search events..."
-                                onChange={(value) => {
-                                    setCsvSearchTerm(value);
-                                    // Clear any previous selection if the user types something new
-                                    if (value.trim() === "") {
-                                        setSelectedExportEvent(null);
-                                    }
-                                }}
-                            />
-                            {/* Only show search results when the search term is non-empty and no event is selected */}
-                            {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
-                                <div className={styles.searchResults}>
-                                    {filteredExportEvents.length > 0 ? (
-                                        filteredExportEvents.map((event) => (
-                                            <div
-                                                key={event.id}
-                                                className={styles.searchResultItem}
-                                                onClick={() => {
-                                                    setSelectedExportEvent(event.id);
-                                                    setCsvSearchTerm(event.eventTitle);
-                                                }}
-                                            >
-                                                {event.eventTitle}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className={styles.noResults}>No events found</div>
-                                    )}
-                                </div>
-                            )}
-                            {/* Display the selected event and a clear option */}
-                            {selectedExportEvent && (
-                                <div className={styles.selectedEventDisplay}>
-                                    <span>
-                                        Selected Event:{" "}
-                                        {events.find((e) => e.id === selectedExportEvent)?.eventTitle}
-                                    </span>
-                                    <button
-                                        className={styles.clearButton}
-                                        onClick={() => {
-                                            setSelectedExportEvent(null);
-                                            setCsvSearchTerm("");
-                                        }}
-                                    >
-                                        Clear
-                                    </button>
-                                </div>
-                            )}
-                            <button
-                                className={styles.exportButton}
-                                onClick={() => {
-                                    // Insert export logic here
-                                }}
-                            >
-                                Export CSV
-                            </button>
-                        </div>
-                    </div>
-                </DialogBody>
-            </DialogContent>
-        </DialogRoot>
-    </div>
+		{/* <ExportCsvModal /> */}
+		
     </>
     );
 };
