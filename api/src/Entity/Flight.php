@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\State\CurrentUserProvider;
 use DateTimeInterface;
 use Doctrine\Common\Collections\Collection;
@@ -15,8 +16,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity]
 #[ApiResource]
-#[Get(
-    provider: CurrentUserProvider::class,
+#[GetCollection(
     uriTemplate: '/my/flights.{_format}',
 )]
 #[Get(
