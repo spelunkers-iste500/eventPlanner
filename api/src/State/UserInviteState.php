@@ -40,7 +40,7 @@ class UserInviteState implements ProcessorInterface, ProviderInterface
                 $email = (new Email())
                     ->to($email)
                     ->subject('You have been added to an event')
-                    ->html('<p>You have been added to the event: ' . $data->getEvent()->getName() . '</p>');
+                    ->html('<p>You have been added to the event: ' . $data->getEvent()->getEventTitle() . '</p>');
                 $this->mailer->send($email);
             } else {
                 // User does not exist, so we can send them an email with a link to register
