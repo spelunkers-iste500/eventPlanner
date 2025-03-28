@@ -12,6 +12,8 @@ import { toaster } from 'Components/ui/toaster';
 import InviteAttendantExt from './InviteAttendantExt';
 import { useUser } from 'Utils/UserProvider';
 import { Event } from 'Types/events';
+import { useContent } from 'Utils/ContentProvider';
+import Dashboard from './EventAdminDashboard';
 
 interface CreateEventModalProps {
     isOpen: boolean;
@@ -27,6 +29,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [eventImage, setEventImage] = useState<File | null>(null);
     const [inviteUsers, setInviteUsers] = useState(false);
+    const { setContent } = useContent();
 
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
@@ -39,6 +42,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
         }
         return result;
     };
+
+    const createSuccess = () => {
+        setContent(<Dashboard />, 'Dashboard');
+        toaster.create({
+            title: "Event Created",
+            description: "Your event has been created successfully.",
+            type: "success",
+            duration: 5000,
+        });
+    }
 
     const handleSubmit = () => {
         if (eventTitle && startDate && endDate && location) {
@@ -63,13 +76,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
             .then((response) => {
                 console.log('Event Post response:', response.data);
                 setCreatedEvent(response.data);
-                toaster.create({
-                    title: "Event Created",
-                    description: "Your event has successfully been created.",
-                    type: "success",
-                    duration: 3000,
-                    placement: 'top-end'
-                });
+                createSuccess();
             })
             .catch((error) => {
                 console.error('Error occurred during event creation:', error);
@@ -156,8 +163,9 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                         }}
                         selectsRange
                         showMonthDropdown
+                        showTimeSelect
                         placeholderText="Select date range"
-                        dateFormat="MM/dd/yyyy"
+                        dateFormat="MM/dd/yyyy h:mm aa"
                         className='input-field'
                         showIcon
                         icon={<Calendar size={32} />}
@@ -166,9 +174,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                 <br></br>
                 {/* Switch to toggle invite section */}
                 <div className='input-container'>
-                    <Switch.Root>
+                    <Switch.Root checked={inviteUsers} >
                         <Switch.HiddenInput 
-                            checked={inviteUsers} 
                             onChange={(e) => setInviteUsers(e.target.checked)}
                         />
                         <Switch.Control />
