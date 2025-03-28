@@ -42,10 +42,10 @@ final readonly class CustomExtension implements QueryCollectionExtensionInterfac
                 self::eventFilter($queryBuilder, $user, $operation);
                 return;
             case UserEvent::class:
-                self::filterOnCurrentUser($queryBuilder, $user);
+                self::userEventFilter($queryBuilder, $user, $operation);
                 return;
             case Flight::class:
-                self::filterOnCurrentUser($queryBuilder, $user);
+                self::flightFilter($queryBuilder, $user, $operation);
                 return;
         }
     }
