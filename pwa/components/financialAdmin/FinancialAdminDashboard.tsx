@@ -6,7 +6,7 @@ import dialogStyles from "../common/Dialog.module.css";
 import CreateBudgetModal from "./CreateBudgetModal";
 import { useSession } from "next-auth/react";
 import { useUser } from "Utils/UserProvider";
-import { Event, UserEvent } from "Types/events";
+import { Event, UserEvent, Organization } from "Types/events";
 import {
     Button,
     Dialog,
@@ -18,6 +18,9 @@ import {
     DialogTitle,
     Stack,
     Text,
+    Select,
+    Portal,
+    createListCollection,
 } from "@chakra-ui/react";
 import {
     AccordionItem,
@@ -27,6 +30,7 @@ import {
 } from "Components/ui/accordion";
 import ExportCsvModal from "./ExportCsvModal";
 import axios from "axios";
+import ItemList from "Components/itemList/ItemList";
 
 const FinancialAdminDashboard: React.FC = () => {
     const { data: session } = useSession();
@@ -36,6 +40,81 @@ const FinancialAdminDashboard: React.FC = () => {
     const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<string>("");
+
+    const organizations = user?.financeAdminOfOrg || []; // user.financeAdminOfOrg contains the organization IRI's, not organizaiton objects
+    const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // organization objects
+
+    useEffect(() => {
+        const fetchOrganizations = async () => {
+            try {
+                const fetchedOrgs = await Promise.all(
+                    organizations.map(async (org) => {
+                        const response = await axios.get(org, {
+                            headers: {
+                                Authorization: `Bearer ${session?.apiToken}`,
+                            },
+                        });
+                        return response.data;
+                    })
+                );
+                setOrgObjects(fetchedOrgs);
+            } catch (error) {
+                console.error("Error fetching organizations:", error);
+            }
+        };
+
+        if (organizations.length > 0) {
+            fetchOrganizations();
+        }
+    }, [organizations]);
+    // have to get the organization objects from the API
+    // organizations.forEach((org) => {
+    //     axios.get(org).then((response) => {
+    //         orgObjects.push(response.data);
+    //     });
+    // });
+    const orgCollection = createListCollection({
+        items: orgObjects,
+    });
+
+    const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
+        return events.map((event) => ({
+            id: event.id.toString(),
+            event,
+            status: "pending", // or 'accepted' based on your logic
+            flights: [],
+        }));
+    };
+    const handleOrganizationChange = (
+        event: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        setSelectedOrganization(event.target.value);
+    };
+
+    const filteredEvents = events.filter(
+        (event) =>
+            !selectedOrganization ||
+            event.organization.id === selectedOrganization
+    );
+
+    const filteredItems = [
+        {
+            value: "pending-events",
+            title: "Events Pending Approval",
+            events: mapEventsToUserEvents(
+                filteredEvents.filter((event) => !event.budget)
+            ),
+        },
+        {
+            value: "approved-events",
+            title: "Approved Events",
+            events: mapEventsToUserEvents(
+                filteredEvents.filter((event) => event.budget)
+            ),
+        },
+    ];
 
     // filter events based on whether a budget exists or not
     const pendingEvents = events.filter((event) => !event.budget);
@@ -84,15 +163,6 @@ const FinancialAdminDashboard: React.FC = () => {
         getEvents();
     }, [user]);
 
-    const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
-        return events.map((event) => ({
-            id: event.id.toString(),
-            event,
-            status: "pending", // or 'accepted' based on your logic
-            flights: [],
-        }));
-    };
-
     // Defining accordion items for current events and past events
     const items = [
         {
@@ -134,6 +204,38 @@ const FinancialAdminDashboard: React.FC = () => {
         <>
             <div className={styles.plannerDashboardContainer}>
                 <h1>Welcome, {session?.user?.name}!</h1>
+
+                {/* Organization Filter Dropdown */}
+                <div className={styles.filterContainer}>
+                    <Select.Root
+                        onValueChange={(d) => {
+                            console.log(d);
+                        }}
+                        collection={orgCollection}
+                    >
+                        <Select.HiddenSelect />
+                        <Select.Label>Organization</Select.Label>
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText placeholder="All Organizations" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal>
+                            <Select.Positioner>
+                                <Select.Content>
+                                    {orgObjects.map((org) => (
+                                        <Select.Item item={org} key={org.id}>
+                                            {org.name}
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+                </div>
 
                 {/* Organization and Budget Info Section */}
                 <div className={styles.infoContainer}>
@@ -199,22 +301,27 @@ const FinancialAdminDashboard: React.FC = () => {
                         value={value}
                         onValueChange={(e) => setValue(e.value)}
                     >
-                        {items.map((item, index) => (
+                        {filteredItems.map((item, index) => (
                             <AccordionItem key={index} value={item.value}>
                                 <AccordionItemTrigger>
                                     {item.title}
                                 </AccordionItemTrigger>
                                 <AccordionItemContent>
-                                    {item.events.length > 0 ? (
-                                        <EventList
-                                            heading={item.title}
-                                            events={item.events}
-                                            isFinance
-                                            onOpenDialog={handleOpenBudgetModal}
-                                        />
-                                    ) : (
-                                        <Text>No events available</Text>
-                                    )}
+                                    <ItemList
+                                        items={item.events}
+                                        fields={[
+                                            {
+                                                key: "event.eventTitle",
+                                                label: item.title,
+                                            },
+                                            { key: "status", label: "Status" },
+                                        ]}
+                                        renderItem={
+                                            item.value == "pending-events"
+                                                ? handleOpenBudgetModal
+                                                : () => {}
+                                        }
+                                    />
                                 </AccordionItemContent>
                             </AccordionItem>
                         ))}

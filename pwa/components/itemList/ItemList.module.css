@@ -1,0 +1,40 @@
+.itemListContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.listItem {
+    display: flex;
+    flex-direction: row;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.listItemField {
+    flex: 1;
+    margin: 0 5px;
+    text-align: center;
+}
+
+.listHeader {
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    padding: 10px;
+    background-color: #eaeaea;
+    border-bottom: 1px solid #ccc;
+}
+
+.listHeaderField {
+    flex: 1;
+    margin: 0 5px;
+    text-align: center;
+}
