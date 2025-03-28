@@ -17,7 +17,7 @@ class EventTest extends ApiTestCase
 {
     // This trait provided by Foundry will take care of refreshing the database content to a known state before each test
     use ResetDatabase, Factories;
-    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org, bool $iseventadmin): User {
+    public function createUser(string $email, string $plainPassword, bool $superAdmin, Organization $org, bool $iseventadmin, bool $isfinanceadmin): User {
         $container = self::getContainer();
         $user = UserFactory::createOne(['email' => $email, 'superAdmin' => $superAdmin]);
         $hashedPassword = $container->get('security.user_password_hasher')->hashPassword($user, $plainPassword);
@@ -25,6 +25,10 @@ class EventTest extends ApiTestCase
         $user->_save(); // Save the user after setting the password
         if($iseventadmin){
             $user->addEventAdminOfOrg($org);
+            $user->_save();
+        }
+        if ($isfinanceadmin) {
+            $user->addFinanceAdminOfOrg($org);
             $user->_save();
         }
         return $user;
@@ -47,15 +51,15 @@ class EventTest extends ApiTestCase
         return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
     }
 
-    public function testGetEventCollection(): void
+    public function testGetEventadminCollection(): void
     {
         $startTime = microtime(true);
         //create orgs
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false,$org,true );
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2, false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false,$org,true, false );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2, false, false);
         //create events
         EventFactory::createmany(50,['organization' => $org]);
         //get org id
@@ -102,9 +106,129 @@ class EventTest extends ApiTestCase
         $this->assertCount(30, $response->toArray()['hydra:member']);
         // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
         $this->assertMatchesResourceCollectionJsonSchema(Event::class);
-        $executionMessage = $this->calculateExecutionTime($startTime, "Get org events");
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get all event admin events");
         echo $executionMessage;
     }
+
+    public function testGetFulladminCollection(): void
+    {
+        $startTime = microtime(true);
+        //create orgs
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true,$org,false, false );
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2, false, false);
+        //create events
+        EventFactory::createmany(40,['organization' => $org]);
+        EventFactory::createmany(10,['organization' => $org2]);
+        //get org id
+        $orgid = $org->getId();
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
+        // Create 49 additional Organizations using our factory
+
+        // test get events as regular user should get nothing
+
+        $response = static::createClient()->request('GET', "/my/organizations/events/fullAdmin", ['auth_bearer' => $jwttokenUser2['token']]);
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 eventshas org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Event',
+            '@id' => "/my/organizations/events/fullAdmin",
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 0,
+        ]);
+        $this->assertCount(0, $response->toArray()['hydra:member']);
+        // test get organization has super admin
+        $response = static::createClient()->request('GET', "/my/organizations/events/fullAdmin", ['auth_bearer' => $jwttoken['token']]);
+
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 orgs has org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Event',
+            '@id' => "/my/organizations/events/fullAdmin",
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 50,
+            'hydra:view' => [
+                '@id' => "/my/organizations/events/fullAdmin?page=1",
+                '@type' => 'hydra:PartialCollectionView',
+                'hydra:first' => "/my/organizations/events/fullAdmin?page=1",
+                'hydra:last' => "/my/organizations/events/fullAdmin?page=2",
+                'hydra:next' => "/my/organizations/events/fullAdmin?page=2",
+            ],
+        ]);
+        $this->assertCount(30, $response->toArray()['hydra:member']);
+        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
+        $this->assertMatchesResourceCollectionJsonSchema(Event::class);
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get superadmin events");
+        echo $executionMessage;
+    }
+
+    public function testGetfinanceadminCollection(): void
+    {
+        $startTime = microtime(true);
+        //create orgs
+        $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
+        $org2 = OrganizationFactory::createOne(["name" => "The Tiger's Den"]);
+        //create users
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false,$org,false, true);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false, $org2, false, false);
+        //create events
+        EventFactory::createmany(50,['organization' => $org]);
+        //get org id
+        $orgid = $org->getId();
+        // Authenticate the user
+        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
+        $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
+        // Create 49 additional Organizations using our factory
+
+        // test get events as regular user should get nothing
+
+        $response = static::createClient()->request('GET', "/my/organizations/events/financeAdmin", ['auth_bearer' => $jwttokenUser2['token']]);
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 eventshas org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Event',
+            '@id' => "/my/organizations/events/financeAdmin",
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 0,
+        ]);
+        $this->assertCount(0, $response->toArray()['hydra:member']);
+        // test get organization has super admin
+        $response = static::createClient()->request('GET', "/my/organizations/events/financeAdmin", ['auth_bearer' => $jwttoken['token']]);
+
+        $this->assertResponseIsSuccessful();
+        // Asserts that the returned content type for 50 orgs has org admin
+        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+        // Asserts that the returned JSON is a superset of this one
+        $this->assertJsonContains([
+            '@context' => '/contexts/Event',
+            '@id' => "/my/organizations/events/financeAdmin",
+            '@type' => 'hydra:Collection',
+            'hydra:totalItems' => 50,
+            'hydra:view' => [
+                '@id' => "/my/organizations/events/financeAdmin?page=1",
+                '@type' => 'hydra:PartialCollectionView',
+                'hydra:first' => "/my/organizations/events/financeAdmin?page=1",
+                'hydra:last' => "/my/organizations/events/financeAdmin?page=2",
+                'hydra:next' => "/my/organizations/events/financeAdmin?page=2",
+            ],
+        ]);
+        $this->assertCount(30, $response->toArray()['hydra:member']);
+        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
+        $this->assertMatchesResourceCollectionJsonSchema(Event::class);
+        $executionMessage = $this->calculateExecutionTime($startTime, "Get finance admin events");
+        echo $executionMessage;
+    }
+
     public function testCreateEvent(): void
     {
         $startTime = microtime(true);
@@ -112,8 +236,8 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $orgid = $org->getId();
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true, false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
@@ -162,8 +286,8 @@ class EventTest extends ApiTestCase
         //create org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true, false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
@@ -208,8 +332,8 @@ class EventTest extends ApiTestCase
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         $org2 = OrganizationFactory::createOne(["name" => "RIT"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org2, true);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true, false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org2, true, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
@@ -251,8 +375,8 @@ class EventTest extends ApiTestCase
         //create org
         $org = OrganizationFactory::createOne(["name" => "Information Technology Services"]);
         //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true);
-        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false);
+        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', false, $org, true, false);
+        $user2 = $this->createUser('ritchie@rit.edu', 'spleunkers123', false,$org, false, false);
         // Authenticate the user
         $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
         $jwttokenUser2 = $this->authenticateUser('ritchie@rit.edu', 'spleunkers123');
