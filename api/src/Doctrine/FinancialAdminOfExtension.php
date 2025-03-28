@@ -18,40 +18,39 @@ final readonly class FinancialAdminOfExtension implements QueryCollectionExtensi
     public function __construct(private Security $security, private UserRepository $uRepo, private LoggerInterface $logger) {}
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
-{
-    if ($resourceClass !== \App\Entity\Budget::class) {
-        return;
-    }
-    
-    if ($operation) {
-        $this->logger->info('Operation Name: ' . $operation->getName());
-    }
-
-    if ($this->security->isGranted('ROLE_ADMIN')) {
-        return; // Allow super admins
-    }
-
-    $user = $this->security->getUser();
-    if (!$user instanceof UserInterface) {
-        $queryBuilder->andWhere('1 = 0'); // No access for unauthenticated users
-        return;
-    }
-
-    $fullUserObject = $this->uRepo->getUserByEmail($user->getUserIdentifier());
-    $orgs = $fullUserObject->getFinanceAdminOfOrg()?->toArray() ?? [];
-
-    if (empty($orgs)) {
-        $queryBuilder->andWhere('1 = 0'); // Restrict access if not a financial admin
-        return;
-    }
-
-    if (isset($context['uriVariables']['orgId'])) {
-        $orgId = $context['uriVariables']['orgId'];
-        if (!in_array($orgId, $orgs)) {
+    {
+        if ($resourceClass !== \App\Entity\Budget::class) {
             return;
         }
-        $queryBuilder->andWhere('o.id = :orgId')->setParameter('orgId', $orgId);
-    }
-}
 
+        if ($operation) {
+            $this->logger->info('Operation Name: ' . $operation->getName());
+        }
+
+        if ($this->security->isGranted('ROLE_ADMIN')) {
+            return; // Allow super admins
+        }
+
+        $user = $this->security->getUser();
+        if (!$user instanceof UserInterface) {
+            $queryBuilder->andWhere('1 = 0'); // No access for unauthenticated users
+            return;
+        }
+
+        $fullUserObject = $this->uRepo->getUserByEmail($user->getUserIdentifier());
+        $orgs = $fullUserObject->getFinanceAdminOfOrg()?->toArray() ?? [];
+
+        if (empty($orgs)) {
+            $queryBuilder->andWhere('1 = 0'); // Restrict access if not a financial admin
+            return;
+        }
+
+        if (isset($context['uriVariables']['orgId'])) {
+            $orgId = $context['uriVariables']['orgId'];
+            if (!in_array($orgId, $orgs)) {
+                return;
+            }
+            $queryBuilder->andWhere('o.id = :orgId')->setParameter('orgId', $orgId);
+        }
+    }
 }

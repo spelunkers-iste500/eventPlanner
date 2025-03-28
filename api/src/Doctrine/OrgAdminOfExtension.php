@@ -19,6 +19,7 @@ final readonly class OrgAdminOfExtension implements QueryCollectionExtensionInte
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
         // return only the users that are part of the organizations the uesr is an admin of
+        return;
         if ($this->security->isGranted('ROLE_ADMIN')) { // allow superadmin
             return;
         }

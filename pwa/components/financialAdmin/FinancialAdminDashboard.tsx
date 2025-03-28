@@ -1,5 +1,5 @@
 // Importing necessary libraries and components
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./FinancialAdminDashboard.module.css";
 import dialogStyles from "../common/Dialog.module.css";
@@ -12,44 +12,8 @@ import { AccordionItem, AccordionItemContent, AccordionItemTrigger, AccordionRoo
 import { X } from "lucide-react";
 import ExportCsvModal from "./ExportCsvModal";
 import { set } from "date-fns";
-
-// Dummy data for events (replace with API call data later)
-const events: Event[] = [
-  { 
-      id: 1, 
-      eventTitle: "Event Name", 
-      budget: { id: "1", perUserTotal: 50000 },
-      startDateTime: "2025-07-10T09:00:00", 
-      endDateTime: "2025-07-10T17:00:00", 
-      startFlightBooking: "2024-12-06T09:00:00", 
-      endFlightBooking: "2024-12-10T17:00:00", 
-      location: "Location One", 
-      maxAttendees: 100, 
-      organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
-      attendees: ["attendee1@example.com", "attendee2@example.com"], 
-      financeAdmins: ["financeAdmin1@example.com"], 
-      eventAdmins: ["eventAdmin1@example.com"],
-      isAccepted: false,
-      isDeclined: false
-  },
-  { 
-      id: 2, 
-      eventTitle: "Event Steff", 
-      budget: { id: "1", perUserTotal: 50000 },
-      startDateTime: "2024-04-15T09:00:00", 
-      endDateTime: "2024-04-15T17:00:00", 
-      startFlightBooking: "2024-12-10T09:00:00", 
-      endFlightBooking: "2024-12-15T17:00:00", 
-      location: "Location Two", 
-      maxAttendees: 150, 
-      organization: {id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0", type: "Organization", name: "Spleunkers"}, 
-      attendees: ["attendee3@example.com", "attendee4@example.com"], 
-      financeAdmins: ["financeAdmin2@example.com"], 
-      eventAdmins: ["eventAdmin2@example.com"],
-      isAccepted: false,
-      isDeclined: false
-  }
-];
+import axios from "axios";
+import { NextResponse } from "next/server";
 
 const FinancialAdminDashboard: React.FC = () => {
     const { data: session } = useSession();
@@ -57,11 +21,59 @@ const FinancialAdminDashboard: React.FC = () => {
     const [value, setValue] = useState(["pending-events"]);
     const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
     const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+    const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
 
-    // Filtering events into current and past events based on the current date
-    const pendingEvents = events.filter(event => new Date(event.startDateTime) > new Date());
-    const approvedEvents = events.filter(event => new Date(event.startDateTime) <= new Date());
+    // filter events based on whether a budget exists or not
+    const pendingEvents = events.filter(event => !event.budget);
+    const approvedEvents = events.filter(event => event.budget);
+    const apiUrl = `${user?.financeAdminOfOrg}/events`;
+    // get the events from the API
+    const getEvents = async () => {
+        if (user && session) {
+            try {
+                const response = await axios.get(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                });
+                if (response.status === 200) {
+                    console.log('fetched organization events: ', response.data['hydra:member']);
+                    // if the response is successful, check to see if more pages are required
+                    // if so, make the next request
+                    // and append the results to the events state
+                    // Otherwise, just set the events state
+                    // to the response data
+                    const allEvents = response.data['hydra:member'];
+                    if (response.data['hydra:view'] && response.data['hydra:view']['hydra:next']) {
+                        var nextResponse = await axios.get(response.data['hydra:view']['hydra:next'], {
+                            headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                        });
+                        allEvents.push(...nextResponse.data['hydra:member']);
+                        var nextUrl = response.data['hydra:view']['hydra:next'];
+                        if (nextUrl !== response.data['hydra:view']['hydra:last']){
+                        while (response.data['hydra:view']['hydra:last'] !== nextResponse.data['hydra:view']['hydra:next']) {
+                            nextUrl = nextResponse.data['hydra:view']['hydra:next'];
+                            if (nextResponse.data['hydra:view']['hydra:next']) {
+                                break;
+                            } else {
+                            nextResponse = await axios.get(nextUrl, {
+                                headers: { 'Authorization': `Bearer ${session.apiToken}` }
+                            });
+                                allEvents.push(...nextResponse.data['hydra:member']);
+                        }
+                        }}
+                        setEvents(allEvents);
+                        // setEvents(response.data['hydra:member']);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+    };
+
+    useEffect(() => {
+        getEvents();
+    }, [user]);
 
     const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
         return events.map(event => ({

@@ -16,6 +16,7 @@ interface User {
     // OrgMembership: string[];
     eventsAttending: Event[];
     eventAdminOfOrg: string[];
+    financeAdminOfOrg: string[];
     superAdmin: boolean;
     passengerId: string;
 }
@@ -45,7 +46,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     setLoading(false);
                 } else {
                     try {
-                        const response = await axios.get(`/users/${session.id}`, {
+                        const response = await axios.get(`/my/user`, {
                             headers: { 
                                 'Content-Type': 'application/ld+json',
                                 Authorization: 'Bearer ' + session.apiToken 
