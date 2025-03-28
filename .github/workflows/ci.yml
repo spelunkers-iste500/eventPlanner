@@ -176,7 +176,7 @@ jobs:
       - name: update schema
         run: |
           cd /opt/appRoot
-          docker compose exec php bin/console doctrine:schema:update
+          docker compose exec php bin/console doctrine:schema:update --force
       - name: Clean Disk
         if: always()
         run: docker system prune -af --filter "until=1h"
