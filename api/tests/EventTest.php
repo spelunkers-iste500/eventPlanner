@@ -46,48 +46,7 @@ class EventTest extends ApiTestCase
         $executionTime = round($executionTime, 3); // Round to 3 decimal places
         return $echoPhrase . " execution time: " . $executionTime . " milliseconds\n";
     }
-    /*public function testGetEventCollection(): void
-    {
-        $startTime = microtime(true);
-        //create users
-        $user = $this->createUser('ratchie@rit.edu', 'spleunkers123', true);
-        // Authenticate the user
-        $jwttoken = $this->authenticateUser('ratchie@rit.edu', 'spleunkers123');
-        // Create 50 Events using our factory
-        EventFactory::createMany(50);
 
-        // The client implements Symfony HttpClient's `HttpClientInterface`, and the response `ResponseInterface`
-        $response = static::createClient()->request('GET', '/events', ['auth_bearer' => $jwttoken['token']]);
-
-        $this->assertResponseIsSuccessful();
-        // Asserts that the returned content type is JSON-LD (the default)
-        $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
-
-        // Asserts that the returned JSON is a superset of this one
-        $this->assertJsonContains([
-            '@context' => '/contexts/Event',
-            '@id' => '/events',
-            '@type' => 'hydra:Collection',
-            'hydra:totalItems' => 50,
-            'hydra:view' => [
-                '@id' => '/events?page=1',
-                '@type' => 'hydra:PartialCollectionView',
-                'hydra:first' => '/events?page=1',
-                'hydra:last' => '/events?page=2',
-                'hydra:next' => '/events?page=2',
-            ],
-        ]);
-
-        // Because test fixtures are automatically loaded between each test, you can assert on them
-        $this->assertCount(30, $response->toArray()['hydra:member']);
-
-        // Asserts that the returned JSON is validated by the JSON Schema generated for this resource by API Platform
-
-        $this->assertMatchesResourceCollectionJsonSchema(Event::class);
-        //endtime to terminal
-        $executionMessage = $this->calculateExecutionTime($startTime, "Get All Events");
-        echo $executionMessage;
-    }*/
     public function testGetEventCollection(): void
     {
         $startTime = microtime(true);
@@ -108,20 +67,20 @@ class EventTest extends ApiTestCase
 
         // test get events as regular user should get nothing
        
-        $response = static::createClient()->request('GET', "/organizations/$orgid/events", ['auth_bearer' => $jwttokenUser2['token']]);
+        $response = static::createClient()->request('GET', "/my/organizations/events/eventAdmin", ['auth_bearer' => $jwttokenUser2['token']]);
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type for 50 eventshas org admin
         $this->assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
         // Asserts that the returned JSON is a superset of this one
         $this->assertJsonContains([
             '@context' => '/contexts/Event',
-            '@id' => "/organizations/$orgid/events/",
+            '@id' => "/my/organizations/events/eventAdmin",
             '@type' => 'hydra:Collection',
             'hydra:totalItems' => 0,
         ]);
         $this->assertCount(0, $response->toArray()['hydra:member']);
         // test get organization has super admin
-        $response = static::createClient()->request('GET', "/organizations/$orgid/events", ['auth_bearer' => $jwttoken['token']]);
+        $response = static::createClient()->request('GET', "/my/organizations/events/eventAdmin", ['auth_bearer' => $jwttoken['token']]);
 
         $this->assertResponseIsSuccessful();
         // Asserts that the returned content type for 50 orgs has org admin
@@ -129,15 +88,15 @@ class EventTest extends ApiTestCase
         // Asserts that the returned JSON is a superset of this one
         $this->assertJsonContains([
             '@context' => '/contexts/Event',
-            '@id' => "/organizations/$orgid/events",
+            '@id' => "/my/organizations/events/eventAdmin",
             '@type' => 'hydra:Collection',
             'hydra:totalItems' => 50,
             'hydra:view' => [
-                '@id' => "/organizations/$orgid/events?page=1",
+                '@id' => "/my/organizations/events/eventAdmin?page=1",
                 '@type' => 'hydra:PartialCollectionView',
-                'hydra:first' => "/organizations/$orgid/events?page=1",
-                'hydra:last' => "/organizations/$orgid/events?page=2",
-                'hydra:next' => "/organizations/$orgid/events?page=2",
+                'hydra:first' => "/my/organizations/events/eventAdmin?page=1",
+                'hydra:last' => "/my/organizations/events/eventAdmin?page=2",
+                'hydra:next' => "/my/organizations/events/eventAdmin?page=2",
             ],
         ]);
         $this->assertCount(30, $response->toArray()['hydra:member']);
