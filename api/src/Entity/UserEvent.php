@@ -21,10 +21,6 @@ use Symfony\Component\Validator\Constraints as Assert;
     uriTemplate: '/my/events.{_format}',
     normalizationContext: ['groups' => ['read:myEvents']],
 )]
-#[GetCollection(
-    uriTemplate: '/my/organizations/events.{_format}',
-    normalizationContext: ['groups' => ['read:myEvents']],
-)]
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:myEvents']],

@@ -7,7 +7,7 @@ import { UserEvent } from 'Types/events';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
 import { toaster } from 'Components/ui/toaster';
-
+import { useUser } from "Utils/UserProvider";
 interface CreateBudgetModalProps {
     userEvent: UserEvent | null;
     isOpen: boolean;
@@ -17,15 +17,15 @@ interface CreateBudgetModalProps {
 const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({ isOpen, onClose, userEvent }) => {
     const { data: session } = useSession();
     const [perUserTotal, setPerUserTotal] = useState<number | ''>('');
-
+    const { user } = useUser();
     const handleSubmit = () => {
+        console.log('UserEvent Object: ', userEvent);
         if (perUserTotal) {
             if (session && userEvent) {
                 axios.post(`/budgets`, {
-                    id: userEvent.event.id,
                     perUserTotal: perUserTotal,
                     event: `/events/${userEvent.event.id}`,
-                    organization: userEvent.event.organization.id,
+                    organization: `${user?.financeAdminOfOrg}`,
                 }, {
                     headers: { 
                         'Authorization': `Bearer ${session?.apiToken}`,
@@ -43,6 +43,9 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({ isOpen, onClose, 
                         duration: 3000,
                         placement: 'top-end'
                     });
+                    userEvent.event.budget = response.data; // Update the budget in the userEvent object
+                    // Close the modal
+                    handleClose();
                 })
                 .catch((error) => {
                     console.error('Error occurred during budget creation:', error);

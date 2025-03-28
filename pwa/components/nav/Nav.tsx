@@ -22,58 +22,79 @@
 
 // Finally, the `Nav` component is exported as the default export of the module.
 
-'use client';
-import React from 'react';
-import { signOut, useSession } from 'next-auth/react';
-import { useContent } from 'Utils/ContentProvider';
-import { LayoutDashboard, Settings2, CircleHelp, Bell, House, Menu, LogOut, CircleUserRound, Network, HandCoins } from 'lucide-react';
-import Dashboard from '../dashboard/Dashboard';
-import Preferences from '../preferences/Preferences';
-import EventAdminDashboard from 'Components/eventAdmin/EventAdminDashboard';
-import About from '../about/About';
-import styles from './nav.module.css';
-import FinancialAdminDashboard from 'Components/financialAdmin/FinancialAdminDashboard';
-
-const Nav: React.FC= () => {
+"use client";
+import React from "react";
+import { signOut, useSession } from "next-auth/react";
+import { useContent } from "Utils/ContentProvider";
+import {
+    LayoutDashboard,
+    Settings2,
+    CircleHelp,
+    Bell,
+    House,
+    Menu,
+    LogOut,
+    CircleUserRound,
+    Network,
+    HandCoins,
+} from "lucide-react";
+import Dashboard from "../dashboard/Dashboard";
+import Preferences from "../preferences/Preferences";
+import EventAdminDashboard from "Components/eventAdmin/EventAdminDashboard";
+import About from "../about/About";
+import styles from "./nav.module.css";
+import FinancialAdminDashboard from "Components/financialAdmin/FinancialAdminDashboard";
+import { useUser } from "Utils/UserProvider";
+const Nav: React.FC = () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
     const [imageError, setImageError] = React.useState<boolean>(false);
-    const {data: session} = useSession();
+    const { data: session } = useSession();
     const { state, setContent } = useContent();
-    
+    const { user } = useUser();
     const navLinks = [
         {
-            name: 'Dashboard',
+            name: "Dashboard",
             content: <Dashboard />,
-            icon: <LayoutDashboard size={28} />
+            icon: <LayoutDashboard size={28} />,
         },
+
         {
-            name: 'Event Planner',
-            content: <EventAdminDashboard />,
-            icon: <Network size={28} />
-        },
-        {
-            name: 'Finance Planner',
-            content: <FinancialAdminDashboard />,
-            icon: <HandCoins size={28} />
-        },
-        {
-            name: 'Preferences',
+            name: "Preferences",
             content: <Preferences />,
-            icon: <Settings2 size={28} />
+            icon: <Settings2 size={28} />,
         },
         {
-            name: 'About Us',
+            name: "About Us",
             content: <About />,
-            icon: <CircleHelp size={28} />
-        }
+            icon: <CircleHelp size={28} />,
+        },
     ];
 
+    // filter nav links based off of user data
+    if (user && user.eventAdminOfOrg && user.eventAdminOfOrg.length > 0) {
+        navLinks.push({
+            name: "Event Planner",
+            content: <EventAdminDashboard />,
+            icon: <Network size={28} />,
+        });
+    }
+    if (user && user.financeAdminOfOrg && user.financeAdminOfOrg.length > 0) {
+        navLinks.push({
+            name: "Finance Admin",
+            content: <FinancialAdminDashboard />,
+            icon: <HandCoins size={28} />,
+        });
+    }
     return (
-        <div className={`${styles.navContainer} ${navCollapsed ? styles.collapsed : ''}`}>
+        <div
+            className={`${styles.navContainer} ${
+                navCollapsed ? styles.collapsed : ""
+            }`}
+        >
             <div className={styles.navHeader}>
                 <div
                     className={styles.navHeaderIcon}
-                    onClick={() => setContent(<Dashboard />, 'Dashboard')}
+                    onClick={() => setContent(<Dashboard />, "Dashboard")}
                 >
                     <House size={28} />
                 </div>
@@ -105,7 +126,9 @@ const Nav: React.FC= () => {
                 {navLinks.map((link, index) => (
                     <li
                         key={index}
-                        className={`${styles.navLink} ${state.name === link.name ? styles.active : ''}`}
+                        className={`${styles.navLink} ${
+                            state.name === link.name ? styles.active : ""
+                        }`}
                         onClick={() => setContent(link.content, link.name)}
                     >
                         {link.icon}

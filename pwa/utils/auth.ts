@@ -73,6 +73,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
                 const dbQuery = await pool.query("SELECT users.otp_secret, users.id, users.first_name, users.last_name FROM users WHERE email = $1", [credentials.email]);
                 if (dbQuery.rowCount === 0) {
+                    // throw CredentialsSignIn error
+                    // throw new CredentailsSignIn("CredentialsSignin", {
+                    //     message: "No user found with that email",
+                    //     error: new Error("No user found with that email"),
+                    // });
+                    console.log("No user found with that email");
                     return null; // Return null if user not found
                 }
                 // Add logic here to look up the user from the credentials supplied

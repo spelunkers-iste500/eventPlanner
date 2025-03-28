@@ -492,6 +492,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var Collection $adminOfEvents The events the user is a finance admin of
      */
     #[ORM\ManyToMany(targetEntity: Organization::class, inversedBy: 'financeAdmins', cascade: ['all'])]
+    #[Groups('user:read')]
     #[JoinTable(name: 'organizations_finance_admins')]
     private Collection $financeAdminOfOrg;
 

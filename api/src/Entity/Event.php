@@ -26,7 +26,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 #[ApiResource(
     normalizationContext: ['groups' => ['read:event']],
-    denormalizationContext: ['groups' => ['write:event']]
+    denormalizationContext: ['groups' => ['write:event']],
 )]
 //Event.Admin.Create (WORKS)
 #[Post(
@@ -39,18 +39,22 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 //Event.Admin.View (WORKS)
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
-    uriTemplate: '/organizations/{orgId}/events.{_format}',
-    uriVariables: [
-        'orgId' => new Link(
-            fromClass: Organization::class,
-            fromProperty: 'id',
-            toClass: Event::class,
-            toProperty: 'organization',
-            description: 'The ID of the organization that owns the event'
-        )
-    ],
-    normalizationContext: ['groups' => ['read:event:collection']]
+    uriTemplate: '/my/organizations/events/eventAdmin.{_format}',
+    normalizationContext: ['groups' => ['read:event:collection']],
 )]
+
+#[GetCollection(
+    //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
+    uriTemplate: '/my/organizations/events/financeAdmin.{_format}',
+    normalizationContext: ['groups' => ['read:event:collection']],
+)]
+
+#[GetCollection(
+    //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
+    uriTemplate: '/my/organizations/events/fullAdmin.{_format}',
+    normalizationContext: ['groups' => ['read:event:collection']],
+)]
+
 //Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
 #[Patch(
     security: "is_granted('edit', object)",
