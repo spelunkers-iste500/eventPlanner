@@ -4,11 +4,12 @@ import axios from "axios";
 import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
 import CreateEventModal from "./CreateEventModal";
+import ViewEventModal from "./ViewEventModal"; // Import the new modal for viewing event details
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event, UserEvent } from "Types/events";
-import { AccordionItemBody, Stack, Text } from "@chakra-ui/react";
+import { Event, UserEvent, Organization } from "Types/events";
+import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
 
 import {
     AccordionItem,
@@ -18,6 +19,8 @@ import {
 } from "Components/ui/accordion";
 import { useState, useEffect } from "react";
 import ItemList from "Components/itemList/ItemList";
+import { Select, Portal, createListCollection } from "@chakra-ui/react"; // Import Select components
+
 // Defining the Dashboard component
 const Dashboard: React.FC = () => {
     // Using the useSession hook to get the current session data
@@ -26,6 +29,51 @@ const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null); // State for the selected event
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the event view modal
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
+    const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
+    const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<string>("");
+
+    useEffect(() => {
+        const fetchOrganizations = async () => {
+            try {
+                const fetchedOrgs = await Promise.all(
+                    organizations.map(async (org) => {
+                        const response = await axios.get(org, {
+                            headers: {
+                                Authorization: `Bearer ${session?.apiToken}`,
+                            },
+                        });
+                        return response.data;
+                    })
+                );
+                setOrgObjects(fetchedOrgs);
+            } catch (error) {
+                console.error("Error fetching organizations:", error);
+            }
+        };
+
+        if (organizations.length > 0) {
+            fetchOrganizations();
+        }
+    }, [organizations]);
+
+    const orgCollection = createListCollection({
+        items: orgObjects,
+    });
+
+    const handleOrganizationChange = (org: Organization) => {
+        setSelectedOrganization(org.id);
+    };
+
+    const filteredEvents = events.filter(
+        (event) =>
+            !selectedOrganization ||
+            event.organization.id === selectedOrganization
+    );
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -33,6 +81,24 @@ const Dashboard: React.FC = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+    };
+
+    const handleOpenViewModal = (event: UserEvent) => {
+        setSelectedEvent(event);
+        setIsViewModalOpen(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setSelectedEvent(null);
+        setIsViewModalOpen(false);
+    };
+
+    const handleOpenCreateModal = () => {
+        setIsCreateModalOpen(true);
+    };
+
+    const handleCloseCreateModal = () => {
+        setIsCreateModalOpen(false);
     };
 
     // Defining a state variable to manage the accordion's value
@@ -155,6 +221,42 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add Event Button */}
+            <Button onClick={handleOpenCreateModal} colorScheme="blue" mb={4}>
+                Add Event
+            </Button>
+
+            {/* Organization Filter Dropdown */}
+            <div className={styles.filterContainer}>
+                <Select.Root
+                    onValueChange={(e) => handleOrganizationChange(e.items[0])}
+                    collection={orgCollection}
+                >
+                    <Select.HiddenSelect />
+                    <Select.Label>Organization</Select.Label>
+                    <Select.Control>
+                        <Select.Trigger>
+                            <Select.ValueText placeholder="All Organizations" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                            <Select.Indicator />
+                        </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                        <Select.Positioner>
+                            <Select.Content>
+                                {orgObjects.map((org) => (
+                                    <Select.Item item={org} key={org.id}>
+                                        {org.name}
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Portal>
+                </Select.Root>
+            </div>
+
             <Stack gap="4">
                 <AccordionRoot
                     value={value}
@@ -175,14 +277,26 @@ const Dashboard: React.FC = () => {
                                         },
                                         { key: "status", label: "Status" },
                                     ]}
-                                    renderItem={handleOpenModal}
+                                    renderItem={handleOpenViewModal} // Open the view modal on item click
                                 />
                             </AccordionItemContent>
                         </AccordionItem>
                     ))}
                 </AccordionRoot>
             </Stack>
-            <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} />
+
+            {/* View Event Modal */}
+            {/* <ViewEventModal
+                isOpen={isViewModalOpen}
+                onClose={handleCloseViewModal}
+                userEvent={selectedEvent}
+            /> */}
+
+            {/* Create Event Modal */}
+            <CreateEventModal
+                isOpen={isCreateModalOpen}
+                onClose={handleCloseCreateModal}
+            />
         </div>
     );
 };

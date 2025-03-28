@@ -16,9 +16,7 @@ final class UserFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function class(): string
     {
@@ -42,7 +40,7 @@ final class UserFactory extends PersistentProxyObjectFactory
             'hashed_password' => self::faker()->password(), // Generates a realistic password hash
             'phoneNumber' => self::faker()->numerify('+###########'), // Generates a phone 
             'superAdmin' => false,
-            'title' => self::faker()->randomElement(['mr', 'mrs', 'ms', 'dr', 'miss']), // Generates a realistic title ['mr', 'mrs', 'ms', 'dr', 'miss']
+            'title' => self::faker()->randomElement(['mr', 'mrs', 'ms', 'miss']), // Generates a realistic title ['mr', 'mrs', 'ms', 'miss']
         ];
     }
 

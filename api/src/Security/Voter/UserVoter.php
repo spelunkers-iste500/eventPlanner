@@ -46,7 +46,7 @@ final class UserVoter extends Voter
     public static function canView($currentUser, $targetUser)
     {
         // user can view their own profile
-        if ($currentUser->getId() === $targetUser->getId()) {
+        if ($currentUser->getId() === $targetUser->getId() || $currentUser->getRoles() === ['ROLE_ADMIN']) {
             return true;
         }
         return false;

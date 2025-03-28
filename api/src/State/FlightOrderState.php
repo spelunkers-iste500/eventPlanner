@@ -130,7 +130,6 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $title = $user->getTitle();
         $phoneNum = $user->getPhoneNumber();
         $birthday = $user->getBirthday()->format('Y-m-d');
-
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/orders',
@@ -164,6 +163,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
                 ]
             ]
         );
+
 
 
         if ($response->getStatusCode() != 201) {
