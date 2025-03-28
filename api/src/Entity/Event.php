@@ -36,7 +36,6 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     denormalizationContext: ['groups' => ['write:event']],
     processor: LoggerStateProcessor::class
 )]
-#[GetCollection]
 //Event.Admin.View (WORKS)
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
