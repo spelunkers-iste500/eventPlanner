@@ -6,7 +6,12 @@ import { X } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { LuFileUp } from 'react-icons/lu';
 import { FileUpload } from '@chakra-ui/react';
+import { useContent } from 'Utils/ContentProvider';
+import Dashboard from './EventAdminDashboard';
 import { Event } from 'Types/events';
+import { toaster } from 'Components/ui/toaster';
+import { setDefaultResultOrder } from 'dns';
+import { set } from 'date-fns';
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -14,8 +19,10 @@ interface InviteAttendantExtProps {
 
 const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent }) => {
     const [emailInput, setEmailInput] = useState('');
+    const [error, setError] = useState('');
     const [emails, setEmails] = useState<string[]>([]);
     const { data: session } = useSession();
+    const { setContent } = useContent();
 
     const validateEmail = (email: string) => {
         const re = /\S+@\S+\.\S+/;
@@ -28,8 +35,9 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent })
                 setEmails([emailInput, ...emails]);
             }
             setEmailInput('');
+            setError('');
         } else {
-            alert('Please enter a valid email address.');
+            setError('Invalid email address format.');
         }
     };
 
@@ -57,21 +65,47 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent })
 
     const parseCSVEmails = (text: string) => {
         const potentialEmails = text.split(/[\s,]+/);
-        return potentialEmails.filter(email => email && validateEmail(email));
+        const validEmails = potentialEmails.filter(email => email && validateEmail(email));
+        const invalidEmails = potentialEmails.filter(email => email && !validateEmail(email));
+        setError(`Invalid email addresses: ${invalidEmails.join(', ')}`);
+        return validEmails;
     };
+
+    const inviteSuccess = () => {
+        setContent(<Dashboard />, 'Dashboard');
+        toaster.create({
+            title: "Invites Sent",
+            description: "Selected attendants have been invited.",
+            type: "success",
+            duration: 5000,
+        });
+    }
 
     useEffect(() => {
         console.log('Created Event:', createdEvent);
+        if (createdEvent) {
+            handleSubmit();
+        }
     }, [createdEvent]);
 
     const handleSubmit = () => {
         console.log('Submitted emails:', emails);
         // send invites out to the emails
         if (createdEvent && emails.length > 0) {
+            // check if all the emails are valid and send invites to valid ones and setError to ones that arent valid
+            const validEmails = emails.filter(email => validateEmail(email));
+            const invalidEmails = emails.filter(email => !validateEmail(email));
+            if (invalidEmails.length > 0) {
+                setError(`Invalid email addresses: ${invalidEmails.join(', ')}`);
+            }
+            if (validEmails.length === 0) {
+                setError('No valid email addresses to send invites to.');
+                return;
+            }
             if (session) {
                 axios.post(`/user_invites`, {
                     event: `/events/${createdEvent.id}`,
-                    emails: emails,
+                    emails: validEmails,
                 }, {
                     headers: {
                         'Authorization': `Bearer ${session.apiToken}`,
@@ -80,6 +114,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent })
                 })
                 .then((response) => {
                     console.log('Invite sent:', response.data);
+                    inviteSuccess();
                 })
                 .catch((error) => {
                     console.error('Error sending invite:', error);
@@ -104,12 +139,13 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({ createdEvent })
                         </Input>
                     </InputGroup>
                 </FileUpload.Root>
-                <Button onClick={handleSubmit}>
+                {/* <Button onClick={handleSubmit}>
                     Submit
-                </Button>
+                </Button> */}
             </Flex>
 
             {/* Input field and Add button for manual entry */}
+            {error && <div className='error-msg'><p>{error}</p></div>}
             <Flex mb={4}>
                 <Input
                     placeholder="Enter attendant's email address"

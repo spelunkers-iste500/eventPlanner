@@ -223,4 +223,5 @@ img {
     color: var(--red-400);
     font-size: 0.8rem;
     font-weight: 600;
+    max-width: 200px;
 }

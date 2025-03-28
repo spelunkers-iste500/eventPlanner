@@ -42,39 +42,41 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({ events, isOpen, o
             <DialogBody className={styles.dialogBody}>
                 <div className={styles.exportCSVContainer}>
                         <h3>Export Budget CSV</h3>
-                        <div className={styles.exportCSVForm}>
-                            <Input
-                                label="Search Events"
-                                placeholder="Search events..."
-                                onChange={(value) => {
-                                    setCsvSearchTerm(value);
-                                    // Clear any previous selection if the user types something new
-                                    if (value.trim() === "") {
-                                        setSelectedExportEvent(null);
-                                    }
-                                }}
-                            />
-                            {/* Only show search results when the search term is non-empty and no event is selected */}
-                            {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
-                                <div className={styles.searchResults}>
-                                    {filteredExportEvents.length > 0 ? (
-                                        filteredExportEvents.map((event) => (
-                                            <div
-                                                key={event.id}
-                                                className={styles.searchResultItem}
-                                                onClick={() => {
-                                                    setSelectedExportEvent(event.id);
-                                                    setCsvSearchTerm(event.eventTitle);
-                                                }}
-                                            >
-                                                {event.eventTitle}
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className={styles.noResults}>No events found</div>
-                                    )}
-                                </div>
-                            )}
+                        <div className={styles.exportCsvForm}>
+                            <div>
+                                <Input
+                                    label="Search Events"
+                                    placeholder="Search events..."
+                                    onChange={(value) => {
+                                        setCsvSearchTerm(value);
+                                        // Clear any previous selection if the user types something new
+                                        if (value.trim() === "") {
+                                            setSelectedExportEvent(null);
+                                        }
+                                    }}
+                                />
+                                {/* Only show search results when the search term is non-empty and no event is selected */}
+                                {csvSearchTerm.trim() !== "" && !selectedExportEvent && (
+                                    <div className={styles.searchResults}>
+                                        {filteredExportEvents.length > 0 ? (
+                                            filteredExportEvents.map((event) => (
+                                                <div
+                                                    key={event.id}
+                                                    className={styles.searchResultItem}
+                                                    onClick={() => {
+                                                        setSelectedExportEvent(event.id);
+                                                        setCsvSearchTerm(event.eventTitle);
+                                                    }}
+                                                >
+                                                    {event.eventTitle}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className={styles.noResults}>No events found</div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                             {/* Display the selected event and a clear option */}
                             {selectedExportEvent && (
                                 <div className={styles.selectedEventDisplay}>
