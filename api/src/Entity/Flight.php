@@ -42,7 +42,8 @@ class Flight
 
     #[ORM\Column]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'event:csv:export'
     ])]
     public int $flightCost;
 
@@ -154,6 +155,7 @@ class Flight
     }
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['event:csv:export'])]
     private ?string $flightNumber = null;
 
     public function getFlightNumber(): ?string
