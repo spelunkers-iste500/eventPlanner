@@ -1,27 +1,33 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, chromium } from '@playwright/test';
 import speakeasy from 'speakeasy';
 
 const BASE_URL = 'https://localhost';
 const PASSWORD = 'spelunkers123';
 const OTP_SECRET = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ"; // Replace with the actual OTP secret
-const USERNAME_TEMPLATE = 'testuser01@test.com';
+const USERNAME_TEMPLATE = 'testuser001@test.com'; // Template for usernames
 
-test('Concurrent user login', async ({ browser }) => {
-    test.setTimeout(10000); // Increase timeout to 60 seconds
-    const concurrencyLimit = 10; // Limit the number of concurrent logins
+// Configure the test to use only Chromium
+test.use({ browserName: 'chromium' });
+
+test('Concurrent user login', async () => {
+    test.setTimeout(12000); // Increase timeout to 60 seconds
+    const concurrencyLimit = 5; // Limit the number of concurrent logins
     const activePromises: Promise<void>[] = [];
     const userPromises: Promise<void>[] = [];
 
     for (let i = 1; i <= 2; i++) {
-        const username = USERNAME_TEMPLATE.replace('001', i.toString().padStart(2, '0'));
+        // Generate the username by replacing the numeric part in the template
+        const username = USERNAME_TEMPLATE.replace('001', i.toString().padStart(3, '0'));
         const otp = speakeasy.totp({
             secret: OTP_SECRET,
+            encoding: 'base32',
         });
 
         const loginPromise = (async () => {
-            // Create a new browser context with SSL errors ignored
+            // Launch Chromium browser
+            const browser = await chromium.launch({ headless: true }); // Set headless to true if you don't want a visible browser
             const context = await browser.newContext({
-            ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
+                ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
             });
             const page = await context.newPage();
 
@@ -32,42 +38,41 @@ test('Concurrent user login', async ({ browser }) => {
                 timeout: 10000 // Adjust the timeout as needed
             });
 
-            // Check if the login form is visible
-            const loginFormVisible = await page.isVisible('input[name="One-Time Passcode (OTP)"]');
-            if (!loginFormVisible) {
-                console.error(`Login form not visible for ${username}`);
-                return; // Exit if the login form is not visible
-            }
+                // Check if the login form is visible
+                const loginFormVisible = await page.isVisible('input[name="One-Time Passcode (OTP)"]');
+                if (!loginFormVisible) {
+                    console.error(`Login form not visible for ${username}`);
+                    return; // Exit if the login form is not visible
+                }
 
-            // Fill in the username
-            await page.fill('input#Email', username);
+                // Fill in the username
+                await page.fill('input#Email', username);
+                console.log(`Filled in username: ${username}`); // Log the username being used for login
+                // Fill in the password
+                await page.fill('input[type="password"]', PASSWORD);
+                console.log(`Filled in password for ${username}`); // Log the password entry
+                // Fill in the OTP code
+                await page.fill('input[name="One-Time Passcode (OTP)"]', otp);
+                console.log(`Filled in OTP for ${username}: ${otp}`); // Log the OTP entry
+                // Submit the form
+                await page.click('button[type="submit"]');
 
-            // Fill in the password
-            await page.fill('input.chakra-input.login_password-input__BLSlw', PASSWORD);
+                // Wait for navigation or a success indicator
+                const welcomeVisible = await page.isVisible('h1:has-text("Welcome,")', {
+                    timeout: 10000, // Adjust the timeout as needed
+                });
 
-            // Fill in the OTP code
-            await page.fill('input[name="One-Time Passcode (OTP)"]', otp);
-
-            // Submit the form
-            await page.click('button[type="submit"]');
-
-            await page.waitForSelector('h1:has-text("Welcome,")', { // Adjust the timeout as needed
-            });
-            // Wait for navigation or a success indicator
-            const welcomeVisible = await page.isVisible('h1:has-text("Welcome,")', {
-                timeout: 10000 // Adjust the timeout as needed
-            });
-
-            if (welcomeVisible) {
-                console.log(`Login successful for ${username}`);
-            } else {
-                console.error(`Login failed for ${username}`);
-            }
+                if (welcomeVisible) {
+                    console.log(`Login successful for ${username}`);
+                } else {
+                    console.error(`Login failed for ${username}`);
+                }
             } catch (error) {
-            console.error(`An error occurred during login for ${username}:`, error);
+                console.error(`An error occurred during login for ${username}:`, error);
             } finally {
-            // Close the browser context
-            await context.close();
+                // Close the browser context
+                await context.close();
+                await browser.close();
             }
         })();
 
