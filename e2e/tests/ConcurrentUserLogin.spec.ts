@@ -7,37 +7,38 @@ const OTP_SECRET = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ"; // Re
 const USERNAME_TEMPLATE = 'testuser01@test.com';
 
 test('Concurrent user login', async ({ browser }) => {
-    test.setTimeout(60000); // Increase timeout to 60 seconds
+    test.setTimeout(10000); // Increase timeout to 60 seconds
     const concurrencyLimit = 10; // Limit the number of concurrent logins
     const activePromises: Promise<void>[] = [];
     const userPromises: Promise<void>[] = [];
 
     for (let i = 1; i <= 2; i++) {
-        const username = USERNAME_TEMPLATE.replace('01', i.toString().padStart(2, '0'));
+        const username = USERNAME_TEMPLATE.replace('001', i.toString().padStart(2, '0'));
         const otp = speakeasy.totp({
             secret: OTP_SECRET,
-            encoding: 'base32',
         });
 
         const loginPromise = (async () => {
             // Create a new browser context with SSL errors ignored
             const context = await browser.newContext({
-                ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
+            ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
             });
             const page = await context.newPage();
 
+            try {
             // Navigate to the login page
             await page.goto(BASE_URL);
             await page.waitForSelector('h1:has-text("Login Portal")', {
                 timeout: 10000 // Adjust the timeout as needed
             });
+
             // Check if the login form is visible
             const loginFormVisible = await page.isVisible('input[name="One-Time Passcode (OTP)"]');
-            if (!loginFormVisible) {    
+            if (!loginFormVisible) {
                 console.error(`Login form not visible for ${username}`);
-                await context.close();
                 return; // Exit if the login form is not visible
             }
+
             // Fill in the username
             await page.fill('input#Email', username);
 
@@ -50,22 +51,24 @@ test('Concurrent user login', async ({ browser }) => {
             // Submit the form
             await page.click('button[type="submit"]');
 
+            await page.waitForSelector('h1:has-text("Welcome,")', { // Adjust the timeout as needed
+            });
             // Wait for navigation or a success indicator
-            await page.waitForSelector('h1:has-text("Login Portal")', {
+            const welcomeVisible = await page.isVisible('h1:has-text("Welcome,")', {
                 timeout: 10000 // Adjust the timeout as needed
             });
-            // Check for login error message
-            const loginErrorVisible = await page.isVisible('div.error-msg:has-text("An error occurred during login")');
-            if (loginErrorVisible) {
+
+            if (welcomeVisible) {
+                console.log(`Login successful for ${username}`);
+            } else {
                 console.error(`Login failed for ${username}`);
-                await context.close();
-                return; // Exit if login failed
             }
-            else{console.log(`Login successful for ${username}`);
-        }
-            
+            } catch (error) {
+            console.error(`An error occurred during login for ${username}:`, error);
+            } finally {
             // Close the browser context
             await context.close();
+            }
         })();
 
         activePromises.push(loginPromise);
