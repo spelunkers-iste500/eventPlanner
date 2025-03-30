@@ -55,9 +55,16 @@ test('Concurrent user login', async () => {
                 await page.fill('input[name="One-Time Passcode (OTP)"]', otp);
                 console.log(`Filled in OTP for ${username}: ${otp}`); // Log the OTP entry
                 // Submit the form
-                await page.click('button[type="submit"]');
-
+                await page.click('button.login_signin-btn__Xbl30');
+            
                 // Wait for navigation or a success indicator
+                const verifyuser = await page.isVisible('p.login_signed-in-status__r4peE:has-text("Signed in as:")', {
+                    timeout: 10000, // Adjust the timeout as needed
+                });
+                if (!verifyuser) {
+                    console.error(`Failed to verify user after login for ${username}`);
+                }
+                await page.click('button.login_signin-btn__Xbl30');
                 const welcomeVisible = await page.isVisible('h1:has-text("Welcome,")', {
                     timeout: 10000, // Adjust the timeout as needed
                 });
