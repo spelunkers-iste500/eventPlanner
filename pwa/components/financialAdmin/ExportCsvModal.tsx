@@ -49,20 +49,35 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                     },
                 })
                 .then((response) => {
-                    console.log("Event Post response:", response.data);
-                    createSuccess();
+                    console.log("CSV export request response:", response.data);
+                    if (response.data && typeof response.data === "object") {
+                        createCsv(response.data);
+                        createSuccess();
+                    } else {
+                        console.error(
+                            "Unexpected API response format:",
+                            response.data
+                        );
+                        toaster.create({
+                            title: "Export Failed",
+                            description:
+                                "The API call returned an unexpected response.",
+                            type: "error",
+                            duration: 5000,
+                        });
+                    }
                 })
                 .catch((error) => {
                     console.error(
-                        "Error occurred during event creation:",
+                        "Error occurred during CSV export data call:",
                         error
                     );
                     toaster.create({
                         title: "An error occurred",
                         description:
-                            "An error occurred while creating the event.",
+                            "An error occurred during CSV export data call.",
                         type: "error",
-                        duration: 3000,
+                        duration: 5000,
                     });
                 });
         }
@@ -85,6 +100,77 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
             onClose();
             //window.location.reload();
         }, 2000);
+    };
+
+    const createCsv = (data: any) => {
+        if (data && typeof data === "object") {
+            const { eventTitle, maxAttendees, budget, flights } = data;
+            const csvRows = [];
+
+            csvRows.push(`${eventTitle} Details:`);
+            csvRows.push(
+                "Event Title,Max Attendees,Per User Total,Overage,Total Budget"
+            );
+
+            const totalBudget =
+                (budget?.perUserTotal || 0) * (maxAttendees || 0);
+
+            csvRows.push(
+                `"${eventTitle}","${maxAttendees}","${
+                    budget?.perUserTotal || 0
+                }","${budget?.overage || 0}","${totalBudget}"`
+            );
+            csvRows.push("");
+
+            csvRows.push("Flights");
+            const flightHeaders = ["Flight Number", "Flight Cost"];
+            csvRows.push(flightHeaders.join(","));
+
+            let totalFlightCost = 0;
+
+            if (flights && flights.length > 0) {
+                flights.forEach((flight: any) => {
+                    const flightCost = flight.flightCost || 0;
+                    const formattedFlightCost = (flightCost / 100).toFixed(2); // Convert to decimal format
+                    totalFlightCost += flightCost; // Keep total in cents for now
+
+                    const flightRow = [
+                        `"${flight.flightNumber || ""}"`,
+                        `"${formattedFlightCost}"`,
+                    ];
+                    csvRows.push(flightRow.join(","));
+                });
+
+                const formattedTotalFlightCost = (
+                    totalFlightCost / 100
+                ).toFixed(2);
+                csvRows.push(`Total spent:,${formattedTotalFlightCost}`);
+            } else {
+                csvRows.push("No flights available,");
+            }
+
+            const csvString = csvRows.join("\n");
+            const blob = new Blob([csvString], { type: "text/csv" });
+            const link = document.createElement("a");
+            const cleanTitle = eventTitle.replace(/[^a-zA-Z0-9]/g, "_");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${cleanTitle}_budget_export.csv`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            console.error(
+                "An error occured while generating CSV file for export:",
+                data
+            );
+            toaster.create({
+                title: "Export Failed",
+                description:
+                    "An error occured while generating CSV file for export.",
+                type: "error",
+                duration: 5000,
+            });
+        }
     };
 
     return (
