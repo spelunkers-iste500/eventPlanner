@@ -43,15 +43,16 @@ test('Concurrent user login', async () => {
                 }
 
                 // Fill in the username
+                console.log(`logging in as ${username}`); // Log the username entry
                 await page.type('input[type="email"]', username, { delay: 100 }); // Add a small delay between keystrokes
                 // No additional code is needed here after removing the check for username
                 // Fill in the password
                 await page.type('input[type="password"]', PASSWORD, { delay: 100 });
-                console.log(`Filled in password for ${username}`); // Log the password entry
+                //console.log(`Filled in password for ${username}`); // Log the password entry
                 // Fill in the OTP code
                 const otp = speakeasy.totp({secret: OTP_SECRET,encoding: 'base32',});
                 await page.fill('input[name="One-Time Passcode (OTP)"]', otp);
-                console.log(`Filled in OTP for ${username}: ${otp}`); // Log the OTP entry
+                //console.log(`Filled in OTP for ${username}: ${otp}`); // Log the OTP entry
                 // Submit the form
                 await page.waitForTimeout(100);
                 await page.click('button[type="submit"]');
