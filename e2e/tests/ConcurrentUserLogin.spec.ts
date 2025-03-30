@@ -1,4 +1,4 @@
-import { test, expect, chromium } from '@playwright/test';
+import { test, expect, chromium, firefox } from '@playwright/test';
 import speakeasy from 'speakeasy';
 
 const BASE_URL = 'https://localhost';
@@ -10,22 +10,19 @@ const USERNAME_TEMPLATE = 'testuser001@test.com'; // Template for usernames
 test.use({ browserName: 'chromium' });
 
 test('Concurrent user login', async () => {
-    test.setTimeout(12000); // Increase timeout to 60 seconds
-    const concurrencyLimit = 5; // Limit the number of concurrent logins
+    test.setTimeout(80000); // Increase timeout to 60 seconds
+    const concurrencyLimit = 10; // Limit the number of concurrent logins
     const activePromises: Promise<void>[] = [];
     const userPromises: Promise<void>[] = [];
 
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= 10; i++) {
         // Generate the username by replacing the numeric part in the template
         const username = USERNAME_TEMPLATE.replace('001', i.toString().padStart(3, '0'));
-        const otp = speakeasy.totp({
-            secret: OTP_SECRET,
-            encoding: 'base32',
-        });
+        
 
         const loginPromise = (async () => {
             // Launch Chromium browser
-            const browser = await chromium.launch({ headless: true }); // Set headless to true if you don't want a visible browser
+            const browser = await firefox.launch({ headless: true }); // Set headless to true if you don't want a visible browser
             const context = await browser.newContext({
                 ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
             });
@@ -46,36 +43,35 @@ test('Concurrent user login', async () => {
                 }
 
                 // Fill in the username
-                await page.fill('input#Email', username);
-                console.log(`Filled in username: ${username}`); // Log the username being used for login
+                await page.type('input[type="email"]', username, { delay: 100 }); // Add a small delay between keystrokes
+                // No additional code is needed here after removing the check for username
                 // Fill in the password
-                await page.fill('input[type="password"]', PASSWORD);
+                await page.type('input[type="password"]', PASSWORD, { delay: 100 });
                 console.log(`Filled in password for ${username}`); // Log the password entry
                 // Fill in the OTP code
+                const otp = speakeasy.totp({secret: OTP_SECRET,encoding: 'base32',});
                 await page.fill('input[name="One-Time Passcode (OTP)"]', otp);
                 console.log(`Filled in OTP for ${username}: ${otp}`); // Log the OTP entry
                 // Submit the form
-                await page.click('button.login_signin-btn__Xbl30');
-            
+                await page.waitForTimeout(100);
+                await page.click('button[type="submit"]');
+                await page.waitForTimeout(3000);
                 // Wait for navigation or a success indicator
-                const verifyuser = await page.isVisible('p.login_signed-in-status__r4peE:has-text("Signed in as:")', {
+                const welcomeVisible = await page.isVisible('h1:has-text("Welcome")', {
                     timeout: 10000, // Adjust the timeout as needed
                 });
-                if (!verifyuser) {
-                    console.error(`Failed to verify user after login for ${username}`);
-                }
-                await page.click('button.login_signin-btn__Xbl30');
-                const welcomeVisible = await page.isVisible('h1:has-text("Welcome,")', {
-                    timeout: 10000, // Adjust the timeout as needed
-                });
-
+                
                 if (welcomeVisible) {
                     console.log(`Login successful for ${username}`);
                 } else {
                     console.error(`Login failed for ${username}`);
+                    throw new Error(`Login failed for ${username}`);
+                    
                 }
+                await page.waitForTimeout(8000);
             } catch (error) {
-                console.error(`An error occurred during login for ${username}:`, error);
+                console.error(`An error occurred during login for ${username}:`, error instanceof Error ? error.stack || error.message : String(error));
+                throw new Error(`Login failed for ${username}: ${error instanceof Error ? error.message : String(error)}`); // Rethrow the error to fail the test
             } finally {
                 // Close the browser context
                 await context.close();
