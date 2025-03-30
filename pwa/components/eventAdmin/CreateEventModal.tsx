@@ -1,30 +1,43 @@
-import { DialogHeader, DialogBody, DialogTitle, Button, CloseButton, FileUpload, Input, InputGroup, Switch } from '@chakra-ui/react';
-import axios from 'axios';
-import BaseDialog from 'Components/common/BaseDialog';
-import { X, Calendar } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import styles from '../common/Dialog.module.css';
-import { useSession } from 'next-auth/react';
-import { LuFileUp } from 'react-icons/lu';
-import { toaster } from 'Components/ui/toaster';
-import InviteAttendantExt from './InviteAttendantExt';
-import { useUser } from 'Utils/UserProvider';
-import { Event } from 'Types/events';
-import { useContent } from 'Utils/ContentProvider';
-import Dashboard from './EventAdminDashboard';
+import {
+    DialogHeader,
+    DialogBody,
+    DialogTitle,
+    Button,
+    CloseButton,
+    FileUpload,
+    Input,
+    InputGroup,
+    Switch,
+} from "@chakra-ui/react";
+import axios from "axios";
+import BaseDialog from "Components/common/BaseDialog";
+import { X, Calendar } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import styles from "../common/Dialog.module.css";
+import { useSession } from "next-auth/react";
+import { LuFileUp } from "react-icons/lu";
+import { toaster } from "Components/ui/toaster";
+import InviteAttendantExt from "./InviteAttendantExt";
+import { useUser } from "Utils/UserProvider";
+import { Event } from "Types/events";
+import { useContent } from "Utils/ContentProvider";
+import Dashboard from "./EventAdminDashboard";
 
 interface CreateEventModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) => {
+const CreateEventModal: React.FC<CreateEventModalProps> = ({
+    isOpen,
+    onClose,
+}) => {
     const { data: session } = useSession();
     const { user } = useUser();
-    const [eventTitle, setEventTitle] = useState('');
-    const [location, setLocation] = useState('');
+    const [eventTitle, setEventTitle] = useState("");
+    const [location, setLocation] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [eventImage, setEventImage] = useState<File | null>(null);
@@ -34,59 +47,75 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
     const generateRandomString = (length: number) => {
-        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        let result = '';
+        const characters =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        let result = "";
         const charactersLength = characters.length;
         for (let i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            result += characters.charAt(
+                Math.floor(Math.random() * charactersLength)
+            );
         }
         return result;
     };
 
     const createSuccess = () => {
-        setContent(<Dashboard />, 'Dashboard');
+        setContent(<Dashboard />, "Dashboard");
         toaster.create({
             title: "Event Created",
             description: "Your event has been created successfully.",
             type: "success",
             duration: 5000,
         });
-    }
+        setTimeout(() => {
+            onClose();
+            //window.location.reload();
+        }, 2000);
+    };
 
     const handleSubmit = () => {
         if (eventTitle && startDate && endDate && location) {
             // make api request to create event
-            axios.post(`/events`, {
-                eventTitle: eventTitle,
-                startDateTime: startDate,
-                endDateTime: endDate,
-                startFlightBooking: startDate,
-                endFlightBooking: endDate,
-                location: location,
-                organization: user?.eventAdminOfOrg[0],
-                inviteCode: generateRandomString(10),
-                maxAttendees: 20,
-            }, {
-                headers: { 
-                    'Authorization': `Bearer ${session?.apiToken}`,
-                    'Content-Type': 'application/ld+json',
-                    'accept': 'application/ld+json',
-                }
-            })
-            .then((response) => {
-                console.log('Event Post response:', response.data);
-                setCreatedEvent(response.data);
-                createSuccess();
-            })
-            .catch((error) => {
-                console.error('Error occurred during event creation:', error);
-                toaster.create({
-                    title: "An error occurred",
-                    description: "An error occurred while creating the event.",
-                    type: "error",
-                    duration: 3000,
+            axios
+                .post(
+                    `/events`,
+                    {
+                        eventTitle: eventTitle,
+                        startDateTime: startDate,
+                        endDateTime: endDate,
+                        startFlightBooking: startDate,
+                        endFlightBooking: endDate,
+                        location: location,
+                        organization: user?.eventAdminOfOrg[0],
+                        inviteCode: generateRandomString(10),
+                        maxAttendees: 20,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${session?.apiToken}`,
+                            "Content-Type": "application/ld+json",
+                            accept: "application/ld+json",
+                        },
+                    }
+                )
+                .then((response) => {
+                    console.log("Event Post response:", response.data);
+                    setCreatedEvent(response.data);
+                    createSuccess();
+                })
+                .catch((error) => {
+                    console.error(
+                        "Error occurred during event creation:",
+                        error
+                    );
+                    toaster.create({
+                        title: "An error occurred",
+                        description:
+                            "An error occurred while creating the event.",
+                        type: "error",
+                        duration: 3000,
+                    });
                 });
-            });
         }
     };
 
@@ -94,14 +123,24 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
                 <DialogTitle>Create Event</DialogTitle>
-                    <button className={styles.dialogClose} onClick={onClose}><X /></button>
+                <button className={styles.dialogClose} onClick={onClose}>
+                    <X />
+                </button>
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
-
-                <div className='input-container'>
-                    <label className='input-label'>Event Image</label>
-                    <FileUpload.Root className={styles.fileUpload} gap="1" maxWidth="300px" maxFiles={1}>
-                        <FileUpload.HiddenInput onChange={(e) => setEventImage(e.target.files?.[0] || null)} />
+                <div className="input-container">
+                    <label className="input-label">Event Image</label>
+                    <FileUpload.Root
+                        className={styles.fileUpload}
+                        gap="1"
+                        maxWidth="300px"
+                        maxFiles={1}
+                    >
+                        <FileUpload.HiddenInput
+                            onChange={(e) =>
+                                setEventImage(e.target.files?.[0] || null)
+                            }
+                        />
                         <InputGroup
                             startElement={<LuFileUp />}
                             endElement={
@@ -114,9 +153,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                             }
                         >
                             <Input asChild>
-                                <FileUpload.Trigger className={`${styles.fileUploadTrigger} ${eventImage ? styles.hasFile : ''}`} asChild>
+                                <FileUpload.Trigger
+                                    className={`${styles.fileUploadTrigger} ${
+                                        eventImage ? styles.hasFile : ""
+                                    }`}
+                                    asChild
+                                >
                                     {eventImage ? (
-                                        <FileUpload.FileText className={styles.fileUploadTexts} />
+                                        <FileUpload.FileText
+                                            className={styles.fileUploadTexts}
+                                        />
                                     ) : (
                                         <button>Upload File</button>
                                     )}
@@ -127,30 +173,30 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                     <br></br>
                 </div>
 
-                <div className='input-container'>
-                    <label className='input-label'>Event Title</label>
+                <div className="input-container">
+                    <label className="input-label">Event Title</label>
                     <input
                         type="text"
                         id="eventTitle"
                         value={eventTitle}
                         onChange={(e) => setEventTitle(e.target.value)}
-                        className='input-field'
+                        className="input-field"
                     />
                 </div>
 
-                <div className='input-container'>
-                    <label className='input-label'>Location</label>
+                <div className="input-container">
+                    <label className="input-label">Location</label>
                     <input
                         type="text"
                         id="location"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
-                        className='input-field'
+                        className="input-field"
                     />
                 </div>
 
-                <div className='input-container'>
-                    <label className='input-label'>Event Dates</label>
+                <div className="input-container">
+                    <label className="input-label">Event Dates</label>
                     <DatePicker
                         selected={startDate}
                         startDate={startDate}
@@ -166,16 +212,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                         showTimeSelect
                         placeholderText="Select date range"
                         dateFormat="MM/dd/yyyy h:mm aa"
-                        className='input-field'
+                        className="input-field"
                         showIcon
                         icon={<Calendar size={32} />}
                     />
                 </div>
                 <br></br>
                 {/* Switch to toggle invite section */}
-                <div className='input-container'>
-                    <Switch.Root checked={inviteUsers} >
-                        <Switch.HiddenInput 
+                <div className="input-container">
+                    <Switch.Root checked={inviteUsers}>
+                        <Switch.HiddenInput
                             onChange={(e) => setInviteUsers(e.target.checked)}
                         />
                         <Switch.Control />
@@ -184,9 +230,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose }) 
                 </div>
 
                 {/* Conditionally render the InviteAttendantsExt component */}
-                {inviteUsers && <InviteAttendantExt createdEvent={createdEvent} />}
+                {inviteUsers && (
+                    <InviteAttendantExt createdEvent={createdEvent} />
+                )}
                 <br></br>
-                <div className='input-container'>
+                <div className="input-container">
                     <Button onClick={handleSubmit}>Create Event</Button>
                 </div>
             </DialogBody>
