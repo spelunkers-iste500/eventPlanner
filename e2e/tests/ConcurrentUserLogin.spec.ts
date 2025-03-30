@@ -1,33 +1,12 @@
 import { test, expect } from '@playwright/test';
 import speakeasy from 'speakeasy';
-import axios from 'axios';
-import https from 'https';
 
 const BASE_URL = 'https://localhost';
 const PASSWORD = 'spelunkers123';
 const OTP_SECRET = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ"; // Replace with the actual OTP secret
 const USERNAME_TEMPLATE = 'testuser01@test.com';
 
-async function loginUser(username: string, password: string, otp: string) {
-    const httpsAgent = new https.Agent({
-        rejectUnauthorized: false, // Disable SSL certificate validation
-    });
-
-    const response = await axios.post(
-        `${BASE_URL}`,
-        {
-            username,
-            password,
-            otp,
-        },
-        {
-            httpsAgent, // Pass the custom HTTPS agent
-        }
-    );
-    return response;
-}
-
-test('Concurrent user login', async () => {
+test('Concurrent user login', async ({ browser }) => {
     const concurrencyLimit = 10; // Limit the number of concurrent logins
     const activePromises: Promise<void>[] = [];
     const userPromises: Promise<void>[] = [];
@@ -39,14 +18,39 @@ test('Concurrent user login', async () => {
             encoding: 'base32',
         });
 
-        const loginPromise = loginUser(username, PASSWORD, otp)
-            .then((response) => {
-                expect(response.status).toBe(200); // Assert successful login
-                console.log(`Login successful for ${username}`);
-            })
-            .catch((error) => {
-                console.error(`Login failed for ${username}:`, error.response?.data || error.message);
+        const loginPromise = (async () => {
+            // Create a new browser context with SSL errors ignored
+            const context = await browser.newContext({
+                ignoreHTTPSErrors: true, // Ignore invalid SSL certificates
             });
+            const page = await context.newPage();
+
+            // Navigate to the login page
+            await page.goto(BASE_URL);
+
+            // Fill in the username
+            await page.fill('input[name="username"]', username);
+
+            // Fill in the password
+            await page.fill('input[name="password"]', PASSWORD);
+
+            // Fill in the OTP code
+            await page.fill('input[name="otp"]', otp);
+
+            // Submit the form
+            await page.click('button[type="submit"]');
+
+            // Wait for navigation or a success indicator
+            await page.waitForNavigation();
+
+            // Assert that the login was successful (e.g., check for a specific element on the dashboard)
+            await expect(page).toHaveURL(/dashboard/); // Replace `/dashboard/` with the actual URL or pattern
+
+            console.log(`Login successful for ${username}`);
+
+            // Close the browser context
+            await context.close();
+        })();
 
         activePromises.push(loginPromise);
 
