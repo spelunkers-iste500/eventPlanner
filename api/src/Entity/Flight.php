@@ -166,6 +166,30 @@ class Flight
         return $this;
     }
 
+    #[ORM\Column()]
+    private ?string $duffelOrderID = null;
+    public function getDuffelOrderID(): ?string
+    {
+        return $this->duffelOrderID;
+    }
+
+    public function setDuffelOrderID(string $duffelOrderID): self
+    {
+        $this->duffelOrderID = $duffelOrderID;
+        return $this;
+    }
+
+    #[ORM\Column]
+    private ?string $bookingRefernce = null;
+    public function getBookingRefernce(): ?string
+    {
+        return $this->bookingRefernce;
+    }
+    public function setBookingRefernce(string $bookingRefernce): self
+    {
+        $this->bookingRefernce = $bookingRefernce;
+        return $this;
+    }
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
