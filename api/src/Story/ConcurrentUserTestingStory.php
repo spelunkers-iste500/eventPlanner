@@ -58,7 +58,7 @@ final class ConcurrentUserTestingStory extends Story
         $otpcode = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ";
         $organization = OrganizationFactory::new()->createOne(['name' => 'Spelunkers']);
 
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 150000; $i++) {
             $email = sprintf('testuser%03d@test.com', $i); // Generate email like testuser001@test.com
             $this->createUser(
                 firstname: 'Test',
