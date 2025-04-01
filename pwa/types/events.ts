@@ -47,6 +47,7 @@ export interface Organization {
     id: string;
     type: string;
     name: string;
+    ['@id']: string;
 }
 
 export interface UserEvent {

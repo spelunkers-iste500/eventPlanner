@@ -40,9 +40,11 @@ const Dashboard: React.FC = () => {
     useEffect(() => {
         const fetchOrganizations = async () => {
             try {
+                console.log(organizations);
                 const fetchedOrgs = await Promise.all(
                     organizations.map(async (org) => {
-                        const response = await axios.get(org, {
+                        const uri = org["@id"] as string;
+                        const response = await axios.get(uri, {
                             headers: {
                                 Authorization: `Bearer ${session?.apiToken}`,
                             },
@@ -296,6 +298,7 @@ const Dashboard: React.FC = () => {
             <CreateEventModal
                 isOpen={isCreateModalOpen}
                 onClose={handleCloseCreateModal}
+                organizations={orgObjects}
             />
         </div>
     );

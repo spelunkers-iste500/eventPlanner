@@ -9,6 +9,8 @@ import {
     InputGroup,
     Switch,
     Select,
+    ListCollection,
+    createListCollection,
 } from "@chakra-ui/react";
 import axios from "axios";
 import BaseDialog from "Components/common/BaseDialog";
@@ -22,18 +24,20 @@ import { LuFileUp } from "react-icons/lu";
 import { toaster } from "Components/ui/toaster";
 import InviteAttendantExt from "./InviteAttendantExt";
 import { useUser } from "Utils/UserProvider";
-import { Event } from "Types/events";
+import { Event, Organization } from "Types/events";
 import { useContent } from "Utils/ContentProvider";
 import Dashboard from "./EventAdminDashboard";
 
 interface CreateEventModalProps {
     isOpen: boolean;
     onClose: () => void;
+    organizations: Organization[];
 }
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({
     isOpen,
     onClose,
+    organizations,
 }) => {
     const { data: session } = useSession();
     const { user } = useUser();
@@ -45,8 +49,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [inviteUsers, setInviteUsers] = useState(false);
     const { setContent } = useContent();
     const [selectedOrganization, setSelectedOrganization] =
-        useState<string>("");
-
+        useState<Organization>();
+    const organizationsList = createListCollection<Organization>({
+        items: organizations,
+    });
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
     const generateRandomString = (length: number) => {
@@ -77,9 +83,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     };
 
     const handleOrganizationChange = (
-        event: React.ChangeEvent<HTMLSelectElement>
+        organization: React.ChangeEvent<HTMLSelectElement>
     ) => {
-        setSelectedOrganization(event.target.value);
+        console.log("Selected organization:", organization);
+        // setSelectedOrganization(organization);
     };
 
     const handleSubmit = () => {
@@ -191,10 +198,17 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 <div className="input-container">
                     {/* <label className="input-label">Select Organization</label> */}
                     <Select.Root
-                        value={selectedOrganization}
-                        onValueChange={(value) =>
-                            setSelectedOrganization(value)
+                        onValueChange={
+                            // (value) => console.log(value)
+                            (value) => {
+                                console.log("Selected value:", value);
+                                const selectedOrg = organizations.find(
+                                    (org) => org.name === value.items[0]
+                                );
+                                setSelectedOrganization(selectedOrg);
+                            }
                         }
+                        collection={organizationsList}
                     >
                         <Select.HiddenSelect />
                         {/* <label className="input-label">
@@ -204,7 +218,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Control>
                             <Select.Trigger>
                                 <Select.ValueText>
-                                    {selectedOrganization ||
+                                    {selectedOrganization?.name ||
                                         "Select Organization"}
                                 </Select.ValueText>
                             </Select.Trigger>
@@ -217,10 +231,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Positioner>
                             <Select.Content>
                                 {user?.eventAdminOfOrg.map((org) => (
-                                    <Select.Item
-                                        key={org.id}
-                                        value={[org.name]}
-                                    >
+                                    <Select.Item key={org.id} item={org.name}>
                                         {org.name}
                                     </Select.Item>
                                 ))}
