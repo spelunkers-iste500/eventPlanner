@@ -31,7 +31,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
-    normalizationContext: ['groups' => ['user:read']]
+    normalizationContext: ['groups' => ['user:test:read']]
 )]
 #[Get(
     uriTemplate: '/my/user.{_format}',
@@ -244,6 +244,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var array $offerIds The offers the user has access to book currently. Set via POST to /flight_offers
      */
     #[ORM\Column(type: 'simple_array', nullable: true)]
+    #[Groups(['user:test:read'])]
     private array $offerIds;
 
     /**

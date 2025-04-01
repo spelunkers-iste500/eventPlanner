@@ -12,6 +12,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use App\Repository\UserRepository;
 use DateTime;
 use DateTimeInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Validator\Constraints\Date;
 
@@ -26,7 +27,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
 {
     private string $token;
 
-    public function __construct(private HttpClientInterface $client, private Security $s, private UserRepository $uRepo)
+    public function __construct(private HttpClientInterface $client, private Security $s, private UserRepository $uRepo, private LoggerInterface $logger)
     {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -75,6 +76,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         $user->resetOffers();
         // save all offer id's to the user
         foreach ($flightOffers as $offer) {
+            $this->logger->info("Adding offer id: " . $offer->id);
             $user->addOfferIds($offer->id);
         }
         $user->setPassengerId($flightOffers[0]->passengerId);

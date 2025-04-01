@@ -130,7 +130,6 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $title = $user->getTitle();
         $phoneNum = $user->getPhoneNumber();
         $birthday = $user->getBirthday()->format('Y-m-d');
-
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/orders',
@@ -164,6 +163,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
                 ]
             ]
         );
+
 
 
         if ($response->getStatusCode() != 201) {
@@ -204,6 +204,8 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $flight->setArrivalDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['arriving_at']));
         $flight->setDepartureLocation($responseData['slices'][0]['segments'][0]['origin']['iata_code']);
         $flight->setArrivalLocation($responseData['slices'][0]['segments'][0]['destination']['iata_code']);
+        $flight->setBookingRefernce($responseData['booking_reference']);
+        $flight->setDuffelOrderID($responseData['id']);
         $this->fRepo->save($flight, true);
 
         // Example: Budget validation and updating

@@ -8,6 +8,7 @@ import {
     Input,
     InputGroup,
     Switch,
+    Select,
 } from "@chakra-ui/react";
 import axios from "axios";
 import BaseDialog from "Components/common/BaseDialog";
@@ -43,6 +44,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [eventImage, setEventImage] = useState<File | null>(null);
     const [inviteUsers, setInviteUsers] = useState(false);
     const { setContent } = useContent();
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<string>("");
 
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
 
@@ -73,8 +76,20 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
         }, 2000);
     };
 
+    const handleOrganizationChange = (
+        event: React.ChangeEvent<HTMLSelectElement>
+    ) => {
+        setSelectedOrganization(event.target.value);
+    };
+
     const handleSubmit = () => {
-        if (eventTitle && startDate && endDate && location) {
+        if (
+            eventTitle &&
+            startDate &&
+            endDate &&
+            location &&
+            selectedOrganization
+        ) {
             // make api request to create event
             axios
                 .post(
@@ -86,7 +101,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         startFlightBooking: startDate,
                         endFlightBooking: endDate,
                         location: location,
-                        organization: user?.eventAdminOfOrg[0],
+                        organization: selectedOrganization, // Use selected organization
                         inviteCode: generateRandomString(10),
                         maxAttendees: 20,
                     },
@@ -128,6 +143,22 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 </button>
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
+                {/* Organization Selection */}
+                <div className="input-container">
+                    <label className="input-label">Select Organization</label>
+                    {/* <Select
+                        placeholder="Select Organization"
+                        value={selectedOrganization}
+                        onChange={handleOrganizationChange}
+                    >
+                        {user?.eventAdminOfOrg.map((org) => (
+                            <option key={org} value={org}>
+                                {org}
+                            </option>
+                        ))}
+                    </Select> */}
+                </div>
+
                 <div className="input-container">
                     <label className="input-label">Event Image</label>
                     <FileUpload.Root

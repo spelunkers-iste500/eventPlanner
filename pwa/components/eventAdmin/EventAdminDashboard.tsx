@@ -4,11 +4,13 @@ import axios from "axios";
 import EventList from "../common/EventList";
 import MemberList from "../common/MemberList";
 import CreateEventModal from "./CreateEventModal";
+import ViewEventModal from "./ViewEventModal"; // Import the new modal for viewing event details
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event, UserEvent } from "Types/events";
-import { Stack, Text } from "@chakra-ui/react";
+import { Event, UserEvent, Organization } from "Types/events";
+import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
+
 import {
     AccordionItem,
     AccordionItemContent,
@@ -16,6 +18,8 @@ import {
     AccordionRoot,
 } from "Components/ui/accordion";
 import { useState, useEffect } from "react";
+import ItemList from "Components/itemList/ItemList";
+import { Select, Portal, createListCollection } from "@chakra-ui/react"; // Import Select components
 
 // Defining the Dashboard component
 const Dashboard: React.FC = () => {
@@ -25,6 +29,51 @@ const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null); // State for the selected event
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the event view modal
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
+    const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
+    const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<string>("");
+
+    useEffect(() => {
+        const fetchOrganizations = async () => {
+            try {
+                const fetchedOrgs = await Promise.all(
+                    organizations.map(async (org) => {
+                        const response = await axios.get(org, {
+                            headers: {
+                                Authorization: `Bearer ${session?.apiToken}`,
+                            },
+                        });
+                        return response.data;
+                    })
+                );
+                setOrgObjects(fetchedOrgs);
+            } catch (error) {
+                console.error("Error fetching organizations:", error);
+            }
+        };
+
+        if (organizations.length > 0) {
+            fetchOrganizations();
+        }
+    }, [organizations]);
+
+    const orgCollection = createListCollection({
+        items: orgObjects,
+    });
+
+    const handleOrganizationChange = (org: Organization) => {
+        setSelectedOrganization(org.id);
+    };
+
+    const filteredEvents = events.filter(
+        (event) =>
+            !selectedOrganization ||
+            event.organization.id === selectedOrganization
+    );
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -32,6 +81,24 @@ const Dashboard: React.FC = () => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+    };
+
+    const handleOpenViewModal = (event: UserEvent) => {
+        setSelectedEvent(event);
+        setIsViewModalOpen(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setSelectedEvent(null);
+        setIsViewModalOpen(false);
+    };
+
+    const handleOpenCreateModal = () => {
+        setIsCreateModalOpen(true);
+    };
+
+    const handleCloseCreateModal = () => {
+        setIsCreateModalOpen(false);
     };
 
     // Defining a state variable to manage the accordion's value
@@ -154,6 +221,42 @@ const Dashboard: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Add Event Button */}
+            <Button onClick={handleOpenCreateModal} colorScheme="blue" mb={4}>
+                Add Event
+            </Button>
+
+            {/* Organization Filter Dropdown */}
+            <div className={styles.filterContainer}>
+                <Select.Root
+                    onValueChange={(e) => handleOrganizationChange(e.items[0])}
+                    collection={orgCollection}
+                >
+                    <Select.HiddenSelect />
+                    <Select.Label>Organization</Select.Label>
+                    <Select.Control>
+                        <Select.Trigger>
+                            <Select.ValueText placeholder="All Organizations" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                            <Select.Indicator />
+                        </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                        <Select.Positioner>
+                            <Select.Content>
+                                {orgObjects.map((org) => (
+                                    <Select.Item item={org} key={org.id}>
+                                        {org.name}
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Portal>
+                </Select.Root>
+            </div>
+
             <Stack gap="4">
                 <AccordionRoot
                     value={value}
@@ -165,141 +268,41 @@ const Dashboard: React.FC = () => {
                                 {item.title}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
-                                {item.value === "members-list" ? (
-                                    <MemberList members={members} />
-                                ) : (
-                                    <EventList
-                                        heading={item.title}
-                                        events={item.events}
-                                        hasAddBtn={
-                                            item.title ===
-                                                "Events Pending Approval" &&
-                                            true
-                                        }
-                                        onAddEventClick={handleOpenModal}
-                                    />
-                                )}
+                                <ItemList
+                                    items={item.events}
+                                    fields={[
+                                        {
+                                            key: "event.eventTitle",
+                                            label: item.title,
+                                        },
+                                        { key: "status", label: "Status" },
+                                    ]}
+                                    renderItem={handleOpenViewModal} // Open the view modal on item click
+                                />
                             </AccordionItemContent>
                         </AccordionItem>
                     ))}
                 </AccordionRoot>
             </Stack>
-            <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} />
+
+            {/* View Event Modal */}
+            {/* <ViewEventModal
+                isOpen={isViewModalOpen}
+                onClose={handleCloseViewModal}
+                userEvent={selectedEvent}
+            /> */}
+
+            {/* Create Event Modal */}
+            <CreateEventModal
+                isOpen={isCreateModalOpen}
+                onClose={handleCloseCreateModal}
+            />
         </div>
     );
 };
 
 // Exporting the Dashboard component as the default export
 export default Dashboard;
-
-// Defining a list of dummy data events
-const events: Event[] = [
-    {
-        id: 1,
-        eventTitle: "Event Name",
-        budget: { id: "1", perUserTotal: 50000 },
-        startDateTime: "2025-07-10T09:00:00",
-        endDateTime: "2025-07-10T17:00:00",
-        startFlightBooking: "2024-12-06T09:00:00",
-        endFlightBooking: "2024-12-10T17:00:00",
-        location: "Location One",
-        maxAttendees: 100,
-        organization: {
-            id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0",
-            type: "Organization",
-            name: "Spleunkers",
-        },
-        attendees: ["attendee1@example.com", "attendee2@example.com"],
-        financeAdmins: ["financeAdmin1@example.com"],
-        eventAdmins: ["eventAdmin1@example.com"],
-        isAccepted: false,
-        isDeclined: false,
-    },
-    {
-        id: 2,
-        eventTitle: "Event Steff",
-        budget: { id: "1", perUserTotal: 50000 },
-        startDateTime: "2024-04-15T09:00:00",
-        endDateTime: "2024-04-15T17:00:00",
-        startFlightBooking: "2024-12-10T09:00:00",
-        endFlightBooking: "2024-12-15T17:00:00",
-        location: "Location Two",
-        maxAttendees: 150,
-        organization: {
-            id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0",
-            type: "Organization",
-            name: "Spleunkers",
-        },
-        attendees: ["attendee3@example.com", "attendee4@example.com"],
-        financeAdmins: ["financeAdmin2@example.com"],
-        eventAdmins: ["eventAdmin2@example.com"],
-        isAccepted: false,
-        isDeclined: false,
-    },
-    {
-        id: 3,
-        eventTitle: "Event Four",
-        budget: { id: "1", perUserTotal: 50000 },
-        startDateTime: "2024-12-03T09:00:00",
-        endDateTime: "2024-12-03T17:00:00",
-        startFlightBooking: "2024-12-01T09:00:00",
-        endFlightBooking: "2024-12-04T17:00:00",
-        location: "Location Three",
-        maxAttendees: 200,
-        organization: {
-            id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0",
-            type: "Organization",
-            name: "Spleunkers",
-        },
-        attendees: ["attendee5@example.com", "attendee6@example.com"],
-        financeAdmins: ["financeAdmin3@example.com"],
-        eventAdmins: ["eventAdmin3@example.com"],
-        isAccepted: false,
-        isDeclined: false,
-    },
-    {
-        id: 4,
-        eventTitle: "Event Ethan",
-        budget: { id: "1", perUserTotal: 50000 },
-        startDateTime: "2025-01-25T09:00:00",
-        endDateTime: "2025-01-25T17:00:00",
-        startFlightBooking: "2025-01-23T09:00:00",
-        endFlightBooking: "2025-01-26T17:00:00",
-        location: "Location Four",
-        maxAttendees: 250,
-        organization: {
-            id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0",
-            type: "Organization",
-            name: "Spleunkers",
-        },
-        attendees: ["attendee7@example.com", "attendee8@example.com"],
-        financeAdmins: ["financeAdmin4@example.com"],
-        eventAdmins: ["eventAdmin4@example.com"],
-        isAccepted: false,
-        isDeclined: false,
-    },
-    {
-        id: 5,
-        eventTitle: "Event Sixty",
-        budget: { id: "1", perUserTotal: 50000 },
-        startDateTime: "2024-08-05T10:00:00",
-        endDateTime: "2024-08-05T18:00:00",
-        startFlightBooking: "2024-08-03T09:00:00",
-        endFlightBooking: "2024-08-06T17:00:00",
-        location: "Location Five",
-        maxAttendees: 300,
-        organization: {
-            id: "/organizations/62fe88b0-bda1-47d5-8076-a52e256a08d0",
-            type: "Organization",
-            name: "Spleunkers",
-        },
-        attendees: ["attendee9@example.com", "attendee10@example.com"],
-        financeAdmins: ["financeAdmin5@example.com"],
-        eventAdmins: ["eventAdmin5@example.com"],
-        isAccepted: false,
-        isDeclined: false,
-    },
-];
 
 // Defining a list of members
 const members = [

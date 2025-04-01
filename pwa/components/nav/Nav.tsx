@@ -57,17 +57,6 @@ const Nav: React.FC = () => {
             content: <Dashboard />,
             icon: <LayoutDashboard size={28} />,
         },
-
-        {
-            name: "Preferences",
-            content: <Preferences />,
-            icon: <Settings2 size={28} />,
-        },
-        {
-            name: "About Us",
-            content: <About />,
-            icon: <CircleHelp size={28} />,
-        },
     ];
 
     // filter nav links based off of user data
@@ -85,6 +74,18 @@ const Nav: React.FC = () => {
             icon: <HandCoins size={28} />,
         });
     }
+    navLinks.push(
+        {
+            name: "Preferences",
+            content: <Preferences />,
+            icon: <Settings2 size={28} />,
+        },
+        {
+            name: "About Us",
+            content: <About />,
+            icon: <CircleHelp size={28} />,
+        }
+    );
     return (
         <div
             className={`${styles.navContainer} ${
