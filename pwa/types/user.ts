@@ -81,9 +81,13 @@ export class User {
      * @param {string} apiToken - The API token for authentication.
      * @returns {Promise<User>} - A promise that resolves to a User object.
      */
-    static async fromApiResponse(id: string, apiToken: string): Promise<User> {
+    static async fromApiResponse(
+        id: string = "",
+        apiToken: string
+    ): Promise<User> {
         try {
-            const response = await axios.get(`/users/${id}`, {
+            const uri = id === "" ? `/my/user` : `/users/${id}`;
+            const response = await axios.get(uri, {
                 headers: {
                     "Content-Type": "application/ld+json",
                     Authorization: "Bearer " + apiToken,

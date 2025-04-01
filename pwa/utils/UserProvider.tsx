@@ -44,8 +44,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
                     setLoading(false);
                 } else {
                     try {
-                        const user = new User(session.id);
-                        await user.fetch(session.apiToken);
+                        const user = await User.fromApiResponse(
+                            "",
+                            session.apiToken
+                        );
                         setUser(user);
                         localStorage.setItem("user", JSON.stringify(user));
                         localStorage.setItem("sessionId", session.id);
