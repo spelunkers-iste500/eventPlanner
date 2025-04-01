@@ -24,7 +24,9 @@ import { LuFileUp } from "react-icons/lu";
 import { toaster } from "Components/ui/toaster";
 import InviteAttendantExt from "./InviteAttendantExt";
 import { useUser } from "Utils/UserProvider";
-import { Event, Organization } from "Types/events";
+// import { Event, Organization } from "Types/events";
+import { Event } from "Types/event";
+import { Organization } from "Types/organization";
 import { useContent } from "Utils/ContentProvider";
 import Dashboard from "./EventAdminDashboard";
 
@@ -97,47 +99,23 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             location &&
             selectedOrganization
         ) {
-            // make api request to create event
-            axios
-                .post(
-                    `/events`,
-                    {
-                        eventTitle: eventTitle,
-                        startDateTime: startDate,
-                        endDateTime: endDate,
-                        startFlightBooking: startDate,
-                        endFlightBooking: endDate,
-                        location: location,
-                        organization: selectedOrganization, // Use selected organization
-                        inviteCode: generateRandomString(10),
-                        maxAttendees: 20,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${session?.apiToken}`,
-                            "Content-Type": "application/ld+json",
-                            accept: "application/ld+json",
-                        },
-                    }
-                )
-                .then((response) => {
-                    console.log("Event Post response:", response.data);
-                    setCreatedEvent(response.data);
-                    createSuccess();
-                })
-                .catch((error) => {
-                    console.error(
-                        "Error occurred during event creation:",
-                        error
-                    );
-                    toaster.create({
-                        title: "An error occurred",
-                        description:
-                            "An error occurred while creating the event.",
-                        type: "error",
-                        duration: 3000,
-                    });
-                });
+            const event = new Event();
+            event.eventTitle = eventTitle;
+            event.startDateTime = startDate.toISOString();
+            event.endDateTime = endDate.toISOString();
+            event.startFlightBooking = startDate.toISOString();
+            event.endFlightBooking = endDate.toISOString();
+            event.location = location;
+            event.organization = selectedOrganization;
+            event.inviteCode = generateRandomString(10);
+            event.maxAttendees = 20;
+            if (!session?.apiToken) {
+                console.error("API token is not available.");
+                return;
+            }
+            event.persist(session?.apiToken);
+            setCreatedEvent(event);
+            console.log("Event created:", event);
         }
     };
 
@@ -200,10 +178,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <Select.Root
                         onValueChange={
                             // (value) => console.log(value)
+                            // should find the organization that is selected
                             (value) => {
-                                console.log("Selected value:", value);
                                 const selectedOrg = organizations.find(
-                                    (org) => org.name === value.items[0]
+                                    (org) => org.id === value.items[0].id
                                 );
                                 setSelectedOrganization(selectedOrg);
                             }
@@ -218,7 +196,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Control>
                             <Select.Trigger>
                                 <Select.ValueText>
-                                    {selectedOrganization?.name}
+                                    {selectedOrganization?.name}{" "}
+                                    {/* Display selected organization name - currently doesn't work for some reason?*/}
                                 </Select.ValueText>
                             </Select.Trigger>
                             <Select.IndicatorGroup>
@@ -230,7 +209,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Positioner>
                             <Select.Content>
                                 {user?.eventAdminOfOrg.map((org) => (
-                                    <Select.Item key={org.id} item={org.name}>
+                                    <Select.Item key={org.id} item={org}>
                                         {org.name}
                                     </Select.Item>
                                 ))}

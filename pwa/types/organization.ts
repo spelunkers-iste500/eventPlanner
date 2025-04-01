@@ -10,17 +10,20 @@ export class Organization {
     eventAdmins?: User[];
     fullAdmins?: User[];
     constructor(id: string = "notPersisted", apiToken: string = "") {
-        this.id = id;
+        this.id = id.split("/").pop()!;
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch organization data without an ID");
-        } else if (apiToken === "" && id !== "notPersisted") {
+        } else if (apiToken !== "" && id !== "notPersisted") {
             // Fetch the organization data from the API
             this.fetch(apiToken);
         }
     }
     async fetch(apiToken: string): Promise<void> {
         const response = await axios.get(`/organizations/${this.id}`, {
-            headers: { Authorization: `Bearer ${apiToken}` },
+            headers: {
+                Authorization: `Bearer ${apiToken}`,
+                Accept: "application/ld+json",
+            },
         });
         const data = response.data;
         this.name = data.name;
@@ -60,7 +63,11 @@ export class Organization {
                         : [],
                 },
                 {
-                    headers: { Authorization: `Bearer ${apiToken}` },
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        Accept: "application/ld+json",
+                        "Content-Type": "application/ld+json",
+                    },
                 }
             );
             this.id = response.data.id; // check to see if the id is set in the response
@@ -88,6 +95,31 @@ export class Organization {
                 }
             );
         }
+    }
+    static async fromApiResponse(
+        id: string,
+        apiToken: string
+    ): Promise<Organization> {
+        const response = await axios.get(`/organizations/${id}`, {
+            headers: { Authorization: `Bearer ${apiToken}` },
+        });
+        const data = response.data;
+        const organization = new Organization(id);
+        organization.name = data.name;
+        organization.description = data.description;
+        organization.address = data.address;
+        organization.industry = data.industry;
+        // user will be in the form of an IRI here
+        organization.financeAdmins = data.financeAdmins.map((user: any) => {
+            return new User(user.split("/").pop()!);
+        });
+        organization.eventAdmins = data.eventAdmins.map((user: any) => {
+            return new User(user.split("/").pop()!);
+        });
+        organization.fullAdmins = data.fullAdmins.map((user: any) => {
+            return new User(user.split("/").pop()!);
+        });
+        return organization;
     }
     addFinanceAdmin(user: User): void {
         if (!this.financeAdmins) {

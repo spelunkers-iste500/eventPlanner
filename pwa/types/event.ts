@@ -2,6 +2,7 @@ import { Organization } from "./organization";
 import { Budget } from "./budget";
 import axios from "axios";
 import { Flight } from "./flight";
+import { max } from "date-fns";
 
 export class Event {
     id: string;
@@ -15,6 +16,8 @@ export class Event {
     location?: string;
     organization?: Organization;
     flights?: Flight[];
+    inviteCode?: string;
+    maxAttendees?: number;
     /**
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
@@ -90,10 +93,7 @@ export class Event {
             if (data.budget) {
                 budget = new Budget(data.budget.id, data.budget.perUserTotal);
             }
-            const organization = new Organization(
-                data.organization.id,
-                data.organization.name
-            );
+            const organization = new Organization(data.organization.id);
             const hydratedEvent: Event = new Event(data.id);
             hydratedEvent.setBudget(budget);
             hydratedEvent.setEventTitle(data.eventTitle);
@@ -157,12 +157,8 @@ export class Event {
                 event.setStartFlightBooking(item.startFlightBooking);
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
-                event.setOrganization(
-                    new Organization(
-                        item.organization.id,
-                        item.organization.name
-                    )
-                );
+                event.setOrganization(new Organization(item.organization.id));
+                return event;
                 // event.setFlights() // dont set flights yet
             });
             // if there are more pages, fetch them
@@ -191,10 +187,7 @@ export class Event {
                     event.setEndFlightBooking(item.endFlightBooking);
                     event.setLocation(item.location);
                     event.setOrganization(
-                        new Organization(
-                            item.organization.id,
-                            item.organization.name
-                        )
+                        new Organization(item.organization.id)
                     );
                 });
             }
@@ -236,10 +229,14 @@ export class Event {
                             endFlightBooking: this.endFlightBooking,
                             location: this.location,
                             organization: this.organization.getIri(),
+                            maxAttendees: this.maxAttendees,
+                            inviteCode: this.inviteCode,
                         },
                         {
                             headers: {
                                 Authorization: `Bearer ${apiToken}`,
+                                "Content-Type": "application/ld+json",
+                                Accept: "application/ld+json",
                             },
                         }
                     );
