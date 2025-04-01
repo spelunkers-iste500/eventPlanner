@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
-import { UserEvent } from "Types/events";
+import { UserEvent } from "Types/userEvent";
 import { useUser } from "Utils/UserProvider";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -44,7 +44,9 @@ const Dashboard: React.FC = () => {
                         // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
                         // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
                         const accepted: UserEvent[] = userEvents
-                            .filter((event) => event.status === "accepted")
+                            .filter(
+                                (userEvent) => userEvent.status === "accepted"
+                            )
                             .map((userEvent) => userEvent);
                         const pending: UserEvent[] = userEvents
                             .filter((event) => event.status === "pending")
