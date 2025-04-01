@@ -86,7 +86,7 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
 #[Get(
-    //security: "is_granted('view', object)",
+    security: "is_granted('csv', object)",
     uriTemplate: '/csv/events/{id}.{_format}',
     normalizationContext: ['groups' => ['event:csv:export']]
 )
