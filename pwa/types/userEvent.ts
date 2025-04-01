@@ -75,4 +75,10 @@ export class UserEvent {
     setFlights(flights: Flight[]) {
         this.flights = flights;
     }
+    getEvent(): Event {
+        if (!this.event) {
+            throw new Error("Event is not set");
+        }
+        return this.event;
+    }
 }

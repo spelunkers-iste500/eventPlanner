@@ -26,57 +26,69 @@
 
 // Finally, the `EventForm` component is exported as the default export of the module.
 
-import React, { useEffect } from 'react';
-import styles from './EventForm.module.css';
-import { UserEvent, formatDateDisplay, formatTime } from 'Types/events';
-import { useContent } from 'Utils/ContentProvider';
-import Dashboard from 'Components/dashboard/Dashboard';
-import { BookingData, useBooking } from 'Utils/BookingProvider';
-import { X } from 'lucide-react';
-import FlightSearch from './FlightSearch';
+import React, { useEffect } from "react";
+import styles from "./EventForm.module.css";
+import { formatDateDisplay, formatTime } from "Types/events";
+import { UserEvent } from "Types/userEvent";
+import { useContent } from "Utils/ContentProvider";
+import Dashboard from "Components/dashboard/Dashboard";
+import { BookingData, useBooking } from "Utils/BookingProvider";
+import { X } from "lucide-react";
+import FlightSearch from "./FlightSearch";
 
 interface EventData {
-  	eventData: UserEvent;
+    eventData: UserEvent;
 }
 
 const EventForm: React.FC<EventData> = ({ eventData }) => {
     const { setContent } = useContent();
-	const { bookingData, setBookingData } = useBooking();
+    const { bookingData, setBookingData } = useBooking();
 
     useEffect(() => {
-        setBookingData({ event: eventData.event, userEventId: eventData.id, content: <FlightSearch /> });
+        setBookingData({
+            event: eventData.event,
+            userEventId: eventData.id,
+            content: <FlightSearch />,
+        });
     }, [eventData, setBookingData]);
-    
 
     function handleBackClick() {
-      	setContent(<Dashboard />, 'Dashboard');
-		setBookingData({} as BookingData);
+        setContent(<Dashboard />, "Dashboard");
+        setBookingData({} as BookingData);
     }
 
     if (!bookingData.event) {
-      	return <div>Loading...</div>;
+        return <div>Loading...</div>;
     }
 
     return (
-		<div className={styles.container}>
-			<button 
-				onClick={handleBackClick} 
-				className={`text-btn ${styles.backHome}`}
-			>
-				Back Home <X />
-			</button>
+        <div className={styles.container}>
+            <button
+                onClick={handleBackClick}
+                className={`text-btn ${styles.backHome}`}
+            >
+                Back Home <X />
+            </button>
 
-			<div className={styles.eventInfo}>
-				<h1>{bookingData.event.eventTitle}</h1>
-				<h2 className='h4'>{bookingData.event.organization.name}</h2>
-				<p>{formatDateDisplay(bookingData.event.startDateTime)} • {formatTime(bookingData.event.startDateTime)} {bookingData.event.endDateTime ? `- ${formatTime(bookingData.event.endDateTime)}` : ''}</p>
-				{bookingData.event.budget && <p>Allowed Budget: ${bookingData.event.budget.perUserTotal}</p>}
-			</div>
+            <div className={styles.eventInfo}>
+                <h1>{bookingData.event.eventTitle}</h1>
+                <h2 className="h4">{bookingData.event.organization.name}</h2>
+                <p>
+                    {formatDateDisplay(bookingData.event.startDateTime)} •{" "}
+                    {formatTime(bookingData.event.startDateTime)}{" "}
+                    {bookingData.event.endDateTime
+                        ? `- ${formatTime(bookingData.event.endDateTime)}`
+                        : ""}
+                </p>
+                {bookingData.event.budget && (
+                    <p>
+                        Allowed Budget: ${bookingData.event.budget.perUserTotal}
+                    </p>
+                )}
+            </div>
 
-			<div className={styles.formCard}>
-				{bookingData.content}
-			</div>
-		</div>
+            <div className={styles.formCard}>{bookingData.content}</div>
+        </div>
     );
 };
 

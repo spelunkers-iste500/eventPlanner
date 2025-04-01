@@ -315,4 +315,10 @@ export class Event {
     getIri(): string {
         return this.iri;
     }
+    getEventTitle(): string {
+        if (!this.eventTitle) {
+            throw new Error("Event name is not set");
+        }
+        return this.eventTitle;
+    }
 }

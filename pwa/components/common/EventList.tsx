@@ -54,7 +54,7 @@ import {
     Scale,
 } from "lucide-react";
 import Card from "./Card";
-import { UserEvent } from "Types/events";
+import { UserEvent } from "Types/userEvent";
 import { useContent } from "Utils/ContentProvider";
 import EventForm from "Components/booking/EventForm";
 
@@ -97,7 +97,7 @@ const EventList: React.FC<EventListProps> = ({
         if (isBookCard) {
             setContent(
                 <EventForm eventData={userEvent} />,
-                userEvent.event.eventTitle
+                userEvent.event?.eventTitle as string
             );
         } else if (onOpenDialog) {
             onOpenDialog(userEvent);
@@ -189,7 +189,9 @@ const EventList: React.FC<EventListProps> = ({
                 )}
                 {events
                     .filter((userEvent) =>
-                        userEvent.event.eventTitle
+                        userEvent
+                            .getEvent()
+                            .getEventTitle()
                             .toLowerCase()
                             .includes(searchTerm.toLowerCase())
                     )
