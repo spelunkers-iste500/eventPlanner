@@ -217,7 +217,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Positioner>
                             <Select.Content>
                                 {user?.eventAdminOfOrg.map((org) => (
-                                    <Select.Item key={org} value={org}>
+                                    <Select.Item key={org} value={org.name}>
                                         {org}
                                     </Select.Item>
                                 ))}
