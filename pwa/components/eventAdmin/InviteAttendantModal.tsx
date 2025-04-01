@@ -3,7 +3,7 @@ import { DialogHeader, DialogBody, DialogTitle, Button } from '@chakra-ui/react'
 import BaseDialog from 'Components/common/BaseDialog';
 import { X } from 'lucide-react';
 import InviteAttendantExt from './InviteAttendantExt';
-import { Event } from 'Types/events';
+import { Event } from 'Types/event';
 
 interface InviteAttendantModalProps {
     event: Event;

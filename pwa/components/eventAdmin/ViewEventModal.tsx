@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X } from "lucide-react";
-import { UserEvent } from "Types/events";
+import { UserEvent } from "Types/userEvent";
 
 interface ViewEventModalProps {
     isOpen: boolean;

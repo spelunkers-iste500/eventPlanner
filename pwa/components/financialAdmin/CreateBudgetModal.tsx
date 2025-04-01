@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { X } from "lucide-react";
 import styles from "../common/Dialog.module.css";
-import { UserEvent } from "Types/events";
+import { UserEvent } from "Types/userEvent";
 import { useSession } from "next-auth/react";
 import { useContent } from "Utils/ContentProvider";
 import axios from "axios";
