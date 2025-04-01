@@ -37,7 +37,8 @@ final class FlightFactory extends PersistentProxyObjectFactory
             'arrivalDateTime' => self::faker()->dateTimeBetween('-1 year', '+1 year'), // Nullable arrival date
             'departureLocation' => self::faker()->city(), // Nullable departure location
             'arrivalLocation' => self::faker()->city(), // Nullable arrival location
-            'flightNumber' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable flight number
+            'duffelOrderID' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable flight number,
+            'bookingRefernce' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable booking reference
         ];
     }
 
