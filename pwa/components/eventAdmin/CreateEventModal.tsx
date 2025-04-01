@@ -143,22 +143,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 </button>
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
-                {/* Organization Selection */}
-                <div className="input-container">
-                    <label className="input-label">Select Organization</label>
-                    {/* <Select
-                        placeholder="Select Organization"
-                        value={selectedOrganization}
-                        onChange={handleOrganizationChange}
-                    >
-                        {user?.eventAdminOfOrg.map((org) => (
-                            <option key={org} value={org}>
-                                {org}
-                            </option>
-                        ))}
-                    </Select> */}
-                </div>
-
                 <div className="input-container">
                     <label className="input-label">Event Image</label>
                     <FileUpload.Root
@@ -201,9 +185,48 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             </Input>
                         </InputGroup>
                     </FileUpload.Root>
-                    <br></br>
                 </div>
+                <br></br>
+                {/* Organization Selection */}
+                <div className="input-container">
+                    {/* <label className="input-label">Select Organization</label> */}
+                    <Select.Root
+                        value={selectedOrganization}
+                        onValueChange={(value) =>
+                            setSelectedOrganization(value)
+                        }
+                    >
+                        <Select.HiddenSelect />
+                        {/* <label className="input-label">
+                            Select Organization
+                        </label> */}
 
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText>
+                                    {selectedOrganization ||
+                                        "Select Organization"}
+                                </Select.ValueText>
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                                <Select.ClearTrigger />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+
+                        <Select.Positioner>
+                            <Select.Content>
+                                {user?.eventAdminOfOrg.map((org) => (
+                                    <Select.Item key={org} value={org}>
+                                        {org}
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Select.Root>
+                </div>
+                <br></br>
+                {/* Event Title and Location */}
                 <div className="input-container">
                     <label className="input-label">Event Title</label>
                     <input
