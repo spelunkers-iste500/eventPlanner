@@ -8,6 +8,7 @@ export class UserEvent {
     event?: Event;
     user?: User;
     flights?: Flight[];
+    status?: string;
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "" && id == "notPersisted") {
@@ -17,9 +18,10 @@ export class UserEvent {
             this.fetch(apiToken);
         }
     }
+
     async fetch(apiToken: string) {
         try {
-            const response = await axios.get(`/my/events`, {
+            const response = await axios.get(`/user_event/${this.id}`, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`,
                 },
@@ -29,34 +31,9 @@ export class UserEvent {
             this.flights = response.data.flights.map(
                 (flight: any) => new Flight(flight.id)
             );
+            this.status = response.data.status;
         } catch (error) {
             console.error("Error fetching user event data:", error);
-        }
-    }
-
-    async persist(apiToken: string) {
-        if (!this.event || !this.user) {
-            throw new Error("Event and User must be set before persisting");
-        }
-        if (this.id !== "notPersisted") {
-            throw new Error("UserEvent already persisted");
-        }
-        try {
-            const response = await axios.post(
-                `/my/events`,
-                {
-                    user: this.user.getIri(),
-                    event: this.event.getIri(),
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${apiToken}`,
-                    },
-                }
-            );
-            this.id = response.data.id;
-        } catch (error) {
-            console.error("Error persisting user event data:", error);
         }
     }
 
@@ -80,5 +57,11 @@ export class UserEvent {
             throw new Error("Event is not set");
         }
         return this.event;
+    }
+    getFlights(): Flight[] {
+        if (!this.flights) {
+            throw new Error("Flights are not set");
+        }
+        return this.flights;
     }
 }

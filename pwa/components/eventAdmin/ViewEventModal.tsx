@@ -39,21 +39,23 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({
             <DialogBody>
                 <Box>
                     <Text fontWeight="bold">Event Title:</Text>
-                    <Text mb={2}>{userEvent.event.eventTitle}</Text>
+                    <Text mb={2}>{userEvent.getEvent().eventTitle}</Text>
 
                     <Text fontWeight="bold">Location:</Text>
-                    <Text mb={2}>{userEvent.event.location}</Text>
+                    <Text mb={2}>{userEvent.getEvent().location}</Text>
 
                     <Text fontWeight="bold">Start Date:</Text>
                     <Text mb={2}>
                         {new Date(
-                            userEvent.event.startDateTime
+                            userEvent.getEvent().startDateTime as string
                         ).toLocaleString()}
                     </Text>
 
                     <Text fontWeight="bold">End Date:</Text>
                     <Text mb={2}>
-                        {new Date(userEvent.event.endDateTime).toLocaleString()}
+                        {new Date(
+                            userEvent.getEvent().endDateTime as string
+                        ).toLocaleString()}
                     </Text>
 
                     <Text fontWeight="bold">Status:</Text>
