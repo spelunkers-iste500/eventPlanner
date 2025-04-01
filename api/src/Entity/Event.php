@@ -83,11 +83,12 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 )]
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
-#[Get(
-    //security: "is_granted('view', object)",
-    uriTemplate: '/csv/events/{id}.{_format}',
-    normalizationContext: ['groups' => ['event:csv:export']]
-)
+#[
+    Get(
+        //security: "is_granted('view', object)",
+        uriTemplate: '/csv/events/{id}.{_format}',
+        normalizationContext: ['groups' => ['event:csv:export']]
+    )
 ]
 
 //ADD IMAGES HERE
@@ -169,7 +170,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'read:myEvents', 'write:event'])]
+    #[Groups(['read:event', 'read:myEvents', 'write:event', 'read:event:collection'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {

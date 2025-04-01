@@ -19,7 +19,6 @@ interface User {
     birthday: string;
     title: string;
     gender: string;
-    // OrgMembership: string[];
     eventsAttending: Event[];
     eventAdminOfOrg: Organization[];
     financeAdminOfOrg: string[];

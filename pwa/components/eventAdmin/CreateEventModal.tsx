@@ -218,8 +218,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Select.Control>
                             <Select.Trigger>
                                 <Select.ValueText>
-                                    {selectedOrganization?.name ||
-                                        "Select Organization"}
+                                    {selectedOrganization?.name}
                                 </Select.ValueText>
                             </Select.Trigger>
                             <Select.IndicatorGroup>
