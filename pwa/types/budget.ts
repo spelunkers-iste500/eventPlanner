@@ -1,40 +1,77 @@
 import axios from "axios";
 import { Organization } from "./organization";
+import { Event } from "./event";
 
 export class Budget {
-    constructor(id: string, perUserTotal: number) {
+    id: string;
+    perUserTotal?: number;
+    organization?: Organization;
+    event?: Event;
+    overage?: number;
+    constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
-        this.perUserTotal = perUserTotal;
-    }
-    /**
-     * Fetches the budgets for each organization the user is a finance admin of
-     * @param apiToken users api token
-     * @param organizations the list of organizations the user is a finance admin of
-     * @returns a promise that resolves to a list of budgets
-     */
-    static fromApiResponse(
-        apiToken: string,
-        organizations: Organization[]
-    ): Promise<Budget[]> {
-        try {
-            const budgets = organizations.map(async (org) => {
-                const response = await axios.get(
-                    `/organizations/${org.id}/budget`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${apiToken}`,
-                        },
-                    }
-                );
-                return new Budget(response.data.id, response.data.perUserTotal);
-            });
-            return Promise.all(budgets);
-        } catch (error) {
-            console.error("Error fetching budget data:", error);
-            throw error;
+        if (apiToken !== "" && id == "notPersisted") {
+            throw new Error("Cannot fetch budget data without an ID");
+        } else if (apiToken === "" && id !== "notPersisted") {
+            // Fetch the budget data from the API
+            this.fetch(apiToken);
         }
     }
-    async persist(): Promise<void> {}
-    id: string;
-    perUserTotal: number;
+    async fetch(apiToken: string): Promise<void> {
+        const response = await axios.get(`/budgets/${this.id}`, {
+            headers: { Authorization: `Bearer ${apiToken}` },
+        });
+        const data = response.data;
+        this.organization = new Organization(
+            data.organization.split("/").pop()! // pop returns the last element of the array, which is the UUID
+        );
+        this.perUserTotal = data.perUserTotal;
+        this.event = new Event(data.event.split("/").pop()!); // pop returns the last element of the array, which is the UUID
+        this.overage = data.overage;
+    }
+    async persist(apiToken: string): Promise<void> {
+        // two cases: creating a budget (id = "notPersisted") or updating an existing one (id != "notPersisted")
+        if (this.id === "notPersisted") {
+            // check if the required fields are set: organization, perUserTotal, overage, event
+            if (!this.organization) {
+                throw new Error("Organization is required");
+            }
+            if (!this.perUserTotal) {
+                throw new Error("Per user total is required");
+            }
+            if (!this.event) {
+                throw new Error("Event is required");
+            }
+            if (!this.overage) {
+                throw new Error("Overage is required");
+            }
+
+            // Create a new budget
+            const response = await axios.post(
+                `/budgets`,
+                {
+                    organization: `/organizations/${this.organization.id}`,
+                    event: `/events/${this.event.id}`,
+                    overage: this.overage,
+                    perUserTotal: this.perUserTotal,
+                },
+                {
+                    headers: { Authorization: `Bearer ${apiToken}` },
+                }
+            );
+            this.id = response.data.id;
+        } else {
+            // Update an existing budget
+            await axios.put(
+                `/budgets/${this.id}`,
+                {
+                    perUserTotal: this.perUserTotal,
+                    overage: this.overage,
+                },
+                {
+                    headers: { Authorization: `Bearer ${apiToken}` },
+                }
+            );
+        }
+    }
 }

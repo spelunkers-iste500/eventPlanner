@@ -2,7 +2,6 @@ import { Organization } from "./organization";
 import { Budget } from "./budget";
 import axios from "axios";
 import { Flight } from "./flight";
-import { fetch } from "../utils/dataAccess";
 
 export class Event {
     /**

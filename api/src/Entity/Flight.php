@@ -6,13 +6,12 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
-use App\State\CurrentUserProvider;
 use DateTimeInterface;
-use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ApiResource]
@@ -199,6 +198,23 @@ class Flight
         return $this;
     }
 
+    #[ORM\Column()]
+    #[Groups([
+        'read:myEvents'
+    ])]
+    #[Assert\Choice(choices: ['pending', 'approved', 'rejected'])]
+    private ?string $approvalStatus = null;
+
+    public function getApprovalStatus(): ?string
+    {
+        return $this->approvalStatus;
+    }
+    public function setApprovalStatus(string $approvalStatus): self
+    {
+        $this->approvalStatus = $approvalStatus;
+        return $this;
+    }
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     public \DateTimeInterface $lastModified;
 
@@ -208,6 +224,7 @@ class Flight
     public function __construct()
     {
         $this->id = Uuid::uuid4();
+        $this->approvalStatus = 'pending';
         $this->lastModified = new \DateTime();
         $this->createdDate = new \DateTime();
     }
