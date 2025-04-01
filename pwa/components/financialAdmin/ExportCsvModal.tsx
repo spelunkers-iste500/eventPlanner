@@ -31,11 +31,11 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     const { setContent } = useContent();
     const [csvSearchTerm, setCsvSearchTerm] = useState("");
     const [selectedExportEvent, setSelectedExportEvent] = useState<
-        number | null
+        Event | null
     >(null);
     // Filter all events based on the CSV search term
     const filteredExportEvents = events.filter((event) =>
-        event.eventTitle.toLowerCase().includes(csvSearchTerm.toLowerCase())
+        event.getEventTitle().toLowerCase().includes(csvSearchTerm.toLowerCase())
     );
 
     const handleSubmit = () => {
@@ -185,10 +185,10 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                                                         }
                                                         onClick={() => {
                                                             setSelectedExportEvent(
-                                                                event.get(id)
+                                                                event
                                                             );
                                                             setCsvSearchTerm(
-                                                                event.get(eventTitle)
+                                                                event.getEventTitle()
                                                             );
                                                         }}
                                                     >
@@ -211,7 +211,7 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                                     Selected Event:{" "}
                                     {
                                         events.find(
-                                            (e) => e.id === selectedExportEvent
+                                            (e) => e === selectedExportEvent
                                         )?.eventTitle
                                     }
                                 </span>
