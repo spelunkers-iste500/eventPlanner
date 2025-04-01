@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Organization } from "./organization";
 import { UserEvent } from "./userEvent";
+import { headers } from "next/headers";
 export class User {
     static url = "/my/user";
     id: string;
@@ -17,6 +18,7 @@ export class User {
     financeAdminOfOrg?: Organization[];
     superAdmin?: boolean;
     passengerId?: string;
+    plainPassword?: string;
     setFirstName(firstName: string): void {
         this.firstName = firstName;
     }
@@ -119,24 +121,47 @@ export class User {
      * @param {string} apiToken - The API token for authentication.
      * @returns {Promise<void>} - A promise that resolves when the update is successful.
      */
-    async persist(apiToken: string): Promise<void> {
-        if (!this.id) {
-            throw new Error("Malformed User object: ID not set");
-        }
+    async persist(
+        apiToken: string,
+        eventCode: string = "",
+        userOrgInviteId: string = ""
+    ): Promise<void> {
         try {
-            axios.patch(`/user/${this.id}`, {
-                headers: {
-                    Authorization: "Bearer " + apiToken,
-                    "Content-Type": "application/ld+json",
-                },
-                data: {
-                    name: this.name,
-                    email: this.email,
-                    phoneNumber: this.phoneNumber,
-                    title: this.title,
-                    gender: this.gender,
-                },
-            });
+            if (this.id === "notPersisted") {
+                // this is used when registering the user
+                await axios.post("/user", {
+                    headers: {
+                        "Content-Type": "application/ld+json",
+                    },
+                    data: {
+                        firstName: this.name?.split(" ")[0],
+                        lastName: this.name?.split(" ")[1],
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        birthday: this.birthday,
+                        title: this.title,
+                        gender: this.gender,
+                        plainPassword: this.plainPassword,
+                        eventCode: eventCode !== "" ? eventCode : null,
+                        userOrgInviteId:
+                            userOrgInviteId !== "" ? userOrgInviteId : null,
+                    },
+                });
+            } else {
+                await axios.patch(`/user/${this.id}`, {
+                    headers: {
+                        Authorization: "Bearer " + apiToken,
+                        "Content-Type": "application/ld+json",
+                    },
+                    data: {
+                        name: this.name,
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        title: this.title,
+                        gender: this.gender,
+                    },
+                });
+            }
         } catch (error) {
             console.error("Error updating user data:", error);
             throw new Error("Failed to update user data");
