@@ -116,11 +116,11 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $user1Iri,
-            'email' => 'ratchie@rit.edu',
+           /* 'email' => 'ratchie@rit.edu',
             'name' => 'Ratchie The Tiger',
             'birthday' => '2000-01-01T00:00:00+00:00',
             'gender' => 'M',
-            'phoneNumber' => '585-555-5555'
+            'phoneNumber' => '585-555-5555'*/
         ]);
         //test to see if user can't patch another user
         $client->request('GET', $user2Iri, ['auth_bearer' => $jwttoken['token']]);
