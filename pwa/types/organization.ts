@@ -131,4 +131,23 @@ export class Organization {
             (admin) => admin.id !== user.id
         );
     }
+    setName(name: string): void {
+        this.name = name;
+    }
+
+    setDescription(description: string): void {
+        this.description = description;
+    }
+
+    setAddress(address: string): void {
+        this.address = address;
+    }
+
+    setIndustry(industry: string): void {
+        this.industry = industry;
+    }
+
+    getIri(): string {
+        return `/organizations/${this.id}`;
+    }
 }

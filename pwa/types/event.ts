@@ -4,8 +4,18 @@ import axios from "axios";
 import { Flight } from "./flight";
 
 export class Event {
+    id: string;
+    iri: string;
+    budget: Budget | null = null;
+    eventTitle?: string;
+    startDateTime?: string; // date-time
+    endDateTime?: string; // date-time
+    startFlightBooking?: string; // date-time
+    endFlightBooking?: string; // date-time
+    location?: string;
+    organization?: Organization;
+    flights?: Flight[];
     /**
-     *
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
      */
@@ -15,42 +25,6 @@ export class Event {
         if (apiToken !== "") {
             this.fetchData(apiToken);
         }
-    }
-
-    setBudget(budget: Budget | null): void {
-        this.budget = budget;
-    }
-
-    setEventTitle(eventTitle: string): void {
-        this.eventTitle = eventTitle;
-    }
-
-    setStartDateTime(startDateTime: string): void {
-        this.startDateTime = startDateTime;
-    }
-
-    setEndDateTime(endDateTime: string): void {
-        this.endDateTime = endDateTime;
-    }
-
-    setStartFlightBooking(startFlightBooking: string): void {
-        this.startFlightBooking = startFlightBooking;
-    }
-
-    setEndFlightBooking(endFlightBooking: string): void {
-        this.endFlightBooking = endFlightBooking;
-    }
-
-    setLocation(location: string): void {
-        this.location = location;
-    }
-
-    setOrganization(organization: Organization | undefined): void {
-        this.organization = organization;
-    }
-
-    setFlights(flights: Flight[]): void {
-        this.flights = flights;
     }
 
     /**
@@ -79,22 +53,10 @@ export class Event {
             this.startFlightBooking = data.startFlightBooking;
             this.endFlightBooking = data.endFlightBooking;
             this.location = data.location;
-            this.organization = new Organization(
-                data.organization.id,
-                data.organization.name
-            );
+            this.organization = new Organization(data.organization.id);
+            this.organization.setName(data.organization.name);
             this.flights = data.flights.map(
-                (flight: any) =>
-                    new Flight(
-                        flight.id,
-                        flight.departureAirport,
-                        flight.arrivalAirport,
-                        flight.departureDateTime,
-                        flight.returnDateTime,
-                        flight.flightNumber,
-                        flight.airline,
-                        flight.status
-                    )
+                (flight: any) => new Flight(flight.id)
             );
         } catch (error) {
             console.error("Error fetching event data:", error);
@@ -273,7 +235,7 @@ export class Event {
                             startFlightBooking: this.startFlightBooking,
                             endFlightBooking: this.endFlightBooking,
                             location: this.location,
-                            organization: this.organization.iri,
+                            organization: this.organization.getIri(),
                         },
                         {
                             headers: {
@@ -318,15 +280,39 @@ export class Event {
                 break;
         }
     }
-    id: string;
-    iri: string;
-    budget: Budget | null = null;
-    eventTitle?: string;
-    startDateTime?: string; // date-time
-    endDateTime?: string; // date-time
-    startFlightBooking?: string; // date-time
-    endFlightBooking?: string; // date-time
-    location?: string;
-    organization?: Organization;
-    flights?: Flight[];
+    setBudget(budget: Budget | null): void {
+        this.budget = budget;
+    }
+
+    setEventTitle(eventTitle: string): void {
+        this.eventTitle = eventTitle;
+    }
+
+    setStartDateTime(startDateTime: string): void {
+        this.startDateTime = startDateTime;
+    }
+
+    setEndDateTime(endDateTime: string): void {
+        this.endDateTime = endDateTime;
+    }
+
+    setStartFlightBooking(startFlightBooking: string): void {
+        this.startFlightBooking = startFlightBooking;
+    }
+
+    setEndFlightBooking(endFlightBooking: string): void {
+        this.endFlightBooking = endFlightBooking;
+    }
+
+    setLocation(location: string): void {
+        this.location = location;
+    }
+
+    setOrganization(organization: Organization | undefined): void {
+        this.organization = organization;
+    }
+
+    setFlights(flights: Flight[]): void {
+        this.flights = flights;
+    }
 }
