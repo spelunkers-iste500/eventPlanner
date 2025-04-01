@@ -8,7 +8,8 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Event, Organization } from "Types/events";
+import { Event } from "Types/event";
+import { Organization } from "Types/organization";
 
 interface User {
     id: string;

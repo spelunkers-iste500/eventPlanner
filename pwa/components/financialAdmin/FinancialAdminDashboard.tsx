@@ -6,7 +6,9 @@ import dialogStyles from "../common/Dialog.module.css";
 import CreateBudgetModal from "./CreateBudgetModal";
 import { useSession } from "next-auth/react";
 import { useUser } from "Utils/UserProvider";
-import { Event, UserEvent, Organization } from "Types/events";
+import { Event } from "Types/event";
+import { UserEvent } from "Types/userEvent";
+import { Organization } from "Types/organization";
 import {
     Button,
     Dialog,
@@ -96,7 +98,7 @@ const FinancialAdminDashboard: React.FC = () => {
     const filteredEvents = events.filter(
         (event) =>
             !selectedOrganization ||
-            event.organization.id === selectedOrganization
+            event.organization?.id === selectedOrganization
     );
 
     const filteredItems = [
