@@ -9,7 +9,7 @@ import {
 import { X } from "lucide-react";
 import Input from "Components/common/Input";
 import styles from "../common/Dialog.module.css";
-import { Event } from "Types/events";
+import { Event } from "Types/event";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toaster } from "Components/ui/toaster";
@@ -106,49 +106,24 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         if (data && typeof data === "object") {
             const { eventTitle, maxAttendees, budget, flights } = data;
             const csvRows = [];
-
-            csvRows.push(`${eventTitle} Details:`);
+    
             csvRows.push(
-                "Event Title,Max Attendees,Per User Total,Overage,Total Budget"
+                "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight IDs,Flight Costs"
             );
-
-            const totalBudget =
-                (budget?.perUserTotal || 0) * (maxAttendees || 0);
-
+    
+            const totalBudget = (budget?.perUserTotal || 0) * (maxAttendees || 0);
+    
+            const flightIds = flights?.map((flight: any) => flight.flightNumber || "").join(" | ") || "No flights";
+            const flightCosts = flights
+                ?.map((flight: any) => ((flight.flightCost || 0) / 100).toFixed(2))
+                .join(" | ") || "0.00";
+    
             csvRows.push(
-                `"${eventTitle}","${maxAttendees}","${
+                `"${eventTitle || ""}","${maxAttendees || 0}","${
                     budget?.perUserTotal || 0
-                }","${budget?.overage || 0}","${totalBudget}"`
+                }","${budget?.overage || 0}","${totalBudget}","${flightIds}","${flightCosts}"`
             );
-            csvRows.push("");
-
-            csvRows.push("Flights");
-            const flightHeaders = ["Flight Number", "Flight Cost"];
-            csvRows.push(flightHeaders.join(","));
-
-            let totalFlightCost = 0;
-
-            if (flights && flights.length > 0) {
-                flights.forEach((flight: any) => {
-                    const flightCost = flight.flightCost || 0;
-                    const formattedFlightCost = (flightCost / 100).toFixed(2); // Convert to decimal format
-                    totalFlightCost += flightCost; // Keep total in cents for now
-
-                    const flightRow = [
-                        `"${flight.flightNumber || ""}"`,
-                        `"${formattedFlightCost}"`,
-                    ];
-                    csvRows.push(flightRow.join(","));
-                });
-
-                const formattedTotalFlightCost = (
-                    totalFlightCost / 100
-                ).toFixed(2);
-                csvRows.push(`Total spent:,${formattedTotalFlightCost}`);
-            } else {
-                csvRows.push("No flights available,");
-            }
-
+    
             const csvString = csvRows.join("\n");
             const blob = new Blob([csvString], { type: "text/csv" });
             const link = document.createElement("a");
@@ -160,13 +135,13 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
             document.body.removeChild(link);
         } else {
             console.error(
-                "An error occured while generating CSV file for export:",
+                "An error occurred while generating CSV file for export:",
                 data
             );
             toaster.create({
                 title: "Export Failed",
                 description:
-                    "An error occured while generating CSV file for export.",
+                    "An error occurred while generating CSV file for export.",
                 type: "error",
                 duration: 5000,
             });
@@ -191,7 +166,6 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                                 placeholder="Search events..."
                                 onChange={(value) => {
                                     setCsvSearchTerm(value);
-                                    // Clear any previous selection if the user types something new
                                     if (value.trim() === "") {
                                         setSelectedExportEvent(null);
                                     }
@@ -211,10 +185,10 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                                                         }
                                                         onClick={() => {
                                                             setSelectedExportEvent(
-                                                                event.id
+                                                                event.get(id)
                                                             );
                                                             setCsvSearchTerm(
-                                                                event.eventTitle
+                                                                event.get(eventTitle)
                                                             );
                                                         }}
                                                     >
