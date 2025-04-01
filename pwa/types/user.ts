@@ -177,4 +177,7 @@ export class User {
             throw error;
         }
     }
+    getIri(): string {
+        return `/users/${this.id}`;
+    }
 }

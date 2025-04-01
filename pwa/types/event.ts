@@ -315,4 +315,7 @@ export class Event {
     setFlights(flights: Flight[]): void {
         this.flights = flights;
     }
+    getIri(): string {
+        return this.iri;
+    }
 }

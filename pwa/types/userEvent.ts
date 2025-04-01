@@ -33,4 +33,46 @@ export class UserEvent {
             console.error("Error fetching user event data:", error);
         }
     }
+
+    async persist(apiToken: string) {
+        if (!this.event || !this.user) {
+            throw new Error("Event and User must be set before persisting");
+        }
+        if (this.id !== "notPersisted") {
+            throw new Error("UserEvent already persisted");
+        }
+        try {
+            const response = await axios.post(
+                `/my/events`,
+                {
+                    user: this.user.getIri(),
+                    event: this.event.getIri(),
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                    },
+                }
+            );
+            this.id = response.data.id;
+        } catch (error) {
+            console.error("Error persisting user event data:", error);
+        }
+    }
+
+    setId(id: string) {
+        this.id = id;
+    }
+
+    setEvent(event: Event) {
+        this.event = event;
+    }
+
+    setUser(user: User) {
+        this.user = user;
+    }
+
+    setFlights(flights: Flight[]) {
+        this.flights = flights;
+    }
 }
