@@ -46,7 +46,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 
     useEffect(() => {
         setBookingData({
-            event: eventData.event,
+            event: eventData.getEvent(),
             userEventId: eventData.id,
             content: <FlightSearch />,
         });
@@ -72,7 +72,9 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
 
             <div className={styles.eventInfo}>
                 <h1>{bookingData.event.eventTitle}</h1>
-                <h2 className="h4">{bookingData.event.organization.name}</h2>
+                <h2 className="h4">
+                    {bookingData.event.getOrganization().name}
+                </h2>
                 <p>
                     {formatDateDisplay(bookingData.event.startDateTime)} •{" "}
                     {formatTime(bookingData.event.startDateTime)}{" "}

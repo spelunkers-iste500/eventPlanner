@@ -44,10 +44,10 @@ const Dashboard: React.FC = () => {
             setLoading(false);
             return;
         }
-        const orgs = organizations?.map((org) => {
-            return new Organization(org["@id"]);
-        });
-        setOrgObjects(orgs);
+        // const orgs = organizations?.map((org) => {
+        //     return new Organization(org["@id"]);
+        // });
+        setOrgObjects(organizations);
         setLoading(false);
     }, [organizations]);
 

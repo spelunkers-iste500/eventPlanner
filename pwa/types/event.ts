@@ -321,4 +321,10 @@ export class Event {
         }
         return this.eventTitle;
     }
+    getOrganization(): Organization {
+        if (!this.organization) {
+            throw new Error("Organization is not set");
+        }
+        return this.organization;
+    }
 }

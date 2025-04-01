@@ -2,6 +2,7 @@ import { Flight } from "./flight";
 import { Event } from "./event";
 import axios from "axios";
 import { User } from "./user";
+import { Organization } from "./organization";
 
 export class UserEvent {
     id: string;
@@ -34,6 +35,40 @@ export class UserEvent {
             this.status = response.data.status;
         } catch (error) {
             console.error("Error fetching user event data:", error);
+        }
+    }
+
+    static async allFromApiResponse(apiToken: string): Promise<UserEvent[]> {
+        try {
+            const response = await axios.get(`/my/events`, {
+                headers: {
+                    Authorization: `Bearer ${apiToken}`,
+                },
+            });
+            return response.data["hydra:member"].map((userEvent: any) => {
+                const userEventInstance = new UserEvent(userEvent.id);
+                userEventInstance.event = new Event(userEvent.event.id);
+                userEventInstance.event.setOrganization(
+                    new Organization(userEvent.event.organization.id)
+                );
+                userEventInstance.event.setLocation(userEvent.event.location);
+                userEventInstance.event.setStartDateTime(
+                    userEvent.event.startDate
+                );
+                userEventInstance.event.setEndDateTime(userEvent.event.endDate);
+                userEventInstance.event.setEventTitle(
+                    userEvent.event.eventTitle
+                );
+                userEventInstance.user = new User(userEvent.user.id);
+                userEventInstance.flights = userEvent.flights.map(
+                    (flight: any) => new Flight(flight.id)
+                );
+                userEventInstance.status = userEvent.status;
+                return userEventInstance;
+            });
+        } catch (error) {
+            console.error("Error fetching user events:", error);
+            return [];
         }
     }
 
