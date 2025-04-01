@@ -166,7 +166,10 @@ class Flight
         return $this;
     }
 
-    #[ORM\Column()]
+    #[ORM\Column]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?string $duffelOrderID = null;
     public function getDuffelOrderID(): ?string
     {
@@ -180,6 +183,9 @@ class Flight
     }
 
     #[ORM\Column]
+    #[Groups([
+        'read:myEvents'
+    ])]
     private ?string $bookingRefernce = null;
     public function getBookingRefernce(): ?string
     {
