@@ -9,6 +9,11 @@ export class Organization {
     financeAdmins?: User[];
     eventAdmins?: User[];
     fullAdmins?: User[];
+    /**
+     * Constructs a new object. Optionally, the ID of an existing organization can be provided to fetch the details from the API if it is accompanied by the API token.
+     * @param id The requested organizations ID
+     * @param apiToken The users API Token. When provided, the details for the object are fetched from the API, overwriting whatever has been set.
+     */
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id.split("/").pop()!;
         if (apiToken !== "" && id == "notPersisted") {

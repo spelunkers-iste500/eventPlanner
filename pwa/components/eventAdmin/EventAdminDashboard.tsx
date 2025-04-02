@@ -8,9 +8,9 @@ import ViewEventModal from "./ViewEventModal"; // Import the new modal for viewi
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Organization } from "Types/organization";
 import { Event } from "Types/event";
 import { UserEvent } from "Types/userEvent";
+import { Organization } from "Types/organization";
 import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
 
 import {
@@ -34,21 +34,28 @@ const Dashboard: React.FC = () => {
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
     const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the event view modal
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
-    const organizations = user?.eventAdminOfOrg; // Assuming user.eventAdminOfOrg contains organization IRIs
+    const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
         useState<string>("");
 
     useEffect(() => {
-        if (!organizations) {
-            setLoading(false);
-            return;
+        if (!session) return;
+        const fetchOrganizations = async () => {
+            try {
+                console.log(organizations);
+                await organizations.forEach(async (org) => {
+                    await org.fetch(session.apiToken);
+                });
+                setOrgObjects(organizations);
+            } catch (error) {
+                console.error("Error fetching organizations:", error);
+            }
+        };
+
+        if (organizations.length > 0) {
+            fetchOrganizations();
         }
-        // const orgs = organizations?.map((org) => {
-        //     return new Organization(org["@id"]);
-        // });
-        setOrgObjects(organizations);
-        setLoading(false);
     }, [organizations]);
 
     const orgCollection = createListCollection({
@@ -62,7 +69,7 @@ const Dashboard: React.FC = () => {
     const filteredEvents = events.filter(
         (event) =>
             !selectedOrganization ||
-            event.organization?.id === selectedOrganization
+            event.getOrganization().id === selectedOrganization
     );
 
     const handleOpenModal = () => {
@@ -97,53 +104,46 @@ const Dashboard: React.FC = () => {
     const apiUrl = `/my/organizations/events/eventAdmin`;
     const getEvents = async () => {
         if (user && session) {
-            const events = await Event.allFromApiResponse(
-                session.apiToken,
-                "eventAdmin"
-            );
-            setEvents(events);
-            // try {
-            //     var response;
-            //     var pageNumber = 1;
-            //     var hasNextPage = true;
-            //     // setup event array to eventually pass into setEvents()
-            //     const events = [];
-            //     while (hasNextPage) {
-            //         response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-            //             headers: {
-            //                 Authorization: `Bearer ${session.apiToken}`,
-            //             },
-            //         });
-            //         if (response.status === 200) {
-            //             // if the current page is the last page, set hasNextPage to false
-            //             if (
-            //                 response.data["hydra:view"] &&
-            //                 response.data["hydra:view"]["hydra:last"] !==
-            //                     `${apiUrl}?page=${pageNumber}`
-            //             ) {
-            //                 // increment page number
-            //                 pageNumber++;
-            //             } else {
-            //                 hasNextPage = false;
-            //             }
-            //             // push the events from the next page into the events array
+            try {
+                var response;
+                var pageNumber = 1;
+                var hasNextPage = true;
+                // setup event array to eventually pass into setEvents()
+                const events = [];
+                while (hasNextPage) {
+                    response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
+                        headers: {
+                            Authorization: `Bearer ${session.apiToken}`,
+                        },
+                    });
+                    if (response.status === 200) {
+                        // if the current page is the last page, set hasNextPage to false
+                        if (
+                            response.data["hydra:view"] &&
+                            response.data["hydra:view"]["hydra:last"] !==
+                                `${apiUrl}?page=${pageNumber}`
+                        ) {
+                            // increment page number
+                            pageNumber++;
+                        } else {
+                            hasNextPage = false;
+                        }
+                        // push the events from the next page into the events array
 
-            //             events.push(...response.data["hydra:member"]);
-            //         }
-            //     }
-            //     // set the events to the state
-
-            //     setLoading(false);
-            // } catch (error) {
-            //     console.error("Error:", error);
-            // }
+                        events.push(...response.data["hydra:member"]);
+                    }
+                }
+                // set the events to the state
+                setEvents(events);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error:", error);
+            }
         }
     };
 
     useEffect(() => {
-        if (user && session) {
-            getEvents();
-        }
+        getEvents();
     }, [user]);
 
     if (loading) {
@@ -265,7 +265,7 @@ const Dashboard: React.FC = () => {
                                 {item.title}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
-                                <ItemList<Event>
+                                <ItemList
                                     items={item.events}
                                     fields={[
                                         {

@@ -72,7 +72,7 @@ export class User {
     }
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
-        if (apiToken !== "" && id == "notPersisted") {
+        if (apiToken !== "" && id !== "notPersisted") {
             this.fetch(apiToken);
         }
     }
@@ -181,13 +181,20 @@ export class User {
             throw new Error("User ID is not set");
         }
         try {
-            const response = await axios.get(`/user/${this.id}`, {
+            var uri = "";
+            if (this.id == "self") {
+                uri = `/my/user`;
+            } else {
+                uri = `/users/${this.id}`;
+            }
+            const response = await axios.get(uri, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`,
                 },
             });
             const data = response.data;
             // Update the instance properties with the fetched data
+            this.id = data.id;
             this.firstName = data.firstName;
             this.lastName = data.lastName;
             this.name = data.name;
@@ -197,8 +204,12 @@ export class User {
             this.birthday = data.birthday;
             this.title = data.title;
             this.gender = data.gender;
-            this.eventAdminOfOrg = data.eventAdminOfOrg;
-            this.financeAdminOfOrg = data.financeAdminOfOrg;
+            this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
+                return new Organization(org["@id"].split("/").pop());
+            });
+            this.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
+                return new Organization(org["@id"].split("/").pop());
+            });
             this.superAdmin = data.superAdmin;
             this.passengerId = data.passengerId;
         } catch (error) {

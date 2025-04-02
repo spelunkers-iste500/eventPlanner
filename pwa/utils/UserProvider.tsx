@@ -28,7 +28,9 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     useEffect(() => {
         // try to get user from local storage first
-        const user = new User(session?.id, session?.apiToken);
+        const user = new User("self", session?.apiToken);
+        setUser(user);
+        console.log("Fetched user data from User.fetch();", user);
         const fetchUser = async () => {
             if (session?.id) {
                 console.log("Fetching user data w/ session creds", session);
@@ -63,7 +65,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
             }
         };
 
-        fetchUser();
+        // fetchUser();
     }, [session]);
 
     return (
