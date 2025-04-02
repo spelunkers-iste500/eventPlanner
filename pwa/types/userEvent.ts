@@ -28,6 +28,12 @@ export class UserEvent {
                 },
             });
             this.event = new Event(response.data.event.id);
+            const organization = new Organization(response.data.event.organization.id);
+            organization.name = response.data.event.organization.name;
+            this.event.setOrganization(organization);
+            this.event.setLocation(response.data.event.location);
+            this.event.setStartDateTime(response.data.event.startDateTime);
+            this.event.setEndDateTime(response.data.event.endDateTime);
             this.user = new User(response.data.user.id);
             this.flights = response.data.flights.map(
                 (flight: any) => new Flight(flight.id)
@@ -48,14 +54,14 @@ export class UserEvent {
             return response.data["hydra:member"].map((userEvent: any) => {
                 const userEventInstance = new UserEvent(userEvent.id);
                 userEventInstance.event = new Event(userEvent.event.id);
-                userEventInstance.event.setOrganization(
-                    new Organization(userEvent.event.organization.id)
-                );
+                const organization = new Organization(userEvent.event.organization.id);
+                organization.name = userEvent.event.organization.name;
+                userEventInstance.event.setOrganization(organization);
                 userEventInstance.event.setLocation(userEvent.event.location);
                 userEventInstance.event.setStartDateTime(
-                    userEvent.event.startDate
+                    userEvent.event.startDateTime
                 );
-                userEventInstance.event.setEndDateTime(userEvent.event.endDate);
+                userEventInstance.event.setEndDateTime(userEvent.event.endDateTime);
                 userEventInstance.event.setEventTitle(
                     userEvent.event.eventTitle
                 );

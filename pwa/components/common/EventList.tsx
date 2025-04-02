@@ -97,7 +97,7 @@ const EventList: React.FC<EventListProps> = ({
         if (isBookCard) {
             setContent(
                 <EventForm eventData={userEvent} />,
-                userEvent.event?.eventTitle as string
+                userEvent.getEvent().eventTitle as string
             );
         } else if (onOpenDialog) {
             onOpenDialog(userEvent);

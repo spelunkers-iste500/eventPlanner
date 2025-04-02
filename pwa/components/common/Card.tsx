@@ -62,10 +62,11 @@ const Card: React.FC<CardProps> = ({
     isFinance,
     onClick,
 }) => {
-    const event = userEvent.event;
+    const event = userEvent.getEvent();
     if (!event || !userEvent.flights) {
         return null; // Return null if event is not defined
     }
+    console.log(event);
     return (
         <div className={styles.card}>
             <img
