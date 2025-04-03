@@ -21,6 +21,8 @@ use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
+
 
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
@@ -83,15 +85,15 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 )]
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
-#[
-    Get(
-        //security: "is_granted('view', object)",
-        uriTemplate: '/csv/events/{id}.{_format}',
-        normalizationContext: ['groups' => ['event:csv:export']]
-    )
+#[Get(
+    security: "is_granted('csv', object)",
+    uriTemplate: '/csv/events/{id}.{_format}',
+    normalizationContext: ['groups' => ['event:csv:export']]
+)
 ]
 
 //ADD IMAGES HERE
+
 
 // #[GetCollection(
 //     uriTemplate: '/my/events.{_format}',
@@ -272,6 +274,55 @@ class Event
         return $this;
     }
 
+    /**
+     * @var resource|null
+     */
+    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
+    #[ORM\Column(type: 'blob', nullable: true)]
+    private $imageBlob = null;
+
+    /**
+     * @var string|null
+     */
+    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
+    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
+    private ?string $imageName = null;
+
+    /**
+     * @var \DateTimeInterface|null
+     */
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?\DateTimeInterface $updatedAt = null;
+
+    public function getImageBlob()
+    {
+        return $this->imageBlob;
+    }
+
+    public function setImageBlob($imageBlob): void
+    {
+        $this->imageBlob = $imageBlob;
+    }
+
+    public function getImageName(): ?string
+    {
+        return $this->imageName;
+    }
+
+    public function setImageName(?string $imageName): void
+    {
+        $this->imageName = $imageName;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
 
     public function __construct()
     {
