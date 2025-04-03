@@ -277,14 +277,14 @@ class Event
     /**
      * @var resource|null
      */
-    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
+    #[Groups(['event:read', 'write:event', 'write:event:changes','read:event:collection'])]
     #[ORM\Column(type: 'blob', nullable: true)]
     private $imageBlob = null;
 
     /**
      * @var string|null
      */
-    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
+    #[Groups(['event:read', 'write:event', 'write:event:changes','read:event:collection'])]
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     private ?string $imageName = null;
 
