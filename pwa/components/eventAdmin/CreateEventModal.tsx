@@ -46,9 +46,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [eventImage, setEventImage] = useState<File | null>(null);
+    const [maxAttendee, setMaxAttendee] = useState<number>(20);
     const [inviteUsers, setInviteUsers] = useState(false);
     const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
+    const [multiDay, setMultiDay] = useState(false);
 
     // State for mapped organizations
     const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
@@ -94,7 +96,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             event.location = location;
             event.organization = selectedOrganization
             event.inviteCode = generateRandomString(10);
-            event.maxAttendees = 20;
+            event.maxAttendees = maxAttendee > 0 ? maxAttendee : 1;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
@@ -135,45 +137,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 
                 {/* Organization Selection */}
                 <div className="input-container">
-                    {/* <label className="input-label">Select Organization</label> */}
-                    {/* <Select.Root
-                        onValueChange={
-                            // (value) => console.log(value)
-                            // should find the organization that is selected
-                            (value) => {
-                                const selectedOrg = organizations.find(
-                                    (org) => org.id === value.items[0].id
-                                );
-                                setSelectedOrganization(selectedOrg);
-                            }
-                        }
-                        collection={organizationsList}
-                    >
-                        <Select.HiddenSelect />
-                        
-
-                        <Select.Control>
-                            <Select.Trigger>
-                                <Select.ValueText>
-                                    {selectedOrganization?.name}{" "}
-                                </Select.ValueText>
-                            </Select.Trigger>
-                            <Select.IndicatorGroup>
-                                <Select.Indicator />
-                                <Select.ClearTrigger />
-                            </Select.IndicatorGroup>
-                        </Select.Control>
-
-                        <Select.Positioner>
-                            <Select.Content>
-                                {user?.eventAdminOfOrg.map((org) => (
-                                    <Select.Item key={org.id} item={org}>
-                                        {org.name}
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Select.Root> */}
+                    <label className="input-label">Select Organization</label>
                     <Select
                         options={organizationOptions}
                         placeholder="Select Organization"
@@ -201,39 +165,72 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 {/* Event Location */}
                 <Input label="Location" onChange={(value) => setLocation(value)} />
 
+                {/* Event Max Attendees */}
+                <Input label="Max Attendees" type="number" onChange={(value) => setMaxAttendee(Number(value))} />
+
+                {/* Multi-Day Event Selector */}
+                <Switch.Root checked={multiDay}>
+                    <Switch.HiddenInput
+                        onChange={(e) => setMultiDay(e.target.checked)}
+                    />
+                    <Switch.Label>Multi-Day Event?</Switch.Label>
+                    <Switch.Control />
+                </Switch.Root>
+
+                {/* Event Dates */}
                 <div className="input-container">
                     <label className="input-label">Event Dates</label>
-                    <DatePicker
-                        selected={startDate}
-                        startDate={startDate}
-                        endDate={endDate}
-                        minDate={new Date()}
-                        onChange={(dates) => {
-                            const [start, end] = dates;
-                            setStartDate(start);
-                            setEndDate(end);
-                        }}
-                        selectsRange
-                        showMonthDropdown
-                        showTimeSelect
-                        placeholderText="Select date range"
-                        dateFormat="MM/dd/yyyy h:mm aa"
-                        className="input-field"
-                        showIcon
-                        icon={<Calendar size={32} />}
-                    />
+                    {/* Conditionally render the date range picker */}
+                    {multiDay ? (
+                        <DatePicker
+                            selected={startDate}
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={new Date()}
+                            onChange={(dates) => {
+                                const [start, end] = dates;
+                                setStartDate(start);
+                                setEndDate(end);
+                            }}
+                            selectsRange
+                            showMonthDropdown
+                            showTimeSelect
+                            placeholderText="Select date range"
+                            dateFormat="MM/dd/yyyy h:mm aa"
+                            className="input-field"
+                            showIcon
+                            icon={<Calendar size={32} />}
+                        />
+                    ) : (
+                        <DatePicker
+                            selected={startDate}
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={new Date()}
+                            onChange={(date) => {
+                                
+                            }}
+                            selectsRange
+                            showMonthDropdown
+                            showTimeSelect
+                            placeholderText="Select a date"
+                            dateFormat="MM/dd/yyyy h:mm aa"
+                            className="input-field"
+                            showIcon
+                            icon={<Calendar size={32} />}
+                        />
+                    )}
+                    
                 </div>
                 
                 {/* Switch to toggle invite section */}
-                <div className="input-container">
-                    <Switch.Root checked={inviteUsers}>
-                        <Switch.HiddenInput
-                            onChange={(e) => setInviteUsers(e.target.checked)}
-                        />
-                        <Switch.Control />
-                        <Switch.Label>Invite users now?</Switch.Label>
-                    </Switch.Root>
-                </div>
+                <Switch.Root checked={inviteUsers}>
+                    <Switch.HiddenInput
+                        onChange={(e) => setInviteUsers(e.target.checked)}
+                    />
+                    <Switch.Label>Invite users now?</Switch.Label>
+                    <Switch.Control />
+                </Switch.Root>
 
                 {/* Conditionally render the InviteAttendantsExt component */}
                 {inviteUsers && (
