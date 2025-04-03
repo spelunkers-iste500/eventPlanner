@@ -22,6 +22,7 @@ use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
 use Vich\UploaderBundle\Mapping\Annotation as Vich;
+use Symfony\Component\HttpFoundation\File\File;
 
 
 
@@ -92,6 +93,20 @@ use Vich\UploaderBundle\Mapping\Annotation as Vich;
 )
 ]
 
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/image/get/events/{id}.{_format}',
+    normalizationContext: ['groups' => ['event:image:read']]
+)
+]
+
+#[Post(
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
+    uriTemplate:  '/image/post/events/{id}.{_format}',
+    denormalizationContext: ['groups' => ['event:image:write']],
+    processor: LoggerStateProcessor::class
+)]
 //ADD IMAGES HERE
 
 
@@ -275,16 +290,16 @@ class Event
     }
 
     /**
-     * @var resource|null
+     * @Vich\UploadableField(mapping="event_images", fileNameProperty="imageName")
+     * @var File|null
      */
-    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
-    #[ORM\Column(type: 'blob', nullable: true)]
-    private $imageBlob = null;
+    #[Groups(['event:image:write', 'event:image:read'])]
+    private ?File $imageFile = null;
 
     /**
      * @var string|null
      */
-    #[Groups(['event:read', 'write:event', 'write:event:changes'])]
+    #[Groups(['event:image:write', 'event:image:read'])]
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
     private ?string $imageName = null;
 
@@ -294,14 +309,20 @@ class Event
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
-    public function getImageBlob()
+    // Getter and setter for imageFile
+    public function setImageFile(?File $imageFile = null): void
     {
-        return $this->imageBlob;
+        $this->imageFile = $imageFile;
+
+        if ($imageFile) {
+            // Update the updatedAt field to trigger an update
+            $this->updatedAt = new \DateTimeImmutable();
+        }
     }
 
-    public function setImageBlob($imageBlob): void
+    public function getImageFile(): ?File
     {
-        $this->imageBlob = $imageBlob;
+        return $this->imageFile;
     }
 
     public function getImageName(): ?string
