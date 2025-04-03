@@ -8,7 +8,7 @@ export class Event {
     id: string;
     iri: string;
     budget: Budget | null = null;
-    imageBlob?: Blob; // optional, for image upload
+    imageBlob?: File; // optional, for image upload
     imageName?: string; // optional, for image upload
     eventTitle?: string;
     startDateTime?: string; // date-time
@@ -52,7 +52,12 @@ export class Event {
             this.budget = data.budget
                 ? new Budget(data.budget.id, data.budget.perUserTotal)
                 : null;
-            this.imageBlob = data.imageBlob? new Blob([data.imageBlob], { type: data.imageBlob.type }) : undefined;
+            this.imageBlob = data.imageBlob ? new File(
+                [data.imageBlob],
+                data.imageName || "event-image", // default name if not provided
+                { type: data.imageBlob.type }
+            ) : undefined;
+            this.imageName = data.imageName || undefined;
             this.eventTitle = data.eventTitle;
             this.startDateTime = data.startDateTime;
             this.endDateTime = data.endDateTime;
