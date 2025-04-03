@@ -52,7 +52,7 @@ export class Event {
             this.budget = data.budget
                 ? new Budget(data.budget.id, data.budget.perUserTotal)
                 : null;
-            this.imageBlob = data.imageBlob;
+            this.imageBlob = data.imageBlob? new Blob([data.imageBlob], { type: data.imageBlob.type }) : undefined;
             this.eventTitle = data.eventTitle;
             this.startDateTime = data.startDateTime;
             this.endDateTime = data.endDateTime;
