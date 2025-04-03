@@ -2,6 +2,8 @@
 
 namespace App\Story;
 
+ini_set('memory_limit', '6G');
+
 use Zenstruck\Foundry\Story;
 use App\Entity\Organization;
 use App\Entity\User;
@@ -58,8 +60,8 @@ final class ConcurrentUserTestingStory extends Story
         $otpcode = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ";
         $organization = OrganizationFactory::new()->createOne(['name' => 'Spelunkers']);
 
-        for ($i = 1; $i <= 150000; $i++) {
-            $email = sprintf('testuser%03d@test.com', $i); // Generate email like testuser001@test.com
+        for ($i = 21; $i <= 1000; $i++) {
+            $email = sprintf('testuser%06d@test.com', $i); // Generate email like testuser000001@test.com
             $this->createUser(
                 firstname: 'Test',
                 lastname: 'User' . $i,
@@ -70,6 +72,18 @@ final class ConcurrentUserTestingStory extends Story
                 otp: $otpcode,
                 orgRole: 'user' // Assign a role, e.g., 'eventAdmin'
             );
+
+            // Flush and clear the Entity Manager every 10 users
+            if ($i % 10 === 0) {
+                $this->entityManager->flush();
+                $this->entityManager->clear();
+                
+                sleep(1); // Optional: Sleep for 1 second to avoid overwhelming the database
+            }
         }
+
+        // Final flush to persist any remaining users
+        $this->entityManager->flush();
+        $this->entityManager->clear();
     }
 }
