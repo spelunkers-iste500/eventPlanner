@@ -187,7 +187,7 @@ class Event
 
     #[ORM\ManyToOne(targetEntity: Organization::class, inversedBy: 'events')]
     #[ORM\JoinColumn(name: 'organization_id', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:event', 'read:myEvents', 'write:event'])]
+    #[Groups(['read:event', 'read:myEvents', 'write:event', 'read:event:collection'])]
     public Organization $organization;
     public function getOrganization(): Organization
     {
@@ -299,9 +299,9 @@ class Event
     /**
      * @var string|null
      */
-    #[Groups(['event:image:write', 'event:image:read'])]
+    /**#[Groups(['event:image:write', 'event:image:read'])]
     #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    private ?string $imageName = null;
+    private ?string $imageName = null;*/
 
     /**
      * @var \DateTimeInterface|null
@@ -325,7 +325,7 @@ class Event
         return $this->imageFile;
     }
 
-    public function getImageName(): ?string
+    /**public function getImageName(): ?string
     {
         return $this->imageName;
     }
@@ -333,7 +333,7 @@ class Event
     public function setImageName(?string $imageName): void
     {
         $this->imageName = $imageName;
-    }
+    }*/
 
     public function getUpdatedAt(): ?\DateTimeInterface
     {

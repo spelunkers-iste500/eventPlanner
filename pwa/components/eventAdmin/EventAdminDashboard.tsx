@@ -8,9 +8,11 @@ import ViewEventModal from "./ViewEventModal"; // Import the new modal for viewi
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
-import { Event, UserEvent, Organization } from "Types/events";
+import { Organization } from "Types/organization";
+import { Event } from "Types/event";
+import { UserEvent } from "Types/userEvent";
 import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
-
+import { Select } from "chakra-react-select";
 import {
     AccordionItem,
     AccordionItemContent,
@@ -19,7 +21,7 @@ import {
 } from "Components/ui/accordion";
 import { useState, useEffect } from "react";
 import ItemList from "Components/itemList/ItemList";
-import { Select, Portal, createListCollection } from "@chakra-ui/react"; // Import Select components
+import EditEventModal from "./EditEventModal";
 
 // Defining the Dashboard component
 const Dashboard: React.FC = () => {
@@ -29,51 +31,36 @@ const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null); // State for the selected event
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
     const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the event view modal
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
-    const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
+    const organizations = user?.eventAdminOfOrg; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
-    const [selectedOrganization, setSelectedOrganization] =
-        useState<string>("");
+    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
 
     useEffect(() => {
-        const fetchOrganizations = async () => {
-            try {
-                const fetchedOrgs = await Promise.all(
-                    organizations.map(async (org) => {
-                        const response = await axios.get(org, {
-                            headers: {
-                                Authorization: `Bearer ${session?.apiToken}`,
-                            },
-                        });
-                        return response.data;
-                    })
-                );
-                setOrgObjects(fetchedOrgs);
-            } catch (error) {
-                console.error("Error fetching organizations:", error);
-            }
-        };
-
-        if (organizations.length > 0) {
-            fetchOrganizations();
+        if (!organizations) {
+            setLoading(false);
+            return;
         }
+        const orgs = organizations?.map((org) => {
+            return new Organization(org["@id"]);
+        });
+        setOrgObjects(orgs);
+        setLoading(false);
     }, [organizations]);
 
-    const orgCollection = createListCollection({
-        items: orgObjects,
-    });
+    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
 
-    const handleOrganizationChange = (org: Organization) => {
-        setSelectedOrganization(org.id);
-    };
-
-    const filteredEvents = events.filter(
-        (event) =>
-            !selectedOrganization ||
-            event.organization.id === selectedOrganization
-    );
+    useEffect(() => {
+        if (organizations) {
+            const mappedOptions = organizations.map((org) => ({
+                label: org.name || "Unnamed Organization",
+                value: org.id,
+            }));
+            setOrganizationOptions(mappedOptions);
+        }
+    }, [organizations]);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -83,7 +70,7 @@ const Dashboard: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const handleOpenViewModal = (event: UserEvent) => {
+    const handleOpenViewModal = (event: Event) => {
         setSelectedEvent(event);
         setIsViewModalOpen(true);
     };
@@ -107,46 +94,18 @@ const Dashboard: React.FC = () => {
     const apiUrl = `/my/organizations/events/eventAdmin`;
     const getEvents = async () => {
         if (user && session) {
-            try {
-                var response;
-                var pageNumber = 1;
-                var hasNextPage = true;
-                // setup event array to eventually pass into setEvents()
-                const events = [];
-                while (hasNextPage) {
-                    response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-                        headers: {
-                            Authorization: `Bearer ${session.apiToken}`,
-                        },
-                    });
-                    if (response.status === 200) {
-                        // if the current page is the last page, set hasNextPage to false
-                        if (
-                            response.data["hydra:view"] &&
-                            response.data["hydra:view"]["hydra:last"] !==
-                                `${apiUrl}?page=${pageNumber}`
-                        ) {
-                            // increment page number
-                            pageNumber++;
-                        } else {
-                            hasNextPage = false;
-                        }
-                        // push the events from the next page into the events array
-
-                        events.push(...response.data["hydra:member"]);
-                    }
-                }
-                // set the events to the state
-                setEvents(events);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error:", error);
-            }
+            const events = await Event.allFromApiResponse(
+                session.apiToken,
+                "eventAdmin"
+            );
+            setEvents(events);
         }
     };
 
     useEffect(() => {
-        getEvents();
+        if (user && session) {
+            getEvents();
+        }
     }, [user]);
 
     if (loading) {
@@ -157,26 +116,26 @@ const Dashboard: React.FC = () => {
     const currentEvents = events.filter((event) => !event.budget);
     const pastEvents = events.filter((event) => event.budget);
 
-    const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
-        return events.map((event) => ({
-            id: event.id.toString(),
-            event,
-            status: "pending",
-            flights: [],
-        }));
-    };
+    // const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
+    //     return events.map((event) => ({
+    //         id: event.id.toString(),
+    //         event,
+    //         status: "pending",
+    //         flights: [],
+    //     }));
+    // };
 
     // Defining items for the accordion, including current events, past events, and members list
     const items = [
         {
             value: "pending-events",
             title: "Events Pending Approval",
-            events: mapEventsToUserEvents(currentEvents),
+            events: currentEvents,
         },
         {
             value: "approved-events",
             title: "Approved Events",
-            events: mapEventsToUserEvents(pastEvents),
+            events: pastEvents,
         },
         { value: "members-list", title: "Members List", events: [] },
     ];
@@ -229,32 +188,27 @@ const Dashboard: React.FC = () => {
 
             {/* Organization Filter Dropdown */}
             <div className={styles.filterContainer}>
-                <Select.Root
-                    onValueChange={(e) => handleOrganizationChange(e.items[0])}
-                    collection={orgCollection}
-                >
-                    <Select.HiddenSelect />
-                    <Select.Label>Organization</Select.Label>
-                    <Select.Control>
-                        <Select.Trigger>
-                            <Select.ValueText placeholder="All Organizations" />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                            <Select.Indicator />
-                        </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                        <Select.Positioner>
-                            <Select.Content>
-                                {orgObjects.map((org) => (
-                                    <Select.Item item={org} key={org.id}>
-                                        {org.name}
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Portal>
-                </Select.Root>
+                <Select
+                        options={organizationOptions}
+                        placeholder="Select Organization"
+                        size="md"
+                        isSearchable={false}
+                        value={
+                            selectedOrganization ? organizationOptions.find(
+                                (option) => option.value === selectedOrganization?.id
+                            ) : null
+                        }
+                        onChange={(option) => {
+                            const selectedOrg = organizations?.find(
+                                (org) => org.id === option?.value
+                            );
+                            setSelectedOrganization(
+                                selectedOrg ? new Organization(selectedOrg["@id"]) : null
+                            );
+                        }}
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                    />
             </div>
 
             <Stack gap="4">
@@ -268,11 +222,11 @@ const Dashboard: React.FC = () => {
                                 {item.title}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
-                                <ItemList
+                                <ItemList<Event>
                                     items={item.events}
                                     fields={[
                                         {
-                                            key: "event.eventTitle",
+                                            key: "eventTitle",
                                             label: item.title,
                                         },
                                         { key: "status", label: "Status" },
@@ -286,16 +240,17 @@ const Dashboard: React.FC = () => {
             </Stack>
 
             {/* View Event Modal */}
-            {/* <ViewEventModal
+            <EditEventModal
                 isOpen={isViewModalOpen}
                 onClose={handleCloseViewModal}
-                userEvent={selectedEvent}
-            /> */}
+                event={selectedEvent}
+            />
 
             {/* Create Event Modal */}
             <CreateEventModal
                 isOpen={isCreateModalOpen}
                 onClose={handleCloseCreateModal}
+                organizations={orgObjects}
             />
         </div>
     );

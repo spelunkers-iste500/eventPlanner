@@ -93,7 +93,7 @@ class Organization
      * @var string $name the name of the organization
      */
     #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write', 'read:myEvents'])]
+    #[Groups(['org:read', 'org:write', 'read:myEvents', 'user:read', 'read:event:collection'])]
     private string $name;
 
     /**

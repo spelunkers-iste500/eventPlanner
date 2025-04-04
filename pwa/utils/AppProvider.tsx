@@ -3,7 +3,6 @@ import { SessionProvider } from 'next-auth/react';
 import { ContentProvider } from 'Utils/ContentProvider';
 import { BookingProvider } from 'Utils/BookingProvider';
 import { Provider } from 'Components/ui/provider';
-import { auth } from '../utils/auth';
 import { Session } from 'next-auth';
 import { UserProvider } from './UserProvider';
 
