@@ -131,7 +131,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                     </Tabs.Content>
 
                     <Tabs.Content value="attendees">
-                        <InviteAttendantExt createdEvent={event} />
+                        <InviteAttendantExt createdEvent={event} isEditing={true} />
                     </Tabs.Content>
                     
                     <Tabs.Content value="flights">
