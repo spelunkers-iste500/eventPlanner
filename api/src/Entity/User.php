@@ -91,7 +91,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
-    #[Groups(['user:read', 'user:read:offers', 'user:org:read'])]
+    #[Groups(['user:read', 'user:read:offers', 'user:org:read', 'org:read:collection'])]
     private $id;
 
     /**
@@ -138,7 +138,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'First name cannot be null')]
-    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read','org:write'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:read:collection'])]
     private string $firstName;
 
     /**
@@ -162,7 +162,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'Last name cannot be null')]
-    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read','org:write'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:write'])]
     private string $lastName;
 
     /**
@@ -197,7 +197,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
-    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read','org:write'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:read:collection'])]
     public string $email;
 
     /**
