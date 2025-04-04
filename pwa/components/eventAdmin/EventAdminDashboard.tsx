@@ -12,7 +12,7 @@ import { Organization } from "Types/organization";
 import { Event } from "Types/event";
 import { UserEvent } from "Types/userEvent";
 import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
-
+import { Select } from "chakra-react-select";
 import {
     AccordionItem,
     AccordionItemContent,
@@ -21,7 +21,7 @@ import {
 } from "Components/ui/accordion";
 import { useState, useEffect } from "react";
 import ItemList from "Components/itemList/ItemList";
-import { Select, Portal, createListCollection } from "@chakra-ui/react"; // Import Select components
+import EditEventModal from "./EditEventModal";
 
 // Defining the Dashboard component
 const Dashboard: React.FC = () => {
@@ -36,8 +36,7 @@ const Dashboard: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
     const organizations = user?.eventAdminOfOrg; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
-    const [selectedOrganization, setSelectedOrganization] =
-        useState<string>("");
+    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
 
     useEffect(() => {
         if (!organizations) {
@@ -51,19 +50,17 @@ const Dashboard: React.FC = () => {
         setLoading(false);
     }, [organizations]);
 
-    const orgCollection = createListCollection({
-        items: orgObjects,
-    });
+    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
 
-    const handleOrganizationChange = (org: Organization) => {
-        setSelectedOrganization(org.id);
-    };
-
-    const filteredEvents = events.filter(
-        (event) =>
-            !selectedOrganization ||
-            event.organization?.id === selectedOrganization
-    );
+    useEffect(() => {
+        if (organizations) {
+            const mappedOptions = organizations.map((org) => ({
+                label: org.name || "Unnamed Organization",
+                value: org.id,
+            }));
+            setOrganizationOptions(mappedOptions);
+        }
+    }, [organizations]);
 
     const handleOpenModal = () => {
         setIsModalOpen(true);
@@ -102,41 +99,6 @@ const Dashboard: React.FC = () => {
                 "eventAdmin"
             );
             setEvents(events);
-            // try {
-            //     var response;
-            //     var pageNumber = 1;
-            //     var hasNextPage = true;
-            //     // setup event array to eventually pass into setEvents()
-            //     const events = [];
-            //     while (hasNextPage) {
-            //         response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-            //             headers: {
-            //                 Authorization: `Bearer ${session.apiToken}`,
-            //             },
-            //         });
-            //         if (response.status === 200) {
-            //             // if the current page is the last page, set hasNextPage to false
-            //             if (
-            //                 response.data["hydra:view"] &&
-            //                 response.data["hydra:view"]["hydra:last"] !==
-            //                     `${apiUrl}?page=${pageNumber}`
-            //             ) {
-            //                 // increment page number
-            //                 pageNumber++;
-            //             } else {
-            //                 hasNextPage = false;
-            //             }
-            //             // push the events from the next page into the events array
-
-            //             events.push(...response.data["hydra:member"]);
-            //         }
-            //     }
-            //     // set the events to the state
-
-            //     setLoading(false);
-            // } catch (error) {
-            //     console.error("Error:", error);
-            // }
         }
     };
 
@@ -226,32 +188,27 @@ const Dashboard: React.FC = () => {
 
             {/* Organization Filter Dropdown */}
             <div className={styles.filterContainer}>
-                <Select.Root
-                    onValueChange={(e) => handleOrganizationChange(e.items[0])}
-                    collection={orgCollection}
-                >
-                    <Select.HiddenSelect />
-                    <Select.Label>Organization</Select.Label>
-                    <Select.Control>
-                        <Select.Trigger>
-                            <Select.ValueText placeholder="All Organizations" />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                            <Select.Indicator />
-                        </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                        <Select.Positioner>
-                            <Select.Content>
-                                {orgObjects.map((org) => (
-                                    <Select.Item item={org} key={org.id}>
-                                        {org.name}
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Portal>
-                </Select.Root>
+                <Select
+                        options={organizationOptions}
+                        placeholder="Select Organization"
+                        size="md"
+                        isSearchable={false}
+                        value={
+                            selectedOrganization ? organizationOptions.find(
+                                (option) => option.value === selectedOrganization?.id
+                            ) : null
+                        }
+                        onChange={(option) => {
+                            const selectedOrg = organizations?.find(
+                                (org) => org.id === option?.value
+                            );
+                            setSelectedOrganization(
+                                selectedOrg ? new Organization(selectedOrg["@id"]) : null
+                            );
+                        }}
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
+                    />
             </div>
 
             <Stack gap="4">
@@ -283,11 +240,11 @@ const Dashboard: React.FC = () => {
             </Stack>
 
             {/* View Event Modal */}
-            {/* <ViewEventModal
+            <EditEventModal
                 isOpen={isViewModalOpen}
                 onClose={handleCloseViewModal}
-                userEvent={selectedEvent}
-            /> */}
+                event={selectedEvent}
+            />
 
             {/* Create Event Modal */}
             <CreateEventModal

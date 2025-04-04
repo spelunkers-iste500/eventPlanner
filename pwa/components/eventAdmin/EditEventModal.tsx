@@ -30,7 +30,7 @@ import { Select } from "chakra-react-select";
 interface CreateEventModalProps {
     isOpen: boolean;
     onClose: () => void;
-    event: Event;
+    event: Event | null;
 }
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, event }) => {
@@ -115,21 +115,23 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                         </div>
 
                         {/* Event Title */}
-                        <Input label="Event Title" defaultValue={event.eventTitle} onChange={(value) => setEventTitle(value)} />
+                        <Input label="Event Title" defaultValue={event?.eventTitle} onChange={(value) => setEventTitle(value)} />
 
                         {/* Event Location */}
-                        <Input label="Location" defaultValue={event.location} onChange={(value) => setLocation(value)} />
+                        <Input label="Location" defaultValue={event?.location} onChange={(value) => setLocation(value)} />
                         
                         {/* Event Max Attendees */}
-                        <Input label="Max Attendees" type="number" defaultValue={`${event.maxAttendees}`} onChange={(value) => setMaxAttendee(Number(value))} />
+                        <Input label="Max Attendees" type="number" defaultValue={`${event?.maxAttendees}`} onChange={(value) => setMaxAttendee(Number(value))} />
                         
                         <div className="input-container">
                             <Button onClick={handleSubmit}>Update Event</Button>
                         </div>
                     </Tabs.Content>
+
                     <Tabs.Content value="attendees">
                         <InviteAttendantExt createdEvent={event} />
                     </Tabs.Content>
+                    
                     <Tabs.Content value="flights">
                         {/* Add flight tracking in here */}
                         <p>flights</p>

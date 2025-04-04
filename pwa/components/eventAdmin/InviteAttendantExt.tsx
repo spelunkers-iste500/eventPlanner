@@ -38,6 +38,13 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         return re.test(email);
     };
 
+    useEffect(() => {
+        if (createdEvent) {
+            // grab attendee list if event already exits
+            // need a GET route for /user_invites to pass in the eventID to get list of emails back
+        }
+    }, [createdEvent]);
+
     const handleAddEmail = () => {
         if (emailInput && validateEmail(emailInput)) {
             if (!emails.includes(emailInput)) {
