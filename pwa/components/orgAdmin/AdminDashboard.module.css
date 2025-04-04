@@ -5,13 +5,13 @@
   justify-content: center;
   height: 100vh; /* Full viewport height to center content */
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: var(--gray-100); /* Updated to use var() */
   font-family: Arial, sans-serif;
 }
 
 .dashboardTitle {
   font-size: 2rem;
-  color: #333;
+  color: var(--gray-900); /* Updated to use var() */
   margin-bottom: 20px;
   text-align: center;
 }
@@ -24,32 +24,32 @@
 }
 
 .optionCard {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: var(--white); /* Updated to use var() */
+  border: 1px solid var(--gray-300); /* Updated to use var() */
   border-radius: 8px;
   padding: 20px;
   width: 300px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-300); /* Updated to use var() */
   text-align: center;
-  display: flex; /* Add flexbox */
+  display: flex;
   flex-direction: column; /* Arrange children vertically */
 }
 
 .optionTitle {
   font-size: 1.5rem;
-  color: #555;
+  color: var(--gray-700); /* Updated to use var() */
   margin-bottom: 10px;
 }
 
 .optionDescription {
   font-size: 1rem;
-  color: #777;
+  color: var(--gray-500); /* Updated to use var() */
   margin-bottom: 20px;
 }
 
 .actionButton {
-  background-color: #007bff;
-  color: #fff;
+  background-color: var(--blue-500); /* Updated to use var() */
+  color: var(--white); /* Updated to use var() */
   border: none;
   border-radius: 4px;
   padding: 10px 15px;
@@ -60,40 +60,50 @@
 }
 
 .actionButton:hover {
-  background-color: #0056b3;
+  background-color: var(--blue-700); /* Updated to use var() */
 }
 
-.headerContainer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 80%; /* Set the width to 80% of the page */
-    margin: 0 auto 20px; /* Center the header and add spacing below */
-    padding: 20px; /* Increase padding for a larger appearance */
-    background-color: #f9f9f9;
-    border-radius: 12px; /* Slightly larger border radius */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly larger shadow */
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80%; /* Set the width to 80% of the page */
+  margin: 0 auto 20px; /* Center the header and add spacing below */
+  padding: 20px; /* Increase padding for a larger appearance */
+  background-color: var(--white); /* Updated to use var() */
+  border-radius: 12px; /* Slightly larger border radius */
+  box-shadow: var(--shadow-400); /* Updated to use var() */
 }
 
-.orgInfoBox {
-    flex: 1;
-    padding: 20px; /* Increase padding for better spacing */
+.org-info-box {
+  flex: 1;
+  padding: 20px; /* Increase padding for better spacing */
 }
 
-.orgName {
-    font-size: 24px; /* Larger font size for emphasis */
-    font-weight: bold;
-    margin-bottom: 0; /* Remove unnecessary margin */
+.org-name {
+  font-size: 1.5rem; /* Adjusted font size */
+  font-weight: bold;
+  color: var(--gray-900); /* Updated to use var() */
+  margin-bottom: 0; /* Remove unnecessary margin */
 }
 
-.orgDetails {
-    font-size: 14px;
-    color: #555;
+.org-details {
+  font-size: 0.875rem;
+  color: var(--gray-600); /* Updated to use var() */
 }
 
-.orgSelectorBox {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-    padding: 20px; /* Increase padding for better alignment */
+.org-selector-box {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  padding: 20px; /* Increase padding for better alignment */
+}
+
+.system-admin-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px; /* Increase padding for better spacing */
+  background-color: var(--gray-50); /* Updated to use var() */
 }

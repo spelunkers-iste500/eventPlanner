@@ -5,8 +5,8 @@ import axios from "axios";
 import styles from "./AdminDashboard.module.css";
 import { useUser } from "Utils/UserProvider";
 import { useSession } from "next-auth/react";
-import { useContent } from "Utils/ContentProvider";
 import { Portal, Select, createListCollection } from "@chakra-ui/react";
+import SystemAdminDashboard from "../sysAdmin/SystemAdminDashboard";
 
 const OrgAdminDashboard: React.FC = () => {
     const [selectedOrg, setSelectedOrg] = useState<string[]>([]);
@@ -17,7 +17,6 @@ const OrgAdminDashboard: React.FC = () => {
     const { data: session } = useSession();
     const { user } = useUser();
 
-    // Fetch organizations of the current user
     const fetchOrganizations = async () => {
         try {
             const response = await axios.get("/my/organizations/", {
@@ -110,15 +109,6 @@ const OrgAdminDashboard: React.FC = () => {
             <div className={styles.optionsContainer}>
                 <div className={styles.optionCard}>
                     <h2 className={styles.optionTitle}>
-                        Create an organization
-                    </h2>
-                    <p className={styles.optionDescription}>Subtitle Text.</p>
-                    <button className={styles.actionButton}>
-                        Create Organization
-                    </button>
-                </div>
-                <div className={styles.optionCard}>
-                    <h2 className={styles.optionTitle}>
                         Invite event planners
                     </h2>
                     <p className={styles.optionDescription}>Subtitle Text.</p>
@@ -135,6 +125,12 @@ const OrgAdminDashboard: React.FC = () => {
                         Invite Financial Admins
                     </button>
                 </div>
+            </div>
+
+            {/* Temporary System Admin Dashboard */}
+            <div className={styles.systemAdminSection}>
+                <h2 className={styles.sectionTitle}>System Admin Options</h2>
+                <SystemAdminDashboard />
             </div>
         </div>
     );
