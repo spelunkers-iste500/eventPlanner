@@ -155,7 +155,7 @@ export class Event {
         context: string
     ): Promise<Event[]> {
         try {
-            var url;
+            var url = "";
             switch (context) {
                 case "eventAdmin":
                     url = "/my/organizations/events/eventAdmin";
@@ -191,7 +191,7 @@ export class Event {
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
                 event.setOrganization(new Organization(item.organization.id));
-                event.attendees = item.attendees.map(
+                (url === "/my/organizations/events/eventAdmin") ? event.attendees = item.attendees.map(
                     (attendee: any) => {
                         const userEvent = new UserEvent(attendee.id);
                         userEvent.setUser(new User(attendee.user.id));
@@ -199,7 +199,7 @@ export class Event {
                         userEvent.setEvent(event);
                         userEvent.status = attendee.status;
                         return userEvent;
-                    });
+                    }) : event.attendees = [];
                 return event;
                 // event.setFlights() // dont set flights yet
             });
@@ -227,15 +227,15 @@ export class Event {
                     event.setOrganization(
                         new Organization(item.organization.id)
                     );
-                    event.attendees = item.attendees.map(
-                        (attendee: any) => {
-                            const userEvent = new UserEvent(attendee.id);
-                            userEvent.setUser(new User(attendee.user.id));
-                            userEvent.user.name = attendee.user.name;
-                            userEvent.setEvent(event);
-                            userEvent.status = attendee.status;
-                            return userEvent;
-                        });
+                (url === "/my/organizations/events/eventAdmin") ? event.attendees = item.attendees.map(
+                    (attendee: any) => {
+                        const userEvent = new UserEvent(attendee.id);
+                        userEvent.setUser(new User(attendee.user.id));
+                        userEvent.user.name = attendee.user.name;
+                        userEvent.setEvent(event);
+                        userEvent.status = attendee.status;
+                        return userEvent;
+                    }) : event.attendees = [];
                 });
             }
             return events;
