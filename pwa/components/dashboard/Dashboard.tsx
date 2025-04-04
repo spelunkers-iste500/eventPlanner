@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import EventList from "../common/EventList";
 import styles from "./Dashboard.module.css";
-import { UserEvent } from "Types/events";
+import { UserEvent } from "Types/userEvent";
 import { useUser } from "Utils/UserProvider";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -31,39 +31,56 @@ const Dashboard: React.FC = () => {
     const getEvents = async () => {
         if (user && session) {
             console.log("fetching user events");
-            axios
-                .get(`/my/events`, {
-                    headers: { Authorization: `Bearer ${session.apiToken}` },
-                })
-                .then((response) => {
-                    if (response.status === 200) {
-                        const userEvents: UserEvent[] =
-                            response.data["hydra:member"];
-                        console.log("User Events:", userEvents);
+            const userEvents = await UserEvent.allFromApiResponse(
+                session.apiToken
+            );
+            console.log("User Events:", userEvents);
+            const accepted: UserEvent[] = userEvents
+                .filter((userEvent) => userEvent.status === "accepted")
+                .map((userEvent) => userEvent);
+            const pending: UserEvent[] = userEvents
+                .filter((userEvent) => userEvent.status === "pending")
+                .map((userEvent) => userEvent);
+            setAcceptedEvents(accepted);
+            setPendingEvents(pending);
+            console.log("Accepted Events:", accepted);
+            console.log("Pending Events:", pending);
+            setLoading(false);
+            // axios
+            //     .get(`/my/events`, {
+            //         headers: { Authorization: `Bearer ${session.apiToken}` },
+            //     })
+            //     .then((response) => {
+            //         if (response.status === 200) {
+            //             const userEvents: UserEvent[] =
+            //                 response.data["hydra:member"];
+            //             console.log("User Events:", userEvents);
 
-                        // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
-                        // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
-                        const accepted: UserEvent[] = userEvents
-                            .filter((event) => event.status === "accepted")
-                            .map((userEvent) => userEvent);
-                        const pending: UserEvent[] = userEvents
-                            .filter((event) => event.status === "pending")
-                            .map((userEvent) => userEvent);
-                        setAcceptedEvents(accepted);
-                        setPendingEvents(pending);
-                        console.log("Accepted Events:", accepted);
-                        console.log("Pending Events:", pending);
-                        setLoading(false);
-                    }
-                })
-                .catch((error) => {
-                    if (error.response && error.response.status === 401) {
-                        // this should happen when there's an expired jwt token
-                        signOut();
-                    } else {
-                        console.error("Error fetching events:", error);
-                    }
-                });
+            //             // const accepted: Event[] = userEvents.filter(event => event.isAccepted).map(event => event.event);
+            //             // const pending: Event[] = userEvents.filter(event => !event.isAccepted).map(event => event.event);
+            //             const accepted: UserEvent[] = userEvents
+            //                 .filter(
+            //                     (userEvent) => userEvent.status === "accepted"
+            //                 )
+            //                 .map((userEvent) => userEvent);
+            //             const pending: UserEvent[] = userEvents
+            //                 .filter((event) => event.status === "pending")
+            //                 .map((userEvent) => userEvent);
+            //             setAcceptedEvents(accepted);
+            //             setPendingEvents(pending);
+            //             console.log("Accepted Events:", accepted);
+            //             console.log("Pending Events:", pending);
+            //             setLoading(false);
+            //         }
+            //     })
+            //     .catch((error) => {
+            //         if (error.response && error.response.status === 401) {
+            //             // this should happen when there's an expired jwt token
+            //             signOut();
+            //         } else {
+            //             console.error("Error fetching events:", error);
+            //         }
+            //     });
         }
     };
 

@@ -37,6 +37,7 @@ import {
     CircleUserRound,
     Network,
     HandCoins,
+    Shield,
 } from "lucide-react";
 import Dashboard from "../dashboard/Dashboard";
 import Preferences from "../preferences/Preferences";
@@ -45,6 +46,7 @@ import About from "../about/About";
 import styles from "./nav.module.css";
 import FinancialAdminDashboard from "Components/financialAdmin/FinancialAdminDashboard";
 import { useUser } from "Utils/UserProvider";
+import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
 const Nav: React.FC = () => {
     const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
     const [imageError, setImageError] = React.useState<boolean>(false);
@@ -84,6 +86,11 @@ const Nav: React.FC = () => {
             name: "About Us",
             content: <About />,
             icon: <CircleHelp size={28} />,
+        },
+        {
+            name: "Administrator",
+            content: <OrgAdminDashboard />,
+            icon: <Shield size={28} />,
         }
     );
     return (

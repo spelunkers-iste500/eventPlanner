@@ -21,9 +21,6 @@ use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Serializer\Annotation\MaxDepth;
-use Vich\UploaderBundle\Mapping\Annotation as Vich;
-use Symfony\Component\HttpFoundation\File\File;
-
 
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
@@ -43,7 +40,7 @@ use Symfony\Component\HttpFoundation\File\File;
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/eventAdmin.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']],
+    normalizationContext: ['groups' => ['read:event:collection', 'read:event:eventAdmin']],
 )]
 
 #[GetCollection(
@@ -82,15 +79,16 @@ use Symfony\Component\HttpFoundation\File\File;
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
-    normalizationContext: ['groups' => ['test:attendees']]
+    normalizationContext: ['groups' => ['test:attendees', 'read:event']]
 )]
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
-#[Get(
-    security: "is_granted('csv', object)",
-    uriTemplate: '/csv/events/{id}.{_format}',
-    normalizationContext: ['groups' => ['event:csv:export']]
-)
+#[
+    Get(
+        //security: "is_granted('view', object)",
+        uriTemplate: '/csv/events/{id}.{_format}',
+        normalizationContext: ['groups' => ['event:csv:export']]
+    )
 ]
 
 #[Get(
@@ -108,7 +106,6 @@ use Symfony\Component\HttpFoundation\File\File;
     processor: LoggerStateProcessor::class
 )]
 //ADD IMAGES HERE
-
 
 // #[GetCollection(
 //     uriTemplate: '/my/events.{_format}',
@@ -217,8 +214,8 @@ class Event
 
     //Event -> User (attendees)
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
-    #[MaxDepth(1)]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin'])]
+    // #[MaxDepth(1)]
     private Collection $attendees;
 
     public function getAttendees(): Collection
@@ -289,61 +286,6 @@ class Event
         return $this;
     }
 
-    /**
-     * @Vich\UploadableField(mapping="event_images", fileNameProperty="imageName")
-     * @var File|null
-     */
-    #[Groups(['event:image:write', 'event:image:read'])]
-    private ?File $imageFile = null;
-
-    /**
-     * @var string|null
-     */
-    /**#[Groups(['event:image:write', 'event:image:read'])]
-    #[ORM\Column(type: 'string', length: 255, unique: true, nullable: true)]
-    private ?string $imageName = null;*/
-
-    /**
-     * @var \DateTimeInterface|null
-     */
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    private ?\DateTimeInterface $updatedAt = null;
-
-    // Getter and setter for imageFile
-    public function setImageFile(?File $imageFile = null): void
-    {
-        $this->imageFile = $imageFile;
-
-        if ($imageFile) {
-            // Update the updatedAt field to trigger an update
-            $this->updatedAt = new \DateTimeImmutable();
-        }
-    }
-
-    public function getImageFile(): ?File
-    {
-        return $this->imageFile;
-    }
-
-    /**public function getImageName(): ?string
-    {
-        return $this->imageName;
-    }
-
-    public function setImageName(?string $imageName): void
-    {
-        $this->imageName = $imageName;
-    }*/
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updatedAt): void
-    {
-        $this->updatedAt = $updatedAt;
-    }
 
     public function __construct()
     {

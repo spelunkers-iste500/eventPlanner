@@ -8,23 +8,9 @@ import React, {
 } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Event, Organization } from "Types/events";
-
-interface User {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    phoneNumber: string;
-    birthday: string;
-    title: string;
-    gender: string;
-    eventsAttending: Event[];
-    eventAdminOfOrg: Organization[];
-    financeAdminOfOrg: string[];
-    superAdmin: boolean;
-    passengerId: string;
-}
+import { Event } from "Types/event";
+import { Organization } from "Types/organization";
+import { User } from "Types/user";
 
 interface UserContextProps {
     user: User | null;
@@ -41,6 +27,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // try to get user from local storage first
+        const user = new User("self", session?.apiToken);
+        setUser(user);
+        console.log("Fetched user data from User.fetch();", user);
         const fetchUser = async () => {
             if (session?.id) {
                 console.log("Fetching user data w/ session creds", session);
@@ -56,22 +46,14 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
                     setLoading(false);
                 } else {
                     try {
-                        const response = await axios.get(`/my/user`, {
-                            headers: {
-                                "Content-Type": "application/ld+json",
-                                Authorization: "Bearer " + session.apiToken,
-                            },
-                        });
-                        setUser(response.data);
-                        localStorage.setItem(
-                            "user",
-                            JSON.stringify(response.data)
+                        const user = await User.fromApiResponse(
+                            "",
+                            session.apiToken
                         );
+                        setUser(user);
+                        localStorage.setItem("user", JSON.stringify(user));
                         localStorage.setItem("sessionId", session.id);
-                        console.log(
-                            "User data fetched from API:",
-                            response.data
-                        );
+                        console.log("User data fetched from API:", user);
                         setLoading(false);
                     } catch (err) {
                         console.error("Failed to fetch user data");
@@ -83,7 +65,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
             }
         };
 
-        fetchUser();
+        // fetchUser();
     }, [session]);
 
     return (

@@ -27,7 +27,7 @@ final class TestingDataStory extends Story
         $this->passwordHasher = $passwordHasher;
     }
 
-    public function createUser(string $firstname, string $lastname, string $email, string $plainPassword, bool $superAdmin, Organization $org, string $otp, string $orgRole): User
+    public function createUser(string $firstname, string $lastname, string $email, string $plainPassword, bool $superAdmin, Organization $org1, Organization $org2, string $otp, string $orgRole): User
     {
         $user = UserFactory::createOne([
             'firstname' => $firstname,
@@ -38,16 +38,27 @@ final class TestingDataStory extends Story
             //'OrgMembership' => new ArrayCollection([$org]) // Add organization to orgmemberships
         ]);
         if ($orgRole === 'financial') {
-            $user->addFinanceAdminOfOrg($org);
+            $user->addFinanceAdminOfOrg($org1);
+            $user->_save();
+            $user->addFinanceAdminOfOrg($org2);
             $user->_save();
         } elseif ($orgRole === 'orgAdmin') {
-            $user->addAdminOfOrg($org);
+            $user->addAdminOfOrg($org1);
+            $user->_save();
+            $user->addAdminOfOrg($org2);
             $user->_save();
         } elseif ($orgRole === 'eventAdmin') {
-            $user->addEventAdminOfOrg($org);
+            $user->addEventAdminOfOrg($org1);
+            $user->_save();
+            $user->addEventAdminOfOrg($org2);
             $user->_save();
         }
-
+        elseif ($superAdmin){
+            $user->addAdminOfOrg($org1);
+            $user->_save();
+            $user->addAdminOfOrg($org2);
+            $user->_save();
+        }
         $hashedPassword = $this->passwordHasher->hashPassword($user, $plainPassword);
         $user->setPassword($hashedPassword);
 
@@ -68,11 +79,11 @@ final class TestingDataStory extends Story
         $org5 = OrganizationFactory::new()->createOne(['name' => 'CAD']);
         $otpcode = "G5AGCNDNEMSWM326LZJDGSDGLZSEA6RQMFBEQWCIO47TOQDYIRKQ";
         //create users
-        $user = $this->createUser('Spleunkers', 'user', 'user@rit.edu', 'spelunkers123', false, $org1, $otpcode, "user");
-        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin', 'budgetadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode, "financial");
-        $orgAdmin = $this->createUser('Spleunkers', 'orgAdmin', 'orgadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode, "orgAdmin");
-        $eventadmin = $this->createUser('Spleunkers', 'eventAdmin', 'eventadmin@rit.edu', 'spelunkers123', false, $org1, $otpcode, "eventAdmin");
-        $platformadmin = $this->createUser('Spleunkers', 'superadmin', 'superadmin@rit.edu', 'spelunkers123', true, $org1, $otpcode, "user");
+        $user = $this->createUser('Spleunkers', 'user', 'user@rit.edu', 'spelunkers123', false, $org1, $org2, $otpcode, "user");
+        $budgetUser = $this->createUser('Spleunkers', 'budgetAdmin', 'budgetadmin@rit.edu', 'spelunkers123', false, $org1,$org2, $otpcode, "financial");
+        $orgAdmin = $this->createUser('Spleunkers', 'orgAdmin', 'orgadmin@rit.edu', 'spelunkers123', false, $org1,$org2, $otpcode,  "orgAdmin");
+        $eventadmin = $this->createUser('Spleunkers', 'eventAdmin', 'eventadmin@rit.edu', 'spelunkers123', false, $org1, $org2, $otpcode, "eventAdmin");
+        $platformadmin = $this->createUser('Spleunkers', 'superadmin', 'superadmin@rit.edu', 'spelunkers123', true, $org1, $org2, $otpcode, "user");
         //create budgets and events\
 
         BudgetFactory::createMany(50, function () use ($org1, $eventadmin, $user, $budgetUser) {

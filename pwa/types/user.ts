@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Organization } from "./organization";
 import { UserEvent } from "./userEvent";
+import { headers } from "next/headers";
 export class User {
     static url = "/my/user";
     id: string;
@@ -13,10 +14,11 @@ export class User {
     birthday?: string;
     title?: string;
     gender?: string;
-    eventAdminOfOrg?: Organization[];
-    financeAdminOfOrg?: Organization[];
+    eventAdminOfOrg: Organization[] = [];
+    financeAdminOfOrg: Organization[] = [];
     superAdmin?: boolean;
     passengerId?: string;
+    plainPassword?: string;
     setFirstName(firstName: string): void {
         this.firstName = firstName;
     }
@@ -70,7 +72,7 @@ export class User {
     }
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
-        if (apiToken !== "" && id == "notPersisted") {
+        if (apiToken !== "" && id !== "notPersisted") {
             this.fetch(apiToken);
         }
     }
@@ -79,9 +81,13 @@ export class User {
      * @param {string} apiToken - The API token for authentication.
      * @returns {Promise<User>} - A promise that resolves to a User object.
      */
-    static async fromApiResponse(id: string, apiToken: string): Promise<User> {
+    static async fromApiResponse(
+        id: string = "",
+        apiToken: string
+    ): Promise<User> {
         try {
-            const response = await axios.get(`/users/${id}`, {
+            const uri = id === "" ? `/my/user` : `/users/${id}`;
+            const response = await axios.get(uri, {
                 headers: {
                     "Content-Type": "application/ld+json",
                     Authorization: "Bearer " + apiToken,
@@ -119,24 +125,47 @@ export class User {
      * @param {string} apiToken - The API token for authentication.
      * @returns {Promise<void>} - A promise that resolves when the update is successful.
      */
-    async persist(apiToken: string): Promise<void> {
-        if (!this.id) {
-            throw new Error("Malformed User object: ID not set");
-        }
+    async persist(
+        apiToken: string,
+        eventCode: string = "",
+        userOrgInviteId: string = ""
+    ): Promise<void> {
         try {
-            axios.patch(`/user/${this.id}`, {
-                headers: {
-                    Authorization: "Bearer " + apiToken,
-                    "Content-Type": "application/ld+json",
-                },
-                data: {
-                    name: this.name,
-                    email: this.email,
-                    phoneNumber: this.phoneNumber,
-                    title: this.title,
-                    gender: this.gender,
-                },
-            });
+            if (this.id === "notPersisted") {
+                // this is used when registering the user
+                await axios.post("/user", {
+                    headers: {
+                        "Content-Type": "application/ld+json",
+                    },
+                    data: {
+                        firstName: this.name?.split(" ")[0],
+                        lastName: this.name?.split(" ")[1],
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        birthday: this.birthday,
+                        title: this.title,
+                        gender: this.gender,
+                        plainPassword: this.plainPassword,
+                        eventCode: eventCode !== "" ? eventCode : null,
+                        userOrgInviteId:
+                            userOrgInviteId !== "" ? userOrgInviteId : null,
+                    },
+                });
+            } else {
+                await axios.patch(`/user/${this.id}`, {
+                    headers: {
+                        Authorization: "Bearer " + apiToken,
+                        "Content-Type": "application/ld+json",
+                    },
+                    data: {
+                        name: this.name,
+                        email: this.email,
+                        phoneNumber: this.phoneNumber,
+                        title: this.title,
+                        gender: this.gender,
+                    },
+                });
+            }
         } catch (error) {
             console.error("Error updating user data:", error);
             throw new Error("Failed to update user data");
@@ -152,13 +181,20 @@ export class User {
             throw new Error("User ID is not set");
         }
         try {
-            const response = await axios.get(`/user/${this.id}`, {
+            var uri = "";
+            if (this.id == "self") {
+                uri = `/my/user`;
+            } else {
+                uri = `/users/${this.id}`;
+            }
+            const response = await axios.get(uri, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`,
                 },
             });
             const data = response.data;
             // Update the instance properties with the fetched data
+            this.id = data.id;
             this.firstName = data.firstName;
             this.lastName = data.lastName;
             this.name = data.name;
@@ -168,8 +204,12 @@ export class User {
             this.birthday = data.birthday;
             this.title = data.title;
             this.gender = data.gender;
-            this.eventAdminOfOrg = data.eventAdminOfOrg;
-            this.financeAdminOfOrg = data.financeAdminOfOrg;
+            this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
+                return new Organization(org["@id"].split("/").pop());
+            });
+            this.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
+                return new Organization(org["@id"].split("/").pop());
+            });
             this.superAdmin = data.superAdmin;
             this.passengerId = data.passengerId;
         } catch (error) {
