@@ -14,8 +14,8 @@ export class User {
     birthday?: string;
     title?: string;
     gender?: string;
-    eventAdminOfOrg?: Organization[];
-    financeAdminOfOrg?: Organization[];
+    eventAdminOfOrg: Organization[] = [];
+    financeAdminOfOrg: Organization[] = [];
     superAdmin?: boolean;
     passengerId?: string;
     plainPassword?: string;

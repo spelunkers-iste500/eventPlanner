@@ -30,12 +30,14 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     const { data: session } = useSession();
     const { setContent } = useContent();
     const [csvSearchTerm, setCsvSearchTerm] = useState("");
-    const [selectedExportEvent, setSelectedExportEvent] = useState<
-        Event | null
-    >(null);
+    const [selectedExportEvent, setSelectedExportEvent] =
+        useState<Event | null>(null);
     // Filter all events based on the CSV search term
     const filteredExportEvents = events.filter((event) =>
-        event.getEventTitle().toLowerCase().includes(csvSearchTerm.toLowerCase())
+        event
+            .getEventTitle()
+            .toLowerCase()
+            .includes(csvSearchTerm.toLowerCase())
     );
 
     const handleSubmit = () => {
@@ -106,24 +108,33 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         if (data && typeof data === "object") {
             const { eventTitle, maxAttendees, budget, flights } = data;
             const csvRows = [];
-    
+
             csvRows.push(
                 "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight IDs,Flight Costs"
             );
-    
-            const totalBudget = (budget?.perUserTotal || 0) * (maxAttendees || 0);
-    
-            const flightIds = flights?.map((flight: any) => flight.flightNumber || "").join(" | ") || "No flights";
-            const flightCosts = flights
-                ?.map((flight: any) => ((flight.flightCost || 0) / 100).toFixed(2))
-                .join(" | ") || "0.00";
-    
+
+            const totalBudget =
+                (budget?.perUserTotal || 0) * (maxAttendees || 0);
+
+            const flightIds =
+                flights
+                    ?.map((flight: any) => flight.flightNumber || "")
+                    .join(" | ") || "No flights";
+            const flightCosts =
+                flights
+                    ?.map((flight: any) =>
+                        ((flight.flightCost || 0) / 100).toFixed(2)
+                    )
+                    .join(" | ") || "0.00";
+
             csvRows.push(
                 `"${eventTitle || ""}","${maxAttendees || 0}","${
                     budget?.perUserTotal || 0
-                }","${budget?.overage || 0}","${totalBudget}","${flightIds}","${flightCosts}"`
+                }","${
+                    budget?.overage || 0
+                }","${totalBudget}","${flightIds}","${flightCosts}"`
             );
-    
+
             const csvString = csvRows.join("\n");
             const blob = new Blob([csvString], { type: "text/csv" });
             const link = document.createElement("a");

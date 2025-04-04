@@ -6,12 +6,15 @@ import { Organization } from "./organization";
 
 export class UserEvent {
     id: string;
-    event?: Event;
-    user?: User;
-    flights?: Flight[];
-    status?: string;
+    event: Event;
+    user: User;
+    flights: Flight[];
+    status: string = "";
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
+        this.event = new Event();
+        this.user = new User();
+        this.flights = [];
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch user event data without an ID");
         } else if (apiToken !== "" && id !== "notPersisted") {

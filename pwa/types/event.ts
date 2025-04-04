@@ -2,31 +2,47 @@ import { Organization } from "./organization";
 import { Budget } from "./budget";
 import axios from "axios";
 import { Flight } from "./flight";
+import { UserEvent } from "./userEvent";
 import { max } from "date-fns";
+import { useSession } from "next-auth/react";
+import { User } from "./user";
 
 export class Event {
     id: string;
     iri: string;
-    budget: Budget | null = null;
-    eventTitle?: string;
-    startDateTime?: string; // date-time
-    endDateTime?: string; // date-time
-    startFlightBooking?: string; // date-time
-    endFlightBooking?: string; // date-time
-    location?: string;
-    organization?: Organization;
-    flights?: Flight[];
-    inviteCode?: string;
-    maxAttendees?: number;
+    budget: Budget;
+    eventTitle: string;
+    startDateTime: string; // date-time
+    endDateTime: string; // date-time
+    startFlightBooking: string; // date-time
+    endFlightBooking: string; // date-time
+    location: string;
+    organization: Organization;
+    flights: Flight[];
+    inviteCode: string;
+    maxAttendees: number;
+    attendees: UserEvent[];
     /**
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
      */
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
+        this.eventTitle = "";
+        this.startDateTime = "";
+        this.endDateTime = "";
+        this.startFlightBooking = "";
+        this.endFlightBooking = "";
+        this.location = "";
+        this.organization = new Organization();
+        this.flights = [];
+        this.inviteCode = "";
+        this.maxAttendees = 0;
+        this.budget = new Budget();
+        this.attendees = [];
         this.iri = `/events/${id}`; // construct IRI if not provided
         if (apiToken !== "") {
-            this.fetchData(apiToken);
+            this.fetch(apiToken);
         }
     }
 
@@ -35,7 +51,7 @@ export class Event {
      * @param apiToken users api token
      * @returns a promise that resolves to void
      */
-    async fetchData(apiToken: string): Promise<void> {
+    async fetch(apiToken: string): Promise<void> {
         if (this.id === "notPersisted") {
             throw new Error("Event ID is not set");
         }
@@ -48,8 +64,7 @@ export class Event {
             const data = response.data;
             // assign data to the class properties
             this.budget = data.budget
-                ? new Budget(data.budget.id, data.budget.perUserTotal)
-                : null;
+                ? new Budget(data.budget.id, data.budget.perUserTotal) : this.budget;
             this.eventTitle = data.eventTitle;
             this.startDateTime = data.startDateTime;
             this.endDateTime = data.endDateTime;
@@ -60,6 +75,17 @@ export class Event {
             this.organization.setName(data.organization.name);
             this.flights = data.flights.map(
                 (flight: any) => new Flight(flight.id)
+            );
+            this.attendees = data.attendees.map(
+                (attendee: any) => {
+                    const userEvent = new UserEvent(attendee.id);
+                    userEvent.setUser(new User(attendee.user.id));
+                    userEvent.user.name = attendee.user.name;
+                    userEvent.setEvent(this);
+                    userEvent.status= attendee.status;
+                    return userEvent;
+                }
+
             );
         } catch (error) {
             console.error("Error fetching event data:", error);
@@ -89,10 +115,9 @@ export class Event {
             const data = response.data;
             // budget could be null for an event. These are unapproved.
             // If the event is unapproved, we need to set the budget to null.
-            let budget = null;
-            if (data.budget) {
-                budget = new Budget(data.budget.id, data.budget.perUserTotal);
-            }
+            const budget = data.budget
+                ? new Budget(data.budget.id, data.budget.perUserTotal)
+                : new Budget();
             const organization = new Organization(data.organization.id);
             const hydratedEvent: Event = new Event(data.id);
             hydratedEvent.setBudget(budget);
@@ -104,6 +129,15 @@ export class Event {
             hydratedEvent.setLocation(data.location);
             hydratedEvent.setOrganization(organization);
             // event.setFlights() // don't set flights yet
+            hydratedEvent.attendees = data.attendees.map(
+                (attendee: any) => {
+                    const userEvent = new UserEvent(attendee.id);
+                    userEvent.setUser(new User(attendee.user.id));
+                    userEvent.user.name = attendee.user.name;
+                    userEvent.setEvent(hydratedEvent);
+                    userEvent.status = attendee.status;
+                    return userEvent;
+                });
             return hydratedEvent;
         } catch (error) {
             console.error("Error fetching events data:", error);
@@ -146,11 +180,10 @@ export class Event {
                 response.data["hydra:view"]["hydra:last"].split("=")[1];
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
-                event.setBudget(
-                    item.budget
-                        ? new Budget(item.budget.id, item.budget.perUserTotal)
-                        : null
-                );
+                    (item.budget) ? event.setBudget(new Budget(
+                        item.budget.id,
+                        item.budget.perUserTotal
+                    )) : event.setBudget(new Budget());
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
                 event.setEndDateTime(item.endDateTime);
@@ -158,6 +191,15 @@ export class Event {
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
                 event.setOrganization(new Organization(item.organization.id));
+                event.attendees = item.attendees.map(
+                    (attendee: any) => {
+                        const userEvent = new UserEvent(attendee.id);
+                        userEvent.setUser(new User(attendee.user.id));
+                        userEvent.user.name = attendee.user.name;
+                        userEvent.setEvent(event);
+                        userEvent.status = attendee.status;
+                        return userEvent;
+                    });
                 return event;
                 // event.setFlights() // dont set flights yet
             });
@@ -172,14 +214,10 @@ export class Event {
                 const data = response.data["hydra:member"];
                 data.forEach((item: any) => {
                     const event = new Event(item.id);
-                    event.setBudget(
-                        item.budget
-                            ? new Budget(
-                                  item.budget.id,
-                                  item.budget.perUserTotal
-                              )
-                            : null
-                    );
+                    (item.budget) ? event.setBudget(new Budget(
+                        item.budget.id,
+                        item.budget.perUserTotal
+                    )) : event.setBudget(new Budget());
                     event.setEventTitle(item.eventTitle);
                     event.setStartDateTime(item.startDateTime);
                     event.setEndDateTime(item.endDateTime);
@@ -189,6 +227,15 @@ export class Event {
                     event.setOrganization(
                         new Organization(item.organization.id)
                     );
+                    event.attendees = item.attendees.map(
+                        (attendee: any) => {
+                            const userEvent = new UserEvent(attendee.id);
+                            userEvent.setUser(new User(attendee.user.id));
+                            userEvent.user.name = attendee.user.name;
+                            userEvent.setEvent(event);
+                            userEvent.status = attendee.status;
+                            return userEvent;
+                        });
                 });
             }
             return events;
@@ -277,7 +324,8 @@ export class Event {
                 break;
         }
     }
-    setBudget(budget: Budget | null): void {
+
+    setBudget(budget: Budget): void {
         this.budget = budget;
     }
 
@@ -305,7 +353,7 @@ export class Event {
         this.location = location;
     }
 
-    setOrganization(organization: Organization | undefined): void {
+    setOrganization(organization: Organization): void {
         this.organization = organization;
     }
 

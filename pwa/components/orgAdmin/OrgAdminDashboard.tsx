@@ -7,6 +7,7 @@ import { useUser } from "Utils/UserProvider";
 import { useSession } from "next-auth/react";
 import { Portal, Select, createListCollection } from "@chakra-ui/react";
 import SystemAdminDashboard from "../sysAdmin/SystemAdminDashboard";
+import { Organization } from "Types/organization";
 
 const OrgAdminDashboard: React.FC = () => {
     const [selectedOrg, setSelectedOrg] = useState<string[]>([]);
@@ -19,23 +20,16 @@ const OrgAdminDashboard: React.FC = () => {
 
     const fetchOrganizations = async () => {
         try {
-            const response = await axios.get("/my/organizations/", {
-                headers: {
-                    Authorization: `Bearer ${session?.apiToken}`,
-                },
-            });
-
-            if (response.status === 200) {
-                console.log(
-                    "Organizations fetched successfully:",
-                    response.data
-                );
-                const orgs = response.data["hydra:member"].map((org: any) => ({
-                    label: org.name,
-                    value: org.id,
-                }));
-                setOrganizations(orgs);
+            if (!session) {
+                throw new Error("Session not found");
             }
+            var orgs = await Organization.allFromApiResponse(session.apiToken);
+            const orgObjects = orgs.map((org: any) => ({
+                label: org.name,
+                value: org.id,
+                object: org,
+            }));
+            setOrganizations(orgObjects);
         } catch (error) {
             console.error("Error fetching organizations:", error);
         } finally {

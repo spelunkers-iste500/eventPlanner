@@ -17,7 +17,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
-#[ApiResource()]
+#[ApiResource]
 #[GetCollection(
     uriTemplate: '/my/events.{_format}',
     normalizationContext: ['groups' => ['read:myEvents']],
@@ -42,7 +42,7 @@ class UserEvent
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
-    #[Groups(['read:myEvents'])]
+    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin'])]
     private $id;
     /**
      * @return UuidInterface The mapping ID
@@ -61,7 +61,7 @@ class UserEvent
 
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
-    #[Groups(['write:myEvents', 'read:myEvents'])]
+    #[Groups(['write:myEvents', 'read:myEvents', 'read:event', 'read:event:eventAdmin'])]
     private User $user;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
@@ -96,7 +96,7 @@ class UserEvent
     }
 
     #[ORM\Column]
-    #[Groups(['read:myEvents', 'update:myEvents'])]
+    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin'])]
     #[Assert\Choice(choices: ['pending', 'accepted', 'declined', 'cancelled'])]
     private string $status = 'pending';
 

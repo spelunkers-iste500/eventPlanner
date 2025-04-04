@@ -25,9 +25,10 @@ use Ramsey\Uuid\Rfc4122\UuidInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
-#[ApiResource]
+#[ApiResource()]
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
@@ -91,7 +92,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      */
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid', unique: true)]
-    #[Groups(['user:read', 'user:read:offers', 'user:org:read', 'org:read:collection'])]
+    #[Groups(['user:read', 'user:read:offers', 'user:org:read', 'org:read:collection', 'read:event', 'read:event:eventAdmin'])]
     private $id;
 
     /**
@@ -181,10 +182,9 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @var string $name The full name of the user
+     * @return string $name The full name of the user
      */
-    #[Groups(['user:read'])]
-    private string $name;
+    #[Groups(['user:read', 'read:event', 'read:event:eventAdmin'])]
     public function getName(): string
     {
         return $this->firstName . ' ' . $this->lastName;
@@ -467,7 +467,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
      * @var Collection $eventsAttending The events the user is attending
      */
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'user')]
-    #[Groups(['user:read', 'user:write', 'read:event:booking', 'read:event', 'edit:user:limited'])]
+    #[Groups(['user:read', 'user:write', 'read:event:booking', 'edit:user:limited'])]
     protected Collection $eventsAttending;
 
     /**

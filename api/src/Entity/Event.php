@@ -40,7 +40,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/eventAdmin.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']],
+    normalizationContext: ['groups' => ['read:event:collection', 'read:event:eventAdmin']],
 )]
 
 #[GetCollection(
@@ -79,7 +79,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
-    normalizationContext: ['groups' => ['test:attendees']]
+    normalizationContext: ['groups' => ['test:attendees', 'read:event']]
 )]
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
@@ -200,8 +200,8 @@ class Event
 
     //Event -> User (attendees)
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees'])]
-    #[MaxDepth(1)]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin'])]
+    // #[MaxDepth(1)]
     private Collection $attendees;
 
     public function getAttendees(): Collection
