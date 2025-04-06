@@ -11,6 +11,8 @@ export class Event {
     id: string;
     iri: string;
     budget: Budget;
+    imageBlob?: File; // optional, for image upload
+    imageName?: string; // optional, for image upload
     eventTitle: string;
     startDateTime: string; // date-time
     endDateTime: string; // date-time
@@ -64,8 +66,13 @@ export class Event {
             const data = response.data;
             // assign data to the class properties
             this.budget = data.budget
-                ? new Budget(data.budget.id, data.budget.perUserTotal)
-                : this.budget;
+                ? new Budget(data.budget.id, data.budget.perUserTotal) : this.budget;
+            this.imageBlob = data.imageBlob ? new File(
+                [data.imageBlob],
+                data.imageName || "event-image", // default name if not provided
+                { type: data.imageBlob.type }
+            ) : undefined;
+            this.imageName = data.imageName || undefined;
             this.eventTitle = data.eventTitle;
             this.startDateTime = data.startDateTime;
             this.endDateTime = data.endDateTime;

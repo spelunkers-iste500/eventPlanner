@@ -62,18 +62,25 @@ const Nav: React.FC = () => {
     ];
 
     // filter nav links based off of user data
-    if (user && user.eventAdminOfOrg && user.eventAdminOfOrg.length > 0) {
+    if (user && user.eventAdminOfOrg.length > 0) {
         navLinks.push({
             name: "Event Planner",
             content: <EventAdminDashboard />,
             icon: <Network size={28} />,
         });
     }
-    if (user && user.financeAdminOfOrg && user.financeAdminOfOrg.length > 0) {
+    if (user && user.financeAdminOfOrg.length > 0) {
         navLinks.push({
             name: "Finance Admin",
             content: <FinancialAdminDashboard />,
             icon: <HandCoins size={28} />,
+        });
+    }
+    if (user && user.superAdmin) {
+        navLinks.push({
+            name: "Administrator",
+            content: <OrgAdminDashboard />,
+            icon: <Shield size={28} />,
         });
     }
     navLinks.push(
@@ -87,11 +94,6 @@ const Nav: React.FC = () => {
             content: <About />,
             icon: <CircleHelp size={28} />,
         },
-        {
-            name: "Administrator",
-            content: <OrgAdminDashboard />,
-            icon: <Shield size={28} />,
-        }
     );
     return (
         <div

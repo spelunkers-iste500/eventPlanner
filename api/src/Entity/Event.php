@@ -91,6 +91,20 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     )
 ]
 
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/image/get/events/{id}.{_format}',
+    normalizationContext: ['groups' => ['event:image:read']]
+)
+]
+
+#[Post(
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
+    uriTemplate:  '/image/post/events/{id}.{_format}',
+    denormalizationContext: ['groups' => ['event:image:write']],
+    processor: LoggerStateProcessor::class
+)]
 //ADD IMAGES HERE
 
 // #[GetCollection(

@@ -3,16 +3,8 @@ import {
     DialogBody,
     DialogTitle,
     Button,
-    CloseButton,
-    FileUpload,
-    Input,
-    InputGroup,
     Switch,
-    Select,
-    ListCollection,
-    createListCollection,
 } from "@chakra-ui/react";
-import axios from "axios";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -20,15 +12,15 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "../common/Dialog.module.css";
 import { useSession } from "next-auth/react";
-import { LuFileUp } from "react-icons/lu";
 import { toaster } from "Components/ui/toaster";
 import InviteAttendantExt from "./InviteAttendantExt";
 import { useUser } from "Utils/UserProvider";
-// import { Event, Organization } from "Types/events";
 import { Event } from "Types/event";
 import { Organization } from "Types/organization";
 import { useContent } from "Utils/ContentProvider";
-import Dashboard from "./EventAdminDashboard";
+import Input from "Components/common/Input";
+import UploadFile from "./UploadFile";
+import { Select } from "chakra-react-select";
 
 interface CreateEventModalProps {
     isOpen: boolean;
@@ -43,19 +35,32 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 }) => {
     const { data: session } = useSession();
     const { user } = useUser();
+    const { setContent } = useContent();
+
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [eventImage, setEventImage] = useState<File | null>(null);
+    const [maxAttendee, setMaxAttendee] = useState<number>(20);
     const [inviteUsers, setInviteUsers] = useState(false);
-    const { setContent } = useContent();
-    const [selectedOrganization, setSelectedOrganization] =
-        useState<Organization>();
-    const organizationsList = createListCollection<Organization>({
-        items: organizations,
-    });
+    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
+    const [multiDay, setMultiDay] = useState(false);
+
+    // State for mapped organizations
+    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
+
+    // Map organizations into options for the Select component
+    useEffect(() => {
+        if (organizations) {
+            const mappedOptions = organizations.map((org) => ({
+                label: org.name || "Unnamed Organization",
+                value: org.id,
+            }));
+            setOrganizationOptions(mappedOptions);
+        }
+    }, [organizations]);
 
     const generateRandomString = (length: number) => {
         const characters =
@@ -68,27 +73,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             );
         }
         return result;
-    };
-
-    const createSuccess = () => {
-        setContent(<Dashboard />, "Dashboard");
-        toaster.create({
-            title: "Event Created",
-            description: "Your event has been created successfully.",
-            type: "success",
-            duration: 5000,
-        });
-        setTimeout(() => {
-            onClose();
-            //window.location.reload();
-        }, 2000);
-    };
-
-    const handleOrganizationChange = (
-        organization: React.ChangeEvent<HTMLSelectElement>
-    ) => {
-        console.log("Selected organization:", organization);
-        // setSelectedOrganization(organization);
     };
 
     const handleSubmit = () => {
@@ -106,18 +90,30 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             event.startFlightBooking = startDate.toISOString();
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
-            event.organization = selectedOrganization;
+            event.organization = selectedOrganization
             event.inviteCode = generateRandomString(10);
-            event.maxAttendees = 20;
+            event.maxAttendees = maxAttendee > 0 ? maxAttendee : 1;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
             }
             event.persist(session?.apiToken);
             setCreatedEvent(event);
+            toaster.create({
+                title: "Event Created",
+                description: "Your event has been created successfully.",
+                type: "success",
+                duration: 5000,
+            });
             console.log("Event created:", event);
         }
     };
+
+    useEffect(() => {
+        console.log("Organizations:", organizations);
+        console.log("Selected Event:", selectedOrganization);
+
+    }, [selectedOrganization]);
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
@@ -127,159 +123,116 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <X />
                 </button>
             </DialogHeader>
-            <DialogBody className={styles.dialogBody}>
+            <DialogBody className={`${styles.dialogBody} ${styles.eventDialog}`}>
+
+                {/* Event Image */}
                 <div className="input-container">
                     <label className="input-label">Event Image</label>
-                    <FileUpload.Root
-                        className={styles.fileUpload}
-                        gap="1"
-                        maxWidth="300px"
-                        maxFiles={1}
-                    >
-                        <FileUpload.HiddenInput
-                            onChange={(e) =>
-                                setEventImage(e.target.files?.[0] || null)
-                            }
-                        />
-                        <InputGroup
-                            startElement={<LuFileUp />}
-                            endElement={
-                                <FileUpload.ClearTrigger asChild>
-                                    <CloseButton
-                                        size="xs"
-                                        className={styles.fileUploadClear}
-                                    />
-                                </FileUpload.ClearTrigger>
-                            }
-                        >
-                            <Input asChild>
-                                <FileUpload.Trigger
-                                    className={`${styles.fileUploadTrigger} ${
-                                        eventImage ? styles.hasFile : ""
-                                    }`}
-                                    asChild
-                                >
-                                    {eventImage ? (
-                                        <FileUpload.FileText
-                                            className={styles.fileUploadTexts}
-                                        />
-                                    ) : (
-                                        <button>Upload File</button>
-                                    )}
-                                </FileUpload.Trigger>
-                            </Input>
-                        </InputGroup>
-                    </FileUpload.Root>
+                    <UploadFile eventImage={eventImage} setEventImage={setEventImage} />
                 </div>
-                <br></br>
+
                 {/* Organization Selection */}
                 <div className="input-container">
-                    {/* <label className="input-label">Select Organization</label> */}
-                    <Select.Root
-                        onValueChange={
-                            // (value) => console.log(value)
-                            // should find the organization that is selected
-                            (value) => {
-                                const selectedOrg = organizations.find(
-                                    (org) => org.id === value.items[0].id
-                                );
-                                setSelectedOrganization(selectedOrg);
-                            }
+                    <label className="input-label">Select Organization</label>
+                    <Select
+                        options={organizationOptions}
+                        placeholder="Select Organization"
+                        size="md"
+                        isSearchable={false}
+                        value={
+                            selectedOrganization ? organizationOptions.find(
+                                (option) => option.value === selectedOrganization?.id
+                            ) : null
                         }
-                        collection={organizationsList}
-                    >
-                        <Select.HiddenSelect />
-                        {/* <label className="input-label">
-                            Select Organization
-                        </label> */}
-
-                        <Select.Control>
-                            <Select.Trigger>
-                                <Select.ValueText>
-                                    {selectedOrganization?.name}{" "}
-                                    {/* Display selected organization name - currently doesn't work for some reason?*/}
-                                </Select.ValueText>
-                            </Select.Trigger>
-                            <Select.IndicatorGroup>
-                                <Select.Indicator />
-                                <Select.ClearTrigger />
-                            </Select.IndicatorGroup>
-                        </Select.Control>
-
-                        <Select.Positioner>
-                            <Select.Content>
-                                {user?.eventAdminOfOrg.map((org) => (
-                                    <Select.Item key={org.id} item={org}>
-                                        {org.name}
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Select.Root>
-                </div>
-                <br></br>
-                {/* Event Title and Location */}
-                <div className="input-container">
-                    <label className="input-label">Event Title</label>
-                    <input
-                        type="text"
-                        id="eventTitle"
-                        value={eventTitle}
-                        onChange={(e) => setEventTitle(e.target.value)}
-                        className="input-field"
+                        onChange={(option) => {
+                            const selectedOrg = organizations.find(
+                                (org) => org.id === option?.value
+                            );
+                            setSelectedOrganization(selectedOrg || null);
+                        }}
+                        className={`select-menu`}
+                        classNamePrefix={'select'}
                     />
                 </div>
 
-                <div className="input-container">
-                    <label className="input-label">Location</label>
-                    <input
-                        type="text"
-                        id="location"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        className="input-field"
-                    />
-                </div>
+                {/* Event Title */}
+                <Input label="Event Title" onChange={(value) => setEventTitle(value)} />
 
+                {/* Event Location */}
+                <Input label="Location" onChange={(value) => setLocation(value)} />
+
+                {/* Event Max Attendees */}
+                <Input label="Max Attendees" type="number" onChange={(value) => setMaxAttendee(Number(value))} />
+
+                {/* Multi-Day Event Selector */}
+                <Switch.Root checked={multiDay}>
+                    <Switch.HiddenInput
+                        onChange={(e) => setMultiDay(e.target.checked)}
+                    />
+                    <Switch.Label>Multi-Day Event?</Switch.Label>
+                    <Switch.Control />
+                </Switch.Root>
+
+                {/* Event Dates */}
                 <div className="input-container">
                     <label className="input-label">Event Dates</label>
-                    <DatePicker
-                        selected={startDate}
-                        startDate={startDate}
-                        endDate={endDate}
-                        minDate={new Date()}
-                        onChange={(dates) => {
-                            const [start, end] = dates;
-                            setStartDate(start);
-                            setEndDate(end);
-                        }}
-                        selectsRange
-                        showMonthDropdown
-                        showTimeSelect
-                        placeholderText="Select date range"
-                        dateFormat="MM/dd/yyyy h:mm aa"
-                        className="input-field"
-                        showIcon
-                        icon={<Calendar size={32} />}
-                    />
-                </div>
-                <br></br>
-                {/* Switch to toggle invite section */}
-                <div className="input-container">
-                    <Switch.Root checked={inviteUsers}>
-                        <Switch.HiddenInput
-                            onChange={(e) => setInviteUsers(e.target.checked)}
+                    {/* Conditionally render the date range picker */}
+                    {multiDay ? (
+                        <DatePicker
+                            selected={startDate}
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={new Date()}
+                            onChange={(dates) => {
+                                const [start, end] = dates;
+                                setStartDate(start);
+                                setEndDate(end);
+                            }}
+                            selectsRange
+                            showMonthDropdown
+                            showTimeSelect
+                            placeholderText="Select date range"
+                            dateFormat="MM/dd/yyyy h:mm aa"
+                            className="input-field"
+                            showIcon
+                            icon={<Calendar size={32} />}
                         />
-                        <Switch.Control />
-                        <Switch.Label>Invite users now?</Switch.Label>
-                    </Switch.Root>
+                    ) : (
+                        <DatePicker
+                            selected={startDate}
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={new Date()}
+                            onChange={(date) => {
+                                
+                            }}
+                            selectsRange
+                            showMonthDropdown
+                            showTimeInput
+                            placeholderText="Select a date"
+                            dateFormat="MM/dd/yyyy h:mm aa"
+                            className="input-field"
+                            showIcon
+                            icon={<Calendar size={32} />}
+                        />
+                    )}
+                    
                 </div>
+                
+                {/* Switch to toggle invite section */}
+                <Switch.Root checked={inviteUsers}>
+                    <Switch.HiddenInput
+                        onChange={(e) => setInviteUsers(e.target.checked)}
+                    />
+                    <Switch.Label>Invite users now?</Switch.Label>
+                    <Switch.Control />
+                </Switch.Root>
 
                 {/* Conditionally render the InviteAttendantsExt component */}
                 {inviteUsers && (
                     <InviteAttendantExt createdEvent={createdEvent} />
                 )}
-                <br></br>
+                
                 <div className="input-container">
                     <Button onClick={handleSubmit}>Create Event</Button>
                 </div>
