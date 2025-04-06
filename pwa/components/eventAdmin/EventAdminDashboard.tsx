@@ -1,17 +1,12 @@
 // Importing necessary libraries and components
-import React from "react";
-import axios from "axios";
-import EventList from "../common/EventList";
-import MemberList from "../common/MemberList";
+import React, { useState, useEffect } from "react";
 import CreateEventModal from "./CreateEventModal";
-import ViewEventModal from "./ViewEventModal"; // Import the new modal for viewing event details
 import { useUser } from "Utils/UserProvider";
 import styles from "./EventAdminDashboard.module.css";
 import { useSession } from "next-auth/react";
 import { Event } from "Types/event";
-import { UserEvent } from "Types/userEvent";
 import { Organization } from "Types/organization";
-import { AccordionItemBody, Stack, Text, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
+import { Stack, Button } from "@chakra-ui/react"; // Import Button for the "Add Event" button
 import { Select } from "chakra-react-select";
 import {
     AccordionItem,
@@ -19,7 +14,6 @@ import {
     AccordionItemTrigger,
     AccordionRoot,
 } from "Components/ui/accordion";
-import { useState, useEffect } from "react";
 import ItemList from "Components/itemList/ItemList";
 import EditEventModal from "./EditEventModal";
 
@@ -30,7 +24,6 @@ const Dashboard: React.FC = () => {
     const { data: session } = useSession();
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
     const [isViewModalOpen, setIsViewModalOpen] = useState(false); // State for the event view modal
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
@@ -54,13 +47,6 @@ const Dashboard: React.FC = () => {
 
         if (organizations.length > 0) {
             fetchOrganizations();
-        }
-    }, [organizations]);
-
-    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
-
-    useEffect(() => {
-        if (organizations) {
             const mappedOptions = organizations.map((org) => ({
                 label: org.name || "Unnamed Organization",
                 value: org.id,
@@ -69,13 +55,7 @@ const Dashboard: React.FC = () => {
         }
     }, [organizations]);
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
+    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
 
     const handleOpenViewModal = (event: Event) => {
         setSelectedEvent(event);
@@ -98,49 +78,14 @@ const Dashboard: React.FC = () => {
     // Defining a state variable to manage the accordion's value
     const [value, setValue] = useState(["pending-events"]);
 
-    const apiUrl = `/my/organizations/events/eventAdmin`;
     const getEvents = async () => {
         if (user && session) {
-            // const events = await Event.allFromApiResponse(
-            //     session.apiToken,
-            //     "eventAdmin"
-            // );
+            const events = await Event.allFromApiResponse(
+                session.apiToken,
+                "eventAdmin"
+            );
             setEvents(events);
-            try {
-                var response;
-                var pageNumber = 1;
-                var hasNextPage = true;
-                // setup event array to eventually pass into setEvents()
-                const events = [];
-                while (hasNextPage) {
-                    response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-                        headers: {
-                            Authorization: `Bearer ${session.apiToken}`,
-                        },
-                    });
-                    if (response.status === 200) {
-                        // if the current page is the last page, set hasNextPage to false
-                        if (
-                            response.data["hydra:view"] &&
-                            response.data["hydra:view"]["hydra:last"] !==
-                                `${apiUrl}?page=${pageNumber}`
-                        ) {
-                            // increment page number
-                            pageNumber++;
-                        } else {
-                            hasNextPage = false;
-                        }
-                        // push the events from the next page into the events array
-
-                        events.push(...response.data["hydra:member"]);
-                    }
-                }
-                // set the events to the state
-                setEvents(events);
-                setLoading(false);
-            } catch (error) {
-                console.error("Error:", error);
-            }
+            setLoading(false);
         }
     };
 
@@ -155,15 +100,6 @@ const Dashboard: React.FC = () => {
     // Filtering events into current and past events based on the current date
     const currentEvents = events.filter((event) => !event.budget);
     const pastEvents = events.filter((event) => event.budget);
-
-    // const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
-    //     return events.map((event) => ({
-    //         id: event.id.toString(),
-    //         event,
-    //         status: "pending",
-    //         flights: [],
-    //     }));
-    // };
 
     // Defining items for the accordion, including current events, past events, and members list
     const items = [
@@ -294,36 +230,4 @@ const Dashboard: React.FC = () => {
     );
 };
 
-// Exporting the Dashboard component as the default export
 export default Dashboard;
-
-// Defining a list of members
-const members = [
-    {
-        firstName: "Casey",
-        lastName: "Malley",
-        email: "casey.malley@x3anto.com",
-    },
-    {
-        firstName: "Gavin",
-        lastName: "Hunsinger",
-        email: "gavin.hunsinger@x3anto.com",
-    },
-    { firstName: "Ethan", lastName: "Logue", email: "ethan.logue@x3anto.com" },
-    {
-        firstName: "Steffen",
-        lastName: "Barr",
-        email: "steffen.barr@x3anto.com",
-    },
-    {
-        firstName: "George",
-        lastName: "Gabro",
-        email: "george.gabro@x3anto.com",
-    },
-    { firstName: "Eddie", lastName: "Brotz", email: "eddie.brotz@x3anto.com" },
-    {
-        firstName: "Noelle",
-        lastName: "Voelkel",
-        email: "noelle.voelkel@x3anto.com",
-    },
-];
