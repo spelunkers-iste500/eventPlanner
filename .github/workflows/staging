@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  workflow_dispatch: ~
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+  staging-deploy:
+    runs-on: [self-hosted, staging]
+    name: modify staging
+    env:
+      SERVER_NAME: "staging.spelunkers.xeanto.us"
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      CADDY_MERCURE_JWT_SECRET: ${{ secrets.CADDY_MERCURE_JWT_SECRET }}
+      GITAPP_ID: ${{ secrets.GITAPP_ID_STAGING}}
+      GITAPP_SECRET: ${{ secrets.GITAPP_SECRET_STAGING }}
+      NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      GOOGLE_ID: ${{ secrets.GOOGLE_ID }}
+      GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+      AUTH_SENDGRID_KEY: ${{ secrets.AUTH_SENDGRID_KEY }}
+      AUTH_SENDGRID_FROM: ${{ vars.AUTH_SENDGRID_FROM }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      AUTH_TRUST_HOST: "https://staging.spelunkers.xeanto.us"
+      DUFFEL_BEARER: ${{ secrets.DUFFEL_KEY }}
+      MAILER_DSN: ${{ secrets.MAILER_DSN }}
+    steps:
+      - name: Copy Repository
+        run: |
+          ulimit -u 200000
