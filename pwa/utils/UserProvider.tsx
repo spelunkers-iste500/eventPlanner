@@ -28,42 +28,47 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
 
     useEffect(() => {
         // try to get user from local storage first
-        const user = new User("self", session?.apiToken);
-        setUser(user);
-        console.log("Fetched user data from User.fetch();", user);
-        const fetchUser = async () => {
-            if (session?.id) {
-                console.log("Fetching user data w/ session creds", session);
-                const cachedUser = localStorage.getItem("user");
-                const cachedSessionId = localStorage.getItem("sessionId");
+        if (session) {
+            const user = new User("self");
+            user.fetch(session.apiToken).then((user) => {
+                setUser(user);
+                console.log("Fetched user data from User.fetch();", user);
+            });
+            // setUser(user);
+        }
+        // const fetchUser = async () => {
+        //     if (session?.id) {
+        //         console.log("Fetching user data w/ session creds", session);
+        //         const cachedUser = localStorage.getItem("user");
+        //         const cachedSessionId = localStorage.getItem("sessionId");
 
-                if (cachedUser && cachedSessionId === session.id) {
-                    setUser(JSON.parse(cachedUser));
-                    console.log(
-                        "User data fetched from cache:",
-                        JSON.parse(cachedUser)
-                    );
-                    setLoading(false);
-                } else {
-                    try {
-                        const user = await User.fromApiResponse(
-                            "",
-                            session.apiToken
-                        );
-                        setUser(user);
-                        localStorage.setItem("user", JSON.stringify(user));
-                        localStorage.setItem("sessionId", session.id);
-                        console.log("User data fetched from API:", user);
-                        setLoading(false);
-                    } catch (err) {
-                        console.error("Failed to fetch user data");
-                        setLoading(false);
-                    }
-                }
-            } else {
-                setLoading(false);
-            }
-        };
+        //         if (cachedUser && cachedSessionId === session.id) {
+        //             setUser(JSON.parse(cachedUser));
+        //             console.log(
+        //                 "User data fetched from cache:",
+        //                 JSON.parse(cachedUser)
+        //             );
+        //             setLoading(false);
+        //         } else {
+        //             try {
+        //                 const user = await User.fromApiResponse(
+        //                     "",
+        //                     session.apiToken
+        //                 );
+        //                 setUser(user);
+        //                 localStorage.setItem("user", JSON.stringify(user));
+        //                 localStorage.setItem("sessionId", session.id);
+        //                 console.log("User data fetched from API:", user);
+        //                 setLoading(false);
+        //             } catch (err) {
+        //                 console.error("Failed to fetch user data");
+        //                 setLoading(false);
+        //             }
+        //         }
+        //     } else {
+        //         setLoading(false);
+        //     }
+        // };
 
         // fetchUser();
     }, [session]);
