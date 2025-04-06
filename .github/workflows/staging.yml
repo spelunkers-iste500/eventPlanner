@@ -28,6 +28,6 @@ jobs:
       DUFFEL_BEARER: ${{ secrets.DUFFEL_KEY }}
       MAILER_DSN: ${{ secrets.MAILER_DSN }}
     steps:
-      - name: Copy Repository
+      - name: set limits
         run: |
-          ulimit -u 200000
+          ulimit -n 200000
