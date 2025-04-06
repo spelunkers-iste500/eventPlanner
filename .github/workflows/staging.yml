@@ -1,4 +1,4 @@
-name: CI
+name: staging updates
 
 on:
   workflow_dispatch: ~
