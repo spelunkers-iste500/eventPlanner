@@ -12,7 +12,7 @@ export class Budget {
         this.id = id;
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch budget data without an ID");
-        } else if (apiToken === "" && id !== "notPersisted") {
+        } else if (apiToken !== "" && id !== "notPersisted") {
             // Fetch the budget data from the API
             this.fetch(apiToken);
         }
