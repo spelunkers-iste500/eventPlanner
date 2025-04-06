@@ -31,7 +31,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'admin':
                     $data->getOrganization()->addAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
@@ -41,7 +41,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'eventAdmin':
                     $data->getOrganization()->addEventAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
@@ -51,7 +51,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'financeAdmin':
                     $data->getOrganization()->addFinanceAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
@@ -73,6 +73,5 @@ class OrganizationInviteState implements ProcessorInterface
                 ->html('<p>Click on the following link to join the organization: <a href="' . $inviteLink . '">Join</a></p>');
             $this->mailer->send($email);
         }
-        $this->changeLogger->process($user, $operation, $uriVariables, $context);
     }
 }
