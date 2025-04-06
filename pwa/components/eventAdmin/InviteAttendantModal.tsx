@@ -11,7 +11,7 @@ import InviteAttendantExt from "./InviteAttendantExt";
 import { Event } from "Types/event";
 
 interface InviteAttendantModalProps {
-    event: Event;
+    event: Event | null;
     isOpen: boolean;
     onClose: () => void;
 }

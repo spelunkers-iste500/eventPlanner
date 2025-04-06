@@ -37,8 +37,6 @@ interface CreateEventModalProps {
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, event }) => {
     const { data: session } = useSession();
-    const { user } = useUser();
-    const { setContent } = useContent();
 
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
@@ -53,13 +51,15 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
 
     const handleSubmit = () => {
         if (
+            event &&
             eventTitle &&
             startDate &&
             endDate &&
             location &&
-            selectedOrganization
+            selectedOrganization &&
+            startDate <= endDate &&
+            maxAttendee > 0
         ) {
-            const event = new Event();
             event.eventTitle = eventTitle;
             event.startDateTime = startDate.toISOString();
             event.endDateTime = endDate.toISOString();
@@ -67,7 +67,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
             event.organization = selectedOrganization
-            event.maxAttendees = 20;
+            event.maxAttendees = maxAttendee;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
