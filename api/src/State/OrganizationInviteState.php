@@ -8,10 +8,11 @@ use App\Entity\UserInvite;
 use App\Repository\UserRepository;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\State\LoggerStateProcessor;
 
 class OrganizationInviteState implements ProcessorInterface
 {
-    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer) {}
+    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer, private LoggerStateProcessor $changeLogger) {}
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         // on creation, check to see if the user exists via the email
@@ -72,5 +73,6 @@ class OrganizationInviteState implements ProcessorInterface
                 ->html('<p>Click on the following link to join the organization: <a href="' . $inviteLink . '">Join</a></p>');
             $this->mailer->send($email);
         }
+        $this->changeLogger->process($user, $operation, $uriVariables, $context);
     }
 }
