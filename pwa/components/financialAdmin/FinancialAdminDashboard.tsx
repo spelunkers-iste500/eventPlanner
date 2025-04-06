@@ -6,7 +6,8 @@ import dialogStyles from "../common/Dialog.module.css";
 import CreateBudgetModal from "./CreateBudgetModal";
 import { useSession } from "next-auth/react";
 import { useUser } from "Utils/UserProvider";
-import { Event, UserEvent, Organization } from "Types/events";
+import { Event } from "Types/event";
+import { Organization } from "Types/organization";
 import {
     Button,
     Dialog,
@@ -39,7 +40,7 @@ const FinancialAdminDashboard: React.FC = () => {
     const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
     const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
     const [events, setEvents] = useState<Event[]>([]);
-    const [selectedEvent, setSelectedEvent] = useState<UserEvent | null>(null);
+    const [selectedEvent, setSelectedEvent] = useState<Event>(new Event());
     const [selectedOrganization, setSelectedOrganization] =
         useState<string>("");
 
@@ -49,17 +50,13 @@ const FinancialAdminDashboard: React.FC = () => {
     useEffect(() => {
         const fetchOrganizations = async () => {
             try {
-                const fetchedOrgs = await Promise.all(
-                    organizations.map(async (org) => {
-                        const response = await axios.get(org, {
-                            headers: {
-                                Authorization: `Bearer ${session?.apiToken}`,
-                            },
-                        });
-                        return response.data;
-                    })
+                if (!session) {
+                    throw new Error("Session not found");
+                }
+                const orgs = await Organization.allFromApiResponse(
+                    session.apiToken
                 );
-                setOrgObjects(fetchedOrgs);
+                setOrgObjects(orgs);
             } catch (error) {
                 console.error("Error fetching organizations:", error);
             }
@@ -79,14 +76,6 @@ const FinancialAdminDashboard: React.FC = () => {
         items: orgObjects,
     });
 
-    const mapEventsToUserEvents = (events: Event[]): UserEvent[] => {
-        return events.map((event) => ({
-            id: event.id.toString(),
-            event,
-            status: "pending", // or 'accepted' based on your logic
-            flights: [],
-        }));
-    };
     const handleOrganizationChange = (
         event: React.ChangeEvent<HTMLSelectElement>
     ) => {
@@ -96,23 +85,19 @@ const FinancialAdminDashboard: React.FC = () => {
     const filteredEvents = events.filter(
         (event) =>
             !selectedOrganization ||
-            event.organization.id === selectedOrganization
+            event.organization?.id === selectedOrganization
     );
 
     const filteredItems = [
         {
             value: "pending-events",
             title: "Events Pending Approval",
-            events: mapEventsToUserEvents(
-                filteredEvents.filter((event) => !event.budget)
-            ),
+            events: filteredEvents.filter((event) => !event.budget),
         },
         {
             value: "approved-events",
             title: "Approved Events",
-            events: mapEventsToUserEvents(
-                filteredEvents.filter((event) => event.budget)
-            ),
+            events: filteredEvents.filter((event) => event.budget),
         },
     ];
 
@@ -124,33 +109,34 @@ const FinancialAdminDashboard: React.FC = () => {
     const getEvents = async () => {
         if (user && session) {
             try {
-                var response;
-                var pageNumber = 1;
-                var hasNextPage = true;
                 // setup event array to eventually pass into setEvents()
-                const events = [];
-                while (hasNextPage) {
-                    response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-                        headers: {
-                            Authorization: `Bearer ${session.apiToken}`,
-                        },
-                    });
-                    if (response.status === 200) {
-                        // if the current page is the last page, set hasNextPage to false
-                        if (
-                            response.data["hydra:view"] &&
-                            response.data["hydra:view"]["hydra:last"] !==
-                                `${apiUrl}?page=${pageNumber}`
-                        ) {
-                            // increment page number
-                            pageNumber++;
-                        } else {
-                            hasNextPage = false;
-                        }
-                        // push the events from the next page into the events array
-                        events.push(...response.data["hydra:member"]);
-                    }
-                }
+                const events = await Event.allFromApiResponse(
+                    session.apiToken,
+                    "financeAdmin"
+                );
+                // const events = [];
+                // while (hasNextPage) {
+                //     response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
+                //         headers: {
+                //             Authorization: `Bearer ${session.apiToken}`,
+                //         },
+                //     });
+                //     if (response.status === 200) {
+                //         // if the current page is the last page, set hasNextPage to false
+                //         if (
+                //             response.data["hydra:view"] &&
+                //             response.data["hydra:view"]["hydra:last"] !==
+                //                 `${apiUrl}?page=${pageNumber}`
+                //         ) {
+                //             // increment page number
+                //             pageNumber++;
+                //         } else {
+                //             hasNextPage = false;
+                //         }
+                //         // push the events from the next page into the events array
+                //         events.push(...response.data["hydra:member"]);
+                //     }
+                // }
                 // set the events to the state
                 setEvents(events);
             } catch (error) {
@@ -164,26 +150,26 @@ const FinancialAdminDashboard: React.FC = () => {
     }, [user]);
 
     // Defining accordion items for current events and past events
-    const items = [
-        {
-            value: "pending-events",
-            title: "Events Pending Approval",
-            events: mapEventsToUserEvents(pendingEvents),
-        },
-        {
-            value: "approved-events",
-            title: "Approved Events",
-            events: mapEventsToUserEvents(approvedEvents),
-        },
-    ];
+    // const items = [
+    //     {
+    //         value: "pending-events",
+    //         title: "Events Pending Approval",
+    //         events: mapEventsToUserEvents(pendingEvents),
+    //     },
+    //     {
+    //         value: "approved-events",
+    //         title: "Approved Events",
+    //         events: mapEventsToUserEvents(approvedEvents),
+    //     },
+    // ];
 
-    const handleOpenBudgetModal = (event: UserEvent) => {
+    const handleOpenBudgetModal = (event: Event) => {
         setSelectedEvent(event);
         setIsBudgetModalOpen(true);
     };
 
     const handleCloseBudgetModal = () => {
-        setSelectedEvent(null);
+        setSelectedEvent(new Event());
         setIsBudgetModalOpen(false);
     };
 
@@ -311,7 +297,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                         items={item.events}
                                         fields={[
                                             {
-                                                key: "event.eventTitle",
+                                                key: "eventTitle",
                                                 label: item.title,
                                             },
                                             { key: "status", label: "Status" },
@@ -332,7 +318,7 @@ const FinancialAdminDashboard: React.FC = () => {
             <CreateBudgetModal
                 isOpen={isBudgetModalOpen}
                 onClose={handleCloseBudgetModal}
-                userEvent={selectedEvent}
+                event={selectedEvent}
             />
 
             <ExportCsvModal

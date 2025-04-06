@@ -9,8 +9,13 @@ export class Organization {
     financeAdmins?: User[];
     eventAdmins?: User[];
     fullAdmins?: User[];
+    /**
+     * Constructs a new object. Optionally, the ID of an existing organization can be provided to fetch the details from the API if it is accompanied by the API token.
+     * @param id The requested organizations ID
+     * @param apiToken The users API Token. When provided, the details for the object are fetched from the API, overwriting whatever has been set.
+     */
     constructor(id: string = "notPersisted", apiToken: string = "") {
-        this.id = id.split("/").pop()!;
+        this.id = (id.split("/").length > 1) ? id.split("/").pop()! : id;
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch organization data without an ID");
         } else if (apiToken !== "" && id !== "notPersisted") {
@@ -34,10 +39,10 @@ export class Organization {
         this.financeAdmins = data.financeAdmins.map((user: any) => {
             return new User(user.split("/").pop()!);
         });
-        this.eventAdmins = data.eventAdmins.map((user: any) => {
+        this.eventAdmins = data.eventadmins.map((user: any) => {
             return new User(user.split("/").pop()!);
         });
-        this.fullAdmins = data.fullAdmins.map((user: any) => {
+        this.fullAdmins = data.admins.map((user: any) => {
             return new User(user.split("/").pop()!);
         });
     }
@@ -55,10 +60,10 @@ export class Organization {
                     financeAdmins: this.financeAdmins
                         ? this.financeAdmins.map((user) => user.id)
                         : [],
-                    eventAdmins: this.eventAdmins
+                    eventadmins: this.eventAdmins
                         ? this.eventAdmins.map((user) => user.id)
                         : [],
-                    fullAdmins: this.fullAdmins
+                    admins: this.fullAdmins
                         ? this.fullAdmins.map((user) => user.id)
                         : [],
                 },
@@ -83,7 +88,7 @@ export class Organization {
                     financeAdmins: this.financeAdmins
                         ? this.financeAdmins.map((user) => user.id)
                         : [],
-                    eventAdmins: this.eventAdmins
+                    eventadmins: this.eventAdmins
                         ? this.eventAdmins.map((user) => user.id)
                         : [],
                     fullAdmins: this.fullAdmins
@@ -116,10 +121,38 @@ export class Organization {
         organization.eventAdmins = data.eventAdmins.map((user: any) => {
             return new User(user.split("/").pop()!);
         });
-        organization.fullAdmins = data.fullAdmins.map((user: any) => {
+        organization.fullAdmins = data.admins.map((user: any) => {
             return new User(user.split("/").pop()!);
         });
         return organization;
+    }
+    static async allFromApiResponse(
+        apiToken: string
+    ): Promise<Organization[]> {
+        const response = await axios.get(`/my/organizations`, {
+            headers: { Authorization: `Bearer ${apiToken}` },
+        });
+        const data = response.data["hydra:member"];
+        return data.map((org: any) => {
+            const orgObj = new Organization(org.id);
+            orgObj.name = org.name;
+            orgObj.description = org.description;
+            orgObj.address = org.address;
+            orgObj.industry = org.industry;
+            orgObj.financeAdmins = org.financeAdmins.map((user: any) => {
+                return new User(user.split("/").pop()!);
+            }
+            );
+            orgObj.eventAdmins = org.eventadmins.map((user: any) => {
+                return new User(user.split("/").pop()!);
+            }
+            );
+            orgObj.fullAdmins = org.admins.map((user: any) => {
+                return new User(user.split("/").pop()!);
+            }
+            );
+            return orgObj;
+        });
     }
     addFinanceAdmin(user: User): void {
         if (!this.financeAdmins) {
@@ -181,5 +214,8 @@ export class Organization {
 
     getIri(): string {
         return `/organizations/${this.id}`;
+    }
+    getName(): string {
+        return (this.name) ? this.name : "undefined";
     }
 }

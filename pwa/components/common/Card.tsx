@@ -18,7 +18,7 @@
 
 // The `debounceTimeout` ref is used to debounce the input for fetching airport options.
 
-// The `fetchAirports` function is an asynchronous function that sends a GET request to the `/places/search/{input}` endpoint with the input value to fetch airport options. 
+// The `fetchAirports` function is an asynchronous function that sends a GET request to the `/places/search/{input}` endpoint with the input value to fetch airport options.
 // If the request is successful, the airport options are formatted and passed to the callback function. If the request fails, an error is logged to the console.
 
 // The `loadOptions` function is defined to debounce the input and call the `fetchAirports` function to load airport options for the select dropdowns.
@@ -37,65 +37,107 @@
 
 import React from "react";
 import styles from "../dashboard/Dashboard.module.css";
-import { formatDateDisplay, formatTime, UserEvent } from "Types/events";
-import { Calendar, CircleDollarSign, HandCoins, Plane, PlaneLanding, PlaneTakeoff } from "lucide-react";
+import { formatDateDisplay, formatTime } from "Types/events";
+import { UserEvent } from "Types/userEvent";
+import {
+    Calendar,
+    CircleDollarSign,
+    HandCoins,
+    Plane,
+    PlaneLanding,
+    PlaneTakeoff,
+} from "lucide-react";
 
 // Define types for the Card component props
 interface CardProps {
-	userEvent: UserEvent;
-	buttonText: string;
+    userEvent: UserEvent;
+    buttonText: string;
     isFinance?: boolean;
-	onClick: () => void;
+    onClick: () => void;
 }
 
-const Card: React.FC<CardProps> = ({ userEvent, buttonText, isFinance, onClick }) => {
-    const event = userEvent?.event;
-
-	return (
+const Card: React.FC<CardProps> = ({
+    userEvent,
+    buttonText,
+    isFinance,
+    onClick,
+}) => {
+    const event = userEvent.getEvent();
+    return (
         <div className={styles.card}>
-            <img src={'/media/placeholder-event.jpg'} alt={`Image of ${event.eventTitle}`} className={styles.cardImage} />
+            <img
+                src={"/media/placeholder-event.jpg"}
+                alt={`Image of ${event.eventTitle}`}
+                className={styles.cardImage}
+            />
 
             <div className={styles.cardContent}>
                 <div>
                     <h3 className={styles.cardTitle}>{event.eventTitle}</h3>
-                    {event.organization && <h4 className={`${styles.cardSubtitle} h5`}>{event.organization.name}</h4>}
-    
+                    {event.organization && (
+                        <h4 className={`${styles.cardSubtitle} h5`}>
+                            {event.organization.name}
+                        </h4>
+                    )}
+
                     <div className={styles.cardDetails}>
                         <div className={styles.cardRow}>
                             <Calendar size={16} />
-                            {formatDateDisplay(event.startDateTime)} • {formatTime(event.startDateTime)} {event.endDateTime ? `- ${formatTime(event.endDateTime)}` : ''}
+                            {formatDateDisplay(event.startDateTime)} •{" "}
+                            {formatTime(event.startDateTime)}{" "}
+                            {event.endDateTime
+                                ? `- ${formatTime(event.endDateTime)}`
+                                : ""}
                         </div>
-        
+
                         {isFinance ? (
                             <>
-                            {/* {event.budget && ( */}
+                                {/* {event.budget && ( */}
                                 <div className={styles.cardRow}>
                                     <HandCoins size={16} />
                                     $50000
                                 </div>
-                            {/* )} */}
-                            {/* {event.expenses && ( */}
+                                {/* )} */}
+                                {/* {event.expenses && ( */}
                                 <div className={styles.cardRow}>
                                     <CircleDollarSign size={16} />
                                     $6900
                                     {/* Change ^ this back to {events.expenses or budget when weve got it} */}
                                 </div>
-                            {/* )} */}
+                                {/* )} */}
                             </>
                         ) : (
                             <>
-                            {userEvent.flights.length > 0 && buttonText !== "Book Now" && (
-                                <div className={styles.cardRow}>
-                                    <PlaneTakeoff size={16} />
-                                    {formatDateDisplay(userEvent.flights[0].departureDateTime)} • {formatTime(userEvent.flights[0].departureDateTime)}
-                                </div>
-                            )}
-                            {userEvent.flights.length > 0 && buttonText !== "Book Now" && (
-                                <div className={styles.cardRow}>
-                                    <PlaneLanding size={16} />
-                                    {formatDateDisplay(userEvent.flights[0].arrivalDateTime)} • {formatTime(userEvent.flights[0].arrivalDateTime)}
-                                </div>
-                            )}
+                                {userEvent.flights.length > 0 &&
+                                    buttonText !== "Book Now" && (
+                                        <div className={styles.cardRow}>
+                                            <PlaneTakeoff size={16} />
+                                            {formatDateDisplay(
+                                                userEvent.flights[0]
+                                                    .departureDateTime
+                                            )}{" "}
+                                            •{" "}
+                                            {formatTime(
+                                                userEvent.flights[0]
+                                                    .departureDateTime
+                                            )}
+                                        </div>
+                                    )}
+                                {userEvent.flights.length > 0 &&
+                                    buttonText !== "Book Now" && (
+                                        <div className={styles.cardRow}>
+                                            <PlaneLanding size={16} />
+                                            {formatDateDisplay(
+                                                userEvent.flights[0]
+                                                    .arrivalDateTime
+                                            )}{" "}
+                                            •{" "}
+                                            {formatTime(
+                                                userEvent.flights[0]
+                                                    .arrivalDateTime
+                                            )}
+                                        </div>
+                                    )}
                             </>
                         )}
                     </div>

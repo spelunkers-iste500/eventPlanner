@@ -18,7 +18,7 @@
 
 // The `debounceTimeout` ref is used to debounce the input for fetching airport options.
 
-// The `fetchAirports` function is an asynchronous function that sends a GET request to the `/places/search/{input}` endpoint with the input value to fetch airport options. 
+// The `fetchAirports` function is an asynchronous function that sends a GET request to the `/places/search/{input}` endpoint with the input value to fetch airport options.
 // If the request is successful, the airport options are formatted and passed to the callback function. If the request fails, an error is logged to the console.
 
 // The `loadOptions` function is defined to debounce the input and call the `fetchAirports` function to load airport options for the select dropdowns.
@@ -35,17 +35,17 @@
 
 // Finally, the `FlightSearch` component is exported as the default export of the module.
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useBooking } from 'Utils/BookingProvider';
-import { AsyncSelect, Select } from 'chakra-react-select';
-import FlightResults from './FlightResults';
-import styles from './EventForm.module.css';
-import axios from 'axios';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { Calendar } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { formatDateSubmit } from 'Types/events';
+import React, { useEffect, useRef, useState } from "react";
+import { useBooking } from "Utils/BookingProvider";
+import { AsyncSelect, Select } from "chakra-react-select";
+import FlightResults from "./FlightResults";
+import styles from "./EventForm.module.css";
+import axios from "axios";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { Calendar } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { formatDateSubmit } from "Types/events";
 
 interface SelectOption {
     label: string;
@@ -57,13 +57,13 @@ const FlightSearch: React.FC = () => {
     const { data: session } = useSession();
     if (!session) return null;
     const [formData, setFormData] = useState({
-        trip: 'round-trip',
-        origin: '',
-        destination: '',
-        departDate: '',
-        returnDate: '',
-        originInput: '',
-        destinationInput: ''
+        trip: "round-trip",
+        origin: "",
+        destination: "",
+        departDate: "",
+        returnDate: "",
+        originInput: "",
+        destinationInput: "",
     });
 
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -72,13 +72,13 @@ const FlightSearch: React.FC = () => {
     useEffect(() => {
         if (bookingData) {
             setFormData({
-                trip: bookingData.trip || 'round-trip',
-                origin: bookingData.originAirport || '',
-                destination: bookingData.destinationAirport || '',
-                departDate: bookingData.departDate || '',
-                returnDate: bookingData.returnDate || '',
-                originInput: '',
-                destinationInput: ''
+                trip: bookingData.trip || "round-trip",
+                origin: bookingData.originAirport || "",
+                destination: bookingData.destinationAirport || "",
+                departDate: bookingData.departDate || "",
+                returnDate: bookingData.returnDate || "",
+                originInput: "",
+                destinationInput: "",
             });
 
             if (bookingData.departDate) {
@@ -100,27 +100,37 @@ const FlightSearch: React.FC = () => {
             departDate: formData.departDate,
             returnDate: formData.returnDate,
             maxConnections: 1,
-            content: <FlightResults />
+            content: <FlightResults />,
         });
     };
-    
+
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const fetchAirports = async (input: string, callback: (options: SelectOption[]) => void) => {
+    const fetchAirports = async (
+        input: string,
+        callback: (options: SelectOption[]) => void
+    ) => {
         try {
-            const response = await axios.get(`/places/search/${input}`, { headers: { 'Authorization': `Bearer ${session.apiToken}` } });
-            const airports = response.data['hydra:member'].map((airport: any) => ({
-                label: `${airport.name} (${airport.iataCode})`,
-                value: airport.iataCode
-            }));
+            const response = await axios.get(`/places/search/${input}`, {
+                headers: { Authorization: `Bearer ${session.apiToken}` },
+            });
+            const airports = response.data["hydra:member"].map(
+                (airport: any) => ({
+                    label: `${airport.name} (${airport.iataCode})`,
+                    value: airport.iataCode,
+                })
+            );
             callback(airports);
         } catch (error) {
-            console.error('Error fetching airports:', error);
+            console.error("Error fetching airports:", error);
             callback([]);
         }
     };
 
-    const loadOptions = (inputValue: string, callback: (options: SelectOption[]) => void) => {
+    const loadOptions = (
+        inputValue: string,
+        callback: (options: SelectOption[]) => void
+    ) => {
         if (debounceTimeout.current) {
             clearTimeout(debounceTimeout.current);
         }
@@ -136,58 +146,115 @@ const FlightSearch: React.FC = () => {
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
-            <div className='input-container'>
-                <label className='input-label'>Trip Type</label>
+            <div className="input-container">
+                <label className="input-label">Trip Type</label>
                 <Select
                     options={[
-                        { label: 'Round Trip', value: 'round-trip' },
-                        { label: 'One Way', value: 'one-way' }
+                        { label: "Round Trip", value: "round-trip" },
+                        { label: "One Way", value: "one-way" },
                     ]}
                     placeholder="Trip Type"
                     size="md"
                     isSearchable={false}
-                    value={{ label: formData.trip === 'round-trip' ? 'Round Trip' : 'One Way', value: formData.trip }}
+                    value={{
+                        label:
+                            formData.trip === "round-trip"
+                                ? "Round Trip"
+                                : "One Way",
+                        value: formData.trip,
+                    }}
                     className={`select-menu ${styles.tripType}`}
-                    classNamePrefix={'select'}
-                    onChange={(option) => setFormData({ ...formData, trip: option?.value || 'round-trip' })}
+                    classNamePrefix={"select"}
+                    onChange={(option) =>
+                        setFormData({
+                            ...formData,
+                            trip: option?.value || "round-trip",
+                        })
+                    }
                 />
             </div>
 
             <div className={styles.originDestination}>
-                <div className='input-container'>
-                    <label className='input-label'>Origin</label>
+                <div className="input-container">
+                    <label className="input-label">Origin</label>
                     <AsyncSelect
                         loadOptions={loadOptions}
-                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        noOptionsMessage={() =>
+                            formData.originInput.length < 3
+                                ? "Start typing to search"
+                                : "No airports found"
+                        }
                         placeholder="Where from?"
                         size="md"
                         className={`select-menu`}
-                        classNamePrefix={'select'}
-                        onChange={(value: any) => setFormData({ ...formData, origin: value?.value || '' })}
-                        onInputChange={(inputValue) => setFormData({ ...formData, originInput: inputValue })}
-                        value={formData.origin ? { label: formData.origin, value: formData.origin } : null}
+                        classNamePrefix={"select"}
+                        onChange={(value: any) =>
+                            setFormData({
+                                ...formData,
+                                origin: value?.value || "",
+                            })
+                        }
+                        onInputChange={(inputValue) =>
+                            setFormData({
+                                ...formData,
+                                originInput: inputValue,
+                            })
+                        }
+                        value={
+                            formData.origin
+                                ? {
+                                      label: formData.origin,
+                                      value: formData.origin,
+                                  }
+                                : null
+                        }
                     />
                 </div>
-    
-                <div className='input-container'>
-                    <label className='input-label'>Destination</label>
+
+                <div className="input-container">
+                    <label className="input-label">Destination</label>
                     <AsyncSelect
                         loadOptions={loadOptions}
-                        noOptionsMessage={() => formData.originInput.length < 3 ? 'Start typing to search' : 'No airports found'}
+                        noOptionsMessage={() =>
+                            formData.originInput.length < 3
+                                ? "Start typing to search"
+                                : "No airports found"
+                        }
                         placeholder="Where to?"
                         size="md"
                         className={`select-menu`}
-                        classNamePrefix={'select'}
-                        onChange={(value: any) => setFormData({ ...formData, destination: value?.value || '' })}
-                        onInputChange={(inputValue) => setFormData({ ...formData, destinationInput: inputValue })}
-                        value={formData.destination ? { label: formData.destination, value: formData.destination } : null}
+                        classNamePrefix={"select"}
+                        onChange={(value: any) =>
+                            setFormData({
+                                ...formData,
+                                destination: value?.value || "",
+                            })
+                        }
+                        onInputChange={(inputValue) =>
+                            setFormData({
+                                ...formData,
+                                destinationInput: inputValue,
+                            })
+                        }
+                        value={
+                            formData.destination
+                                ? {
+                                      label: formData.destination,
+                                      value: formData.destination,
+                                  }
+                                : null
+                        }
                     />
                 </div>
             </div>
 
-            <div className='input-container'>
-                <label className='input-label'>{formData.trip === 'round-trip' ? 'Departure - Return Dates' : 'Departure Date'}</label>
-                {formData.trip === 'round-trip' ? (
+            <div className="input-container">
+                <label className="input-label">
+                    {formData.trip === "round-trip"
+                        ? "Departure - Return Dates"
+                        : "Departure Date"}
+                </label>
+                {formData.trip === "round-trip" ? (
                     // round trip date picker
                     <DatePicker
                         selected={startDate}
@@ -198,17 +265,17 @@ const FlightSearch: React.FC = () => {
                             const [start, end] = dates;
                             setStartDate(start);
                             setEndDate(end);
-                            setFormData({ 
-                                ...formData, 
-                                departDate: formatDateSubmit(start), 
-                                returnDate: formatDateSubmit(end) 
+                            setFormData({
+                                ...formData,
+                                departDate: formatDateSubmit(start),
+                                returnDate: formatDateSubmit(end),
                             });
                         }}
                         selectsRange
                         showMonthDropdown
                         placeholderText="Select date range"
                         dateFormat="MM/dd/yyyy"
-                        className='input-field'
+                        className="input-field"
                         showIcon
                         icon={<Calendar size={32} />}
                     />
@@ -220,12 +287,15 @@ const FlightSearch: React.FC = () => {
                         minDate={new Date()}
                         onChange={(date) => {
                             setStartDate(date);
-                            setFormData({ ...formData, departDate: formatDateSubmit(date)})}
-                        }
+                            setFormData({
+                                ...formData,
+                                departDate: formatDateSubmit(date),
+                            });
+                        }}
                         showMonthDropdown
                         placeholderText="Select a date"
                         dateFormat="MM/dd/yyyy"
-                        className='input-field'
+                        className="input-field"
                         showIcon
                         icon={<Calendar size={32} />}
                     />

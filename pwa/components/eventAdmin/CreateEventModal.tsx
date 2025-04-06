@@ -4,9 +4,7 @@ import {
     DialogTitle,
     Button,
     Switch,
-    createListCollection,
 } from "@chakra-ui/react";
-import axios from "axios";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -20,8 +18,6 @@ import { useUser } from "Utils/UserProvider";
 import { Event } from "Types/event";
 import { Organization } from "Types/organization";
 import { useContent } from "Utils/ContentProvider";
-import Dashboard from "./EventAdminDashboard";
-import FileUpload from "./UploadFile";
 import Input from "Components/common/Input";
 import UploadFile from "./UploadFile";
 import { Select } from "chakra-react-select";
@@ -212,7 +208,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             }}
                             selectsRange
                             showMonthDropdown
-                            showTimeSelect
+                            showTimeInput
                             placeholderText="Select a date"
                             dateFormat="MM/dd/yyyy h:mm aa"
                             className="input-field"

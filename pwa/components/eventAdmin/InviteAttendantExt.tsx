@@ -22,10 +22,12 @@ import { set } from "date-fns";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
+    isEditing?: boolean;
 }
 
 const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     createdEvent,
+    isEditing = false,
 }) => {
     const [emailInput, setEmailInput] = useState("");
     const [error, setError] = useState("");
@@ -37,13 +39,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         const re = /\S+@\S+\.\S+/;
         return re.test(email);
     };
-
-    useEffect(() => {
-        if (createdEvent) {
-            // grab attendee list if event already exits
-            // need a GET route for /user_invites to pass in the eventID to get list of emails back
-        }
-    }, [createdEvent]);
 
     const handleAddEmail = () => {
         if (emailInput && validateEmail(emailInput)) {
@@ -104,9 +99,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     };
 
     useEffect(() => {
-        console.log("Created Event:", createdEvent);
+        // grab attendee list if event already exits
+        
         if (createdEvent) {
-            handleSubmit();
+            setEmails(createdEvent.attendees
+                ?.map((attendee) => attendee.user.email)
+                .filter((email): email is string => email !== undefined) || []
+            );
+            !isEditing && handleSubmit(); // if not editing, submit the invites
         }
     }, [createdEvent]);
 
@@ -129,27 +129,25 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 return;
             }
             if (session) {
-                axios
-                    .post(
-                        `/user_invites`,
-                        {
-                            event: `/events/${createdEvent.id}`,
-                            emails: validEmails,
+                axios.post(`/user_invites`, 
+                    {
+                        event: `/events/${createdEvent.id}`,
+                        emails: validEmails,
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${session.apiToken}`,
+                            "Content-Type": "application/ld+json",
                         },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${session.apiToken}`,
-                                "Content-Type": "application/ld+json",
-                            },
-                        }
-                    )
-                    .then((response) => {
-                        console.log("Invite sent:", response.data);
-                        inviteSuccess();
-                    })
-                    .catch((error) => {
-                        console.error("Error sending invite:", error);
-                    });
+                    }
+                )
+                .then((response) => {
+                    console.log("Invite sent:", response.data);
+                    inviteSuccess();
+                })
+                .catch((error) => {
+                    console.error("Error sending invite:", error);
+                });
             }
         }
     };
@@ -179,9 +177,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         </Input>
                     </InputGroup>
                 </FileUpload.Root>
-                {/* <Button onClick={handleSubmit}>
-                    Submit
-                </Button> */}
             </Flex>
 
             {/* Input field and Add button for manual entry */}
@@ -223,6 +218,11 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Flex>
                 ))}
             </Box>
+            {isEditing && 
+                <Button onClick={handleSubmit}>
+                    Submit
+                </Button>
+            }
         </Box>
     );
 };

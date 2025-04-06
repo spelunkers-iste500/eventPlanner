@@ -26,6 +26,8 @@ import FileUpload from "./UploadFile";
 import Input from "Components/common/Input";
 import UploadFile from "./UploadFile";
 import { Select } from "chakra-react-select";
+import ItemList from "Components/itemList/ItemList";
+import { Flight } from "Types/flight";
 
 interface CreateEventModalProps {
     isOpen: boolean;
@@ -35,8 +37,6 @@ interface CreateEventModalProps {
 
 const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, event }) => {
     const { data: session } = useSession();
-    const { user } = useUser();
-    const { setContent } = useContent();
 
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
@@ -51,13 +51,15 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
 
     const handleSubmit = () => {
         if (
+            event &&
             eventTitle &&
             startDate &&
             endDate &&
             location &&
-            selectedOrganization
+            selectedOrganization &&
+            startDate <= endDate &&
+            maxAttendee > 0
         ) {
-            const event = new Event();
             event.eventTitle = eventTitle;
             event.startDateTime = startDate.toISOString();
             event.endDateTime = endDate.toISOString();
@@ -65,7 +67,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
             event.organization = selectedOrganization
-            event.maxAttendees = 20;
+            event.maxAttendees = maxAttendee;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
@@ -93,7 +95,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
             <DialogBody className={`${styles.dialogBody} ${styles.eventDialog}`}>
 
                 <Tabs.Root defaultValue="info">
-                    <Tabs.List>
+                    <Tabs.List justifyContent={"center"}>
                         <Tabs.Trigger value="info">
                             <Info />
                             Event Info
@@ -129,12 +131,22 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                     </Tabs.Content>
 
                     <Tabs.Content value="attendees">
-                        <InviteAttendantExt createdEvent={event} />
+                        <InviteAttendantExt createdEvent={event} isEditing={true} />
                     </Tabs.Content>
                     
                     <Tabs.Content value="flights">
                         {/* Add flight tracking in here */}
-                        <p>flights</p>
+                        <ItemList<Flight>
+                            items={createdEvent?.flights || []}
+                            fields={[
+                                {
+                                    key: "flightNumber",
+                                    label: "Flight Number",
+                                },
+                                { key: "status", label: "Status" },
+                            ]}
+                            renderItem={() => {}} // Open the view modal on item click
+                        />
                     </Tabs.Content>
                 </Tabs.Root>
             </DialogBody>
