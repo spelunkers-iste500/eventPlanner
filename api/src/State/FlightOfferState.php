@@ -76,6 +76,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         $user->resetOffers();
         // save all offer id's to the user
         foreach ($flightOffers as $offer) {
+            $this->logger->info("Offer id: " . json_encode($offer));
             $this->logger->info("Adding offer id: " . $offer->id);
             $user->addOfferIds($offer->id);
         }
@@ -109,7 +110,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         return null;
     }
 
-    public function getOneWayFlightOffers(string $origin, string $destination, DateTimeInterface $departureDate, int $maxConnections): FlightOffer
+    public function getOneWayFlightOffers(string $origin, string $destination, DateTimeInterface $departureDate, int $maxConnections): array
     {
         $departureDateString = $departureDate->format('Y-m-d');
         $response = $this->client->request(
@@ -143,7 +144,7 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         );
 
         $data = $response->toArray();
-        $flightOffer = self::mapFlightOffersFromResponse($data)[0];
+        $flightOffer = self::mapFlightOffersFromResponse($data);
         return $flightOffer;
     }
 

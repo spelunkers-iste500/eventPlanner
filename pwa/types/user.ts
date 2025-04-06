@@ -174,9 +174,9 @@ export class User {
     /**
      * Fetches user data from the API and updates the User object.
      * @param {string} apiToken - The API token for authentication.
-     * @returns {Promise<void>} - A promise that resolves when the update is successful.
+     * @returns {Promise<User>} - A promise that resolves when the update is successful.
      */
-    async fetch(apiToken: string): Promise<void> {
+    async fetch(apiToken: string): Promise<User> {
         if (this.id === "notPersisted") {
             throw new Error("User ID is not set");
         }
@@ -212,6 +212,7 @@ export class User {
             });
             this.superAdmin = data.superAdmin;
             this.passengerId = data.passengerId;
+            return this;
         } catch (error) {
             console.error("Error fetching user data:", error);
             throw error;

@@ -163,7 +163,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(length: 255, nullable: true)]
     #[Assert\Length(max: 255)]
     #[Assert\NotNull(message: 'Last name cannot be null')]
-    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:write'])]
+    #[Groups(['user:write', 'user:create', 'edit:user:limited', 'user:org:read'])]
     private string $lastName;
 
     /**
