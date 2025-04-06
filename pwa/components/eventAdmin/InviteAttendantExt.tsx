@@ -100,11 +100,13 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 
     useEffect(() => {
         // grab attendee list if event already exits
-        
         if (createdEvent) {
-            setEmails(createdEvent.attendees
-                ?.map((attendee) => attendee.user.email)
-                .filter((email): email is string => email !== undefined) || []
+            console.log("Attendees loaded:", createdEvent.attendees);
+            setEmails(
+                createdEvent.attendees
+                    ?.map((attendee) => attendee.user.email)
+                    .filter((email): email is string => email !== undefined) ||
+                    []
             );
             !isEditing && handleSubmit(); // if not editing, submit the invites
         }
@@ -129,25 +131,27 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 return;
             }
             if (session) {
-                axios.post(`/user_invites`, 
-                    {
-                        event: `/events/${createdEvent.id}`,
-                        emails: validEmails,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${session.apiToken}`,
-                            "Content-Type": "application/ld+json",
+                axios
+                    .post(
+                        `/user_invites`,
+                        {
+                            event: `/events/${createdEvent.id}`,
+                            emails: validEmails,
                         },
-                    }
-                )
-                .then((response) => {
-                    console.log("Invite sent:", response.data);
-                    inviteSuccess();
-                })
-                .catch((error) => {
-                    console.error("Error sending invite:", error);
-                });
+                        {
+                            headers: {
+                                Authorization: `Bearer ${session.apiToken}`,
+                                "Content-Type": "application/ld+json",
+                            },
+                        }
+                    )
+                    .then((response) => {
+                        console.log("Invite sent:", response.data);
+                        inviteSuccess();
+                    })
+                    .catch((error) => {
+                        console.error("Error sending invite:", error);
+                    });
             }
         }
     };
@@ -218,11 +222,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Flex>
                 ))}
             </Box>
-            {isEditing && 
-                <Button onClick={handleSubmit}>
-                    Submit
-                </Button>
-            }
+            {isEditing && <Button onClick={handleSubmit}>Submit</Button>}
         </Box>
     );
 };
