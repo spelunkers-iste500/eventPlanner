@@ -181,7 +181,9 @@ export class Event {
             });
             // response.data['hydra:view']['hydra:next'] is the next page of results
             const lastPage: number =
-                response.data["hydra:view"]["hydra:last"].split("=")[1];
+                (response.data["hydra:view"] && response.data["hydra:view"]["hydra:last"]) ? 
+                    response.data["hydra:view"]["hydra:last"].split("=")[1] : 
+                    1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
                 event.setBudget(new Budget(item.budget.id));
@@ -211,6 +213,7 @@ export class Event {
             });
             // if there are more pages, fetch them
             // fetch the next n - 1 pages and apped to the events array
+            if (lastPage > 1) {
             for (let index = 2; index <= lastPage; index++) {
                 const response = await axios.get(url + `?page=${index}`, {
                     headers: {
@@ -250,7 +253,7 @@ export class Event {
                           ))
                         : (event.attendees = []);
                 });
-            }
+            }}
             return events;
         } catch (error) {
             console.error("Error fetching events data:", error);
