@@ -152,6 +152,7 @@ export class Organization {
             orgObj.fullAdmins = org.admins.map((user: any) => {
                 return new User(user.split("/").pop()!);
             });
+            (org.invites) ? 
             orgObj.invites = org.invites.map((invite: any) => {
                 return {
                     id: invite.id,
@@ -159,7 +160,7 @@ export class Organization {
                     expectedEmail: invite.expectedEmail,
                     inviteType: invite.inviteType,
                 };
-            });
+            }) : orgObj.invites = [];
             return orgObj;
         });
     }
