@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { Portal, Select, createListCollection } from "@chakra-ui/react";
 import SystemAdminDashboard from "../sysAdmin/SystemAdminDashboard";
 import { Organization } from "Types/organization";
+import InviteAdminModal from "./InviteAdminModal";
 
 const OrgAdminDashboard: React.FC = () => {
     const [selectedOrg, setSelectedOrg] = useState<string[]>([]);
@@ -17,6 +18,7 @@ const OrgAdminDashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const { data: session } = useSession();
     const { user } = useUser();
+    const [inviteAdminModalOpen, setInviteAdminModalOpen] = useState(false);
 
     const fetchOrganizations = async () => {
         try {
@@ -57,9 +59,11 @@ const OrgAdminDashboard: React.FC = () => {
                 <div className={styles.orgInfoBox}>
                     <h2 className={styles.orgName}>
                         {selectedOrg.length > 0
-                            ? organizations.find((org) =>
+                            ? `Organization: ${
+                                organizations.find((org) =>
                                   selectedOrg.includes(org.value)
                               )?.label
+                            }`
                             : "Select or create an organization"}
                     </h2>
                 </div>
@@ -99,33 +103,33 @@ const OrgAdminDashboard: React.FC = () => {
             </div>
 
             {/* Main Dashboard Content */}
-            <h1 className={styles.dashboardTitle}>Administrator Dashboard</h1>
-            <div className={styles.optionsContainer}>
-                <div className={styles.optionCard}>
-                    <h2 className={styles.optionTitle}>
-                        Invite event planners
-                    </h2>
-                    <p className={styles.optionDescription}>Subtitle Text.</p>
-                    <button className={styles.actionButton}>
-                        Invite Event Planners
-                    </button>
+            <div className={styles.scrollableContent}>
+                <h1 className={styles.dashboardTitle}>Administrator Dashboard</h1>
+                <div className={styles.optionsContainer}>
+                    <div className={styles.optionCard}>
+                        <h2 className={styles.optionTitle}>Invite Admins</h2>
+                        <p className={styles.optionDescription}>Invite Event, Finance, or Organization Admins.</p>
+                        <button
+                            className={styles.actionButton}
+                            onClick={() => setInviteAdminModalOpen(true)}
+                        >
+                            Invite Admins
+                        </button>
+                    </div>
                 </div>
-                <div className={styles.optionCard}>
-                    <h2 className={styles.optionTitle}>
-                        Invite financial admins
-                    </h2>
-                    <p className={styles.optionDescription}>Subtitle Text.</p>
-                    <button className={styles.actionButton}>
-                        Invite Financial Admins
-                    </button>
-                </div>
-            </div>
 
-            {/* Temporary System Admin Dashboard */}
-            <div className={styles.systemAdminSection}>
-                <h2 className={styles.sectionTitle}>System Admin Options</h2>
-                <SystemAdminDashboard />
+                {/* System Admin Dashboard */}
+                <div className={styles.systemAdminSection}>
+                    <h2 className={styles.sectionTitle}>System Admin Options</h2>
+                    <div>
+                        <SystemAdminDashboard />
+                    </div>
+                </div>
             </div>
+            <InviteAdminModal
+                isOpen={inviteAdminModalOpen}
+                onClose={() => setInviteAdminModalOpen(false)}
+            />
         </div>
     );
 };

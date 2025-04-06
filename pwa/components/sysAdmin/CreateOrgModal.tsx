@@ -54,51 +54,56 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                 </button>
             </div>
             <div className={styles.dialogBody}>
-                <div className={styles.dialogDetails}>
-                    <label className={styles.dialogLabel}>Name</label>
+                {/* Name Input */}
+                <div className="input-container">
+                    <label className="input-label">Name</label>
                     <input
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter organization name"
-                        className={styles.dialogInput}
+                        className="input-field"
                     />
                 </div>
-                <div className={styles.dialogDetails}>
-                    <label className={styles.dialogLabel}>Description</label>
+
+                {/* Description Input */}
+                <div className="input-container">
+                    <label className="input-label">Description</label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Enter organization description"
-                        className={styles.dialogTextarea}
+                        className="input-field"
                     />
                 </div>
-                <div className={styles.dialogDetails}>
-                    <label className={styles.dialogLabel}>Address</label>
+
+                {/* Address Input */}
+                <div className="input-container">
+                    <label className="input-label">Address</label>
                     <input
                         type="text"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="Enter organization address"
-                        className={styles.dialogInput}
+                        className="input-field"
                     />
                 </div>
-                <div className={styles.dialogDetails}>
-                    <label className={styles.dialogLabel}>Industry</label>
+
+                {/* Industry Input */}
+                <div className="input-container">
+                    <label className="input-label">Industry</label>
                     <input
                         type="text"
                         value={industry}
                         onChange={(e) => setIndustry(e.target.value)}
                         placeholder="Enter organization industry"
-                        className={styles.dialogInput}
+                        className="input-field"
                     />
                 </div>
                 <br></br>
-                <div className={styles.dialogFooter}>
-                    <button
-                        className={styles.dialogButton}
-                        onClick={handleSubmit}
-                    >
+                {/* Submit Button */}
+                <div className="input-container">
+                    <button className="dialog-button" onClick={handleSubmit}>
                         Create Organization
                     </button>
                 </div>
