@@ -19,6 +19,7 @@ import { Event } from "Types/event";
 import { toaster } from "Components/ui/toaster";
 import { setDefaultResultOrder } from "dns";
 import { set } from "date-fns";
+import { UserEvent } from "Types/userEvent";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -32,6 +33,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     const [emailInput, setEmailInput] = useState("");
     const [error, setError] = useState("");
     const [emails, setEmails] = useState<string[]>([]);
+    const [deletedEmails, setDeletedEmails] = useState<string[]>([]);
     const { data: session } = useSession();
     const { setContent } = useContent();
 
@@ -111,6 +113,22 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             !isEditing && handleSubmit(); // if not editing, submit the invites
         }
     }, [createdEvent]);
+
+    const handleSave = () => {
+        // update UserEvent for person to be cancelled
+        if (createdEvent && session?.apiToken) {
+            deletedEmails.forEach((email) => {
+                // get the UserEvent associated with the email
+                const userEvent = createdEvent.attendees?.find(
+                    (attendee) => attendee.user.email === email
+                );
+                if (userEvent) {
+                    userEvent.status = "cancelled";
+                }
+            });
+            createdEvent.persist(session.apiToken); // persist the change
+        }
+    };
 
     const handleSubmit = () => {
         console.log("Submitted emails:", emails);
@@ -224,7 +242,10 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             </Box>
             {isEditing && (
                 <div className={`input-container ${styles.dialogSubmitBtn}`}>
-                    <Button onClick={handleSubmit}>Submit</Button>
+                    <Button className="outline-btn" onClick={handleSave}>
+                        Save
+                    </Button>
+                    <Button onClick={handleSubmit}>Send Invites</Button>
                 </div>
             )}
         </Box>

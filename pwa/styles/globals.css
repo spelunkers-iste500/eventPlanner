@@ -77,6 +77,17 @@ button:hover,
     background-color: var(--blue-500);
 }
 
+.outline-btn {
+    background: none;
+    color: var(--blue-500);
+    border: 2px solid var(--blue-500);
+}
+
+.outline-btn:hover {
+    background-color: var(--blue-500);
+    color: var(--white);
+}
+
 .text-btn {
     background: none;
     color: var(--blue-400);
