@@ -11,7 +11,7 @@ class AppFixtures extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        ConcurrentUserTestingStory::load(); // concurrent user testing data
-        //TestingDataStory::load();//frontend testing data
+        //ConcurrentUserTestingStory::load(); // concurrent user testing data
+        TestingDataStory::load();//frontend testing data
     }
 }
