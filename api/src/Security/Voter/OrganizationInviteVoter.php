@@ -16,7 +16,7 @@ final class OrganizationInviteVoter extends Voter
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
         return in_array($attribute, [self::EDIT, self::VIEW])
-            && $subject instanceof \App\Entity\Event;
+            && $subject instanceof \App\Entity\OrganizationInvite;
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -33,7 +33,7 @@ final class OrganizationInviteVoter extends Voter
             default => false,
         };
     }
-    public static function canEdit(UserInterface $user, \App\Entity\Event $subject): bool
+    public static function canEdit(UserInterface $user, \App\Entity\OrganizationInvite $subject): bool
     {
         // conditions for editing:
         // - the user must be an event admin of the event
@@ -41,12 +41,11 @@ final class OrganizationInviteVoter extends Voter
         // - the user must be a platform admin
 
         return (
-            $subject->getOrganization()->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
             in_array("ROLE_ADMIN", $user->getRoles())
         );
     }
-    public static function canView(UserInterface $user, \App\Entity\Event $subject): bool
+    public static function canView(UserInterface $user, \App\Entity\OrganizationInvite $subject): bool
     {
         // conditions for viewing:
         // - the user must be a part of the event
@@ -54,7 +53,6 @@ final class OrganizationInviteVoter extends Voter
         // - the user must be part of the org admins
         // - the user must be a platform admin
         return (
-            $subject->getOrganization()->getEventAdmins()->contains($user) ||
             $subject->getOrganization()->getAdmins()->contains($user) ||
             in_array('ROLE_ADMIN', $user->getRoles())
         );
