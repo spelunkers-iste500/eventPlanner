@@ -1,109 +1,140 @@
-.dashboardContainer {
+.dashboard-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh; /* Full viewport height to center content */
+  justify-content: flex-start; /* Align items at the top */
+  height: 100vh;
   padding: 20px;
-  background-color: var(--gray-100); /* Updated to use var() */
+  background-color: var(--gray-100);
   font-family: Arial, sans-serif;
+  overflow: hidden; /* Prevent content from overflowing the viewport */
 }
 
-.dashboardTitle {
+.dashboard-title {
   font-size: 2rem;
-  color: var(--gray-900); /* Updated to use var() */
+  color: var(--gray-900);
   margin-bottom: 20px;
   text-align: center;
 }
 
-.optionsContainer {
+.options-container {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
 }
 
-.optionCard {
-  background-color: var(--white); /* Updated to use var() */
-  border: 1px solid var(--gray-300); /* Updated to use var() */
+.option-card {
+  background-color: var(--white);
+  border: 1px solid var(--gray-300);
   border-radius: 8px;
   padding: 20px;
   width: 300px;
-  box-shadow: var(--shadow-300); /* Updated to use var() */
+  box-shadow: var(--shadow-300);
   text-align: center;
   display: flex;
-  flex-direction: column; /* Arrange children vertically */
+  flex-direction: column;
 }
 
-.optionTitle {
+.option-title {
   font-size: 1.5rem;
-  color: var(--gray-700); /* Updated to use var() */
+  color: var(--gray-700);
   margin-bottom: 10px;
 }
 
-.optionDescription {
+.option-description {
   font-size: 1rem;
-  color: var(--gray-500); /* Updated to use var() */
+  color: var(--gray-500);
   margin-bottom: 20px;
 }
 
-.actionButton {
-  background-color: var(--blue-500); /* Updated to use var() */
-  color: var(--white); /* Updated to use var() */
+.action-button {
+  background-color: var(--blue-500);
+  color: var(--white);
   border: none;
   border-radius: 4px;
   padding: 10px 15px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-top: auto; /* Push the button to the bottom */
+  margin-top: auto;
 }
 
-.actionButton:hover {
-  background-color: var(--blue-700); /* Updated to use var() */
+.action-button:hover {
+  background-color: var(--blue-700);
 }
 
 .header-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80%; /* Set the width to 80% of the page */
-  margin: 0 auto 20px; /* Center the header and add spacing below */
-  padding: 20px; /* Increase padding for a larger appearance */
-  background-color: var(--white); /* Updated to use var() */
-  border-radius: 12px; /* Slightly larger border radius */
-  box-shadow: var(--shadow-400); /* Updated to use var() */
+  width: 80%;
+  margin: 0 auto 20px;
+  padding: 20px;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-400);
 }
 
 .org-info-box {
   flex: 1;
-  padding: 20px; /* Increase padding for better spacing */
+  padding: 20px;
 }
 
 .org-name {
-  font-size: 1.5rem; /* Adjusted font size */
+  font-size: 1.5rem;
   font-weight: bold;
-  color: var(--gray-900); /* Updated to use var() */
-  margin-bottom: 0; /* Remove unnecessary margin */
+  color: var(--gray-900);
+  margin-bottom: 0;
 }
 
 .org-details {
   font-size: 0.875rem;
-  color: var(--gray-600); /* Updated to use var() */
+  color: var(--gray-600);
 }
 
 .org-selector-box {
   flex: 1;
   display: flex;
   justify-content: flex-end;
-  padding: 20px; /* Increase padding for better alignment */
+  padding: 20px;
 }
 
 .system-admin-section {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 20px; /* Increase padding for better spacing */
-  background-color: var(--gray-50); /* Updated to use var() */
+  padding: 3%;
+  background-color: var(--gray-50);
+}
+
+.section-title {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.scrollable-content {
+  flex-grow: 1; /* Allow this section to grow and take up remaining space */
+  overflow-y: auto; /* Enable vertical scrolling */
+  width: 100%;
+}
+
+.list-container {
+  max-height: 50vh; /* Limit the height of the list */
+  overflow-y: auto; /* Enable scrolling within the list */
+  margin-top: 20px;
+  width: 100%;
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: var(--shadow-300);
+  padding: 20px;
+}
+
+.list-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 10px;
 }

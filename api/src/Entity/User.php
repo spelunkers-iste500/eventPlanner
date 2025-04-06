@@ -197,7 +197,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Assert\NotNull(message: 'Email cannot be null')]
-    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:read:collection'])]
+    #[Groups(['user:read', 'user:write', 'user:create', 'edit:user:limited', 'user:org:read', 'org:read:collection', 'read:event:eventAdmin'])]
     public string $email;
 
     /**
