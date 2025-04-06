@@ -2,19 +2,31 @@ import React, { useState } from "react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X } from "lucide-react";
 import styles from "../common/Dialog.module.css";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 interface InviteAdminModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) => {
+const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
+    isOpen,
+    onClose,
+}) => {
     const [emailInput, setEmailInput] = useState("");
+    const [invites, setInvites] = useState<{ type: string; email: string }[]>(
+        []
+    );
     const [selectedType, setSelectedType] = useState(""); // Default to empty string
     const [eventAdmins, setEventAdmins] = useState<string[]>([]);
     const [financeAdmins, setFinanceAdmins] = useState<string[]>([]);
     const [organizationAdmins, setOrganizationAdmins] = useState<string[]>([]);
     const [error, setError] = useState("");
+    const { data: session } = useSession();
+    if (!session) {
+        return null;
+    }
 
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
@@ -28,20 +40,23 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
             setError("Please select an invite type.");
             return;
         }
-
-        switch (selectedType) {
-            case "Event Admin":
-                setEventAdmins([...eventAdmins, emailInput]);
-                break;
-            case "Finance Admin":
-                setFinanceAdmins([...financeAdmins, emailInput]);
-                break;
-            case "Organization Admin":
-                setOrganizationAdmins([...organizationAdmins, emailInput]);
-                break;
-            default:
-                break;
-        }
+        setInvites([...invites, { type: selectedType, email: emailInput }]);
+        // switch (selectedType) {
+        //     case "Event Admin":
+        //         setInvites([
+        //             ...invites,
+        //             { type: selectedType, email: emailInput },
+        //         ]);
+        //         break;
+        //     case "Finance Admin":
+        //         setFinanceAdmins([...financeAdmins, emailInput]);
+        //         break;
+        //     case "Organization Admin":
+        //         setOrganizationAdmins([...organizationAdmins, emailInput]);
+        //         break;
+        //     default:
+        //         break;
+        // }
 
         setEmailInput(""); // Clear the email input
         setSelectedType(""); // Reset the dropdown to placeholder
@@ -57,26 +72,40 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
                 setFinanceAdmins(financeAdmins.filter((e) => e !== email));
                 break;
             case "Organization Admin":
-                setOrganizationAdmins(organizationAdmins.filter((e) => e !== email));
+                setOrganizationAdmins(
+                    organizationAdmins.filter((e) => e !== email)
+                );
                 break;
             default:
                 break;
         }
     };
 
+    const sendInvite = async (invite: { type: string; email: string }) => {
+        axios.post(
+            "/organization_invites",
+            {
+                email: invite.email,
+                type: invite.type,
+            },
+            {
+                headers: {
+                    "Content-Type": "application/ld+json",
+                    Authorization: `Bearer ${session.apiToken}`,
+                },
+            }
+        );
+    };
     const handleSubmit = () => {
-        if (
-            eventAdmins.length === 0 &&
-            financeAdmins.length === 0 &&
-            organizationAdmins.length === 0
-        ) {
-            setError("One email is required at a minimum.");
-            return;
-        }
-        console.log("Inviting:", {
-            eventAdmins,
-            financeAdmins,
-            organizationAdmins,
+        invites.forEach((invite) => {
+            sendInvite(invite)
+                .then(() => {
+                    setError("");
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setError("Failed to send invite.");
+                });
         });
         onClose();
     };
@@ -113,10 +142,15 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
                         </option>
                         <option value="Event Admin">Event Admin</option>
                         <option value="Finance Admin">Finance Admin</option>
-                        <option value="Organization Admin">Organization Admin</option>
+                        <option value="Organization Admin">
+                            Organization Admin
+                        </option>
                     </select>
                 </div>
-                <button className={styles.fileUploadTrigger} onClick={handleAddEmail}>
+                <button
+                    className={styles.fileUploadTrigger}
+                    onClick={handleAddEmail}
+                >
                     Add Email
                 </button>
                 <div className={styles.emailList}>
@@ -126,7 +160,9 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
                             <span>{email}</span>
                             <button
                                 className={styles.dialogClose}
-                                onClick={() => handleDeleteEmail(email, "Event Admin")}
+                                onClick={() =>
+                                    handleDeleteEmail(email, "Event Admin")
+                                }
                             >
                                 <X size={16} />
                             </button>
@@ -138,7 +174,9 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
                             <span>{email}</span>
                             <button
                                 className={styles.dialogClose}
-                                onClick={() => handleDeleteEmail(email, "Finance Admin")}
+                                onClick={() =>
+                                    handleDeleteEmail(email, "Finance Admin")
+                                }
                             >
                                 <X size={16} />
                             </button>
@@ -150,14 +188,22 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ isOpen, onClose }) 
                             <span>{email}</span>
                             <button
                                 className={styles.dialogClose}
-                                onClick={() => handleDeleteEmail(email, "Organization Admin")}
+                                onClick={() =>
+                                    handleDeleteEmail(
+                                        email,
+                                        "Organization Admin"
+                                    )
+                                }
                             >
                                 <X size={16} />
                             </button>
                         </div>
                     ))}
                 </div>
-                <button className={styles.fileUploadTrigger} onClick={handleSubmit}>
+                <button
+                    className={styles.fileUploadTrigger}
+                    onClick={handleSubmit}
+                >
                     Send Invites
                 </button>
             </div>
