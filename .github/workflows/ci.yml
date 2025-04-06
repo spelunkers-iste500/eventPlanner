@@ -172,7 +172,7 @@ jobs:
       - name: known good state
         run: |
           cd /opt/appRoot
-          cat testaccounts.sql | docker exec -i approot-database-1 psql -U app -d app
+          cat 150000users.sql | docker exec -i approot-database-1 psql -U app -d app
       - name: update schema
         run: |
           cd /opt/appRoot
