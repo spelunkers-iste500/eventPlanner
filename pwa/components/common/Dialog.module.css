@@ -261,3 +261,7 @@
 	flex-direction: column;
 	gap: 1rem;
 }
+
+.dialog-submit-btn {
+	align-items: flex-end;
+}
