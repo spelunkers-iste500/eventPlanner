@@ -222,7 +222,11 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Flex>
                 ))}
             </Box>
-            {isEditing && <Button onClick={handleSubmit}>Submit</Button>}
+            {isEditing && (
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
+                    <Button onClick={handleSubmit}>Submit</Button>
+                </div>
+            )}
         </Box>
     );
 };
