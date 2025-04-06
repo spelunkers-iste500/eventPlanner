@@ -90,7 +90,7 @@ class Budget
     #[ApiProperty(identifier: true)]
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
-    #[Groups(['read:budget', 'read:myEvents', 'user:read:budget','event:csv:export'])]
+    #[Groups(['read:budget', 'read:myEvents', 'user:read:budget', 'event:csv:export'])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
     {
@@ -102,8 +102,7 @@ class Budget
     }
 
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget','event:csv:export'])]
-    #[MaxDepth(1)]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget', 'event:csv:export'])]
     /**
      * The per user budget for an event.
      */
@@ -137,7 +136,7 @@ class Budget
 
     //ADD OVERATE
     #[ORM\Column]
-    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget','event:csv:export'])]
+    #[Groups(['read:budget', 'write:budget', 'read:user:budget', 'read:myEvents', 'user:read:budget', 'replace:budget', 'event:csv:export'])]
     private int $overage = 0;
 
     public function getOverage(): int
