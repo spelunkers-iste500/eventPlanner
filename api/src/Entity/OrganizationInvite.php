@@ -11,6 +11,7 @@ use App\State\OrganizationInviteState;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganizationInviteRepository::class)]
@@ -38,16 +39,19 @@ class OrganizationInvite
 
     #[ORM\ManyToOne(inversedBy: 'organizationInvites')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['invite:organization'])]
     private ?Organization $organization = null;
 
     #[ORM\Column]
     private bool $accepted = false;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['invite:organization'])]
     private ?string $expectedEmail = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ['admin', 'eventAdmin', 'financeAdmin'])]
+    #[Groups(['invite:organization'])]
     private ?string $inviteType = null;
 
     public function getId(): ?UuidInterface

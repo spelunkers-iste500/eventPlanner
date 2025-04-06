@@ -3,6 +3,7 @@ import { Event } from "./event";
 import axios from "axios";
 import { User } from "./user";
 import { Organization } from "./organization";
+import { Budget } from "./budget";
 
 export class UserEvent {
     id: string;
@@ -31,7 +32,9 @@ export class UserEvent {
                 },
             });
             this.event = new Event(response.data.event.id);
-            const organization = new Organization(response.data.event.organization.id);
+            const organization = new Organization(
+                response.data.event.organization.id
+            );
             organization.name = response.data.event.organization.name;
             this.event.setOrganization(organization);
             this.event.setLocation(response.data.event.location);
@@ -57,17 +60,26 @@ export class UserEvent {
             return response.data["hydra:member"].map((userEvent: any) => {
                 const userEventInstance = new UserEvent(userEvent.id);
                 userEventInstance.event = new Event(userEvent.event.id);
-                const organization = new Organization(userEvent.event.organization.id);
+                const organization = new Organization(
+                    userEvent.event.organization.id
+                );
                 organization.name = userEvent.event.organization.name;
                 userEventInstance.event.setOrganization(organization);
                 userEventInstance.event.setLocation(userEvent.event.location);
                 userEventInstance.event.setStartDateTime(
                     userEvent.event.startDateTime
                 );
-                userEventInstance.event.setEndDateTime(userEvent.event.endDateTime);
+                userEventInstance.event.setEndDateTime(
+                    userEvent.event.endDateTime
+                );
                 userEventInstance.event.setEventTitle(
                     userEvent.event.eventTitle
                 );
+                userEventInstance.event.budget = new Budget(
+                    userEvent.event.budget.id
+                );
+                userEventInstance.event.budget.perUserTotal =
+                    userEvent.event.budget.perUserTotal;
                 userEventInstance.user = new User(userEvent.user.id);
                 userEventInstance.flights = userEvent.flights.map(
                     (flight: any) => new Flight(flight.id)
