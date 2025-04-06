@@ -4,21 +4,24 @@ import { X } from "lucide-react";
 import styles from "../common/Dialog.module.css";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { Organization } from "Types/organization";
 
 interface InviteAdminModalProps {
     isOpen: boolean;
     onClose: () => void;
+    organization: { label: string; value: string; } | null; // Accept the full org object
 }
 
 const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
     isOpen,
     onClose,
+    organization,
 }) => {
     const [emailInput, setEmailInput] = useState("");
     const [invites, setInvites] = useState<{ type: string; email: string }[]>(
         []
     );
-    const [selectedType, setSelectedType] = useState(""); // Default to empty string
+    const [selectedType, setSelectedType] = useState("");
     const [eventAdmins, setEventAdmins] = useState<string[]>([]);
     const [financeAdmins, setFinanceAdmins] = useState<string[]>([]);
     const [organizationAdmins, setOrganizationAdmins] = useState<string[]>([]);
@@ -58,9 +61,9 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
         //         break;
         // }
 
-        setEmailInput(""); // Clear the email input
-        setSelectedType(""); // Reset the dropdown to placeholder
-        setError(""); // Clear any existing error
+        setEmailInput("");
+        setSelectedType("");
+        setError("");
     };
 
     const handleDeleteEmail = (email: string, type: string) => {
@@ -82,11 +85,17 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
     };
 
     const sendInvite = async (invite: { type: string; email: string }) => {
+        if (!organization) {
+            setError("No organization selected.");
+            return;
+        }
+
         axios.post(
             "/organization_invites",
             {
                 email: invite.email,
                 type: invite.type,
+                organization: organization.value,
             },
             {
                 headers: {
@@ -96,6 +105,7 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
             }
         );
     };
+
     const handleSubmit = () => {
         invites.forEach((invite) => {
             sendInvite(invite)
