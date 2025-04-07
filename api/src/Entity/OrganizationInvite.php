@@ -16,10 +16,16 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: OrganizationInviteRepository::class)]
 #[ApiResource]
+
 #[Post(
-    processor: OrganizationInviteState::class,
+    securityPostDenormalize: "is_granted('edit', object)",
+    // security: "is_granted('edit', object)",
+    uriTemplate: '/organizationInvite.{_format}',
     denormalizationContext: ['groups' => ['invite:organization']],
+    processor: OrganizationInviteState::class
+    //processor:  LoggerStateProcessor::class
 )]
+
 #[Get()]
 #[GetCollection()]
 class OrganizationInvite

@@ -8,10 +8,11 @@ use App\Entity\UserInvite;
 use App\Repository\UserRepository;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\State\LoggerStateProcessor;
 
 class OrganizationInviteState implements ProcessorInterface
 {
-    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer) {}
+    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer, private LoggerStateProcessor $changeLogger) {}
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         // on creation, check to see if the user exists via the email
@@ -30,7 +31,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'admin':
                     $data->getOrganization()->addAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
@@ -40,7 +41,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'eventAdmin':
                     $data->getOrganization()->addEventAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
@@ -50,7 +51,7 @@ class OrganizationInviteState implements ProcessorInterface
                 case 'financeAdmin':
                     $data->getOrganization()->addFinanceAdmin($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
-                    $this->processor->process($data, $operation, $uriVariables, $context);
+                    $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
                     $email = (new Email())
                         ->to($data->getExpectedEmail())
