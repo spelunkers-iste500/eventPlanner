@@ -236,3 +236,52 @@ img {
     font-weight: 600;
     max-width: 200px;
 }
+
+@media (max-width: 768px) {
+    .content-container {
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .input-container {
+        gap: 0.5rem;
+    }
+
+    .input-label {
+        font-size: 0.8rem;
+    }
+
+    .input-field,
+    .select__control {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .error-msg {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .content-container {
+        padding: 1rem;
+    }
+
+    /* .input-container {
+        gap: 0.25rem;
+    }
+
+    .input-label {
+        font-size: 0.75rem;
+    }
+
+    .input-field,
+    .select__control {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .error-msg {
+        font-size: 0.6rem;
+    } */
+}

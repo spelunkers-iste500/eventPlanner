@@ -224,6 +224,9 @@
         background-color: var(--blue-500);
         color: var(--white);
     }
+    .mobile-nav-toggle {
+        margin-left: 1.25rem;
+    }
 
     .mobile-nav.open {
         display: none;
@@ -244,5 +247,11 @@
 
     .nav-container.collapsed {
         display: none; /* Hide the nav when collapsed on small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .mobile-nav-toggle {
+        margin-left: 0.5rem;
     }
 }
