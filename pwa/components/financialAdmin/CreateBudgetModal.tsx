@@ -47,6 +47,7 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 budget.organization = user.financeAdminOfOrg[0];
                 await budget.persist(session.apiToken);
                 console.debug("Persisted budget: ", budget);
+                event.budget = budget; // Update the budget in the event object
                 createSuccess();
                 handleClose();
 

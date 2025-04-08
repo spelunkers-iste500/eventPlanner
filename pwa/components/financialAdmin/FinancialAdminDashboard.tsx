@@ -92,12 +92,16 @@ const FinancialAdminDashboard: React.FC = () => {
         {
             value: "pending-events",
             title: "Events Pending Approval",
-            events: filteredEvents.filter((event) => !event.budget),
+            events: filteredEvents.filter(
+                (event) => event.budget.id == "pendingApproval"
+            ),
         },
         {
             value: "approved-events",
             title: "Approved Events",
-            events: filteredEvents.filter((event) => event.budget),
+            events: filteredEvents.filter(
+                (event) => event.budget.id != "pendingApproval"
+            ),
         },
     ];
 

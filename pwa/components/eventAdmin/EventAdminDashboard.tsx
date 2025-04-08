@@ -101,8 +101,12 @@ const Dashboard: React.FC = () => {
     }
 
     // Filtering events into current and past events based on the current date
-    const currentEvents = events.filter((event) => !event.budget);
-    const pastEvents = events.filter((event) => event.budget);
+    const currentEvents = events.filter(
+        (event) => event.budget.id == "pendingApproval"
+    );
+    const pastEvents = events.filter(
+        (event) => event.budget.id != "pendingApproval"
+    );
 
     // Defining items for the accordion, including current events, past events, and members list
     const items = [

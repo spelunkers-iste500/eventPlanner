@@ -190,10 +190,13 @@ export class Event {
                     : 1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
-                event.setBudget(new Budget(item.budget.id));
-                item.budget
-                    ? (event.budget.perUserTotal = item.budget.perUserTotal)
-                    : (event.budget.perUserTotal = 0);
+                if (item.budget) {
+                    event.setBudget(new Budget(item.budget.id));
+                    event.budget.perUserTotal = item.budget.perUserTotal;
+                } else {
+                    event.budget = new Budget("pendingApproval");
+                    event.budget.perUserTotal = 0;
+                }
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
                 event.setEndDateTime(item.endDateTime);
