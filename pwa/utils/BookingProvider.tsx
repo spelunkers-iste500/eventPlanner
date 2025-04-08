@@ -1,7 +1,7 @@
-'use client';
-import React, { createContext, useContext, useState, ReactNode } from 'react';
-import { Offer } from 'Types/airports';
-import { Event } from 'Types/event';
+"use client";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Offer } from "Types/airports";
+import { Event } from "Types/event";
 
 export interface BookingData {
     event: Event;
@@ -16,6 +16,7 @@ export interface BookingData {
     returnTime?: string;
     maxConnections?: number;
     selectedOffer?: Offer;
+    flightOffers?: Offer[];
 }
 
 interface BookingContextProps {
@@ -23,10 +24,16 @@ interface BookingContextProps {
     setBookingData: React.Dispatch<React.SetStateAction<BookingData>>;
 }
 
-const BookingContext = createContext<BookingContextProps | undefined>(undefined);
+const BookingContext = createContext<BookingContextProps | undefined>(
+    undefined
+);
 
-export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [bookingData, setBookingData] = useState<BookingData>({} as BookingData);
+export const BookingProvider: React.FC<{ children: ReactNode }> = ({
+    children,
+}) => {
+    const [bookingData, setBookingData] = useState<BookingData>(
+        {} as BookingData
+    );
 
     return (
         <BookingContext.Provider value={{ bookingData, setBookingData }}>
@@ -38,7 +45,7 @@ export const BookingProvider: React.FC<{ children: ReactNode }> = ({ children })
 export const useBooking = () => {
     const context = useContext(BookingContext);
     if (context === undefined) {
-        throw new Error('useContent must be used within a BookingProvider');
+        throw new Error("useContent must be used within a BookingProvider");
     }
     return context;
 };

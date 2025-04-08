@@ -48,7 +48,9 @@ import styles from "./EventForm.module.css";
 import { useSession } from "next-auth/react";
 const FlightResults: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
-    const [flightResults, setFlightResults] = useState<Offer[]>([]);
+    const [flightResults, setFlightResults] = useState<Offer[]>(
+        bookingData.flightOffers || []
+    );
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const resultsPerPage = 10;
@@ -61,50 +63,7 @@ const FlightResults: React.FC = () => {
         ? bookingData.event.budget.perUserTotal
         : 0;
     var displayedResults;
-    useEffect(() => {
-        const fetchFlightOffers = async () => {
-            axios
-                .post(
-                    `/flight_offers`,
-                    {
-                        origin: bookingData.originAirport,
-                        destination: bookingData.destinationAirport,
-                        departureDate: bookingData.departDate,
-                        returnDate:
-                            bookingData.trip === "round-trip"
-                                ? bookingData.returnDate
-                                : null,
-                        maxConnections: 1,
-                    },
-                    {
-                        headers: {
-                            "Content-Type": "application/ld+json",
-                            accept: "application/ld+json",
-                            Authorization: `Bearer ${session.apiToken}`,
-                        },
-                    }
-                )
-                .then((response) => {
-                    setFlightResults(response.data.flightOffers);
-                    setLoading(false);
-                    displayedResults = flightResults.slice(
-                        0,
-                        currentPage * resultsPerPage
-                    );
-                })
-                .catch((error) => {
-                    console.error("Error fetching flight offers:", error);
-                });
-        };
-
-        fetchFlightOffers();
-        return () => {
-            setFlightResults([]);
-            setLoading(true);
-            displayedResults = [];
-            console.log("FlightResults component unmounted");
-        };
-    }, [bookingData]);
+    displayedResults = flightResults.slice(0, currentPage * resultsPerPage);
 
     const handleClick = (offer: Offer) => {
         setBookingData({
