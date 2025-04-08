@@ -56,7 +56,11 @@ export class Budget {
                     perUserTotal: this.perUserTotal,
                 },
                 {
-                    headers: { Authorization: `Bearer ${apiToken}` },
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        "Content-Type": "application/ld+json",
+                        accept: "application/ld+json",
+                    },
                 }
             );
             this.id = response.data.id;

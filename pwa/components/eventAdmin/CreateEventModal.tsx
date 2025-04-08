@@ -100,22 +100,34 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 console.error("API token is not available.");
                 return;
             }
-            event.persist(session?.apiToken);
-            setCreatedEvent(event);
-            toaster.create({
-                title: "Event Created",
-                description: "Your event has been created successfully.",
-                type: "success",
-                duration: 5000,
-            });
-            console.log("Event created:", event);
+            event.persist(session?.apiToken).then(
+                () => {
+                    setCreatedEvent(event);
+                    toaster.create({
+                        title: "Event Created",
+                        description:
+                            "Your event has been created successfully.",
+                        type: "success",
+                        duration: 5000,
+                    });
+                    console.debug("Event created:", event);
+                },
+                () => {
+                    toaster.create({
+                        title: "Event Creation Failed",
+                        description: "There was an error creating your event.",
+                        type: "error",
+                        duration: 5000,
+                    });
+                }
+            );
             onClose(); // Close the dialog after creating the event
         }
     };
 
     useEffect(() => {
-        console.log("Organizations:", organizations);
-        console.log("Selected Event:", selectedOrganization);
+        console.debug("Organizations:", organizations);
+        console.debug("Selected Org:", selectedOrganization);
     }, [selectedOrganization]);
 
     return (

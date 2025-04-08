@@ -111,7 +111,13 @@ const OrgAdminDashboard: React.FC = () => {
                         <p className={styles.optionDescription}>Invite Event, Finance, or Organization Admins.</p>
                         <button
                             className={styles.actionButton}
-                            onClick={() => setInviteAdminModalOpen(true)}
+                            onClick={() => {
+                                if (selectedOrg.length === 0) {
+                                    alert("Please select an organization before inviting admins.");
+                                    return;
+                                }
+                                setInviteAdminModalOpen(true);
+                            }}
                         >
                             Invite Admins
                         </button>
@@ -129,6 +135,11 @@ const OrgAdminDashboard: React.FC = () => {
             <InviteAdminModal
                 isOpen={inviteAdminModalOpen}
                 onClose={() => setInviteAdminModalOpen(false)}
+                organization={
+                    selectedOrg.length > 0
+                        ? organizations.find((org) => selectedOrg.includes(org.value)) || null
+                        : null
+                }
             />
         </div>
     );

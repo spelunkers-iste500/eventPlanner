@@ -58,7 +58,7 @@ const FlightResults: React.FC = () => {
     if (!session) {
         return null;
     }
-    console.log("Event:", bookingData.event);
+    console.debug("Event:", bookingData.event);
     const budget = bookingData.event.budget.perUserTotal
         ? bookingData.event.budget.perUserTotal
         : 0;

@@ -57,6 +57,27 @@ export class UserEvent {
                     Authorization: `Bearer ${apiToken}`,
                 },
             });
+            if (response.data["hydra:view"]) {
+                // figure out how many pages need to be fetched
+                // start at 2, go until the last page
+                const lastPage = response.data["hydra:view"]["hydra:last"];
+                const lastPageNumber = parseInt(lastPage.split("=")[1]);
+                const currentPageNumber = 2;
+                for (let page = 2; page <= lastPageNumber; page++) {
+                    const nextResponse = await axios.get(
+                        `/my/events?page=${page}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${apiToken}`,
+                                Accept: "application/ld+json",
+                            },
+                        }
+                    );
+                    response.data["hydra:member"] = response.data[
+                        "hydra:member"
+                    ].concat(nextResponse.data["hydra:member"]);
+                }
+            }
             return response.data["hydra:member"].map((userEvent: any) => {
                 const userEventInstance = new UserEvent(userEvent.id);
                 userEventInstance.event = new Event(userEvent.event.id);
@@ -75,11 +96,13 @@ export class UserEvent {
                 userEventInstance.event.setEventTitle(
                     userEvent.event.eventTitle
                 );
-                userEventInstance.event.budget = new Budget(
-                    userEvent.event.budget.id
-                );
-                userEventInstance.event.budget.perUserTotal =
-                    userEvent.event.budget.perUserTotal;
+                if (userEvent.event.budget) {
+                    userEventInstance.event.budget = new Budget(
+                        userEvent.event.budget.id
+                    );
+                    userEventInstance.event.budget.perUserTotal =
+                        userEvent.event.budget.perUserTotal;
+                }
                 userEventInstance.user = new User(userEvent.user.id);
                 userEventInstance.flights = userEvent.flights.map(
                     (flight: any) => new Flight(flight.id)

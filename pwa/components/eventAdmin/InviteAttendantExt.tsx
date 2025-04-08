@@ -131,7 +131,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     };
 
     const handleSubmit = () => {
-        console.log("Submitted emails:", emails);
+        console.info("Submitted emails:", emails);
         // send invites out to the emails
         if (createdEvent && emails.length > 0) {
             // check if all the emails are valid and send invites to valid ones and setError to ones that arent valid

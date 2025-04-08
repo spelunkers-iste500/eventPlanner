@@ -60,7 +60,7 @@ const EventForm: React.FC<EventData> = ({ eventData }) => {
     if (!bookingData.event) {
         return <div>Loading...</div>;
     }
-    console.log("Event:", bookingData.event);
+    console.debug("Event:", bookingData.event);
 
     return (
         <div className={styles.container}>

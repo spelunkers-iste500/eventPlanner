@@ -81,7 +81,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 type: "success",
                 duration: 5000,
             });
-            console.log("Event created:", event);
+            console.debug("Event created:", event);
         }
     };
 

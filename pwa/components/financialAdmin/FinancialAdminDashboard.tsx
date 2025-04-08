@@ -92,12 +92,16 @@ const FinancialAdminDashboard: React.FC = () => {
         {
             value: "pending-events",
             title: "Events Pending Approval",
-            events: filteredEvents.filter((event) => !event.budget),
+            events: filteredEvents.filter(
+                (event) => event.budget.id == "pendingApproval"
+            ),
         },
         {
             value: "approved-events",
             title: "Approved Events",
-            events: filteredEvents.filter((event) => event.budget),
+            events: filteredEvents.filter(
+                (event) => event.budget.id != "pendingApproval"
+            ),
         },
     ];
 
@@ -195,7 +199,7 @@ const FinancialAdminDashboard: React.FC = () => {
                 <div className={styles.filterContainer}>
                     <Select.Root
                         onValueChange={(d) => {
-                            console.log(d);
+                            console.debug(d);
                         }}
                         collection={orgCollection}
                     >
