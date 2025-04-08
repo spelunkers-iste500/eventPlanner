@@ -140,13 +140,7 @@ const Dashboard: React.FC = () => {
                 <div className={styles.statsBox}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>
-                            Organization Members:{" "}
-                        </span>
-                        <span className={styles.statValue}>157</span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Upcoming Events:{" "}
+                            Upcoming Events: 
                         </span>
                         <span className={styles.statValue}>12</span>
                     </div>
@@ -164,25 +158,29 @@ const Dashboard: React.FC = () => {
 
             {/* Organization Filter Dropdown */}
             <div className={styles.filterContainer}>
-                <Select
-                        options={organizationOptions}
-                        placeholder="Select Organization"
-                        size="md"
-                        isSearchable={false}
-                        value={
-                            selectedOrganization ? organizationOptions.find(
-                                (option) => option.value === selectedOrganization?.id
-                            ) : null
-                        }
-                        onChange={(option) => {
-                            const selectedOrg = organizations?.find(
-                                (org) => org.id === option?.value
-                            );
-                            setSelectedOrganization(selectedOrg || null);
-                        }}
-                        className={`select-menu`}
-                        classNamePrefix={'select'}
-                    />
+            <Select
+                options={organizationOptions}
+                size="md"
+                isSearchable={false}
+                defaultValue={
+                    organizationOptions.length > 0
+                        ? { label: organizationOptions[0].label, value: organizationOptions[0].value }
+                        : undefined
+                }
+                value={
+                    selectedOrganization
+                        ? { label: selectedOrganization.name, value: selectedOrganization.id }
+                        : undefined
+                }
+                onChange={(option) => {
+                    const selectedOrg = organizations?.find(
+                        (org) => org.id === option?.value
+                    );
+                    setSelectedOrganization(selectedOrg || null);
+                }}
+                className={`select-menu`}
+                classNamePrefix={'select'}
+            />
             </div>
 
             <Stack gap="4">
