@@ -14,7 +14,7 @@ import { toaster } from "Components/ui/toaster";
 const OrgAdminDashboard: React.FC = () => {
     const [selectedOrg, setSelectedOrg] = useState<string[]>([]);
     const [organizations, setOrganizations] = useState<
-        { label: string; value: string }[]
+        { label: string; value: string; object: Organization }[]
     >([]);
     const [loading, setLoading] = useState(true);
     const { data: session } = useSession();
@@ -154,8 +154,10 @@ const OrgAdminDashboard: React.FC = () => {
                     selectedOrg.length > 0
                         ? organizations.find((org) =>
                               selectedOrg.includes(org.value)
-                          ) || null
+                          )?.object || null
                         : null
+                    // organizations.find((org) => selectedOrg.includes(org.value))
+                    //     .object
                 }
             />
         </div>

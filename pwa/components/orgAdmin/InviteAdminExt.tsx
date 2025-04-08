@@ -4,12 +4,13 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toaster } from "Components/ui/toaster";
 import Input from "Components/common/Input";
+import { Organization } from "Types/organization";
 
 interface InviteAdminExtProps {
-    organizationId: string | null;
+    org: Organization;
 }
 
-const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ organizationId }) => {
+const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ org }) => {
     const [emailInput, setEmailInput] = useState("");
     const [invites, setInvites] = useState<{ type: string; email: string }[]>(
         []
@@ -46,18 +47,13 @@ const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ organizationId }) => {
     };
 
     const handleSubmit = () => {
-        if (!organizationId) {
-            setError("No organization selected.");
-            return;
-        }
-
         invites.forEach((invite) => {
             axios
                 .post(
                     "/organizationInvite",
                     {
-                        organization: organizationId,
-                        email: invite.email,
+                        organization: org.getIri(),
+                        expectedEmail: invite.email,
                         type: invite.type,
                     },
                     {
