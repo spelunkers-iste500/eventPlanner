@@ -88,7 +88,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Create Event</DialogTitle>
+                <DialogTitle>Edit Event</DialogTitle>
                 <button className={styles.dialogClose} onClick={onClose}>
                     <X />
                 </button>

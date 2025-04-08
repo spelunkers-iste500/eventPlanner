@@ -22,6 +22,7 @@ const Dashboard: React.FC = () => {
     // Using the useSession hook to get the current session data
     const { user } = useUser();
     const { data: session } = useSession();
+    if (!session) return;
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
@@ -30,10 +31,14 @@ const Dashboard: React.FC = () => {
     const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
-        useState<Organization | null>(null);
+        useState<Organization>(new Organization()); // State for the selected organization
+    if (organizations && organizations.length > 0) {
+        organizations[0].fetch(session.apiToken).then((org) => {
+            setSelectedOrganization(organizations[0]); // State for the selected organization
+        })
+    }
 
     useEffect(() => {
-        if (!session) return;
         const fetchOrganizations = async () => {
             try {
                 console.debug(organizations);
@@ -47,12 +52,12 @@ const Dashboard: React.FC = () => {
         };
 
         if (organizations.length > 0) {
-            fetchOrganizations();
+            fetchOrganizations().then(() => {
             const mappedOptions = organizations.map((org) => ({
-                label: org.name || "Unnamed Organization",
+                label: org.getName(),
                 value: org.id,
             }));
-            setOrganizationOptions(mappedOptions);
+            setOrganizationOptions(mappedOptions);})
         }
     }, [organizations]);
 
@@ -78,7 +83,6 @@ const Dashboard: React.FC = () => {
         setIsCreateModalOpen(false);
     };
 
-    // Defining a state variable to manage the accordion's value
     const [value, setValue] = useState(["pending-events"]);
 
     const getEvents = async () => {
@@ -100,7 +104,6 @@ const Dashboard: React.FC = () => {
         return <h2 className="loading">Loading...</h2>;
     }
 
-    // Filtering events into current and past events based on the current date
     const currentEvents = events.filter(
         (event) => event.budget.id == "pendingApproval"
     );
@@ -108,7 +111,6 @@ const Dashboard: React.FC = () => {
         (event) => event.budget.id != "pendingApproval"
     );
 
-    // Defining items for the accordion, including current events, past events, and members list
     const items = [
         {
             value: "pending-events",
@@ -120,7 +122,6 @@ const Dashboard: React.FC = () => {
             title: "Approved Events",
             events: pastEvents,
         },
-        { value: "members-list", title: "Members List", events: [] },
     ];
 
     return (
@@ -132,14 +133,16 @@ const Dashboard: React.FC = () => {
                     <div className={styles.orgImageWrapper}>
                         <img
                             src="/media/event_image.jpg"
-                            alt="Organization Logo"
+                            alt={`${selectedOrganization?.name} Logo Image.`}
                             className={styles.orgImage}
                         />
                     </div>
                     <div className={styles.orgDetails}>
-                        <h2 className={styles.orgName}>Organization Name</h2>
+                        <h2 className={styles.orgName}>
+                            {selectedOrganization?.name}
+                        </h2>
                         <p className={styles.orgType}>
-                            Event Planning Organization
+                            {selectedOrganization.description}
                         </p>
                     </div>
                 </div>
@@ -147,13 +150,15 @@ const Dashboard: React.FC = () => {
                 <div className={styles.statsBox}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>
-                            Upcoming Events: 
+                            Pending Events: 
                         </span>
-                        <span className={styles.statValue}>12</span>
+                        <span className={styles.statValue}>{currentEvents.length}</span>
                     </div>
                     <div className={styles.statItem}>
-                        <span className={styles.statLabel}>All Events: </span>
-                        <span className={styles.statValue}>489</span>
+                        <span className={styles.statLabel}>
+                            Approved Events: 
+                        </span>
+                        <span className={styles.statValue}>{pastEvents.length}</span>
                     </div>
                 </div>
             </div>
@@ -183,7 +188,9 @@ const Dashboard: React.FC = () => {
                     const selectedOrg = organizations?.find(
                         (org) => org.id === option?.value
                     );
-                    setSelectedOrganization(selectedOrg || null);
+                    if (selectedOrg) {
+                        setSelectedOrganization(selectedOrg);
+                    }
                 }}
                 className={`select-menu`}
                 classNamePrefix={'select'}
