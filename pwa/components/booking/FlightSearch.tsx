@@ -200,6 +200,10 @@ const FlightSearch: React.FC = () => {
         }, 120);
     };
 
+    useEffect(() => {
+        console.log("formData", formData);
+    }, [formData]);
+
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
             {error && <div className="error-msg">{error}</div>}
@@ -245,18 +249,20 @@ const FlightSearch: React.FC = () => {
                         size="md"
                         className={`select-menu`}
                         classNamePrefix={"select"}
-                        onChange={(value: any) =>
-                            setFormData({
-                                ...formData,
-                                origin: value?.value || "",
-                            })
-                        }
-                        onInputChange={(inputValue) =>
-                            setFormData({
-                                ...formData,
+                        onChange={(value: SelectOption | null) => {
+                            if (value) {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    origin: value.value,
+                                }));
+                            }
+                        }}
+                        onInputChange={(inputValue) => {
+                            setFormData((prev) => ({
+                                ...prev,
                                 originInput: inputValue,
-                            })
-                        }
+                            }));
+                        }}
                         value={
                             formData.origin
                                 ? {
@@ -265,6 +271,11 @@ const FlightSearch: React.FC = () => {
                                   }
                                 : null
                         }
+                        menuPortalTarget={document.body} // Render the dropdown in a portal
+                        menuPosition="fixed" // Ensure proper positioning
+                        styles={{
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure dropdown appears above other elements
+                        }}
                     />
                 </div>
 
@@ -279,20 +290,22 @@ const FlightSearch: React.FC = () => {
                         }
                         placeholder="Where to?"
                         size="md"
-                        className={`select-menu needsclick`}
+                        className={`select-menu`}
                         classNamePrefix={"select"}
-                        onChange={(value: any) =>
-                            setFormData({
-                                ...formData,
-                                destination: value?.value || "",
-                            })
-                        }
-                        onInputChange={(inputValue) =>
-                            setFormData({
-                                ...formData,
+                        onChange={(value: SelectOption | null) => {
+                            if (value) {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    destination: value.value,
+                                }));
+                            }
+                        }}
+                        onInputChange={(inputValue) => {
+                            setFormData((prev) => ({
+                                ...prev,
                                 destinationInput: inputValue,
-                            })
-                        }
+                            }));
+                        }}
                         value={
                             formData.destination
                                 ? {
@@ -301,6 +314,11 @@ const FlightSearch: React.FC = () => {
                                   }
                                 : null
                         }
+                        menuPortalTarget={document.body} // Render the dropdown in a portal
+                        menuPosition="fixed" // Ensure proper positioning
+                        styles={{
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure dropdown appears above other elements
+                        }}
                     />
                 </div>
             </div>
