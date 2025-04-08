@@ -66,12 +66,15 @@ export class Event {
             const data = response.data;
             // assign data to the class properties
             this.budget = data.budget
-                ? new Budget(data.budget.id, data.budget.perUserTotal) : this.budget;
-            this.imageBlob = data.imageBlob ? new File(
-                [data.imageBlob],
-                data.imageName || "event-image", // default name if not provided
-                { type: data.imageBlob.type }
-            ) : undefined;
+                ? new Budget(data.budget.id, data.budget.perUserTotal)
+                : this.budget;
+            this.imageBlob = data.imageBlob
+                ? new File(
+                      [data.imageBlob],
+                      data.imageName || "event-image", // default name if not provided
+                      { type: data.imageBlob.type }
+                  )
+                : undefined;
             this.imageName = data.imageName || undefined;
             this.eventTitle = data.eventTitle;
             this.startDateTime = data.startDateTime;
@@ -181,9 +184,10 @@ export class Event {
             });
             // response.data['hydra:view']['hydra:next'] is the next page of results
             const lastPage: number =
-                (response.data["hydra:view"] && response.data["hydra:view"]["hydra:last"]) ? 
-                    response.data["hydra:view"]["hydra:last"].split("=")[1] : 
-                    1;
+                response.data["hydra:view"] &&
+                response.data["hydra:view"]["hydra:last"]
+                    ? response.data["hydra:view"]["hydra:last"].split("=")[1]
+                    : 1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
                 event.setBudget(new Budget(item.budget.id));
@@ -214,46 +218,51 @@ export class Event {
             // if there are more pages, fetch them
             // fetch the next n - 1 pages and apped to the events array
             if (lastPage > 1) {
-            for (let index = 2; index <= lastPage; index++) {
-                const response = await axios.get(url + `?page=${index}`, {
-                    headers: {
-                        Authorization: `Bearer ${apiToken}`,
-                    },
-                });
-                const data = response.data["hydra:member"];
-                data.forEach((item: any) => {
-                    const event = new Event(item.id);
-                    item.budget
-                        ? event.setBudget(
-                              new Budget(
-                                  item.budget.id,
-                                  item.budget.perUserTotal
+                for (let index = 2; index <= lastPage; index++) {
+                    const response = await axios.get(url + `?page=${index}`, {
+                        headers: {
+                            Authorization: `Bearer ${apiToken}`,
+                        },
+                    });
+                    const data = response.data["hydra:member"];
+                    data.forEach((item: any) => {
+                        const event = new Event(item.id);
+                        item.budget
+                            ? event.setBudget(
+                                  new Budget(
+                                      item.budget.id,
+                                      item.budget.perUserTotal
+                                  )
                               )
-                          )
-                        : event.setBudget(new Budget());
-                    event.setEventTitle(item.eventTitle);
-                    event.setStartDateTime(item.startDateTime);
-                    event.setEndDateTime(item.endDateTime);
-                    event.setStartFlightBooking(item.startFlightBooking);
-                    event.setEndFlightBooking(item.endFlightBooking);
-                    event.setLocation(item.location);
-                    event.setOrganization(
-                        new Organization(item.organization.id)
-                    );
-                    url === "/my/organizations/events/eventAdmin"
-                        ? (event.attendees = item.attendees.map(
-                              (attendee: any) => {
-                                  const userEvent = new UserEvent(attendee.id);
-                                  userEvent.setUser(new User(attendee.user.id));
-                                  userEvent.user.name = attendee.user.name;
-                                  userEvent.setEvent(event);
-                                  userEvent.status = attendee.status;
-                                  return userEvent;
-                              }
-                          ))
-                        : (event.attendees = []);
-                });
-            }}
+                            : event.setBudget(new Budget());
+                        event.setEventTitle(item.eventTitle);
+                        event.setStartDateTime(item.startDateTime);
+                        event.setEndDateTime(item.endDateTime);
+                        event.setStartFlightBooking(item.startFlightBooking);
+                        event.setEndFlightBooking(item.endFlightBooking);
+                        event.setLocation(item.location);
+                        event.setOrganization(
+                            new Organization(item.organization.id)
+                        );
+                        url === "/my/organizations/events/eventAdmin"
+                            ? (event.attendees = item.attendees.map(
+                                  (attendee: any) => {
+                                      const userEvent = new UserEvent(
+                                          attendee.id
+                                      );
+                                      userEvent.setUser(
+                                          new User(attendee.user.id)
+                                      );
+                                      userEvent.user.name = attendee.user.name;
+                                      userEvent.setEvent(event);
+                                      userEvent.status = attendee.status;
+                                      return userEvent;
+                                  }
+                              ))
+                            : (event.attendees = []);
+                    });
+                }
+            }
             return events;
         } catch (error) {
             console.error("Error fetching events data:", error);
@@ -302,7 +311,9 @@ export class Event {
                                 Accept: "application/ld+json",
                             },
                         }
+                        // set the id of the event to the generated ID
                     );
+                    this.id = response.data.id;
                 } catch (error) {
                     console.error("Error creating event:", error);
                     throw error;
