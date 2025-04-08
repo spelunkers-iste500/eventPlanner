@@ -50,7 +50,7 @@ use Ramsey\Uuid\Uuid;
 #[Post(
     security: "is_granted('ROLE_ADMIN')",
     description: "Creates a new organization. Users can only create if they're a platform admin",
-    denormalizationContext: ['groups' => ['org:write']],
+    denormalizationContext: ['groups' => ['org:create']],
     // processor: LoggerStateProcessor::class
 )]
 //org.orgadmin.delete
@@ -93,7 +93,7 @@ class Organization
      * @var string $name the name of the organization
      */
     #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write', 'read:myEvents', 'user:read', 'read:event:collection'])]
+    #[Groups(['org:read', 'org:write', 'read:myEvents', 'user:read', 'read:event:collection','org:create'])]
     private string $name;
 
     /**
@@ -115,7 +115,7 @@ class Organization
      * @var string $description the description of the organization
      */
     #[ORM\Column(length: 255)]
-    #[Groups(['org:read', 'org:write'])]
+    #[Groups(['org:read', 'org:write','org:create'])]
     private string $description;
 
     /**
@@ -137,7 +137,7 @@ class Organization
      * @var string $address the address of the organization
      */
     #[ORM\Column(length: 255)]
-    #[Groups(['org:read', 'org:write'])]
+    #[Groups(['org:read', 'org:write','org:create'])]
     private string $address;
     /**
      * @return string the address of the organization
@@ -155,7 +155,7 @@ class Organization
     }
 
     #[ORM\Column(length: 55)]
-    #[Groups(['org:read', 'org:write'])]
+    #[Groups(['org:read', 'org:write','org:create'])]
     private string $industry;
     public function getIndustry(): string
     {
