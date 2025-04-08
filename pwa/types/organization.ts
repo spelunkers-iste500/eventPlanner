@@ -9,13 +9,19 @@ export class Organization {
     financeAdmins?: User[];
     eventAdmins?: User[];
     fullAdmins?: User[];
+    invites: {
+        id: string;
+        status: boolean;
+        expectedEmail: string;
+        inviteType: string;
+    }[] = [];
     /**
      * Constructs a new object. Optionally, the ID of an existing organization can be provided to fetch the details from the API if it is accompanied by the API token.
      * @param id The requested organizations ID
      * @param apiToken The users API Token. When provided, the details for the object are fetched from the API, overwriting whatever has been set.
      */
     constructor(id: string = "notPersisted", apiToken: string = "") {
-        this.id = (id.split("/").length > 1) ? id.split("/").pop()! : id;
+        this.id = id.split("/").length > 1 ? id.split("/").pop()! : id;
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch organization data without an ID");
         } else if (apiToken !== "" && id !== "notPersisted") {
@@ -126,9 +132,7 @@ export class Organization {
         });
         return organization;
     }
-    static async allFromApiResponse(
-        apiToken: string
-    ): Promise<Organization[]> {
+    static async allFromApiResponse(apiToken: string): Promise<Organization[]> {
         const response = await axios.get(`/my/organizations`, {
             headers: { Authorization: `Bearer ${apiToken}` },
         });
@@ -141,16 +145,22 @@ export class Organization {
             orgObj.industry = org.industry;
             orgObj.financeAdmins = org.financeAdmins.map((user: any) => {
                 return new User(user.split("/").pop()!);
-            }
-            );
+            });
             orgObj.eventAdmins = org.eventadmins.map((user: any) => {
                 return new User(user.split("/").pop()!);
-            }
-            );
+            });
             orgObj.fullAdmins = org.admins.map((user: any) => {
                 return new User(user.split("/").pop()!);
-            }
-            );
+            });
+            (org.invites) ? 
+            orgObj.invites = org.invites.map((invite: any) => {
+                return {
+                    id: invite.id,
+                    status: invite.status,
+                    expectedEmail: invite.expectedEmail,
+                    inviteType: invite.inviteType,
+                };
+            }) : orgObj.invites = [];
             return orgObj;
         });
     }
@@ -216,6 +226,24 @@ export class Organization {
         return `/organizations/${this.id}`;
     }
     getName(): string {
-        return (this.name) ? this.name : "undefined";
+        return this.name ? this.name : "undefined";
+    }
+    setInvites(
+        invites: {
+            id: string;
+            status: boolean;
+            expectedEmail: string;
+            inviteType: string;
+        }[]
+    ): void {
+        this.invites = invites;
+    }
+    getInvites(): {
+        id: string;
+        status: boolean;
+        expectedEmail: string;
+        inviteType: string;
+    }[] {
+        return this.invites;
     }
 }

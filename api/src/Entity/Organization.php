@@ -251,6 +251,7 @@ class Organization
      * @var Collection<int, OrganizationInvite>
      */
     #[ORM\OneToMany(mappedBy: 'organization', targetEntity: OrganizationInvite::class, orphanRemoval: true)]
+    #[Groups(['org:read'])]
     private Collection $organizationInvites;
 
     public function getFinanceAdmins(): Collection

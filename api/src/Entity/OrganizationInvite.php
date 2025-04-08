@@ -32,6 +32,7 @@ class OrganizationInvite
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
+    #[Groups(['org:read'])]
     private ?UuidInterface $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'organizationInvites')]
@@ -43,15 +44,16 @@ class OrganizationInvite
     private ?Organization $organization = null;
 
     #[ORM\Column]
+    #[Groups(['org:read'])]
     private bool $accepted = false;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['invite:organization'])]
+    #[Groups(['invite:organization', 'org:read'])]
     private ?string $expectedEmail = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ['admin', 'eventAdmin', 'financeAdmin'])]
-    #[Groups(['invite:organization'])]
+    #[Groups(['invite:organization', 'org:read'])]
     private ?string $inviteType = null;
 
     public function getId(): ?UuidInterface

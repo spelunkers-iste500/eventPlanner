@@ -84,17 +84,14 @@ export class Event {
             this.flights = data.flights.map(
                 (flight: any) => new Flight(flight.id)
             );
-            this.attendees = data.attendees.map(
-                (attendee: any) => {
-                    const userEvent = new UserEvent(attendee.id);
-                    userEvent.setUser(new User(attendee.user.id));
-                    userEvent.user.name = attendee.user.name;
-                    userEvent.setEvent(this);
-                    userEvent.status= attendee.status;
-                    return userEvent;
-                }
-
-            );
+            this.attendees = data.attendees.map((attendee: any) => {
+                const userEvent = new UserEvent(attendee.id);
+                userEvent.setUser(new User(attendee.user.id));
+                userEvent.user.name = attendee.user.name;
+                userEvent.setEvent(this);
+                userEvent.status = attendee.status;
+                return userEvent;
+            });
         } catch (error) {
             console.error("Error fetching event data:", error);
             throw error;
@@ -137,15 +134,14 @@ export class Event {
             hydratedEvent.setLocation(data.location);
             hydratedEvent.setOrganization(organization);
             // event.setFlights() // don't set flights yet
-            hydratedEvent.attendees = data.attendees.map(
-                (attendee: any) => {
-                    const userEvent = new UserEvent(attendee.id);
-                    userEvent.setUser(new User(attendee.user.id));
-                    userEvent.user.name = attendee.user.name;
-                    userEvent.setEvent(hydratedEvent);
-                    userEvent.status = attendee.status;
-                    return userEvent;
-                });
+            hydratedEvent.attendees = data.attendees.map((attendee: any) => {
+                const userEvent = new UserEvent(attendee.id);
+                userEvent.setUser(new User(attendee.user.id));
+                userEvent.user.name = attendee.user.name;
+                userEvent.setEvent(hydratedEvent);
+                userEvent.status = attendee.status;
+                return userEvent;
+            });
             return hydratedEvent;
         } catch (error) {
             console.error("Error fetching events data:", error);
@@ -185,13 +181,15 @@ export class Event {
             });
             // response.data['hydra:view']['hydra:next'] is the next page of results
             const lastPage: number =
-                response.data["hydra:view"]["hydra:last"].split("=")[1];
+                (response.data["hydra:view"] && response.data["hydra:view"]["hydra:last"]) ? 
+                    response.data["hydra:view"]["hydra:last"].split("=")[1] : 
+                    1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
-                    (item.budget) ? event.setBudget(new Budget(
-                        item.budget.id,
-                        item.budget.perUserTotal
-                    )) : event.setBudget(new Budget());
+                event.setBudget(new Budget(item.budget.id));
+                item.budget
+                    ? (event.budget.perUserTotal = item.budget.perUserTotal)
+                    : (event.budget.perUserTotal = 0);
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
                 event.setEndDateTime(item.endDateTime);
@@ -199,20 +197,23 @@ export class Event {
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
                 event.setOrganization(new Organization(item.organization.id));
-                (url === "/my/organizations/events/eventAdmin") ? event.attendees = item.attendees.map(
-                    (attendee: any) => {
-                        const userEvent = new UserEvent(attendee.id);
-                        userEvent.setUser(new User(attendee.user.id));
-                        userEvent.user.name = attendee.user.name;
-                        userEvent.setEvent(event);
-                        userEvent.status = attendee.status;
-                        return userEvent;
-                    }) : event.attendees = [];
+                url === "/my/organizations/events/eventAdmin"
+                    ? (event.attendees = item.attendees.map((attendee: any) => {
+                          const userEvent = new UserEvent(attendee.id);
+                          userEvent.setUser(new User(attendee.user.id));
+                          userEvent.user.name = attendee.user.name;
+                          userEvent.user.email = attendee.user.email;
+                          userEvent.setEvent(event);
+                          userEvent.status = attendee.status;
+                          return userEvent;
+                      }))
+                    : (event.attendees = []);
                 return event;
                 // event.setFlights() // dont set flights yet
             });
             // if there are more pages, fetch them
             // fetch the next n - 1 pages and apped to the events array
+            if (lastPage > 1) {
             for (let index = 2; index <= lastPage; index++) {
                 const response = await axios.get(url + `?page=${index}`, {
                     headers: {
@@ -222,10 +223,14 @@ export class Event {
                 const data = response.data["hydra:member"];
                 data.forEach((item: any) => {
                     const event = new Event(item.id);
-                    (item.budget) ? event.setBudget(new Budget(
-                        item.budget.id,
-                        item.budget.perUserTotal
-                    )) : event.setBudget(new Budget());
+                    item.budget
+                        ? event.setBudget(
+                              new Budget(
+                                  item.budget.id,
+                                  item.budget.perUserTotal
+                              )
+                          )
+                        : event.setBudget(new Budget());
                     event.setEventTitle(item.eventTitle);
                     event.setStartDateTime(item.startDateTime);
                     event.setEndDateTime(item.endDateTime);
@@ -235,17 +240,20 @@ export class Event {
                     event.setOrganization(
                         new Organization(item.organization.id)
                     );
-                (url === "/my/organizations/events/eventAdmin") ? event.attendees = item.attendees.map(
-                    (attendee: any) => {
-                        const userEvent = new UserEvent(attendee.id);
-                        userEvent.setUser(new User(attendee.user.id));
-                        userEvent.user.name = attendee.user.name;
-                        userEvent.setEvent(event);
-                        userEvent.status = attendee.status;
-                        return userEvent;
-                    }) : event.attendees = [];
+                    url === "/my/organizations/events/eventAdmin"
+                        ? (event.attendees = item.attendees.map(
+                              (attendee: any) => {
+                                  const userEvent = new UserEvent(attendee.id);
+                                  userEvent.setUser(new User(attendee.user.id));
+                                  userEvent.user.name = attendee.user.name;
+                                  userEvent.setEvent(event);
+                                  userEvent.status = attendee.status;
+                                  return userEvent;
+                              }
+                          ))
+                        : (event.attendees = []);
                 });
-            }
+            }}
             return events;
         } catch (error) {
             console.error("Error fetching events data:", error);
