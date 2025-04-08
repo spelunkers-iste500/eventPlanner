@@ -95,17 +95,6 @@ const FlightSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setBookingData({
-            ...bookingData,
-            trip: formData.trip,
-            originAirport: formData.origin,
-            destinationAirport: formData.destination,
-            departDate: formData.departDate,
-            returnDate: formData.returnDate,
-            maxConnections: 1,
-            content: <FlightResults />,
-        });
-
         fetchFlightOffers();
     };
 
@@ -114,12 +103,12 @@ const FlightSearch: React.FC = () => {
             .post(
                 `/flight_offers`,
                 {
-                    origin: bookingData.originAirport,
-                    destination: bookingData.destinationAirport,
-                    departureDate: bookingData.departDate,
+                    origin: formData.origin,
+                    destination: formData.destination,
+                    departureDate: formData.departDate,
                     returnDate:
-                        bookingData.trip === "round-trip"
-                            ? bookingData.returnDate
+                        formData.trip === "round-trip"
+                            ? formData.returnDate
                             : null,
                     maxConnections: 1,
                 },
@@ -135,7 +124,14 @@ const FlightSearch: React.FC = () => {
                 setFlightResults(response.data.flightOffers);
                 setBookingData({
                     ...bookingData,
+                    trip: formData.trip,
+                    originAirport: formData.origin,
+                    destinationAirport: formData.destination,
+                    departDate: formData.departDate,
+                    returnDate: formData.returnDate,
+                    maxConnections: 1,
                     flightOffers: response.data.flightOffers,
+                    content: <FlightResults />,
                 });
             })
             .catch((error) => {
