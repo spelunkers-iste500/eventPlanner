@@ -3,29 +3,22 @@ import {
     DialogBody,
     DialogTitle,
     Button,
-    Switch,
-    createListCollection,
     Tabs,
+    Switch,
 } from "@chakra-ui/react";
-import axios from "axios";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar, Info, Users, Plane } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "../common/Dialog.module.css";
 import { useSession } from "next-auth/react";
 import { toaster } from "Components/ui/toaster";
 import InviteAttendantExt from "./InviteAttendantExt";
-import { useUser } from "Utils/UserProvider";
 import { Event } from "Types/event";
 import { Organization } from "Types/organization";
-import { useContent } from "Utils/ContentProvider";
-import Dashboard from "./EventAdminDashboard";
-import FileUpload from "./UploadFile";
 import Input from "Components/common/Input";
 import UploadFile from "./UploadFile";
-import { Select } from "chakra-react-select";
 import ItemList from "Components/itemList/ItemList";
 import { Flight } from "Types/flight";
 
@@ -42,17 +35,23 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
 }) => {
     const { data: session } = useSession();
 
-    const [eventTitle, setEventTitle] = useState("");
-    const [location, setLocation] = useState("");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [eventImage, setEventImage] = useState<File | null>(null);
-    const [maxAttendee, setMaxAttendee] = useState<number>(20);
-    const [inviteUsers, setInviteUsers] = useState(false);
-    const [selectedOrganization, setSelectedOrganization] =
-        useState<Organization | null>(null);
-    const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
-    const [multiDay, setMultiDay] = useState(false);
+    const [eventTitle, setEventTitle] = useState(event?.eventTitle || "");
+    const [location, setLocation] = useState(event?.location || "");
+    const [startDate, setStartDate] = useState<Date | null>(
+        event?.startDateTime ? new Date(event.startDateTime) : null
+    );
+    const [endDate, setEndDate] = useState<Date | null>(
+        event?.endDateTime ? new Date(event.endDateTime) : null
+    );
+    const [eventImage, setEventImage] = useState<File | null>(
+        event?.imageBlob || null
+    );
+    const [maxAttendee, setMaxAttendee] = useState<number>(
+        event?.maxAttendees || 1
+    );
+    const [multiDay, setMultiDay] = useState(
+        event?.startDateTime !== event?.endDateTime
+    );
 
     const handleSubmit = () => {
         if (
@@ -61,7 +60,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             startDate &&
             endDate &&
             location &&
-            selectedOrganization &&
             startDate <= endDate &&
             maxAttendee > 0
         ) {
@@ -71,14 +69,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             event.startFlightBooking = startDate.toISOString();
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
-            event.organization = selectedOrganization;
             event.maxAttendees = maxAttendee;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
             }
             event.persist(session?.apiToken);
-            setCreatedEvent(event);
             toaster.create({
                 title: "Event Created",
                 description: "Your event has been created successfully.",
@@ -115,7 +111,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             Flights
                         </Tabs.Trigger>
                     </Tabs.List>
-                    <Tabs.Content value="info">
+                    <Tabs.Content className={styles.eventDialog} value="info">
                         {/* Event Image */}
                         <div className="input-container">
                             <label className="input-label">Event Image</label>
@@ -147,7 +143,60 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             onChange={(value) => setMaxAttendee(Number(value))}
                         />
 
+                        {/* Multi-Day Event Selector */}
+                        <Switch.Root checked={multiDay}>
+                            <Switch.HiddenInput
+                                onChange={(e) => setMultiDay(e.target.checked)}
+                            />
+                            <Switch.Label>Multi-Day Event?</Switch.Label>
+                            <Switch.Control />
+                        </Switch.Root>
+
                         <div className="input-container">
+                            <label className="input-label">Event Dates</label>
+                            {/* Conditionally render the date range picker */}
+                            {multiDay ? (
+                                <DatePicker
+                                    selected={startDate}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    minDate={new Date()}
+                                    onChange={(dates) => {
+                                        const [start, end] = dates;
+                                        setStartDate(start);
+                                        setEndDate(end);
+                                    }}
+                                    selectsRange
+                                    showMonthDropdown
+                                    placeholderText="Select date range"
+                                    dateFormat="MM/dd/yyyy"
+                                    className="input-field"
+                                    showIcon
+                                    icon={<Calendar size={32} />}
+                                />
+                            ) : (
+                                <DatePicker
+                                    selected={startDate}
+                                    startDate={startDate}
+                                    minDate={new Date()}
+                                    onChange={(date) => {
+                                        setStartDate(date);
+                                        setEndDate(date); // For single day, end date is the same as start date
+                                    }}
+                                    showMonthDropdown
+                                    showTimeSelect
+                                    placeholderText="Select a date"
+                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                    className="input-field"
+                                    showIcon
+                                    icon={<Calendar size={32} />}
+                                />
+                            )}
+                        </div>
+
+                        <div
+                            className={`input-container ${styles.dialogSubmitBtn}`}
+                        >
                             <Button onClick={handleSubmit}>Update Event</Button>
                         </div>
                     </Tabs.Content>
@@ -162,7 +211,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <Tabs.Content value="flights">
                         {/* Add flight tracking in here */}
                         <ItemList<Flight>
-                            items={createdEvent?.flights || []}
+                            items={event?.flights || []}
                             fields={[
                                 {
                                     key: "flightNumber",

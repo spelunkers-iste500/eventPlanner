@@ -121,6 +121,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     });
                 }
             );
+            onClose(); // Close the dialog after creating the event
         }
     };
 
@@ -222,9 +223,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             }}
                             selectsRange
                             showMonthDropdown
-                            showTimeSelect
                             placeholderText="Select date range"
-                            dateFormat="MM/dd/yyyy h:mm aa"
+                            dateFormat="MM/dd/yyyy"
                             className="input-field"
                             showIcon
                             icon={<Calendar size={32} />}
@@ -233,12 +233,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <DatePicker
                             selected={startDate}
                             startDate={startDate}
-                            endDate={endDate}
                             minDate={new Date()}
-                            onChange={(date) => {}}
-                            selectsRange
+                            onChange={(date) => {
+                                setStartDate(date);
+                                setEndDate(date); // For single day, end date is the same as start date
+                            }}
                             showMonthDropdown
-                            showTimeInput
+                            showTimeSelect
                             placeholderText="Select a date"
                             dateFormat="MM/dd/yyyy h:mm aa"
                             className="input-field"
@@ -262,7 +263,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <InviteAttendantExt createdEvent={createdEvent} />
                 )}
 
-                <div className="input-container">
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <Button onClick={handleSubmit}>Create Event</Button>
                 </div>
             </DialogBody>

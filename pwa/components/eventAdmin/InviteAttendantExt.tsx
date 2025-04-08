@@ -19,6 +19,7 @@ import { Event } from "Types/event";
 import { toaster } from "Components/ui/toaster";
 import { setDefaultResultOrder } from "dns";
 import { set } from "date-fns";
+import { UserEvent } from "Types/userEvent";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -32,6 +33,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     const [emailInput, setEmailInput] = useState("");
     const [error, setError] = useState("");
     const [emails, setEmails] = useState<string[]>([]);
+    const [deletedEmails, setDeletedEmails] = useState<string[]>([]);
     const { data: session } = useSession();
     const { setContent } = useContent();
 
@@ -100,8 +102,8 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 
     useEffect(() => {
         // grab attendee list if event already exits
-
         if (createdEvent) {
+            console.log("Attendees loaded:", createdEvent.attendees);
             setEmails(
                 createdEvent.attendees
                     ?.map((attendee) => attendee.user.email)
@@ -111,6 +113,22 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             !isEditing && handleSubmit(); // if not editing, submit the invites
         }
     }, [createdEvent]);
+
+    const handleSave = () => {
+        // update UserEvent for person to be cancelled
+        if (createdEvent && session?.apiToken) {
+            deletedEmails.forEach((email) => {
+                // get the UserEvent associated with the email
+                const userEvent = createdEvent.attendees?.find(
+                    (attendee) => attendee.user.email === email
+                );
+                if (userEvent) {
+                    userEvent.status = "cancelled";
+                }
+            });
+            createdEvent.persist(session.apiToken); // persist the change
+        }
+    };
 
     const handleSubmit = () => {
         console.info("Submitted emails:", emails);
@@ -146,7 +164,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         }
                     )
                     .then((response) => {
-                        console.info("Invite sent:", response.data);
+                        console.log("Invite sent:", response.data);
                         inviteSuccess();
                     })
                     .catch((error) => {
@@ -222,7 +240,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Flex>
                 ))}
             </Box>
-            {isEditing && <Button onClick={handleSubmit}>Submit</Button>}
+            {isEditing && (
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
+                    <Button className="outline-btn" onClick={handleSave}>
+                        Save
+                    </Button>
+                    <Button onClick={handleSubmit}>Send Invites</Button>
+                </div>
+            )}
         </Box>
     );
 };
