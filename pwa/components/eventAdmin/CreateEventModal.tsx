@@ -44,12 +44,15 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [eventImage, setEventImage] = useState<File | null>(null);
     const [maxAttendee, setMaxAttendee] = useState<number>(20);
     const [inviteUsers, setInviteUsers] = useState(false);
-    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<Organization | null>(null);
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
     const [multiDay, setMultiDay] = useState(false);
 
     // State for mapped organizations
-    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
+    const [organizationOptions, setOrganizationOptions] = useState<
+        { label: string; value: string }[]
+    >([]);
 
     // Map organizations into options for the Select component
     useEffect(() => {
@@ -90,29 +93,40 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             event.startFlightBooking = startDate.toISOString();
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
-            event.organization = selectedOrganization
+            event.organization = selectedOrganization;
             event.inviteCode = generateRandomString(10);
             event.maxAttendees = maxAttendee > 0 ? maxAttendee : 1;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
                 return;
             }
-            event.persist(session?.apiToken);
-            setCreatedEvent(event);
-            toaster.create({
-                title: "Event Created",
-                description: "Your event has been created successfully.",
-                type: "success",
-                duration: 5000,
-            });
-            console.log("Event created:", event);
+            event.persist(session?.apiToken).then(
+                () => {
+                    setCreatedEvent(event);
+                    toaster.create({
+                        title: "Event Created",
+                        description:
+                            "Your event has been created successfully.",
+                        type: "success",
+                        duration: 5000,
+                    });
+                    console.log("Event created:", event);
+                },
+                () => {
+                    toaster.create({
+                        title: "Event Creation Failed",
+                        description: "There was an error creating your event.",
+                        type: "error",
+                        duration: 5000,
+                    });
+                }
+            );
         }
     };
 
     useEffect(() => {
         console.log("Organizations:", organizations);
-        console.log("Selected Event:", selectedOrganization);
-
+        console.log("Selected Org:", selectedOrganization);
     }, [selectedOrganization]);
 
     return (
@@ -123,12 +137,16 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <X />
                 </button>
             </DialogHeader>
-            <DialogBody className={`${styles.dialogBody} ${styles.eventDialog}`}>
-
+            <DialogBody
+                className={`${styles.dialogBody} ${styles.eventDialog}`}
+            >
                 {/* Event Image */}
                 <div className="input-container">
                     <label className="input-label">Event Image</label>
-                    <UploadFile eventImage={eventImage} setEventImage={setEventImage} />
+                    <UploadFile
+                        eventImage={eventImage}
+                        setEventImage={setEventImage}
+                    />
                 </div>
 
                 {/* Organization Selection */}
@@ -140,9 +158,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         size="md"
                         isSearchable={false}
                         value={
-                            selectedOrganization ? organizationOptions.find(
-                                (option) => option.value === selectedOrganization?.id
-                            ) : null
+                            selectedOrganization
+                                ? organizationOptions.find(
+                                      (option) =>
+                                          option.value ===
+                                          selectedOrganization?.id
+                                  )
+                                : null
                         }
                         onChange={(option) => {
                             const selectedOrg = organizations.find(
@@ -151,18 +173,28 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             setSelectedOrganization(selectedOrg || null);
                         }}
                         className={`select-menu`}
-                        classNamePrefix={'select'}
+                        classNamePrefix={"select"}
                     />
                 </div>
 
                 {/* Event Title */}
-                <Input label="Event Title" onChange={(value) => setEventTitle(value)} />
+                <Input
+                    label="Event Title"
+                    onChange={(value) => setEventTitle(value)}
+                />
 
                 {/* Event Location */}
-                <Input label="Location" onChange={(value) => setLocation(value)} />
+                <Input
+                    label="Location"
+                    onChange={(value) => setLocation(value)}
+                />
 
                 {/* Event Max Attendees */}
-                <Input label="Max Attendees" type="number" onChange={(value) => setMaxAttendee(Number(value))} />
+                <Input
+                    label="Max Attendees"
+                    type="number"
+                    onChange={(value) => setMaxAttendee(Number(value))}
+                />
 
                 {/* Multi-Day Event Selector */}
                 <Switch.Root checked={multiDay}>
@@ -203,9 +235,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             startDate={startDate}
                             endDate={endDate}
                             minDate={new Date()}
-                            onChange={(date) => {
-                                
-                            }}
+                            onChange={(date) => {}}
                             selectsRange
                             showMonthDropdown
                             showTimeInput
@@ -216,9 +246,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             icon={<Calendar size={32} />}
                         />
                     )}
-                    
                 </div>
-                
+
                 {/* Switch to toggle invite section */}
                 <Switch.Root checked={inviteUsers}>
                     <Switch.HiddenInput
@@ -232,7 +261,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 {inviteUsers && (
                     <InviteAttendantExt createdEvent={createdEvent} />
                 )}
-                
+
                 <div className="input-container">
                     <Button onClick={handleSubmit}>Create Event</Button>
                 </div>
