@@ -37,6 +37,13 @@ jobs:
         uses: docker/setup-buildx-action@v3
       - name: Stop existing services
         run: docker compose down -v
+      - name: Restore Docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
       - name: Build Docker images
         uses: docker/bake-action@v6
         with:
@@ -46,12 +53,13 @@ jobs:
             compose.yaml
             compose.override.yaml
           set: |
-            php.cache-from=type=gha,scope=php-${{github.ref}}-test
-            php.cache-from=type=gha,scope=php-refs/heads/main
-            php.cache-to=type=gha,scope=php-${{github.ref}}-test,mode=max
-            pwa.cache-from=type=gha,scope=pwa-${{github.ref}}-test
-            pwa.cache-from=type=gha,scope=pwa-refs/heads/main
-            pwa.cache-to=type=gha,scope=pwa-${{github.ref}}-test,mode=max
+            *.cache-from=type=local,src=/tmp/.buildx-cache
+            *.cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: save docker cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache-new
+          key: ${{ runner.os }}-buildx-${{ github.ref }}
       - name: Start services
         run: docker compose up --wait --no-build
       - name: Wait for containers to be ready
