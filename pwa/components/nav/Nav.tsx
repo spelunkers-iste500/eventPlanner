@@ -98,16 +98,22 @@ const Nav: React.FC = () => {
     return (
         <>
             <div
-                className={`${styles.mobileNav} ${
+                className={`${styles.mobileNavWrapper} ${
                     !navCollapsed ? styles.open : ""
                 }`}
             >
-                <div
-                    className={styles.mobileNavToggle}
-                    onClick={() => setNavCollapsed(!navCollapsed)}
-                >
-                    <Menu size={28} />
+                <div className={styles.mobileNav}>
+                    <div
+                        className={styles.mobileNavToggle}
+                        onClick={() => setNavCollapsed(!navCollapsed)}
+                    >
+                        <Menu size={28} />
+                    </div>
                 </div>
+                <div
+                    className={styles.mobileWrapper}
+                    onClick={() => setNavCollapsed(!navCollapsed)}
+                ></div>
             </div>
             <div
                 className={`${styles.navContainer} ${
