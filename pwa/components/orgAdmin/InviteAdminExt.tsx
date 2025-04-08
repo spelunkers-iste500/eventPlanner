@@ -3,6 +3,7 @@ import styles from "../common/Dialog.module.css";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toaster } from "Components/ui/toaster";
+import Input from "Components/common/Input";
 
 interface InviteAdminExtProps {
     organizationId: string | null;
@@ -83,22 +84,17 @@ const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ organizationId }) => {
     };
 
     return (
-        <div>
+        <div className={styles.formContainer}>
             {error && <div className={styles.errorMsg}>{error}</div>}
-            <div className={styles.inputContainer}>
-                <label className={styles.inputLabel}>Email Address</label>
-                <input
-                    type="text"
-                    className={styles.inputField}
-                    placeholder="Enter admin's email address"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                />
-            </div>
+            <Input
+                label="Email Address"
+                placeholder="Enter admin's email address"
+                onChange={(value) => setEmailInput(value)}
+            />
             <div className={styles.inputContainer}>
                 <label className={styles.inputLabel}>Invite Type</label>
                 <select
-                    className={styles.inputField}
+                    className={`select-menu vanilla`}
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
                 >
