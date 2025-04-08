@@ -17,9 +17,10 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	min-width: max-content;
 	transform: translate(-50%, -50%);
 	border-radius: 1rem;
+	max-height: 90vh;
+	overflow-y: auto;
 }
 
 .dialog-close {
@@ -45,8 +46,6 @@
 }
 
 .dialog-body {
-	max-height: 90vh;
-	overflow-y: auto;
 	padding: 1rem;
 }
 
@@ -265,4 +264,19 @@
 .dialog-submit-btn {
 	justify-content: flex-end;
 	flex-direction: row;
+}
+
+@media (max-width: 600px) {
+	.dialog-content {
+		max-height: 80vh;
+		max-width: 90vw;
+	}
+
+	.dialog-body-content {
+		flex-direction: column;
+	}
+
+	.dialog-details:first-child {
+		border: none;
+	}
 }
