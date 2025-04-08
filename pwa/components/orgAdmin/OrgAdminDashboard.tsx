@@ -9,6 +9,7 @@ import { Portal, Select, createListCollection } from "@chakra-ui/react";
 import SystemAdminDashboard from "../sysAdmin/SystemAdminDashboard";
 import { Organization } from "Types/organization";
 import InviteAdminModal from "./InviteAdminModal";
+import { toaster } from "Components/ui/toaster";
 
 const OrgAdminDashboard: React.FC = () => {
     const [selectedOrg, setSelectedOrg] = useState<string[]>([]);
@@ -51,6 +52,17 @@ const OrgAdminDashboard: React.FC = () => {
         items: organizations,
     });
 
+    const createFail = () => {
+        //setContent(<Dashboard />, "Dashboard");
+        toaster.create({
+            title: "Invite Failed",
+            description:
+                "Please select an organization you would like to invite administrators to.",
+            type: "error",
+            duration: 5000,
+        });
+    };
+
     return (
         <div className={styles.dashboardContainer}>
             {/* Header Section */}
@@ -60,10 +72,10 @@ const OrgAdminDashboard: React.FC = () => {
                     <h2 className={styles.orgName}>
                         {selectedOrg.length > 0
                             ? `Organization: ${
-                                organizations.find((org) =>
-                                  selectedOrg.includes(org.value)
-                              )?.label
-                            }`
+                                  organizations.find((org) =>
+                                      selectedOrg.includes(org.value)
+                                  )?.label
+                              }`
                             : "Select or create an organization"}
                     </h2>
                 </div>
@@ -104,16 +116,20 @@ const OrgAdminDashboard: React.FC = () => {
 
             {/* Main Dashboard Content */}
             <div className={styles.scrollableContent}>
-                <h1 className={styles.dashboardTitle}>Administrator Dashboard</h1>
+                <h1 className={styles.dashboardTitle}>
+                    Organization Administrator
+                </h1>
                 <div className={styles.optionsContainer}>
                     <div className={styles.optionCard}>
-                        <h2 className={styles.optionTitle}>Invite Admins</h2>
-                        <p className={styles.optionDescription}>Invite Event, Finance, or Organization Admins.</p>
+                        <p className={styles.optionDescription}>
+                            Invite Event, Finance, or Organization
+                            Administrators.
+                        </p>
                         <button
                             className={styles.actionButton}
                             onClick={() => {
                                 if (selectedOrg.length === 0) {
-                                    alert("Please select an organization before inviting admins.");
+                                    createFail();
                                     return;
                                 }
                                 setInviteAdminModalOpen(true);
@@ -125,11 +141,8 @@ const OrgAdminDashboard: React.FC = () => {
                 </div>
 
                 {/* System Admin Dashboard */}
-                <div className={styles.systemAdminSection}>
-                    <h2 className={styles.sectionTitle}>System Admin Options</h2>
-                    <div>
-                        <SystemAdminDashboard />
-                    </div>
+                <div>
+                    <SystemAdminDashboard />
                 </div>
             </div>
             <InviteAdminModal
@@ -137,7 +150,9 @@ const OrgAdminDashboard: React.FC = () => {
                 onClose={() => setInviteAdminModalOpen(false)}
                 organization={
                     selectedOrg.length > 0
-                        ? organizations.find((org) => selectedOrg.includes(org.value)) || null
+                        ? organizations.find((org) =>
+                              selectedOrg.includes(org.value)
+                          ) || null
                         : null
                 }
             />

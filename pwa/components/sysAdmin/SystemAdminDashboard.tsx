@@ -27,10 +27,12 @@ const SystemAdminDashboard: React.FC = () => {
                 if (!session) {
                     throw new Error("Session not found");
                 }
-                Organization.allFromApiResponse(session.apiToken).then((orgs) => {
-                    setOrganizations(orgs);
-                    console.log("Organizations:", orgs);
-                });
+                Organization.allFromApiResponse(session.apiToken).then(
+                    (orgs) => {
+                        setOrganizations(orgs);
+                        console.log("Organizations:", orgs);
+                    }
+                );
             } catch (error) {
                 console.error("Error fetching organizations:", error);
             }
@@ -54,31 +56,32 @@ const SystemAdminDashboard: React.FC = () => {
 
     return (
         <>
-            <div className={styles.optionCard}>
-                <h2 className={styles.optionTitle}>Create an organization</h2>
-                <p className={styles.optionDescription}>Subtitle Text.</p>
-                <button
-                    className={styles.actionButton}
-                    onClick={handleOpenCreateOrgModal}
-                >
-                    Create Organization
-                </button>
-            </div>
+            <div className={styles.systemAdminSection}>
+                <h1 className={styles.sectionTitle}>System Administrator</h1>
+                <div className={styles.optionCard}>
+                    <button
+                        className={styles.actionButton}
+                        onClick={handleOpenCreateOrgModal}
+                    >
+                        Create an Organization
+                    </button>
+                </div>
 
-            {/* Create Organization Modal */}
-            <CreateOrgModal
-                isOpen={isCreateOrgModalOpen}
-                onClose={handleCloseCreateOrgModal}
-            />
-
-            {/* Organization List */}
-            <div className={styles.listContainer}>
-                <h2 className={styles.sectionTitle}>Organizations</h2>
-                <ItemList
-                    items={organizations}
-                    fields={fields}
-                    renderItem={renderItem}
+                {/* Create Organization Modal */}
+                <CreateOrgModal
+                    isOpen={isCreateOrgModalOpen}
+                    onClose={handleCloseCreateOrgModal}
                 />
+
+                {/* Organization List */}
+                <div className={styles.listContainer}>
+                    <h2 className={styles.sectionTitle}>Organizations</h2>
+                    <ItemList
+                        items={organizations}
+                        fields={fields}
+                        renderItem={renderItem}
+                    />
+                </div>
             </div>
         </>
     );
