@@ -109,16 +109,6 @@ const Dashboard: React.FC = () => {
     if (loading) {
         return <h2 className="loading">Loading...</h2>;
     }
-
-    const currentEvents = events.filter(
-        (event) => event.budget.id == "pendingApproval"
-    );
-    const pastEvents = events.filter(
-        (event) => event.budget.id != "pendingApproval"
-    );
-
-    console.info("Events", events);
-
     const items = organizations.map((org) => {
         return {
             value: org.id,
@@ -144,45 +134,6 @@ const Dashboard: React.FC = () => {
     return (
         <div className={styles.plannerDashboardContainer}>
             <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
-
-            <div className={styles.infoContainer}>
-                <div className={styles.orgInfoBox}>
-                    <div className={styles.orgImageWrapper}>
-                        <img
-                            src="/media/event_image.jpg"
-                            alt={`${selectedOrganization?.name} Logo Image.`}
-                            className={styles.orgImage}
-                        />
-                    </div>
-                    <div className={styles.orgDetails}>
-                        <h2 className={styles.orgName}>
-                            {selectedOrganization?.name}
-                        </h2>
-                        <p className={styles.orgType}>
-                            {selectedOrganization.description}
-                        </p>
-                    </div>
-                </div>
-
-                <div className={styles.statsBox}>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Pending Events:
-                        </span>
-                        <span className={styles.statValue}>
-                            {currentEvents.length}
-                        </span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Approved Events:
-                        </span>
-                        <span className={styles.statValue}>
-                            {pastEvents.length}
-                        </span>
-                    </div>
-                </div>
-            </div>
 
             {/* Add Event Button */}
             <Button onClick={handleOpenCreateModal} colorScheme="blue" mb={4}>
@@ -239,6 +190,62 @@ const Dashboard: React.FC = () => {
                                 {item.title}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
+                                <div className={styles.infoContainer}>
+                                    <div className={styles.orgInfoBox}>
+                                        <div className={styles.orgImageWrapper}>
+                                            <img
+                                                src="/media/event_image.jpg"
+                                                alt={`${item.organization.getName()} Logo Image.`}
+                                                className={styles.orgImage}
+                                            />
+                                        </div>
+                                        <div className={styles.orgDetails}>
+                                            <h2 className={styles.orgName}>
+                                                {item.organization.getName()}
+                                            </h2>
+                                            <p className={styles.orgType}>
+                                                {item.organization.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.statsBox}>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                Pending Events:
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {
+                                                    item.events.filter(
+                                                        (event) => {
+                                                            return (
+                                                                event.status ===
+                                                                "pendingApproval"
+                                                            );
+                                                        }
+                                                    ).length
+                                                }
+                                            </span>
+                                        </div>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                Approved Events:
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {
+                                                    item.events.filter(
+                                                        (event) => {
+                                                            return (
+                                                                event.status !==
+                                                                "pendingApproval"
+                                                            );
+                                                        }
+                                                    ).length
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <ItemList
                                     items={item.events}
                                     fields={[

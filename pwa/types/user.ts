@@ -30,6 +30,8 @@ export class User {
 
     setName(name: string): void {
         this.name = name;
+        this.firstName = name.split(" ")[0];
+        this.lastName = name.split(" ")[1];
     }
 
     setEmail(email: string): void {
@@ -100,9 +102,7 @@ export class User {
             const data = response.data;
             // create a new User object using the data from the API response
             const user = new User(data.id, apiToken);
-            user.firstName = data.firstName;
-            user.lastName = data.lastName;
-            user.name = data.name;
+            user.setName(data.name);
             user.email = data.email;
             user.emailVerified = data.emailVerified;
             user.phoneNumber = data.phoneNumber;
@@ -211,9 +211,7 @@ export class User {
             const data = response.data;
             // Update the instance properties with the fetched data
             this.id = data.id;
-            this.firstName = data.firstName;
-            this.lastName = data.lastName;
-            this.name = data.name;
+            this.setName(data.name);
             this.email = data.email;
             this.emailVerified = data.emailVerified;
             this.phoneNumber = data.phoneNumber;
