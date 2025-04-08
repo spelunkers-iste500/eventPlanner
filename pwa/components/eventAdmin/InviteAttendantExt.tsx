@@ -245,14 +245,23 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         p={2}
                         borderRadius="md"
                     >
-                        <Box flex="1">{email.email}</Box>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteEmail(email.email)}
-                        >
-                            <X size={16} />
-                        </Button>
+                        <Flex alignItems="center" justifyContent="space-between" width="100%">
+                            <Box className="email-box">
+                                <span>{email.email}</span>
+                            </Box>
+                            <Flex alignItems="center" gap="1rem">
+                                <Box className="status-box">
+                                    <span>{email.status}</span>
+                                </Box>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteEmail(email.email)}
+                                >
+                                    <X size={16} />
+                                </Button>
+                            </Flex>
+                        </Flex>
                     </Flex>
                 ))}
             </Box>
