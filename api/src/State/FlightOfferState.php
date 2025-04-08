@@ -76,8 +76,6 @@ class FlightOfferState implements ProcessorInterface, ProviderInterface
         $user->resetOffers();
         // save all offer id's to the user
         foreach ($flightOffers as $offer) {
-            $this->logger->info("Offer id: " . json_encode($offer));
-            $this->logger->info("Adding offer id: " . $offer->id);
             $user->addOfferIds($offer->id);
         }
         $user->setPassengerId($flightOffers[0]->passengerId);

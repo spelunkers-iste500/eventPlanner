@@ -16,6 +16,7 @@ use App\Entity\Event;
 use App\Repository\UserRepository;
 use App\Entity\Flight;
 use App\Repository\FlightRepository;
+use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 /**
  * Processes and provides the order info, updates related entities on persist.
@@ -130,44 +131,46 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         $title = $user->getTitle();
         $phoneNum = $user->getPhoneNumber();
         $birthday = $user->getBirthday()->format('Y-m-d');
+        $request = [
+            'headers' => [
+                'Duffel-Version' => "v2",
+                'Authorization' => 'Bearer ' . $this->token,
+            ],
+            'json' => [
+                'data' => [
+                    /**
+                     * Required fields, look into adding additional ones per documentation
+                     * payments is omitted because all flights are put on hold
+                     */
+
+                    'type' => 'hold',
+                    'selected_offers' => [$data->offerId],
+                    'passengers' => [
+                        [
+                            "id" => $passenger_id, // Use the passenger ID from the offer
+                            "title" => $title, // Adjust based on actual user data
+                            "given_name" => $firstName,
+                            "family_name" => $lastName, // Ensure a valid last name
+                            "gender" => $gender, // "m" for male, "f" for female
+                            "email" => $email,
+                            "born_on" => $birthday, // Must be valid date format YYYY-MM-DD
+                            "phone_number" => $phoneNum, // Must be in international format
+                        ]
+                    ],
+                ]
+            ]
+        ];
+        // log the request:
         $response = $this->client->request(
             'POST',
             'https://api.duffel.com/air/orders',
-            [
-                'headers' => [
-                    'Duffel-Version' => "v2",
-                    'Authorization' => 'Bearer ' . $this->token,
-                ],
-                'json' => [
-                    'data' => [
-                        /**
-                         * Required fields, look into adding additional ones per documentation
-                         * payments is omitted because all flights are put on hold
-                         */
-
-                        'type' => 'hold',
-                        'selected_offers' => [$data->offerId],
-                        'passengers' => [
-                            [
-                                "id" => $passenger_id, // Use the passenger ID from the offer
-                                "title" => $title, // Adjust based on actual user data
-                                "given_name" => $firstName,
-                                "family_name" => $lastName, // Ensure a valid last name
-                                "gender" => $gender, // "m" for male, "f" for female
-                                "email" => $email,
-                                "born_on" => $birthday, // Must be valid date format YYYY-MM-DD
-                                "phone_number" => $phoneNum, // Must be in international format
-                            ]
-                        ],
-                    ]
-                ]
-            ]
+            $request
         );
 
 
 
         if ($response->getStatusCode() != 201) {
-            throw new \Exception("Error creating order: " . $response->getStatusCode());
+            throw new \Exception("Error creating order: " . $response->getStatusCode() . ' - ' . $response->getContent(false));
         }
 
         $responseData = $response->toArray();

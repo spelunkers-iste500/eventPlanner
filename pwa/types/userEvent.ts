@@ -105,7 +105,22 @@ export class UserEvent {
                 }
                 userEventInstance.user = new User(userEvent.user.id);
                 userEventInstance.flights = userEvent.flights.map(
-                    (flight: any) => new Flight(flight.id)
+                    (flight: any) => {
+                        const flightInstance = new Flight(flight.id);
+                        flightInstance.setDepartureDateTime(
+                            flight.departureDateTime
+                        );
+                        flightInstance.setArrivalDateTime(
+                            flight.arrivalDateTime
+                        );
+                        flightInstance.setDepartureLocation(
+                            flight.departureLocation
+                        );
+                        flightInstance.setArrivalLocation(
+                            flight.arrivalLocation
+                        );
+                        return flightInstance;
+                    }
                 );
                 userEventInstance.status = userEvent.status;
                 return userEventInstance;
