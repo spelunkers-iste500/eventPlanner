@@ -29,13 +29,14 @@ const Dashboard: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
     const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
-    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<Organization | null>(null);
 
     useEffect(() => {
         if (!session) return;
         const fetchOrganizations = async () => {
             try {
-                console.log(organizations);
+                console.debug(organizations);
                 await organizations.forEach(async (org) => {
                     await org.fetch(session.apiToken);
                 });
@@ -55,7 +56,9 @@ const Dashboard: React.FC = () => {
         }
     }, [organizations]);
 
-    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
+    const [organizationOptions, setOrganizationOptions] = useState<
+        { label: string; value: string }[]
+    >([]);
 
     const handleOpenViewModal = (event: Event) => {
         setSelectedEvent(event);
@@ -98,8 +101,12 @@ const Dashboard: React.FC = () => {
     }
 
     // Filtering events into current and past events based on the current date
-    const currentEvents = events.filter((event) => !event.budget);
-    const pastEvents = events.filter((event) => event.budget);
+    const currentEvents = events.filter(
+        (event) => event.budget.id == "pendingApproval"
+    );
+    const pastEvents = events.filter(
+        (event) => event.budget.id != "pendingApproval"
+    );
 
     // Defining items for the accordion, including current events, past events, and members list
     const items = [

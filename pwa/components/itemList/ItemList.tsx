@@ -18,7 +18,7 @@ const ItemList = <T,>({
     renderItem = () => {}, // Default to a no-op function
 }: ItemListProps<T>): JSX.Element => {
     const handleRowClick = (item: T) => {
-        console.log("Row clicked:", item);
+        console.debug("Row clicked:", item);
         renderItem(item); // Safely invoke renderItem
     };
 

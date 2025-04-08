@@ -30,7 +30,7 @@ const SystemAdminDashboard: React.FC = () => {
                 Organization.allFromApiResponse(session.apiToken).then(
                     (orgs) => {
                         setOrganizations(orgs);
-                        console.log("Organizations:", orgs);
+                        console.debug("Organizations:", orgs);
                     }
                 );
             } catch (error) {

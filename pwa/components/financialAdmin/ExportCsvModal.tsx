@@ -51,7 +51,10 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                     },
                 })
                 .then((response) => {
-                    console.log("CSV export request response:", response.data);
+                    console.debug(
+                        "CSV export request response:",
+                        response.data
+                    );
                     if (response.data && typeof response.data === "object") {
                         createCsv(response.data);
                         createSuccess();

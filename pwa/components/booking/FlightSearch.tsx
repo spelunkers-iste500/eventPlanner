@@ -46,6 +46,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { formatDateSubmit } from "Types/events";
+import { Offer } from "Types/airports";
 
 interface SelectOption {
     label: string;
@@ -55,6 +56,8 @@ interface SelectOption {
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
+    const [flightResults, setFlightResults] = useState<Offer[]>([]);
+
     if (!session) return null;
     const [formData, setFormData] = useState({
         trip: "round-trip",
@@ -92,16 +95,48 @@ const FlightSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setBookingData({
-            ...bookingData,
-            trip: formData.trip,
-            originAirport: formData.origin,
-            destinationAirport: formData.destination,
-            departDate: formData.departDate,
-            returnDate: formData.returnDate,
-            maxConnections: 1,
-            content: <FlightResults />,
-        });
+        fetchFlightOffers();
+    };
+
+    const fetchFlightOffers = async () => {
+        axios
+            .post(
+                `/flight_offers`,
+                {
+                    origin: formData.origin,
+                    destination: formData.destination,
+                    departureDate: formData.departDate,
+                    returnDate:
+                        formData.trip === "round-trip"
+                            ? formData.returnDate
+                            : null,
+                    maxConnections: 1,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/ld+json",
+                        accept: "application/ld+json",
+                        Authorization: `Bearer ${session.apiToken}`,
+                    },
+                }
+            )
+            .then((response) => {
+                setFlightResults(response.data.flightOffers);
+                setBookingData({
+                    ...bookingData,
+                    trip: formData.trip,
+                    originAirport: formData.origin,
+                    destinationAirport: formData.destination,
+                    departDate: formData.departDate,
+                    returnDate: formData.returnDate,
+                    maxConnections: 1,
+                    flightOffers: response.data.flightOffers,
+                    content: <FlightResults />,
+                });
+            })
+            .catch((error) => {
+                console.error("Error fetching flight offers:", error);
+            });
     };
 
     const debounceTimeout = useRef<NodeJS.Timeout | null>(null);

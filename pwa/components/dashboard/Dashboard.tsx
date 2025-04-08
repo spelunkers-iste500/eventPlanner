@@ -30,11 +30,11 @@ const Dashboard: React.FC = () => {
 
     const getEvents = async () => {
         if (user && session) {
-            console.log("fetching user events");
+            console.debug("fetching user events");
             const userEvents = await UserEvent.allFromApiResponse(
                 session.apiToken
             );
-            console.log("User Events:", userEvents);
+            console.debug("User Events:", userEvents);
             const accepted: UserEvent[] = userEvents
                 .filter((userEvent) => userEvent.status === "accepted")
                 .map((userEvent) => userEvent);
@@ -43,8 +43,8 @@ const Dashboard: React.FC = () => {
                 .map((userEvent) => userEvent);
             setAcceptedEvents(accepted);
             setPendingEvents(pending);
-            console.log("Accepted Events:", accepted);
-            console.log("Pending Events:", pending);
+            console.debug("Accepted Events:", accepted);
+            console.debug("Pending Events:", pending);
             setLoading(false);
             // axios
             //     .get(`/my/events`, {
