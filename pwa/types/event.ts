@@ -311,9 +311,10 @@ export class Event {
                                 Accept: "application/ld+json",
                             },
                         }
-                        // set the id of the event to the generated ID
                     );
+                    // set the id of the event to the generated ID
                     this.id = response.data.id;
+                    this.iri = response.data["@id"];
                 } catch (error) {
                     console.error("Error creating event:", error);
                     throw error;
