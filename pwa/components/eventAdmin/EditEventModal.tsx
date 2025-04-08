@@ -74,14 +74,15 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 console.error("API token is not available.");
                 return;
             }
-            event.persist(session?.apiToken);
-            toaster.create({
-                title: "Event Created",
-                description: "Your event has been created successfully.",
-                type: "success",
-                duration: 5000,
+            event.persist(session?.apiToken).then(() => {
+                toaster.create({
+                    title: "Event Created",
+                    description: "Your event has been created successfully.",
+                    type: "success",
+                    duration: 5000,
+                });
+                console.debug("Event created:", event);
             });
-            console.debug("Event created:", event);
         }
     };
 
