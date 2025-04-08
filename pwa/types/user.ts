@@ -16,6 +16,7 @@ export class User {
     gender?: string;
     eventAdminOfOrg: Organization[] = [];
     financeAdminOfOrg: Organization[] = [];
+    adminOfOrg: Organization[] = [];
     superAdmin?: boolean;
     passengerId?: string;
     plainPassword?: string;
@@ -70,6 +71,9 @@ export class User {
     setPassengerId(passengerId: string): void {
         this.passengerId = passengerId;
     }
+    setAdminOfOrg(adminOfOrg: Organization[]): void {
+        this.adminOfOrg = adminOfOrg;
+    }
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "" && id !== "notPersisted") {
@@ -106,10 +110,19 @@ export class User {
             user.title = data.title;
             user.gender = data.gender;
             user.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org.id);
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             user.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
-                return new Organization(org.id);
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            user.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             user.superAdmin = data.superAdmin;
             user.passengerId = data.passengerId;
@@ -205,10 +218,19 @@ export class User {
             this.title = data.title;
             this.gender = data.gender;
             this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org["@id"].split("/").pop());
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             this.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
-                return new Organization(org["@id"].split("/").pop());
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            this.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             this.superAdmin = data.superAdmin;
             this.passengerId = data.passengerId;
