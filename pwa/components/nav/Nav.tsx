@@ -76,7 +76,7 @@ const Nav: React.FC = () => {
             icon: <HandCoins size={28} />,
         });
     }
-    if (user && user.superAdmin) {
+    if ((user && user.superAdmin) || (user && user.adminOfOrg.length > 0)) {
         navLinks.push({
             name: "Administrator",
             content: <OrgAdminDashboard />,
@@ -93,7 +93,7 @@ const Nav: React.FC = () => {
             name: "About Us",
             content: <About />,
             icon: <CircleHelp size={28} />,
-        },
+        }
     );
     return (
         <div

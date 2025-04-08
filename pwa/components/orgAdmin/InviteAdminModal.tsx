@@ -3,11 +3,12 @@ import BaseDialog from "Components/common/BaseDialog";
 import { X } from "lucide-react";
 import styles from "../common/Dialog.module.css";
 import InviteAdminExt from "./InviteAdminExt";
+import { Organization } from "Types/organization";
 
 interface InviteAdminModalProps {
     isOpen: boolean;
     onClose: () => void;
-    organization: { label: string; value: string } | null;
+    organization: Organization | null;
 }
 
 const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
@@ -18,6 +19,9 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
     const handleClose = () => {
         onClose();
     };
+    if (!organization) {
+        return null;
+    }
 
     return (
         <BaseDialog isOpen={isOpen} onClose={handleClose}>
@@ -29,7 +33,7 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({
             </div>
             <div className={styles.dialogBody}>
                 {organization ? (
-                    <InviteAdminExt organizationId={organization.value} />
+                    <InviteAdminExt org={organization} />
                 ) : (
                     <div className={styles.errorMsg}>
                         Please select an organization to invite admins.
