@@ -45,6 +45,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-${{ github.ref }}
             ${{ runner.os }}-buildx-
+      - name: Debug cache directory contents
+          run: |
+            ls -alh /tmp/.buildx-cache || echo "Cache directory not found"
       - name: Build Docker images
         uses: docker/bake-action@v6
         with:
