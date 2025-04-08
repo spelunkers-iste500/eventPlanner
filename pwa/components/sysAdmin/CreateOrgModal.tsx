@@ -7,6 +7,8 @@ import { Switch } from "@chakra-ui/react";
 import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
 import { useContent } from "Utils/ContentProvider";
 import axios from "axios";
+import { Organization } from "Types/organization";
+import { useSession } from "next-auth/react";
 
 interface CreateOrgModalProps {
     isOpen: boolean;
@@ -20,14 +22,14 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
     const [address, setAddress] = useState("");
     const [industry, setIndustry] = useState("");
     const [inviteAdmins, setInviteAdmins] = useState(false);
-
     const [adminEmails, setAdminEmails] = useState<string[]>([]);
     const [eventAdminEmails, setEventAdminEmails] = useState<string[]>([]);
     const [financeAdminEmails, setFinanceAdminEmails] = useState<string[]>([]);
     const [emailInput, setEmailInput] = useState("");
     const [selectedRole, setSelectedRole] = useState("");
     const [error, setError] = useState("");
-
+    const { data: session } = useSession();
+    if (!session) return null;
     const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
     const handleAddEmail = () => {
@@ -80,35 +82,26 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
 
     const handleSubmit = () => {
         if (name && description && address && industry) {
-            const newOrganization = {
-                name,
-                description,
-                address,
-                industry,
-            };
-
-            axios
-                .post("/organizations", newOrganization, {
-                    headers: {
-                        "Content-Type": "application/ld+json",
-                    },
-                })
-                .then((response) => {
-                    const organizationId = response.data.id;
-
+            const org = new Organization();
+            org.setName(name);
+            org.setDescription(description);
+            org.setAddress(address);
+            org.setIndustry(industry);
+            org.persist(session.apiToken)
+                .then(() => {
                     const invites = [
                         ...adminEmails.map((email) => ({
-                            organization: organizationId,
+                            organization: org.getIri(),
                             expectedEmail: email,
                             inviteType: "admin",
                         })),
                         ...eventAdminEmails.map((email) => ({
-                            organization: organizationId,
+                            organization: org.getIri(),
                             expectedEmail: email,
                             inviteType: "eventAdmin",
                         })),
                         ...financeAdminEmails.map((email) => ({
-                            organization: organizationId,
+                            organization: org.getIri(),
                             expectedEmail: email,
                             inviteType: "financeAdmin",
                         })),
@@ -119,15 +112,8 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                             .post("/organizationInvite", invite, {
                                 headers: {
                                     "Content-Type": "application/ld+json",
+                                    Authorization: `Bearer ${session.apiToken}`,
                                 },
-                            })
-                            .then(() => {
-                                // toaster.create({
-                                //     title: "Invite Sent",
-                                //     description: `Invite sent to ${invite.expectedEmail}`,
-                                //     type: "success",
-                                //     duration: 5000,
-                                // });
                             })
                             .catch((err) => {
                                 console.error(err);
