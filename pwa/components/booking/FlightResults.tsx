@@ -35,12 +35,12 @@
 
 // Finally, the `FlightResults` component is exported as the default export of the module.
 
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useBooking } from "Utils/BookingProvider";
 import { Spinner } from "@chakra-ui/react";
 import { Offer, Segment, Slice } from "types/airports";
 import { ArrowLeft, MoveRight } from "lucide-react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set } from "date-fns";
 import axios from "axios";
 import FlightSearch from "./FlightSearch";
 import FlightBooking from "./FlightBooking";
@@ -89,6 +89,12 @@ const FlightResults: React.FC = () => {
     };
 
     displayedResults = flightResults.slice(0, currentPage * resultsPerPage);
+
+    useEffect(() => {
+        if (flightResults.length !== 0) {
+            setLoading(false);
+        }
+    }, [flightResults]);
 
     return (
         <div>
