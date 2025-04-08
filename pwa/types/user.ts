@@ -110,10 +110,19 @@ export class User {
             user.title = data.title;
             user.gender = data.gender;
             user.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org.id);
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             user.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
-                return new Organization(org.id);
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            user.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             user.adminOfOrg = data.AdminOfOrg.map((org: any) => {
                 return new Organization(org.id);
@@ -212,10 +221,19 @@ export class User {
             this.title = data.title;
             this.gender = data.gender;
             this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org["@id"].split("/").pop());
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             this.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
-                return new Organization(org["@id"].split("/").pop());
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            this.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             this.adminOfOrg = data.AdminOfOrg.map((org: any) => {
                 return new Organization(org["@id"].split("/").pop());

@@ -190,12 +190,13 @@ export class Event {
                     : 1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
-                event.setBudget(
-                    new Budget(item.budget ? item.budget.id : "notPersisted")
-                );
-                item.budget
-                    ? (event.budget.perUserTotal = item.budget.perUserTotal)
-                    : (event.budget.perUserTotal = 0);
+                if (item.budget) {
+                    event.setBudget(new Budget(item.budget.id));
+                    event.budget.perUserTotal = item.budget.perUserTotal;
+                } else {
+                    event.budget = new Budget("pendingApproval");
+                    event.budget.perUserTotal = 0;
+                }
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
                 event.setEndDateTime(item.endDateTime);
@@ -314,6 +315,9 @@ export class Event {
                             },
                         }
                     );
+                    // set the id of the event to the generated ID
+                    this.id = response.data.id;
+                    this.iri = response.data["@id"];
                 } catch (error) {
                     console.error("Error creating event:", error);
                     throw error;

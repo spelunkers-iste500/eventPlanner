@@ -37,7 +37,7 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     const { user } = useUser();
 
     const handleSubmit = async () => {
-        console.log("Event Object: ", event);
+        console.debug("Event Object: ", event);
         if (perUserTotal && perUserOverage) {
             if (session && user) {
                 const budget = new Budget();
@@ -46,7 +46,8 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 budget.event = event;
                 budget.organization = user.financeAdminOfOrg[0];
                 await budget.persist(session.apiToken);
-                console.log("Persisted budget: ", budget);
+                console.debug("Persisted budget: ", budget);
+                event.budget = budget; // Update the budget in the event object
                 createSuccess();
                 handleClose();
 

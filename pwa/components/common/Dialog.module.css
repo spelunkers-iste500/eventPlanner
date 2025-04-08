@@ -262,6 +262,10 @@
 	gap: 1rem;
 }
 
+.dialog-submit-btn {
+	justify-content: flex-end;
+	flex-direction: row;
+}
 .form-container {
 	display: flex;
 	flex-direction: column;
