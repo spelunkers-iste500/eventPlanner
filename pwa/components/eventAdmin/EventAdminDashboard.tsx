@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
     if (organizations && organizations.length > 0) {
         organizations[0].fetch(session.apiToken).then((org) => {
             setSelectedOrganization(organizations[0]); // State for the selected organization
-        })
+        });
     }
 
     useEffect(() => {
@@ -53,11 +53,12 @@ const Dashboard: React.FC = () => {
 
         if (organizations.length > 0) {
             fetchOrganizations().then(() => {
-            const mappedOptions = organizations.map((org) => ({
-                label: org.getName(),
-                value: org.id,
-            }));
-            setOrganizationOptions(mappedOptions);})
+                const mappedOptions = organizations.map((org) => ({
+                    label: org.getName(),
+                    value: org.id,
+                }));
+                setOrganizationOptions(mappedOptions);
+            });
         }
     }, [organizations]);
 
@@ -91,13 +92,18 @@ const Dashboard: React.FC = () => {
                 session.apiToken,
                 "eventAdmin"
             );
-            setEvents(events);
-            setLoading(false);
+            return events;
         }
     };
 
     useEffect(() => {
-        getEvents();
+        getEvents().then((events) => {
+            if (!events) {
+                return;
+            }
+            setEvents(events);
+            setLoading(false);
+        });
     }, [user]);
 
     if (loading) {
@@ -111,18 +117,29 @@ const Dashboard: React.FC = () => {
         (event) => event.budget.id != "pendingApproval"
     );
 
-    const items = [
-        {
-            value: "pending-events",
-            title: "Events Pending Approval",
-            events: currentEvents,
-        },
-        {
-            value: "approved-events",
-            title: "Approved Events",
-            events: pastEvents,
-        },
-    ];
+    console.info("Events", events);
+
+    const items = organizations.map((org) => {
+        return {
+            value: org.id,
+            title: org.getName(),
+            organization: org,
+            events: events.filter((event) => event.organization.id === org.id),
+        };
+    });
+
+    // const items = [
+    //     {
+    //         value: "pending-events",
+    //         title: "Events Pending Approval",
+    //         events: currentEvents,
+    //     },
+    //     {
+    //         value: "approved-events",
+    //         title: "Approved Events",
+    //         events: pastEvents,
+    //     },
+    // ];
 
     return (
         <div className={styles.plannerDashboardContainer}>
@@ -150,15 +167,19 @@ const Dashboard: React.FC = () => {
                 <div className={styles.statsBox}>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>
-                            Pending Events: 
+                            Pending Events:
                         </span>
-                        <span className={styles.statValue}>{currentEvents.length}</span>
+                        <span className={styles.statValue}>
+                            {currentEvents.length}
+                        </span>
                     </div>
                     <div className={styles.statItem}>
                         <span className={styles.statLabel}>
-                            Approved Events: 
+                            Approved Events:
                         </span>
-                        <span className={styles.statValue}>{pastEvents.length}</span>
+                        <span className={styles.statValue}>
+                            {pastEvents.length}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -170,40 +191,50 @@ const Dashboard: React.FC = () => {
 
             {/* Organization Filter Dropdown */}
             <div className={styles.filterContainer}>
-            <Select
-                options={organizationOptions}
-                size="md"
-                isSearchable={false}
-                defaultValue={
-                    organizationOptions.length > 0
-                        ? { label: organizationOptions[0].label, value: organizationOptions[0].value }
-                        : undefined
-                }
-                value={
-                    selectedOrganization
-                        ? { label: selectedOrganization.name, value: selectedOrganization.id }
-                        : undefined
-                }
-                onChange={(option) => {
-                    const selectedOrg = organizations?.find(
-                        (org) => org.id === option?.value
-                    );
-                    if (selectedOrg) {
-                        setSelectedOrganization(selectedOrg);
+                <Select
+                    options={organizationOptions}
+                    size="md"
+                    isSearchable={false}
+                    defaultValue={
+                        organizationOptions.length > 0
+                            ? {
+                                  label: organizationOptions[0].label,
+                                  value: organizationOptions[0].value,
+                              }
+                            : undefined
                     }
-                }}
-                className={`select-menu`}
-                classNamePrefix={'select'}
-            />
+                    value={
+                        selectedOrganization
+                            ? {
+                                  label: selectedOrganization.name,
+                                  value: selectedOrganization.id,
+                              }
+                            : undefined
+                    }
+                    onChange={(option) => {
+                        const selectedOrg = organizations?.find(
+                            (org) => org.id === option?.value
+                        );
+                        if (selectedOrg) {
+                            setSelectedOrganization(selectedOrg);
+                        }
+                    }}
+                    className={`select-menu`}
+                    classNamePrefix={"select"}
+                />
             </div>
 
             <Stack gap="4">
                 <AccordionRoot
+                    multiple
                     value={value}
                     onValueChange={(e) => setValue(e.value)}
                 >
                     {items.map((item, index) => (
-                        <AccordionItem key={index} value={item.value}>
+                        <AccordionItem
+                            key={index}
+                            value={item.organization.getName()}
+                        >
                             <AccordionItemTrigger>
                                 {item.title}
                             </AccordionItemTrigger>
