@@ -249,4 +249,7 @@ export class User {
     getIri(): string {
         return `/users/${this.id}`;
     }
+    getEmail(): string {
+        return this.email || "";
+    }
 }
