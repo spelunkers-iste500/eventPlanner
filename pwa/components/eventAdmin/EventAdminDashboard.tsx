@@ -29,13 +29,14 @@ const Dashboard: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for the create event modal
     const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
-    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<Organization | null>(null);
 
     useEffect(() => {
         if (!session) return;
         const fetchOrganizations = async () => {
             try {
-                console.log(organizations);
+                console.debug(organizations);
                 await organizations.forEach(async (org) => {
                     await org.fetch(session.apiToken);
                 });
@@ -55,7 +56,9 @@ const Dashboard: React.FC = () => {
         }
     }, [organizations]);
 
-    const [organizationOptions, setOrganizationOptions] = useState<{ label: string; value: string }[]>([]);
+    const [organizationOptions, setOrganizationOptions] = useState<
+        { label: string; value: string }[]
+    >([]);
 
     const handleOpenViewModal = (event: Event) => {
         setSelectedEvent(event);
@@ -165,24 +168,27 @@ const Dashboard: React.FC = () => {
             {/* Organization Filter Dropdown */}
             <div className={styles.filterContainer}>
                 <Select
-                        options={organizationOptions}
-                        placeholder="Select Organization"
-                        size="md"
-                        isSearchable={false}
-                        value={
-                            selectedOrganization ? organizationOptions.find(
-                                (option) => option.value === selectedOrganization?.id
-                            ) : null
-                        }
-                        onChange={(option) => {
-                            const selectedOrg = organizations?.find(
-                                (org) => org.id === option?.value
-                            );
-                            setSelectedOrganization(selectedOrg || null);
-                        }}
-                        className={`select-menu`}
-                        classNamePrefix={'select'}
-                    />
+                    options={organizationOptions}
+                    placeholder="Select Organization"
+                    size="md"
+                    isSearchable={false}
+                    value={
+                        selectedOrganization
+                            ? organizationOptions.find(
+                                  (option) =>
+                                      option.value === selectedOrganization?.id
+                              )
+                            : null
+                    }
+                    onChange={(option) => {
+                        const selectedOrg = organizations?.find(
+                            (org) => org.id === option?.value
+                        );
+                        setSelectedOrganization(selectedOrg || null);
+                    }}
+                    className={`select-menu`}
+                    classNamePrefix={"select"}
+                />
             </div>
 
             <Stack gap="4">

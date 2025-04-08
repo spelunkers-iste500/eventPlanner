@@ -23,7 +23,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                 industry,
             };
 
-            console.log("New Organization:", newOrganization);
+            console.debug("New Organization:", newOrganization);
 
             setTimeout(() => {
                 toaster.create({

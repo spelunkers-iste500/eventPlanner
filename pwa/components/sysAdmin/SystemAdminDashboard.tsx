@@ -27,10 +27,12 @@ const SystemAdminDashboard: React.FC = () => {
                 if (!session) {
                     throw new Error("Session not found");
                 }
-                Organization.allFromApiResponse(session.apiToken).then((orgs) => {
-                    setOrganizations(orgs);
-                    console.log("Organizations:", orgs);
-                });
+                Organization.allFromApiResponse(session.apiToken).then(
+                    (orgs) => {
+                        setOrganizations(orgs);
+                        console.debug("Organizations:", orgs);
+                    }
+                );
             } catch (error) {
                 console.error("Error fetching organizations:", error);
             }

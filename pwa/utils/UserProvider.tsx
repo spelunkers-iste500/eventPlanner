@@ -32,7 +32,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
             const user = new User("self");
             user.fetch(session.apiToken).then((user) => {
                 setUser(user);
-                console.log("Fetched user data from User.fetch();", user);
+                console.debug("Fetched user data from User.fetch();", user);
             });
             // setUser(user);
         }

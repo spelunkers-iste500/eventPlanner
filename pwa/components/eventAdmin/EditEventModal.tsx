@@ -35,7 +35,11 @@ interface CreateEventModalProps {
     event: Event | null;
 }
 
-const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, event }) => {
+const CreateEventModal: React.FC<CreateEventModalProps> = ({
+    isOpen,
+    onClose,
+    event,
+}) => {
     const { data: session } = useSession();
 
     const [eventTitle, setEventTitle] = useState("");
@@ -45,7 +49,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
     const [eventImage, setEventImage] = useState<File | null>(null);
     const [maxAttendee, setMaxAttendee] = useState<number>(20);
     const [inviteUsers, setInviteUsers] = useState(false);
-    const [selectedOrganization, setSelectedOrganization] = useState<Organization | null>(null);
+    const [selectedOrganization, setSelectedOrganization] =
+        useState<Organization | null>(null);
     const [createdEvent, setCreatedEvent] = useState<Event | null>(null);
     const [multiDay, setMultiDay] = useState(false);
 
@@ -66,7 +71,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
             event.startFlightBooking = startDate.toISOString();
             event.endFlightBooking = endDate.toISOString();
             event.location = location;
-            event.organization = selectedOrganization
+            event.organization = selectedOrganization;
             event.maxAttendees = maxAttendee;
             if (!session?.apiToken) {
                 console.error("API token is not available.");
@@ -80,7 +85,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                 type: "success",
                 duration: 5000,
             });
-            console.log("Event created:", event);
+            console.debug("Event created:", event);
         }
     };
 
@@ -92,8 +97,9 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                     <X />
                 </button>
             </DialogHeader>
-            <DialogBody className={`${styles.dialogBody} ${styles.eventDialog}`}>
-
+            <DialogBody
+                className={`${styles.dialogBody} ${styles.eventDialog}`}
+            >
                 <Tabs.Root defaultValue="info">
                     <Tabs.List justifyContent={"center"}>
                         <Tabs.Trigger value="info">
@@ -113,27 +119,46 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({ isOpen, onClose, ev
                         {/* Event Image */}
                         <div className="input-container">
                             <label className="input-label">Event Image</label>
-                            <UploadFile eventImage={eventImage} setEventImage={setEventImage} />
+                            <UploadFile
+                                eventImage={eventImage}
+                                setEventImage={setEventImage}
+                            />
                         </div>
 
                         {/* Event Title */}
-                        <Input label="Event Title" defaultValue={event?.eventTitle} onChange={(value) => setEventTitle(value)} />
+                        <Input
+                            label="Event Title"
+                            defaultValue={event?.eventTitle}
+                            onChange={(value) => setEventTitle(value)}
+                        />
 
                         {/* Event Location */}
-                        <Input label="Location" defaultValue={event?.location} onChange={(value) => setLocation(value)} />
-                        
+                        <Input
+                            label="Location"
+                            defaultValue={event?.location}
+                            onChange={(value) => setLocation(value)}
+                        />
+
                         {/* Event Max Attendees */}
-                        <Input label="Max Attendees" type="number" defaultValue={`${event?.maxAttendees}`} onChange={(value) => setMaxAttendee(Number(value))} />
-                        
+                        <Input
+                            label="Max Attendees"
+                            type="number"
+                            defaultValue={`${event?.maxAttendees}`}
+                            onChange={(value) => setMaxAttendee(Number(value))}
+                        />
+
                         <div className="input-container">
                             <Button onClick={handleSubmit}>Update Event</Button>
                         </div>
                     </Tabs.Content>
 
                     <Tabs.Content value="attendees">
-                        <InviteAttendantExt createdEvent={event} isEditing={true} />
+                        <InviteAttendantExt
+                            createdEvent={event}
+                            isEditing={true}
+                        />
                     </Tabs.Content>
-                    
+
                     <Tabs.Content value="flights">
                         {/* Add flight tracking in here */}
                         <ItemList<Flight>

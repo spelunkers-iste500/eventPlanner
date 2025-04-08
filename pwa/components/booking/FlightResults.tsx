@@ -56,7 +56,7 @@ const FlightResults: React.FC = () => {
     if (!session) {
         return null;
     }
-    console.log("Event:", bookingData.event);
+    console.debug("Event:", bookingData.event);
     const budget = bookingData.event.budget.perUserTotal
         ? bookingData.event.budget.perUserTotal
         : 0;
@@ -102,7 +102,6 @@ const FlightResults: React.FC = () => {
             setFlightResults([]);
             setLoading(true);
             displayedResults = [];
-            console.log("FlightResults component unmounted");
         };
     }, [bookingData]);
 

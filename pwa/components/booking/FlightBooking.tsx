@@ -82,7 +82,7 @@ const FlightBooking = () => {
                 }
             )
             .then((response) => {
-                console.log("Event updated:", response.data);
+                console.debug("Event updated:", response.data);
             })
             .catch((error) => {
                 console.error("Error updating event:", error);
@@ -108,7 +108,7 @@ const FlightBooking = () => {
                 }
             )
             .then((response) => {
-                console.log("Booking response:", response.data);
+                console.debug("Booking response:", response.data);
                 if (response.status == 201) {
                     bookingSuccess();
                 }

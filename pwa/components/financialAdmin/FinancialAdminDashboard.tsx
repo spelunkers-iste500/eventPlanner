@@ -195,7 +195,7 @@ const FinancialAdminDashboard: React.FC = () => {
                 <div className={styles.filterContainer}>
                     <Select.Root
                         onValueChange={(d) => {
-                            console.log(d);
+                            console.debug(d);
                         }}
                         collection={orgCollection}
                     >

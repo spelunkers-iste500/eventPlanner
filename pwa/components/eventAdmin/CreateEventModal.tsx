@@ -110,7 +110,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         type: "success",
                         duration: 5000,
                     });
-                    console.log("Event created:", event);
+                    console.debug("Event created:", event);
                 },
                 () => {
                     toaster.create({
@@ -125,8 +125,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     };
 
     useEffect(() => {
-        console.log("Organizations:", organizations);
-        console.log("Selected Org:", selectedOrganization);
+        console.debug("Organizations:", organizations);
+        console.debug("Selected Org:", selectedOrganization);
     }, [selectedOrganization]);
 
     return (
