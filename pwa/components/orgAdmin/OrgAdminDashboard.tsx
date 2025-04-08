@@ -141,9 +141,11 @@ const OrgAdminDashboard: React.FC = () => {
                 </div>
 
                 {/* System Admin Dashboard */}
-                <div>
-                    <SystemAdminDashboard />
-                </div>
+                {user?.superAdmin && (
+                    <div>
+                        <SystemAdminDashboard />
+                    </div>
+                )}
             </div>
             <InviteAdminModal
                 isOpen={inviteAdminModalOpen}
