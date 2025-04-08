@@ -209,6 +209,7 @@ export class Event {
                 event.setOrganization(
                     new Organization(item.organization["@id"].split("/").pop())
                 );
+                event.maxAttendees = item.maxAttendees;
                 event.organization.setName(item.organization.name);
                 context == "eventAdmin"
                     ? (event.attendees = item.attendees.map((attendee: any) => {
@@ -255,6 +256,7 @@ export class Event {
                         event.setOrganization(
                             new Organization(item.organization.id)
                         );
+                        event.maxAttendees = item.maxAttendees;
                         context == "eventAdmin"
                             ? (event.attendees = item.attendees.map(
                                   (attendee: any) => {
@@ -353,6 +355,7 @@ export class Event {
                         {
                             headers: {
                                 Authorization: `Bearer ${apiToken}`,
+                                "Content-Type": "application/merge-patch+json",
                             },
                         }
                     );

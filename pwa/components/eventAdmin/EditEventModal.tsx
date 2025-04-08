@@ -133,7 +133,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Input
                             label="Location"
                             defaultValue={event?.location}
-                            onChange={(value) => setLocation(value)}
+                            onChange={(value) => event?.setLocation(value)}
+                            inputMode="text"
                         />
 
                         {/* Event Max Attendees */}
