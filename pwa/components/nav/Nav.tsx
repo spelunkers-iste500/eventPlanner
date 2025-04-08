@@ -23,7 +23,7 @@
 // Finally, the `Nav` component is exported as the default export of the module.
 
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useContent } from "Utils/ContentProvider";
 import {
@@ -48,7 +48,7 @@ import FinancialAdminDashboard from "Components/financialAdmin/FinancialAdminDas
 import { useUser } from "Utils/UserProvider";
 import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
 const Nav: React.FC = () => {
-    const [navCollapsed, setNavCollapsed] = React.useState<boolean>(false);
+    const [navCollapsed, setNavCollapsed] = React.useState<boolean>(true);
     const [imageError, setImageError] = React.useState<boolean>(false);
     const { data: session } = useSession();
     const { state, setContent } = useContent();
@@ -95,6 +95,13 @@ const Nav: React.FC = () => {
             icon: <CircleHelp size={28} />,
         }
     );
+
+    useEffect(() => {
+        if (window.innerWidth >= 768) {
+            setNavCollapsed(false);
+        }
+    }, []);
+
     return (
         <>
             <div

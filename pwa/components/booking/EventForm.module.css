@@ -35,9 +35,13 @@
 	flex-direction: row;
 	flex-wrap: wrap;
 	gap: 1rem;
-	justify-content: flex-end;
 	align-items: center;
 	flex-grow: 1;
+
+}
+
+.flight-search-form button {
+	margin-left: auto;
 }
 
 .trip-type {
@@ -205,4 +209,26 @@
 
 .booking-form button {
 	width: 100%;
+}
+
+@media (max-width: 768px) {
+	.back-home {
+		position: relative;
+		top: 0;
+		right: 0;
+		margin-left: auto;
+	}
+
+	.event-info h1 {
+		font-size: 1.5rem;
+	}
+
+	.event-info h2 {
+		font-size: 1rem;
+		margin: 0 0 0.5rem 0;
+	}
+
+	.origin-destination {
+		flex-direction: column;
+	}
 }

@@ -46,7 +46,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { formatDateSubmit } from "Types/events";
-import { Offer } from "Types/airports";
 
 interface SelectOption {
     label: string;
@@ -56,7 +55,7 @@ interface SelectOption {
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
-    const [flightResults, setFlightResults] = useState<Offer[]>([]);
+    const [error, setError] = useState<string>("");
 
     if (!session) return null;
     const [formData, setFormData] = useState({
@@ -95,6 +94,29 @@ const FlightSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // check each formdata if it has empty fields
+        if (!formData.origin) {
+            setError("Origin is required");
+            return;
+        }
+
+        if (!formData.destination) {
+            setError("Destination is required");
+            return;
+        }
+
+        if (!formData.departDate) {
+            setError("Departure date is required");
+            return;
+        }
+
+        if (formData.trip === "round-trip" && !formData.returnDate) {
+            setError("Return date is required for round trip");
+            return;
+        }
+
+        setError("");
         fetchFlightOffers();
     };
 
@@ -121,7 +143,6 @@ const FlightSearch: React.FC = () => {
                 }
             )
             .then((response) => {
-                setFlightResults(response.data.flightOffers);
                 setBookingData({
                     ...bookingData,
                     trip: formData.trip,
@@ -181,6 +202,7 @@ const FlightSearch: React.FC = () => {
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
+            {error && <div className="error-msg">{error}</div>}
             <div className="input-container">
                 <label className="input-label">Trip Type</label>
                 <Select
@@ -257,7 +279,7 @@ const FlightSearch: React.FC = () => {
                         }
                         placeholder="Where to?"
                         size="md"
-                        className={`select-menu`}
+                        className={`select-menu needsclick`}
                         classNamePrefix={"select"}
                         onChange={(value: any) =>
                             setFormData({
