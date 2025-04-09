@@ -227,6 +227,7 @@ export class Event {
                 event.setOrganization(
                     new Organization(item.organization["@id"])
                 );
+                event.location = item.location;
                 event.organization.setName(item.organization.name);
                 context === "eventAdmin"
                     ? (event.attendees = item.attendees.map((attendee: any) => {
