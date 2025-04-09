@@ -9,12 +9,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 final class FlightVoter extends Voter
 {
     public const VIEW = 'view';
+    public const EDIT = 'edit';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
         // replace with your own logic
         // https://symfony.com/doc/current/security/voters.html
-        return in_array($attribute, [self::VIEW])
+        return in_array($attribute, [self::VIEW, self::EDIT])
             && $subject instanceof \App\Entity\Flight;
     }
 
@@ -32,6 +33,12 @@ final class FlightVoter extends Voter
                 if ($subject->getUser() === $user || $subject->getEvent()->getOrganization()->getEventAdmins()->contains($user) || $subject->getEvent()->getOrganization()->getAdmins()->contains($user)) {
                     return true;
                 }
+                break;
+            case self::EDIT:
+                if ($subject->getEvent()->getOrganization()->getEventAdmins()->contains($user) || $subject->getEvent()->getOrganization()->getAdmins()->contains($user)) {
+                    return true;
+                }
+                break;
         }
 
         return false;
