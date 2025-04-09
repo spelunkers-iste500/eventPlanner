@@ -24,6 +24,7 @@ export class Event {
     inviteCode: string;
     maxAttendees: number;
     attendees: UserEvent[];
+    status: string;
     /**
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
@@ -43,6 +44,7 @@ export class Event {
         this.budget = new Budget();
         this.attendees = [];
         this.iri = `/events/${id}`; // construct IRI if not provided
+        this.status = "pendingApproval"; // default status
         if (apiToken !== "") {
             this.fetch(apiToken);
         }
@@ -188,14 +190,19 @@ export class Event {
                 response.data["hydra:view"]["hydra:last"]
                     ? response.data["hydra:view"]["hydra:last"].split("=")[1]
                     : 1;
+            response.data["hydra:view"] &&
+            response.data["hydra:view"]["hydra:last"]
+                ? response.data["hydra:view"]["hydra:last"].split("=")[1]
+                : 1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
                 if (item.budget) {
-                    event.setBudget(new Budget(item.budget.id));
-                    event.budget.perUserTotal = item.budget.perUserTotal;
+                    event.setBudget(new Budget(item.budget.split("/").pop()));
+                    event.status = "approved";
                 } else {
                     event.budget = new Budget("pendingApproval");
                     event.budget.perUserTotal = 0;
+                    event.status = "pendingApproval";
                 }
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
@@ -203,8 +210,12 @@ export class Event {
                 event.setStartFlightBooking(item.startFlightBooking);
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
-                event.setOrganization(new Organization(item.organization.id));
-                url === "/my/organizations/events/eventAdmin"
+                event.setOrganization(
+                    new Organization(item.organization["@id"].split("/").pop())
+                );
+                event.maxAttendees = item.maxAttendees;
+                event.organization.setName(item.organization.name);
+                context == "eventAdmin"
                     ? (event.attendees = item.attendees.map((attendee: any) => {
                           const userEvent = new UserEvent(attendee.id);
                           userEvent.setUser(new User(attendee.user.id));
@@ -230,14 +241,16 @@ export class Event {
                     const data = response.data["hydra:member"];
                     data.forEach((item: any) => {
                         const event = new Event(item.id);
-                        item.budget
-                            ? event.setBudget(
-                                  new Budget(
-                                      item.budget.id,
-                                      item.budget.perUserTotal
-                                  )
-                              )
-                            : event.setBudget(new Budget());
+                        if (item.budget) {
+                            event.setBudget(
+                                new Budget(item.budget.split("/").pop())
+                            );
+                            event.status = "approved";
+                        } else {
+                            event.budget = new Budget("pendingApproval");
+                            event.budget.perUserTotal = 0;
+                            event.status = "pendingApproval";
+                        }
                         event.setEventTitle(item.eventTitle);
                         event.setStartDateTime(item.startDateTime);
                         event.setEndDateTime(item.endDateTime);
@@ -247,7 +260,8 @@ export class Event {
                         event.setOrganization(
                             new Organization(item.organization.id)
                         );
-                        url === "/my/organizations/events/eventAdmin"
+                        event.maxAttendees = item.maxAttendees;
+                        context == "eventAdmin"
                             ? (event.attendees = item.attendees.map(
                                   (attendee: any) => {
                                       const userEvent = new UserEvent(
@@ -318,6 +332,9 @@ export class Event {
                     // set the id of the event to the generated ID
                     this.id = response.data.id;
                     this.iri = response.data["@id"];
+                    // set the id of the event to the generated ID
+                    this.id = response.data.id;
+                    this.iri = response.data["@id"];
                 } catch (error) {
                     console.error("Error creating event:", error);
                     throw error;
@@ -345,6 +362,7 @@ export class Event {
                         {
                             headers: {
                                 Authorization: `Bearer ${apiToken}`,
+                                "Content-Type": "application/merge-patch+json",
                             },
                         }
                     );

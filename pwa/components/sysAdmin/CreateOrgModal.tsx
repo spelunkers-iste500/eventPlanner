@@ -327,7 +327,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                 )}
 
                 {/* Submit Button */}
-                <div className="input-container">
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <button className="dialog-button" onClick={handleSubmit}>
                         Create Organization
                     </button>

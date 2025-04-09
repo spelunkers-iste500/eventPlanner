@@ -173,11 +173,11 @@ jobs:
 
       - name: Generate JWT signing certificates
         run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
-      
+
       #- name: import from exiting data backup
-        #run: |
-        #  cd /opt
-        #  cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
+      #run: |
+      #  cd /opt
+      #  cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
       - name: known good state
         run: |
           cd /opt/appRoot
