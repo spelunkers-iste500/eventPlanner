@@ -264,12 +264,17 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                                 </option>
                             </select>
                         </div>
-                        <button
-                            className="dialog-button"
-                            onClick={handleAddEmail}
+                        <br></br>
+                        <div
+                            className={`input-container ${styles.dialogSubmitBtn}`}
                         >
-                            Add Admin
-                        </button>
+                            <button
+                                className="dialog-button"
+                                onClick={handleAddEmail}
+                            >
+                                Add Admin
+                            </button>
+                        </div>
                         {error && (
                             <div className={styles.errorMsg}>{error}</div>
                         )}
