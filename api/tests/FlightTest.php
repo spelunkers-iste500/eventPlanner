@@ -145,8 +145,6 @@ use Zenstruck\Foundry\Test\ResetDatabase;
             'arrivalDateTime' => '2023-10-01T12:00:00+00:00',
             'departureLocation' => 'New York',
             'arrivalLocation' => 'Los Angeles',
-            'flightNumber' => 'AA123',
-            'event' => $eventiri, 
         ]);
         //test to see if user can't patch another user
         $client->request('GET', $flightIri, ['auth_bearer' => $jwttokenUser2['token']]);
