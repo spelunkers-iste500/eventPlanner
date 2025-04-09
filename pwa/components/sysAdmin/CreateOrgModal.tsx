@@ -179,7 +179,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                     <X />
                 </button>
             </div>
-            <div className={styles.dialogBody}>
+            <div className={`${styles.dialogBody} ${styles.formContainer}`}>
                 {/* Organization Details */}
                 <div className="input-container">
                     <label className="input-label">Name</label>
@@ -232,7 +232,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Admin Invitation Section */}
                 {inviteAdmins && (
-                    <div>
+                    <div className={styles.formContainer}>
                         <div className="input-container">
                             <label className="input-label">Admin Email</label>
                             <input
@@ -264,12 +264,11 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                                 </option>
                             </select>
                         </div>
-                        <br></br>
                         <div
                             className={`input-container ${styles.dialogSubmitBtn}`}
                         >
                             <button
-                                className="dialog-button"
+                                className={`outline-btn`}
                                 onClick={handleAddEmail}
                             >
                                 Add Admin
@@ -281,7 +280,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
 
                         {/* Display Added Admins */}
                         <div className={styles.emailList}>
-                            <h3>Admins</h3>
                             {adminEmails.map((email, index) => (
                                 <div key={index} className={styles.emailItem}>
                                     <span>{email} - Organization Admin</span>

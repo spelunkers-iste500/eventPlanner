@@ -261,6 +261,10 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+
+    &.is-editing {
+        margin-top: 1rem;
+    }
 }
 
 .dialog-submit-btn {
@@ -268,10 +272,19 @@
 	flex-direction: row;
 }
 
+.is-editing .dialog-submit-btn {
+    margin-top: 1rem;
+}
+
 .form-container {
 	display: flex;
 	flex-direction: column;
 	gap: 1rem;
+}
+
+.form-container button:first-of-type {
+    margin-left: auto;
+    width: fit-content;
 }
 
 @media (max-width: 600px) {

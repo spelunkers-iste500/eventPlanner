@@ -207,12 +207,19 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     <p>{error}</p>
                 </div>
             )}
-            <Flex mb={4}>
-                <Input
-                    placeholder="Enter attendant's email address"
-                    value={emailInput}
-                    onChange={(e) => setEmailInput(e.target.value)}
-                />
+            <Flex mb={4} alignItems="end">
+                <div className={`input-container`}>
+                    <label className="input-label">
+                        Attendant's Email Address
+                    </label>
+                    <input
+                        className="input-field"
+                        type="text"
+                        value={emailInput}
+                        onChange={(e) => setEmailInput(e.target.value)}
+                        placeholder="Enter email address"
+                    />
+                </div>
                 <Button ml={2} onClick={handleAddEmail}>
                     Add
                 </Button>
