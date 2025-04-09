@@ -29,7 +29,7 @@ const ItemList = <T,>({
     };
 
     return (
-        <div className={styles.listContainer}>
+        <div className={styles.itemListContainer}>
             <div className={styles.listHeader}>
                 {fields.map((field) => (
                     <div className={styles.listHeaderField} key={field.key}>

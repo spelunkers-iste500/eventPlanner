@@ -77,6 +77,25 @@ button:hover,
     background-color: var(--blue-500);
 }
 
+/* unset all styling for this specific button */
+button.chakra-tabs__trigger {
+    appearance: unset;
+    border: none;
+    color: unset;
+    background-color: unset;
+    font-size: unset;
+    font-weight: unset;
+    border-radius: 0.5rem 0.5rem 0 0;
+
+    &::before {
+        background: var(--blue-500);
+    }
+}
+
+button.chakra-tabs__trigger:hover {
+    background-color: var(--gray-100);
+}
+
 .outline-btn {
     background: none;
     color: var(--blue-500);
@@ -230,6 +249,10 @@ img {
     padding: 0.75rem 0.75rem 0.75rem 2rem;
 }
 
+.chakra-tabs__list {
+    gap: 0.5rem;
+}
+
 .error-msg {
     color: var(--red-400);
     font-size: 0.8rem;
@@ -280,6 +303,10 @@ img {
     .error-msg {
         font-size: 0.7rem;
     }
+
+    button.chakra-tabs__trigger {
+        padding: 0.5rem 1rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -287,21 +314,11 @@ img {
         padding: 1rem;
     }
 
-    /* .input-container {
-        gap: 0.25rem;
-    }
-
-    .input-label {
-        font-size: 0.75rem;
-    }
-
-    .input-field,
-    .select__control {
+    button.chakra-tabs__trigger {
         padding: 0.5rem;
-        font-size: 0.8rem;
     }
 
-    .error-msg {
-        font-size: 0.6rem;
-    } */
+    button.chakra-tabs__trigger svg {
+        display: none;
+    }
 }

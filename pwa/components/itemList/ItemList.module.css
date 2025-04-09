@@ -1,40 +1,81 @@
-.itemListContainer {
+.item-list-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    background-color: var(--gray-100);
+    border: 1px solid var(--gray-100);
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
 }
 
-.listItem {
-    display: flex;
-    flex-direction: row;
-    padding: 10px;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.listItemField {
-    flex: 1;
-    margin: 0 5px;
-    text-align: center;
-}
-
-.listHeader {
+.list-header {
     display: flex;
     flex-direction: row;
     font-weight: bold;
-    padding: 10px;
-    background-color: #eaeaea;
-    border-bottom: 1px solid #ccc;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--gray-200);
 }
 
-.listHeaderField {
+.list-header-field {
     flex: 1;
-    margin: 0 5px;
     text-align: center;
+}
+
+.list-header-field:first-child {
+    text-align: left;
+}
+
+.list-item {
+    display: flex;
+    flex-direction: row;
+    padding: 0.5rem 1rem;
+    background-color: #ffffff;
+    border-bottom: 2px solid var(--gray-100);
+}
+
+.list-item:last-child {
+    border-bottom: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.list-item:hover {
+    background-color: var(--blue-300);
+}
+
+.list-item-field {
+    flex: 1;
+    text-align: center;
+}
+
+.list-item-field:first-child {
+    text-align: left;
+}
+
+@media (max-width: 600px) {
+    .list-item {
+        flex-direction: column;
+    }
+
+    .list-header {
+        flex-direction: column;
+    }
+
+    .list-header-field {
+        text-align: left;
+    }
+
+    .list-header-field:last-child {
+        font-weight: 400;
+        font-size: 0.9rem;
+        color: var(--gray-400);
+    }
+
+    .list-item-field {
+        text-align: left;
+    }
+
+    .list-item-field:last-child {
+        font-size: 0.9rem;
+        color: var(--gray-400);
+    }
+
 }
