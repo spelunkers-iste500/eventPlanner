@@ -51,7 +51,7 @@ class OrganizationInviteState implements ProcessorInterface
                         ->html('<p>Placeholder text</p>');
                     break;
                 case 'financeAdmin':
-                    $data->getOrganization()->addFinanceAdmin($user);
+                    $data->getOrganization()->addFinanceAdmins($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
                     $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
