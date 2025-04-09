@@ -165,7 +165,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                             styles.orgName
                                                         }
                                                     >
-                                                        Organization Name
+                                                        {item.organization.name}
                                                     </h2>
                                                     <p
                                                         className={

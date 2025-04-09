@@ -5,7 +5,6 @@ import {
     DialogBody,
     DialogTitle,
     Button,
-    Input,
 } from "@chakra-ui/react";
 import { X } from "lucide-react";
 import styles from "../common/Dialog.module.css";
@@ -19,6 +18,8 @@ import Dashboard from "./FinancialAdminDashboard";
 import { Budget } from "Types/budget";
 import { Event } from "Types/event";
 import { Organization } from "Types/organization";
+import Input from "Components/common/Input";
+import { set } from "date-fns";
 interface CreateBudgetModalProps {
     event: Event;
     isOpen: boolean;
@@ -31,9 +32,12 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     event,
 }) => {
     const { data: session } = useSession();
-    const [perUserTotal, setPerUserTotal] = useState<number | "">("");
-    const [perUserOverage, setPerUserOverage] = useState<number | "">("");
-    const { setContent } = useContent();
+    const [perUserTotal, setPerUserTotal] = useState<number>(
+        event.budget.perUserTotal || 0
+    );
+    const [perUserOverage, setPerUserOverage] = useState<number>(
+        event.budget.overage || 0
+    );
     const { user } = useUser();
 
     const handleSubmit = async () => {
@@ -46,12 +50,17 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 budget.event = event;
                 budget.organization = user.financeAdminOfOrg[0];
                 await budget.persist(session.apiToken);
-                console.debug("Persisted budget: ", budget);
                 event.budget = budget; // Update the budget in the event object
                 event.status = "approved";
+                await event.persist(session.apiToken);
 
-                createSuccess();
-                handleClose();
+                toaster.create({
+                    title: "Budget Created",
+                    description: "Your budget has been successfully set.",
+                    type: "success",
+                    duration: 3000,
+                });
+                onClose();
             }
         } else {
             toaster.create({
@@ -63,79 +72,35 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         }
     };
 
-    const createSuccess = () => {
-        setContent(<Dashboard />, "Dashboard");
-        toaster.create({
-            title: "Budget Created",
-            description: "Your budget has been successfully set.",
-            type: "success",
-            duration: 3000,
-        });
-    };
-
-    const handleClose = () => {
-        setPerUserTotal("");
-        setPerUserOverage("");
-        onClose();
-    };
-
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
                 <DialogTitle>Create Budget</DialogTitle>
-                <button className={styles.dialogClose} onClick={handleClose}>
+                <button className={styles.dialogClose} onClick={onClose}>
                     <X />
                 </button>
             </DialogHeader>
             <DialogBody
                 className={`${styles.dialogBody} ${styles.formContainer}`}
             >
-                <div className="input-container">
-                    <label className="input-label">
-                        Budget Allocated Per User
-                    </label>
-                    <input
-                        type="text"
-                        id="perUserTotal"
-                        value={
-                            perUserTotal !== ""
-                                ? `$${Number(perUserTotal).toLocaleString()}`
-                                : ""
-                        }
-                        onChange={(e) => {
-                            const value = e.target.value.replace(
-                                /[^0-9.]/g,
-                                ""
-                            );
-                            setPerUserTotal(value === "" ? "" : Number(value));
-                        }}
-                        className="input-field"
-                        placeholder="Enter budget per user"
-                    />
-                </div>
-                <div className="input-container">
-                    <label className="input-label">User Overage</label>
-                    <input
-                        type="text"
-                        id="perUserOverage"
-                        value={
-                            perUserOverage !== ""
-                                ? `$${Number(perUserOverage).toLocaleString()}`
-                                : ""
-                        }
-                        onChange={(e) => {
-                            const value = e.target.value.replace(
-                                /[^0-9.]/g,
-                                ""
-                            );
-                            setPerUserOverage(
-                                value === "" ? "" : Number(value)
-                            );
-                        }}
-                        className="input-field"
-                        placeholder="Enter overage per user"
-                    />
-                </div>
+                <Input
+                    label="Budget Allocated Per User"
+                    placeholder="Enter budget per user"
+                    type="number"
+                    defaultValue={perUserTotal}
+                    onChange={(value) => {
+                        setPerUserTotal(value === "" ? 0 : Number(value));
+                    }}
+                />
+                <Input
+                    label="User Overage"
+                    placeholder="Enter user overage"
+                    type="number"
+                    defaultValue={perUserOverage}
+                    onChange={(value) => {
+                        setPerUserOverage(value === "" ? 0 : Number(value));
+                    }}
+                />
                 <button onClick={handleSubmit}>Submit</button>
             </DialogBody>
         </BaseDialog>
