@@ -208,6 +208,25 @@
     }
 }
 
+.popup {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    padding: 0.5rem;
+    width: 200px;
+    background: var(--white);
+    border: 1px solid var(--blue-400);
+    border-radius: 0 0.5rem 0.5rem;
+    z-index: 1000;
+    cursor: default;
+}
+
+.no-results {
+	font-style: italic;
+	color: var(--gray-400);
+    font-size: 0.8rem;
+}
+
 .mobile-nav {
     display: none; /* Hidden by default, shown on small screens */
 }
