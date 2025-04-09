@@ -191,6 +191,9 @@ const FlightResults: React.FC = () => {
                                                                         key={
                                                                             segmentIndex
                                                                         }
+                                                                        className={
+                                                                            styles.flightInfoItem
+                                                                        }
                                                                     >
                                                                         <h3 className="h5">
                                                                             {sliceIndex ===
