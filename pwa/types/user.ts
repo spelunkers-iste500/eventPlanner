@@ -2,6 +2,7 @@ import axios from "axios";
 import { Organization } from "./organization";
 import { UserEvent } from "./userEvent";
 import { headers } from "next/headers";
+import { Router } from "lucide-react";
 export class User {
     static url = "/my/user";
     id: string;
@@ -193,13 +194,13 @@ export class User {
         if (this.id === "notPersisted") {
             throw new Error("User ID is not set");
         }
+        var uri = "";
+        if (this.id == "self") {
+            uri = `/my/user`;
+        } else {
+            uri = `/users/${this.id}`;
+        }
         try {
-            var uri = "";
-            if (this.id == "self") {
-                uri = `/my/user`;
-            } else {
-                uri = `/users/${this.id}`;
-            }
             const response = await axios.get(uri, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`,

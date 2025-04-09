@@ -9,10 +9,11 @@ use App\Repository\UserRepository;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use App\State\LoggerStateProcessor;
+use Psr\Log\LoggerInterface;
 
 class OrganizationInviteState implements ProcessorInterface
 {
-    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer, private LoggerStateProcessor $changeLogger) {}
+    public function __construct(private ProcessorInterface $processor, private UserRepository $userRepository, private MailerInterface $mailer, private LoggerStateProcessor $changeLogger, private LoggerInterface $logger) {}
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): void
     {
         // on creation, check to see if the user exists via the email
@@ -23,6 +24,7 @@ class OrganizationInviteState implements ProcessorInterface
 
         // on creation the object should not have a user associated.
         // find the user by email and associte the user with the invite.
+        $this->logger->info("Object: " . json_encode($data));
         $user = $this->userRepository->findOneBy(['email' => $data->getExpectedEmail()]);
         if ($user) {
             $data->setAccepted(true);

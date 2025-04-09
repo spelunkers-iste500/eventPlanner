@@ -48,13 +48,28 @@ const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ org }) => {
 
     const handleSubmit = () => {
         invites.forEach((invite) => {
+            var inviteType = "";
+            switch (invite.type) {
+                case "Event Admin":
+                    inviteType = "eventAdmin";
+                    break;
+                case "Finance Admin":
+                    inviteType = "financeAdmin";
+                    break;
+                case "Organization Admin":
+                    inviteType = "admin";
+                    break;
+                default:
+                    setError("Invalid invite type.");
+                    return;
+            }
             axios
                 .post(
                     "/organizationInvite",
                     {
                         organization: org.getIri(),
                         expectedEmail: invite.email,
-                        type: invite.type,
+                        inviteType: inviteType,
                     },
                     {
                         headers: {
