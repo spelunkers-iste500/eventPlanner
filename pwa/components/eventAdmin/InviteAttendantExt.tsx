@@ -20,7 +20,6 @@ import { toaster } from "Components/ui/toaster";
 import { setDefaultResultOrder } from "dns";
 import { set } from "date-fns";
 import { UserEvent } from "Types/userEvent";
-import { UserEvent } from "Types/userEvent";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -33,9 +32,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 }) => {
     const [emailInput, setEmailInput] = useState("");
     const [error, setError] = useState("");
-    const [emails, setEmails] = useState<{ email: string; status: string }[]>(
-        []
-    );
+    const [emails, setEmails] = useState<string[]>([]);
     const [deletedEmails, setDeletedEmails] = useState<string[]>([]);
     const { data: session } = useSession();
     const { setContent } = useContent();
@@ -47,11 +44,8 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 
     const handleAddEmail = () => {
         if (emailInput && validateEmail(emailInput)) {
-            if (!emails.find((email) => email.email === emailInput)) {
-                setEmails([
-                    { email: emailInput, status: "notPersisted" },
-                    ...emails,
-                ]);
+            if (!emails.includes(emailInput)) {
+                setEmails([emailInput, ...emails]);
             }
             setEmailInput("");
             setError("");
@@ -61,7 +55,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     };
 
     const handleDeleteEmail = (email: string) => {
-        setEmails(emails.filter((e) => e.email !== email));
+        setEmails(emails.filter((e) => e !== email));
     };
 
     const handleCSVImport = (event: ChangeEvent<HTMLInputElement>) => {
@@ -72,19 +66,12 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 const text = e.target?.result;
                 if (typeof text === "string") {
                     const importedEmails = parseCSVEmails(text);
-                    setEmails(
-                        // should not add duplicates, but should keep previous state
-                        importedEmails
-                            .filter(
-                                (email) =>
-                                    !emails.find((e) => e.email === email)
-                            )
-                            .map((email) => ({
-                                email,
-                                status: "notPersisted",
-                            }))
-                            .concat(emails)
-                    );
+                    setEmails((prev) => [
+                        ...importedEmails.filter(
+                            (email) => !prev.includes(email)
+                        ),
+                        ...prev,
+                    ]);
                 }
             };
             reader.readAsText(file);
@@ -118,12 +105,10 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         if (createdEvent) {
             console.log("Attendees loaded:", createdEvent.attendees);
             setEmails(
-                createdEvent.attendees?.map((attendee) => {
-                    return {
-                        email: attendee.user.getEmail(),
-                        status: attendee.status,
-                    };
-                })
+                createdEvent.attendees
+                    ?.map((attendee) => attendee.user.email)
+                    .filter((email): email is string => email !== undefined) ||
+                    []
             );
             !isEditing && handleSubmit(); // if not editing, submit the invites
         }
@@ -145,33 +130,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     };
 
-    const handleSave = () => {
-        // update UserEvent for person to be cancelled
-        if (createdEvent && session?.apiToken) {
-            deletedEmails.forEach((email) => {
-                // get the UserEvent associated with the email
-                const userEvent = createdEvent.attendees?.find(
-                    (attendee) => attendee.user.email === email
-                );
-                if (userEvent) {
-                    userEvent.status = "cancelled";
-                }
-            });
-            createdEvent.persist(session.apiToken); // persist the change
-        }
-    };
-
     const handleSubmit = () => {
-        console.info("Submitted emails:", emails);
         console.info("Submitted emails:", emails);
         // send invites out to the emails
         if (createdEvent && emails.length > 0) {
             // check if all the emails are valid and send invites to valid ones and setError to ones that arent valid
-            const validEmails = emails.filter((email) =>
-                validateEmail(email.email)
-            );
+            const validEmails = emails.filter((email) => validateEmail(email));
             const invalidEmails = emails.filter(
-                (email) => !validateEmail(email.email)
+                (email) => !validateEmail(email)
             );
             if (invalidEmails.length > 0) {
                 setError(
@@ -183,27 +149,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 return;
             }
             if (session) {
-                axios
-                    .post(
-                        `/user_invites`,
-                        {
-                            event: `/events/${createdEvent.id}`,
-                            emails: validEmails,
-                        },
-                        {
-                            headers: {
-                                Authorization: `Bearer ${session.apiToken}`,
-                                "Content-Type": "application/ld+json",
-                            },
-                        }
-                    )
-                    .then((response) => {
-                        console.log("Invite sent:", response.data);
-                        inviteSuccess();
-                    })
-                    .catch((error) => {
-                        console.error("Error sending invite:", error);
-                    });
                 axios
                     .post(
                         `/user_invites`,
@@ -284,40 +229,17 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         p={2}
                         borderRadius="md"
                     >
-                        <Flex
-                            alignItems="center"
-                            justifyContent="space-between"
-                            width="100%"
+                        <Box flex="1">{email}</Box>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteEmail(email)}
                         >
-                            <Box className="email-box">
-                                <span>{email.email}</span>
-                            </Box>
-                            <Flex alignItems="center" gap="1rem">
-                                <Box className="status-box">
-                                    <span>{email.status}</span>
-                                </Box>
-                                <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() =>
-                                        handleDeleteEmail(email.email)
-                                    }
-                                >
-                                    <X size={16} />
-                                </Button>
-                            </Flex>
-                        </Flex>
+                            <X size={16} />
+                        </Button>
                     </Flex>
                 ))}
             </Box>
-            {isEditing && (
-                <div className={`input-container ${styles.dialogSubmitBtn}`}>
-                    <Button className="outline-btn" onClick={handleSave}>
-                        Save
-                    </Button>
-                    <Button onClick={handleSubmit}>Send Invites</Button>
-                </div>
-            )}
             {isEditing && (
                 <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <Button className="outline-btn" onClick={handleSave}>

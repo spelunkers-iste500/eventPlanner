@@ -148,14 +148,6 @@ const FinancialAdminDashboard: React.FC = () => {
             }
         }
     };
-    const items = organizations.map((org) => {
-        return {
-            value: org.id,
-            title: org.getName(),
-            organization: org,
-            events: events.filter((event) => event.organization.id === org.id),
-        };
-    });
 
     useEffect(() => {
         getEvents();
@@ -296,90 +288,15 @@ const FinancialAdminDashboard: React.FC = () => {
 
                 <Stack gap="4">
                     <AccordionRoot
-                        multiple
                         value={value}
                         onValueChange={(e) => setValue(e.value)}
                     >
-                        {items.map((item, index) => (
-                            <AccordionItem
-                                key={index}
-                                value={item.organization.getName()}
-                            >
+                        {filteredItems.map((item, index) => (
+                            <AccordionItem key={index} value={item.value}>
                                 <AccordionItemTrigger>
                                     {item.title}
                                 </AccordionItemTrigger>
                                 <AccordionItemContent>
-                                    <div className={styles.infoContainer}>
-                                        <div className={styles.orgInfoBox}>
-                                            <div
-                                                className={
-                                                    styles.orgImageWrapper
-                                                }
-                                            >
-                                                <img
-                                                    src="/media/event_image.jpg"
-                                                    alt={`${item.organization.getName()} Logo Image.`}
-                                                    className={styles.orgImage}
-                                                />
-                                            </div>
-                                            <div className={styles.orgDetails}>
-                                                <h2 className={styles.orgName}>
-                                                    {item.organization.getName()}
-                                                </h2>
-                                                <p className={styles.orgType}>
-                                                    {
-                                                        item.organization
-                                                            .description
-                                                    }
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className={styles.statsBox}>
-                                            <div className={styles.statItem}>
-                                                <span
-                                                    className={styles.statLabel}
-                                                >
-                                                    Pending Events:
-                                                </span>
-                                                <span
-                                                    className={styles.statValue}
-                                                >
-                                                    {
-                                                        item.events.filter(
-                                                            (event) => {
-                                                                return (
-                                                                    event.status ===
-                                                                    "pendingApproval"
-                                                                );
-                                                            }
-                                                        ).length
-                                                    }
-                                                </span>
-                                            </div>
-                                            <div className={styles.statItem}>
-                                                <span
-                                                    className={styles.statLabel}
-                                                >
-                                                    Approved Events:
-                                                </span>
-                                                <span
-                                                    className={styles.statValue}
-                                                >
-                                                    {
-                                                        item.events.filter(
-                                                            (event) => {
-                                                                return (
-                                                                    event.status !==
-                                                                    "pendingApproval"
-                                                                );
-                                                            }
-                                                        ).length
-                                                    }
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
                                     <ItemList
                                         items={item.events}
                                         fields={[
@@ -389,7 +306,11 @@ const FinancialAdminDashboard: React.FC = () => {
                                             },
                                             { key: "status", label: "Status" },
                                         ]}
-                                        renderItem={handleOpenBudgetModal} // Open the view modal on item click
+                                        renderItem={
+                                            item.value == "pending-events"
+                                                ? handleOpenBudgetModal
+                                                : () => {}
+                                        }
                                     />
                                 </AccordionItemContent>
                             </AccordionItem>

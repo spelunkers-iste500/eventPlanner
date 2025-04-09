@@ -46,7 +46,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { formatDateSubmit } from "Types/events";
-import { Offer } from "Types/airports";
 
 interface SelectOption {
     label: string;

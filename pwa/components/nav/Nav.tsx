@@ -77,120 +77,110 @@ const Nav: React.FC = () => {
         });
     }
     if ((user && user.superAdmin) || (user && user.adminOfOrg.length > 0)) {
-        if ((user && user.superAdmin) || (user && user.adminOfOrg.length > 0)) {
-            navLinks.push({
-                name: "Administrator",
-                content: <OrgAdminDashboard />,
-                icon: <Shield size={28} />,
-            });
+        navLinks.push({
+            name: "Administrator",
+            content: <OrgAdminDashboard />,
+            icon: <Shield size={28} />,
+        });
+    }
+    navLinks.push(
+        {
+            name: "Preferences",
+            content: <Preferences />,
+            icon: <Settings2 size={28} />,
+        },
+        {
+            name: "About Us",
+            content: <About />,
+            icon: <CircleHelp size={28} />,
         }
-        navLinks.push(
-            {
-                name: "Preferences",
-                content: <Preferences />,
-                icon: <Settings2 size={28} />,
-            },
-            {
-                name: "About Us",
-                content: <About />,
-                icon: <CircleHelp size={28} />,
-            }
-        );
+    );
 
-        useEffect(() => {
-            if (window.innerWidth >= 768) {
-                setNavCollapsed(false);
-            }
-        }, []);
+    useEffect(() => {
+        if (window.innerWidth >= 768) {
+            setNavCollapsed(false);
+        }
+    }, []);
 
-        return (
-            <>
+    return (
+        <>
+            <div
+                className={`${styles.mobileNavWrapper} ${
+                    !navCollapsed ? styles.open : ""
+                }`}
+            >
+                <div className={styles.mobileNav}>
+                    <div
+                        className={styles.mobileNavToggle}
+                        onClick={() => setNavCollapsed(!navCollapsed)}
+                    >
+                        <Menu size={28} />
+                    </div>
+                </div>
                 <div
-                    className={`${styles.mobileNavWrapper} ${
-                        !navCollapsed ? styles.open : ""
-                    }`}
-                >
-                    <div className={styles.mobileNav}>
+                    className={styles.mobileWrapper}
+                    onClick={() => setNavCollapsed(!navCollapsed)}
+                ></div>
+            </div>
+            <div
+                className={`${styles.navContainer} ${
+                    navCollapsed ? styles.collapsed : ""
+                }`}
+            >
+                <div className={styles.navHeader}>
+                    <div
+                        className={styles.navHeaderIcon}
+                        onClick={() => setContent(<Dashboard />, "Dashboard")}
+                    >
+                        <House size={28} />
+                    </div>
+                    <div className={styles.navHeaderRight}>
+                        <div className={styles.navHeaderIcon}>
+                            <Bell size={28} />
+                        </div>
+                        <div className={styles.navHeaderIcon}>
+                            {session?.user?.image && !imageError ? (
+                                <img
+                                    className={styles.profileIcon}
+                                    src={session.user.image}
+                                    alt="profile"
+                                    onError={() => setImageError(true)}
+                                />
+                            ) : (
+                                <CircleUserRound size={28} />
+                            )}
+                        </div>
                         <div
-                            className={styles.mobileNavToggle}
+                            className={styles.navHeaderIcon}
                             onClick={() => setNavCollapsed(!navCollapsed)}
                         >
                             <Menu size={28} />
                         </div>
                     </div>
-                    <div
-                        className={styles.mobileWrapper}
-                        onClick={() => setNavCollapsed(!navCollapsed)}
-                    ></div>
                 </div>
-                <div
-                    className={`${styles.navContainer} ${
-                        navCollapsed ? styles.collapsed : ""
-                    }`}
-                >
-                    <div className={styles.navHeader}>
-                        <div
-                            className={styles.navHeaderIcon}
-                            onClick={() =>
-                                setContent(<Dashboard />, "Dashboard")
-                            }
+                <ul className={styles.navBody}>
+                    {navLinks.map((link, index) => (
+                        <li
+                            key={index}
+                            className={`${styles.navLink} ${
+                                state.name === link.name ? styles.active : ""
+                            }`}
+                            onClick={() => setContent(link.content, link.name)}
                         >
-                            <House size={28} />
-                        </div>
-                        <div className={styles.navHeaderRight}>
-                            <div className={styles.navHeaderIcon}>
-                                <Bell size={28} />
-                            </div>
-                            <div className={styles.navHeaderIcon}>
-                                {session?.user?.image && !imageError ? (
-                                    <img
-                                        className={styles.profileIcon}
-                                        src={session.user.image}
-                                        alt="profile"
-                                        onError={() => setImageError(true)}
-                                    />
-                                ) : (
-                                    <CircleUserRound size={28} />
-                                )}
-                            </div>
-                            <div
-                                className={styles.navHeaderIcon}
-                                onClick={() => setNavCollapsed(!navCollapsed)}
-                            >
-                                <Menu size={28} />
-                            </div>
-                        </div>
-                    </div>
-                    <ul className={styles.navBody}>
-                        {navLinks.map((link, index) => (
-                            <li
-                                key={index}
-                                className={`${styles.navLink} ${
-                                    state.name === link.name
-                                        ? styles.active
-                                        : ""
-                                }`}
-                                onClick={() =>
-                                    setContent(link.content, link.name)
-                                }
-                            >
-                                {link.icon}
-                                <span>{link.name}</span>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className={styles.navFooter}>
-                        <div
-                            className={styles.logout}
-                            onClick={() => signOut()}
-                        >
-                            <LogOut size={28} />
-                            <span>Logout</span>
-                        </div>
+                            {link.icon}
+                            <span>{link.name}</span>
+                        </li>
+                    ))}
+                </ul>
+                <div className={styles.navFooter}>
+                    <div className={styles.logout} onClick={() => signOut()}>
+                        <LogOut size={28} />
+                        <span>Logout</span>
                     </div>
                 </div>
-            </>
-        );
-    }
+            </div>
+        </>
+    );
 };
+
 export default Nav;

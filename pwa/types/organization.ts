@@ -102,10 +102,7 @@ export class Organization {
                         : [],
                 },
                 {
-                    headers: {
-                        Authorization: `Bearer ${apiToken}`,
-                        "Content-Type": "application/merge-patch+json",
-                    },
+                    headers: { Authorization: `Bearer ${apiToken}` },
                 }
             );
         }
@@ -155,16 +152,15 @@ export class Organization {
             orgObj.fullAdmins = org.admins.map((user: any) => {
                 return new User(user.split("/").pop()!);
             });
-            org.invites
-                ? (orgObj.invites = org.invites.map((invite: any) => {
-                      return {
-                          id: invite.id,
-                          status: invite.status,
-                          expectedEmail: invite.expectedEmail,
-                          inviteType: invite.inviteType,
-                      };
-                  }))
-                : (orgObj.invites = []);
+            (org.invites) ? 
+            orgObj.invites = org.invites.map((invite: any) => {
+                return {
+                    id: invite.id,
+                    status: invite.status,
+                    expectedEmail: invite.expectedEmail,
+                    inviteType: invite.inviteType,
+                };
+            }) : orgObj.invites = [];
             return orgObj;
         });
     }

@@ -91,18 +91,17 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     )
 ]
 
-#[
-    Get(
-        security: "is_granted('view', object)",
-        uriTemplate: '/image/get/events/{id}.{_format}',
-        normalizationContext: ['groups' => ['event:image:read']]
-    )
+#[Get(
+    security: "is_granted('view', object)",
+    uriTemplate: '/image/get/events/{id}.{_format}',
+    normalizationContext: ['groups' => ['event:image:read']]
+)
 ]
 
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
-    uriTemplate: '/image/post/events/{id}.{_format}',
+    uriTemplate:  '/image/post/events/{id}.{_format}',
     denormalizationContext: ['groups' => ['event:image:write']],
     processor: LoggerStateProcessor::class
 )]
@@ -170,11 +169,11 @@ class Event
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event', 'read:myEvents', 'read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents'])]
     public string $location;
 
     #[ORM\Column(type: 'integer')]
-    #[Groups(['read:event', 'write:event', 'write:event:changes', 'read:myEvents', 'event:csv:export', 'event:csv:export', 'read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'write:event:changes', 'read:myEvents', 'event:csv:export', 'event:csv:export'])]
     public int $maxAttendees;
 
     #[ORM\Column(type: 'datetime', nullable: true)]
