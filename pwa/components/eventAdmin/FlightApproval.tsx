@@ -27,34 +27,37 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
     onClose,
 }) => {
     const { data: session } = useSession();
-    const [flightData, setFlightData] = useState<Flight | null>(flight);
+    const [flightData, setFlightData] = useState<Flight>();
 
     useEffect(() => {
-        if (!flight) return; // shouldnt occur
-        if (!session?.apiToken) {
-            console.error("API token is not available.");
-            return;
-        }
-        flight.fetch(session.apiToken).then(() => {
-            setFlightData(flight);
-        });
-    }, [flight]);
+        const fetchFlightData = async () => {
+            if (!flight) return; // shouldnt occur
+            if (!session?.apiToken) {
+                console.error("API token is not available.");
+                return;
+            }
+            await flight.fetch(session.apiToken).then(() => {
+                setFlightData(flight);
+                console.log("Flight data fetched: ", flight);
+            });
+        };
 
-    if (!flightData) return null;
+        fetchFlightData();
+    }, [flight]);
 
     const handleApprove = () => {
         if (!session?.apiToken) return;
+        if (!flightData) return;
         flightData.approve(session?.apiToken);
         onClose();
     };
 
     const handleDeny = () => {
         if (!session?.apiToken) return;
+        if (!flightData) return;
         flightData.reject(session?.apiToken);
         onClose();
     };
-
-    console.log("FlightApproval: ", flight);
 
     return (
         <Portal>
@@ -70,28 +73,30 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
                 >
                     <h3 className="h4">Flight Information</h3>
                     <p>
-                        <strong>User Booking:</strong>{" "}
-                        {flightData.user?.firstName} {flightData.user?.lastName}
+                        <strong>User Booking:</strong> {flightData?.user?.email}
                     </p>
                     <p>
-                        <strong>Flight Cost:</strong> ${flightData.flightCost}
+                        <strong>Flight Cost:</strong> $
+                        {(
+                            (flightData?.flightCost ?? 0) / 100
+                        )?.toLocaleString()}
                     </p>
                     <p>
-                        <strong>Origin:</strong> {flightData.departureLocation}
+                        <strong>Origin:</strong> {flightData?.departureLocation}
                     </p>
                     <p>
                         <strong>Departure:</strong>{" "}
-                        {formatDateDisplay(flightData.departureDateTime)} •{" "}
-                        {formatTime(flightData.departureDateTime)}
+                        {formatDateDisplay(flightData?.departureDateTime)} •{" "}
+                        {formatTime(flightData?.departureDateTime)}
                     </p>
                     <p>
                         <strong>Destination:</strong>{" "}
-                        {flightData.arrivalLocation}
+                        {flightData?.arrivalLocation}
                     </p>
                     <p>
                         <strong>Arrival:</strong>{" "}
-                        {formatDateDisplay(flightData.arrivalDateTime)} •{" "}
-                        {formatTime(flightData.arrivalDateTime)}
+                        {formatDateDisplay(flightData?.arrivalDateTime)} •{" "}
+                        {formatTime(flightData?.arrivalDateTime)}
                     </p>
                     <div
                         className={`input-container ${styles.dialogSubmitBtn}`}
