@@ -21,6 +21,7 @@ import Input from "Components/common/Input";
 import UploadFile from "./UploadFile";
 import ItemList from "Components/itemList/ItemList";
 import { Flight } from "Types/flight";
+import FlightApproval from "./FlightApproval";
 
 interface EditEventModalProps {
     isOpen: boolean;
@@ -41,6 +42,19 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     const [endDate, setEndDate] = useState<Date | null>(null);
     const [maxAttendee, setMaxAttendee] = useState<number>(1);
     const [multiDay, setMultiDay] = useState(false);
+
+    const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+    const [isApprovalOpen, setIsApprovalOpen] = useState(false);
+
+    const handleApprovalOpen = (flight: Flight) => {
+        setSelectedFlight(flight);
+        setIsApprovalOpen(true);
+    };
+
+    const handleApprovalClose = () => {
+        setIsApprovalOpen(false);
+        setSelectedFlight(null);
+    };
 
     // Update state when the `event` prop changes
     useEffect(() => {
@@ -217,12 +231,17 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                                     valueFn: (flight) =>
                                         flight.id.split("-").pop(),
                                 },
+                                { key: "flightCost", label: "Flight Cost" },
                                 { key: "approvalStatus", label: "Status" },
                             ]}
-                            renderItem={(flight) => {
-                                console.log("Row clicked", flight);
-                            }} // Open the view modal on item click
+                            renderItem={handleApprovalOpen}
                         />
+                        <FlightApproval
+                            flight={selectedFlight}
+                            isOpen={isApprovalOpen}
+                            onClose={handleApprovalClose}
+                        />
+                        ;
                     </Tabs.Content>
                 </Tabs.Root>
             </DialogBody>

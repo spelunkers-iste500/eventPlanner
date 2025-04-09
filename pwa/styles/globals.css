@@ -92,7 +92,8 @@ button.chakra-tabs__trigger {
     }
 }
 
-button.chakra-tabs__trigger:hover {
+button.chakra-tabs__trigger:hover,
+button.chakra-tabs__trigger[aria-selected=true] {
     background-color: var(--gray-100);
 }
 
@@ -100,6 +101,16 @@ button.chakra-tabs__trigger:hover {
     background: none;
     color: var(--blue-500);
     border: 2px solid var(--blue-500);
+}
+
+.outline-btn.red {
+    color: var(--red-400);
+    border: 2px solid var(--red-400);
+}
+
+.outline-btn:hover {
+    background-color: var(--red-400);
+    color: var(--white);
 }
 
 .outline-btn:hover {
