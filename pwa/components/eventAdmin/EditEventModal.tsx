@@ -79,12 +79,11 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
             }
             event.persist(session?.apiToken).then(() => {
                 toaster.create({
-                    title: "Event Created",
-                    description: "Your event has been created successfully.",
+                    title: "Event Edited",
+                    description: "Your changes have been saved.",
                     type: "success",
                     duration: 5000,
                 });
-                console.debug("Event created:", event);
             });
         }
     };
@@ -92,7 +91,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Create Event</DialogTitle>
+                <DialogTitle>Edit Event</DialogTitle>
                 <button className={styles.dialogClose} onClick={onClose}>
                     <X />
                 </button>
