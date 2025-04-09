@@ -212,12 +212,16 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             items={event?.flights || []}
                             fields={[
                                 {
-                                    key: "flightNumber",
+                                    key: "id",
                                     label: "Flight Number",
+                                    valueFn: (flight) =>
+                                        flight.id.split("-").pop(),
                                 },
-                                { key: "status", label: "Status" },
+                                { key: "approvalStatus", label: "Status" },
                             ]}
-                            renderItem={() => {}} // Open the view modal on item click
+                            renderItem={(flight) => {
+                                console.log("Row clicked", flight);
+                            }} // Open the view modal on item click
                         />
                     </Tabs.Content>
                 </Tabs.Root>

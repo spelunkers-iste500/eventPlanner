@@ -60,7 +60,10 @@ export class Flight {
                     approvalStatus: this.approvalStatus,
                 },
                 {
-                    headers: { Authorization: `Bearer ${apiToken}` },
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        "Content-Type": "application/merge-patch+json",
+                    },
                 }
             );
         } catch (error) {

@@ -213,6 +213,7 @@ export class Event {
                 if (item.budget) {
                     event.setBudget(new Budget(item.budget.id));
                     event.budget.perUserTotal = item.budget.perUserTotal;
+                    event.budget.overage = item.budget.overage;
                     event.status = "approved";
                 } else {
                     event.budget = new Budget("pendingApproval");
@@ -227,6 +228,8 @@ export class Event {
                 event.flights = item.flights.map((flight: any) => {
                     const flightObj = new Flight(flight.id);
                     flightObj.flightCost = flight.flightCost / 100;
+                    flightObj.approvalStatus = flight.approvalStatus;
+                    flightObj.bookingReference = flight.bookingReference;
                     return flightObj;
                 });
                 event.setLocation(item.location);
@@ -413,4 +416,12 @@ export class Event {
             options
         );
     };
+    getEventTotal(): number {
+        if (this.budget.perUserTotal && this.maxAttendees) {
+            var total = this.budget.perUserTotal * this.maxAttendees;
+            total += this.budget.overage;
+            return total;
+        }
+        return 0;
+    }
 }

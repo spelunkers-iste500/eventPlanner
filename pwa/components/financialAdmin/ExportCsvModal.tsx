@@ -42,49 +42,23 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
 
     const handleSubmit = () => {
         if (selectedExportEvent) {
-            axios
-                .get(`/csv/events/${selectedExportEvent}`, {
-                    headers: {
-                        Authorization: `Bearer ${session?.apiToken}`,
-                        "Content-Type": "application/ld+json",
-                        accept: "application/ld+json",
-                    },
-                })
-                .then((response) => {
-                    console.debug(
-                        "CSV export request response:",
-                        response.data
-                    );
-                    if (response.data && typeof response.data === "object") {
-                        createCsv(response.data);
-                        createSuccess();
-                    } else {
-                        console.error(
-                            "Unexpected API response format:",
-                            response.data
-                        );
-                        toaster.create({
-                            title: "Export Failed",
-                            description:
-                                "The API call returned an unexpected response.",
-                            type: "error",
-                            duration: 5000,
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error(
-                        "Error occurred during CSV export data call:",
-                        error
-                    );
-                    toaster.create({
-                        title: "An error occurred",
-                        description:
-                            "An error occurred during CSV export data call.",
-                        type: "error",
-                        duration: 5000,
-                    });
+            try {
+                createCsv(selectedExportEvent);
+                createSuccess();
+            } catch (error) {
+                console.error(
+                    "Error occurred during CSV export data call:",
+                    error
+                );
+                toaster.create({
+                    title: "An error occurred",
+                    description:
+                        "An error occurred during CSV export data call: " +
+                        error,
+                    type: "error",
+                    duration: 5000,
                 });
+            }
         }
     };
 
@@ -107,59 +81,39 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         }, 2000);
     };
 
-    const createCsv = (data: any) => {
-        if (data && typeof data === "object") {
-            const { eventTitle, maxAttendees, budget, flights } = data;
-            const csvRows = [];
+    const createCsv = (item: Event) => {
+        const csvRows = [];
 
-            csvRows.push(
-                "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight IDs,Flight Costs"
-            );
+        csvRows.push(
+            "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight IDs,Flight Costs"
+        );
 
-            const totalBudget =
-                (budget?.perUserTotal || 0) * (maxAttendees || 0);
+        const totalBudget =
+            (item.budget?.perUserTotal || 0) * (item.maxAttendees || 0);
 
-            const flightIds =
-                flights
-                    ?.map((flight: any) => flight.flightNumber || "")
-                    .join(" | ") || "No flights";
-            const flightCosts =
-                flights
-                    ?.map((flight: any) =>
-                        ((flight.flightCost || 0) / 100).toFixed(2)
-                    )
-                    .join(" | ") || "0.00";
+        const flightIds = item.flights.map((flight) => flight.id).join(" | ");
+        const flightCosts =
+            item.flights
+                ?.map((flight) => (flight.flightCost || 0).toFixed(2))
+                .join(" | ") || "0.00";
 
-            csvRows.push(
-                `"${eventTitle || ""}","${maxAttendees || 0}","${
-                    budget?.perUserTotal || 0
-                }","${
-                    budget?.overage || 0
-                }","${totalBudget}","${flightIds}","${flightCosts}"`
-            );
+        csvRows.push(
+            `"${item.eventTitle || ""}","${item.maxAttendees || 0}","${
+                item.budget?.perUserTotal || 0
+            }","${
+                item.budget?.overage || 0
+            }","${totalBudget}","${flightIds}","${flightCosts}"`
+        );
 
-            const csvString = csvRows.join("\n");
-            const blob = new Blob([csvString], { type: "text/csv" });
-            const link = document.createElement("a");
-            const cleanTitle = eventTitle.replace(/[^a-zA-Z0-9]/g, "_");
-            link.href = URL.createObjectURL(blob);
-            link.download = `${cleanTitle}_budget_export.csv`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            console.error(
-                "An error occurred while generating CSV file for export:",
-                data
-            );
-            toaster.create({
-                title: "Export Failed",
-                description:
-                    "An error occurred while generating CSV file for export.",
-                type: "error",
-                duration: 5000,
-            });
-        }
+        const csvString = csvRows.join("\n");
+        const blob = new Blob([csvString], { type: "text/csv" });
+        const link = document.createElement("a");
+        const cleanTitle = item.eventTitle.replace(/[^a-zA-Z0-9]/g, "_");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${cleanTitle}_budget_export.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
