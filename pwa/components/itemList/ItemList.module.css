@@ -54,10 +54,12 @@
 @media (max-width: 600px) {
     .list-item {
         flex-direction: column;
+        gap: 0.25rem;
     }
 
     .list-header {
         flex-direction: column;
+        gap: 0.25rem;
     }
 
     .list-header-field {

@@ -195,7 +195,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                             styles.orgName
                                                         }
                                                     >
-                                                        Organization Name
+                                                        {item.organization.name}
                                                     </h2>
                                                     <p
                                                         className={
@@ -267,6 +267,20 @@ const FinancialAdminDashboard: React.FC = () => {
                                             {
                                                 key: "getFriendlyStartDate",
                                                 label: "Event Date",
+                                            },
+                                            {
+                                                key: "budget.perUserTotal",
+                                                label: "Total Budget",
+                                                valueFn: (event: Event) => {
+                                                    // return the per user total of the budget multiplied by the number of users
+                                                    if (!event.budget)
+                                                        return "$0";
+                                                    const totalBudget =
+                                                        event.budget
+                                                            .perUserTotal *
+                                                        event.maxAttendees;
+                                                    return `$${totalBudget.toLocaleString()}`;
+                                                },
                                             },
                                             {
                                                 key: "status",
