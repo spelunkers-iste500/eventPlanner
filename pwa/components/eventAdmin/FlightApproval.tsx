@@ -1,5 +1,12 @@
 import React from "react";
-import { DialogHeader, DialogBody, DialogTitle } from "@chakra-ui/react";
+import {
+    DialogHeader,
+    DialogBody,
+    DialogTitle,
+    DialogRoot,
+    DialogContent,
+    Portal,
+} from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X } from "lucide-react";
 import InviteAttendantExt from "./InviteAttendantExt";
@@ -36,41 +43,55 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
     };
 
     return (
-        <BaseDialog isOpen={isOpen} onClose={onClose}>
-            <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Flight Approval</DialogTitle>
-                <button className={styles.dialogClose} onClick={onClose}>
-                    <X />
-                </button>
-            </DialogHeader>
-            <DialogBody
-                className={`${styles.dialogBody} ${styles.formContainer}`}
-            >
-                <h2>Flight Information</h2>
-                <p>
-                    User Booking: {flight.user?.firstName}{" "}
-                    {flight.user?.lastName}
-                </p>
-                <p>Flight Cost: {flight.flightCost}</p>
-                <p>Origin: {flight.departureLocation}</p>
-                <p>
-                    Departure Time:{" "}
-                    {formatDateDisplay(flight.departureDateTime)} •{" "}
-                    {formatTime(flight.departureDateTime)}
-                </p>
-                <p>Destination: {flight.arrivalLocation}</p>
-                <p>
-                    Arrival Time: {formatDateDisplay(flight.arrivalDateTime)} •{" "}
-                    {formatTime(flight.arrivalDateTime)}
-                </p>
-                <div className={styles.dialogSubmitBtn}>
-                    <button className="outline-btn red" onClick={handleDeny}>
-                        Deny
+        <Portal>
+            <BaseDialog isOpen={isOpen} onClose={onClose}>
+                <DialogHeader className={styles.dialogHeader}>
+                    <DialogTitle>Flight Approval</DialogTitle>
+                    <button className={styles.dialogClose} onClick={onClose}>
+                        <X />
                     </button>
-                    <button onClick={handleApprove}>Approve</button>
-                </div>
-            </DialogBody>
-        </BaseDialog>
+                </DialogHeader>
+                <DialogBody
+                    className={`${styles.dialogBody} ${styles.formContainer}`}
+                >
+                    <h3 className="h4">Flight Information</h3>
+                    <p>
+                        <strong>User Booking:</strong> {flight.user?.firstName}{" "}
+                        {flight.user?.lastName}
+                    </p>
+                    <p>
+                        <strong>Flight Cost:</strong> ${flight.flightCost}
+                    </p>
+                    <p>
+                        <strong>Origin:</strong> {flight.departureLocation}
+                    </p>
+                    <p>
+                        <strong>Departure:</strong>{" "}
+                        {formatDateDisplay(flight.departureDateTime)} •{" "}
+                        {formatTime(flight.departureDateTime)}
+                    </p>
+                    <p>
+                        <strong>Destination:</strong> {flight.arrivalLocation}
+                    </p>
+                    <p>
+                        <strong>Arrival:</strong>{" "}
+                        {formatDateDisplay(flight.arrivalDateTime)} •{" "}
+                        {formatTime(flight.arrivalDateTime)}
+                    </p>
+                    <div
+                        className={`input-container ${styles.dialogSubmitBtn}`}
+                    >
+                        <button
+                            className="outline-btn red"
+                            onClick={handleDeny}
+                        >
+                            Deny
+                        </button>
+                        <button onClick={handleApprove}>Approve</button>
+                    </div>
+                </DialogBody>
+            </BaseDialog>
+        </Portal>
     );
 };
 
