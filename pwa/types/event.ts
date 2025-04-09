@@ -211,7 +211,8 @@ export class Event {
             const events = totalEvents.map((item: any) => {
                 const event = new Event(item.id);
                 if (item.budget) {
-                    event.setBudget(new Budget(item.budget.split("/").pop()));
+                    event.setBudget(new Budget(item.budget.id));
+                    event.budget.perUserTotal = item.budget.perUserTotal;
                     event.status = "approved";
                 } else {
                     event.budget = new Budget("pendingApproval");

@@ -410,7 +410,18 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 key: "eventTitle",
                                                 label: item.title,
                                             },
-                                            { key: "status", label: "Status" },
+                                            {
+                                                key: "startDateTime",
+                                                label: "Event Date",
+                                            },
+                                            {
+                                                key: "status",
+                                                label: "Status",
+                                            },
+                                            {
+                                                key: "budget.perUserTotal",
+                                                label: "Per User Total",
+                                            },
                                         ]}
                                         renderItem={handleOpenBudgetModal} // Open the view modal on item click
                                     />
