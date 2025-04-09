@@ -411,7 +411,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 label: item.title,
                                             },
                                             {
-                                                key: "startDateTime",
+                                                key: "getFriendlyStartDate",
                                                 label: "Event Date",
                                             },
                                             {

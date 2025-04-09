@@ -385,4 +385,26 @@ export class Event {
         }
         return this.organization;
     }
+    getFriendlyStartDate = () => {
+        const options: Intl.DateTimeFormatOptions = {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        };
+        return new Date(this.startDateTime).toLocaleDateString(
+            undefined,
+            options
+        );
+    };
+    getFriendlyEndDate = () => {
+        const options: Intl.DateTimeFormatOptions = {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        };
+        return new Date(this.endDateTime).toLocaleDateString(
+            undefined,
+            options
+        );
+    };
 }

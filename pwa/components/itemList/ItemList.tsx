@@ -4,6 +4,7 @@ import styles from "./ItemList.module.css"; // Ensure this path is correct
 interface FieldConfig {
     key: string; // Field path (e.g., "event.name")
     label: string; // Friendly display name
+    valueFn?: (item: any) => string; // Optional function to compute the value
 }
 
 interface ItemListProps<T> {
@@ -26,10 +27,17 @@ const ItemList = <T,>({
         renderItem(item); // Safely invoke renderItem
     };
 
-    const getValueByPath = (item: T, path: string): string => {
-        return (
-            path.split(".").reduce((acc: any, key) => acc?.[key], item) || ""
-        );
+    const getValueByPath = (item: T, field: FieldConfig): string => {
+        if (field.valueFn) {
+            return field.valueFn(item); // Use the function if provided
+        }
+        const value = field.key
+            .split(".")
+            .reduce((acc: any, key) => acc?.[key], item);
+        if (typeof value === "function") {
+            return value.call(item); // Call the method if it's a function
+        }
+        return value || "";
     };
 
     return (
@@ -50,7 +58,7 @@ const ItemList = <T,>({
                 >
                     {fields.map((field) => (
                         <div className={styles.listItemField} key={field.key}>
-                            {getValueByPath(item, field.key)}
+                            {getValueByPath(item, field)}
                         </div>
                     ))}
                 </div>
