@@ -52,6 +52,8 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 if (event.budget) {
                     event.budget.perUserTotal = perUserTotal;
                     event.budget.overage = overage;
+                    event.budget.organization = event.organization;
+                    event.budget.event = event;
                     await event.budget.persist(session.apiToken);
                     toaster.create({
                         title: "Budget Updated",
