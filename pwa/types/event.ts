@@ -224,10 +224,16 @@ export class Event {
                 event.setEndDateTime(item.endDateTime);
                 event.setStartFlightBooking(item.startFlightBooking);
                 event.setEndFlightBooking(item.endFlightBooking);
+                event.flights = item.flights.map((flight: any) => {
+                    const flightObj = new Flight(flight.id);
+                    flightObj.flightCost = flight.flightCost / 100;
+                    return flightObj;
+                });
                 event.setLocation(item.location);
                 event.setOrganization(
                     new Organization(item.organization["@id"])
                 );
+                event.maxAttendees = item.maxAttendees;
                 event.location = item.location;
                 event.organization.setName(item.organization.name);
                 context === "eventAdmin"
