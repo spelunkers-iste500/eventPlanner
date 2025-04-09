@@ -6,6 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use DateTimeInterface;
 use Ramsey\Uuid\Lazy\LazyUuidFromString;
 use Ramsey\Uuid\Uuid;
@@ -21,6 +22,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[Get(
     uriTemplate: '/flights/{id}.{_format}',
     security: "is_granted('view', object)"
+)]
+#[Patch(
+    uriTemplate: '/flights/{id}.{_format}',
+    security: "is_granted('edit', object)",
+    denormalizationContext: ['groups' => ['write:flights']],
 )]
 class Flight
 {
@@ -187,7 +193,8 @@ class Flight
 
     #[ORM\Column]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:event:collection'
     ])]
     private ?string $bookingRefernce = null;
     public function getBookingRefernce(): ?string
@@ -202,7 +209,9 @@ class Flight
 
     #[ORM\Column()]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:event:collection',
+        'write:flights'
     ])]
     #[Assert\Choice(choices: ['pending', 'approved', 'rejected'])]
     private ?string $approvalStatus = null;

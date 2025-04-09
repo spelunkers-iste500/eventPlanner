@@ -228,6 +228,8 @@ export class Event {
                 event.flights = item.flights.map((flight: any) => {
                     const flightObj = new Flight(flight.id);
                     flightObj.flightCost = flight.flightCost / 100;
+                    flightObj.approvalStatus = flight.approvalStatus;
+                    flightObj.bookingReference = flight.bookingReference;
                     return flightObj;
                 });
                 event.setLocation(item.location);
