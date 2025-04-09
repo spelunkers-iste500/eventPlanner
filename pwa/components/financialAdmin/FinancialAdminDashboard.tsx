@@ -244,7 +244,15 @@ const FinancialAdminDashboard: React.FC = () => {
                                             },
                                             {
                                                 key: "budget.perUserTotal",
-                                                label: "Per User Total",
+                                                label: "Total Budget",
+                                                valueFn: (event: Event) => {
+                                                    // return the per user total of the budget multiplied by the number of users
+                                                    const totalBudget =
+                                                        event.budget
+                                                            .perUserTotal *
+                                                        event.maxAttendees;
+                                                    return `$${totalBudget.toLocaleString()}`;
+                                                },
                                             },
                                         ]}
                                         renderItem={handleOpenBudgetModal} // Open the view modal on item click

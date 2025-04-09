@@ -4,7 +4,7 @@ import { Event } from "./event";
 
 export class Budget {
     id: string;
-    perUserTotal?: number;
+    perUserTotal: number = 0;
     organization?: Organization;
     event?: Event;
     overage?: number;

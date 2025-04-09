@@ -228,6 +228,7 @@ export class Event {
                 event.setOrganization(
                     new Organization(item.organization["@id"])
                 );
+                event.maxAttendees = item.maxAttendees;
                 event.location = item.location;
                 event.organization.setName(item.organization.name);
                 context === "eventAdmin"
