@@ -21,7 +21,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 #[Get(
     uriTemplate: '/flights/{id}.{_format}',
-    security: "is_granted('view', object)"
+    security: "is_granted('view', object)",
+    normalizationContext: ['groups' => ['read:flight']],
 )]
 #[Patch(
     uriTemplate: '/flights/{id}.{_format}',
@@ -34,7 +35,8 @@ class Flight
     #[ORM\Column(name: 'id', type: 'uuid')]
     #[Groups([
         'read:myEvents',
-        'read:event:collection'
+        'read:event:collection',
+        'read:flight'
     ])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
@@ -50,7 +52,8 @@ class Flight
     #[Groups([
         'read:myEvents',
         'event:csv:export',
-        'read:event:collection'
+        'read:event:collection',
+        'read:flight'
     ])]
     public int $flightCost;
 
@@ -85,6 +88,9 @@ class Flight
     // One flight per user, per event
     // Flight <-> User
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'flights')]
+    #[Groups([
+        'read:flight'
+    ])]
     private User $user; // this should be updated to be a single user
 
     public function getUser(): User
@@ -100,7 +106,8 @@ class Flight
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:flight'
     ])]
     private ?DateTimeInterface $departureDateTime = null;
 
@@ -115,7 +122,8 @@ class Flight
     }
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:flight'
     ])]
     private ?DateTimeInterface $arrivalDateTime = null;
 
@@ -131,7 +139,8 @@ class Flight
 
     #[ORM\Column(nullable: true)]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:flight'
     ])]
     private ?string $departureLocation = null;
 
@@ -147,7 +156,8 @@ class Flight
 
     #[ORM\Column(nullable: true)]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:flight'
     ])]
     private ?string $arrivalLocation = null;
 
@@ -177,7 +187,8 @@ class Flight
 
     #[ORM\Column]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:flight'
     ])]
     private ?string $duffelOrderID = null;
     public function getDuffelOrderID(): ?string
@@ -194,7 +205,8 @@ class Flight
     #[ORM\Column]
     #[Groups([
         'read:myEvents',
-        'read:event:collection'
+        'read:event:collection',
+        'read:flight'
     ])]
     private ?string $bookingRefernce = null;
     public function getBookingRefernce(): ?string
@@ -211,7 +223,8 @@ class Flight
     #[Groups([
         'read:myEvents',
         'read:event:collection',
-        'write:flights'
+        'write:flights',
+        'read:flight'
     ])]
     #[Assert\Choice(choices: ['pending', 'approved', 'rejected'])]
     private ?string $approvalStatus = null;
