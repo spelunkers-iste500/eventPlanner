@@ -42,6 +42,7 @@ const Dashboard: React.FC = () => {
         const fetchOrganizations = async () => {
             try {
                 console.debug(organizations);
+                console.debug(organizations);
                 await organizations.forEach(async (org) => {
                     await org.fetch(session.apiToken);
                 });

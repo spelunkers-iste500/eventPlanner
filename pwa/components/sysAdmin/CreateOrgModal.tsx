@@ -220,7 +220,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         className="input-field"
                     />
                 </div>
-                <br></br>
 
                 {/* Switch to toggle admin invitation */}
                 <Switch.Root checked={inviteAdmins}>
@@ -265,15 +264,12 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                                 </option>
                             </select>
                         </div>
-                        <br></br>
-                        <div className={`input-container ${styles.dialogSubmitBtn}`}>
                         <button
                             className="dialog-button"
                             onClick={handleAddEmail}
                         >
                             Add Admin
                         </button>
-                        </div>
                         {error && (
                             <div className={styles.errorMsg}>{error}</div>
                         )}

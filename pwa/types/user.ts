@@ -17,6 +17,7 @@ export class User {
     eventAdminOfOrg: Organization[] = [];
     financeAdminOfOrg: Organization[] = [];
     adminOfOrg: Organization[] = [];
+    adminOfOrg: Organization[] = [];
     superAdmin?: boolean;
     passengerId?: string;
     plainPassword?: string;
@@ -76,6 +77,9 @@ export class User {
     setAdminOfOrg(adminOfOrg: Organization[]): void {
         this.adminOfOrg = adminOfOrg;
     }
+    setAdminOfOrg(adminOfOrg: Organization[]): void {
+        this.adminOfOrg = adminOfOrg;
+    }
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "" && id !== "notPersisted") {
@@ -110,6 +114,9 @@ export class User {
             user.title = data.title;
             user.gender = data.gender;
             user.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
                 const orgObj = new Organization(org["@id"].split("/").pop());
                 orgObj.name = org.name;
                 return orgObj;
@@ -219,6 +226,9 @@ export class User {
             this.title = data.title;
             this.gender = data.gender;
             this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
                 const orgObj = new Organization(org["@id"].split("/").pop());
                 orgObj.name = org.name;
                 return orgObj;

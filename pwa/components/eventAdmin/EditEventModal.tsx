@@ -4,11 +4,13 @@ import {
     DialogTitle,
     Button,
     Tabs,
+    Tabs,
     Switch,
 } from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar, Info, Users, Plane } from "lucide-react";
 import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "../common/Dialog.module.css";
@@ -33,7 +35,13 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     onClose,
     event,
 }) => {
+const CreateEventModal: React.FC<CreateEventModalProps> = ({
+    isOpen,
+    onClose,
+    event,
+}) => {
     const { data: session } = useSession();
+    console.log("selected event", event);
 
     const [eventTitle, setEventTitle] = useState(event?.eventTitle || "");
     const [location, setLocation] = useState(event?.location || "");
@@ -52,6 +60,28 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [multiDay, setMultiDay] = useState(
         event?.startDateTime !== event?.endDateTime
     );
+    const [eventTitle, setEventTitle] = useState("");
+    const [location, setLocation] = useState("");
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [eventImage, setEventImage] = useState<File | null>(null);
+    const [maxAttendee, setMaxAttendee] = useState<number>(1);
+    const [multiDay, setMultiDay] = useState(false);
+
+    // Update state when the `event` prop changes
+    useEffect(() => {
+        if (event) {
+            setEventTitle(event.eventTitle || "");
+            setLocation(event.location || "");
+            setStartDate(
+                event.startDateTime ? new Date(event.startDateTime) : null
+            );
+            setEndDate(event.endDateTime ? new Date(event.endDateTime) : null);
+            setEventImage(event.imageBlob || null);
+            setMaxAttendee(event.maxAttendees || 1);
+            setMultiDay(event.startDateTime !== event.endDateTime);
+        }
+    }, [event]);
 
     const handleSubmit = () => {
         if (
@@ -83,6 +113,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 });
                 console.debug("Event created:", event);
             });
+            event.persist(session?.apiToken);
+            toaster.create({
+                title: "Event Created",
+                description: "Your event has been created successfully.",
+                type: "success",
+                duration: 5000,
+            });
+            console.debug("Event created:", event);
         }
     };
 
@@ -94,6 +132,9 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <X />
                 </button>
             </DialogHeader>
+            <DialogBody
+                className={`${styles.dialogBody} ${styles.eventDialog}`}
+            >
             <DialogBody
                 className={`${styles.dialogBody} ${styles.eventDialog}`}
             >
@@ -113,9 +154,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         </Tabs.Trigger>
                     </Tabs.List>
                     <Tabs.Content className={styles.eventDialog} value="info">
+                    <Tabs.Content className={styles.eventDialog} value="info">
                         {/* Event Image */}
                         <div className="input-container">
                             <label className="input-label">Event Image</label>
+                            <UploadFile
+                                eventImage={eventImage}
+                                setEventImage={setEventImage}
+                            />
                             <UploadFile
                                 eventImage={eventImage}
                                 setEventImage={setEventImage}
@@ -128,6 +174,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             defaultValue={event?.eventTitle}
                             onChange={(value) => setEventTitle(value)}
                         />
+                        <Input
+                            label="Event Title"
+                            defaultValue={eventTitle}
+                            onChange={(value) => setEventTitle(value)}
+                        />
 
                         {/* Event Location */}
                         <Input
@@ -137,11 +188,33 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             inputMode="text"
                         />
 
+                        <Input
+                            label="Location"
+                            defaultValue={location}
+                            onChange={(value) => setLocation(value)}
+                        />
+
                         {/* Event Max Attendees */}
                         <Input
                             label="Max Attendees"
                             type="number"
                             defaultValue={`${event?.maxAttendees}`}
+                            onChange={(value) => setMaxAttendee(Number(value))}
+                        />
+
+                        {/* Multi-Day Event Selector */}
+                        <Switch.Root checked={multiDay}>
+                            <Switch.HiddenInput
+                                onChange={(e) => setMultiDay(e.target.checked)}
+                            />
+                            <Switch.Label>Multi-Day Event?</Switch.Label>
+                            <Switch.Control />
+                        </Switch.Root>
+
+                        <Input
+                            label="Max Attendees"
+                            type="number"
+                            defaultValue={`${maxAttendee}`}
                             onChange={(value) => setMaxAttendee(Number(value))}
                         />
 
@@ -199,6 +272,50 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <div
                             className={`input-container ${styles.dialogSubmitBtn}`}
                         >
+                            <label className="input-label">Event Dates</label>
+                            {/* Conditionally render the date range picker */}
+                            {multiDay ? (
+                                <DatePicker
+                                    selected={startDate}
+                                    startDate={startDate}
+                                    endDate={endDate}
+                                    minDate={new Date()}
+                                    onChange={(dates) => {
+                                        const [start, end] = dates;
+                                        setStartDate(start);
+                                        setEndDate(end);
+                                    }}
+                                    selectsRange
+                                    showMonthDropdown
+                                    placeholderText="Select date range"
+                                    dateFormat="MM/dd/yyyy"
+                                    className="input-field"
+                                    showIcon
+                                    icon={<Calendar size={32} />}
+                                />
+                            ) : (
+                                <DatePicker
+                                    selected={startDate}
+                                    startDate={startDate}
+                                    minDate={new Date()}
+                                    onChange={(date) => {
+                                        setStartDate(date);
+                                        setEndDate(date); // For single day, end date is the same as start date
+                                    }}
+                                    showMonthDropdown
+                                    showTimeSelect
+                                    placeholderText="Select a date"
+                                    dateFormat="MM/dd/yyyy h:mm aa"
+                                    className="input-field"
+                                    showIcon
+                                    icon={<Calendar size={32} />}
+                                />
+                            )}
+                        </div>
+
+                        <div
+                            className={`input-container ${styles.dialogSubmitBtn}`}
+                        >
                             <Button onClick={handleSubmit}>Update Event</Button>
                         </div>
                     </Tabs.Content>
@@ -208,7 +325,12 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             createdEvent={event}
                             isEditing={true}
                         />
+                        <InviteAttendantExt
+                            createdEvent={event}
+                            isEditing={true}
+                        />
                     </Tabs.Content>
+
 
                     <Tabs.Content value="flights">
                         {/* Add flight tracking in here */}

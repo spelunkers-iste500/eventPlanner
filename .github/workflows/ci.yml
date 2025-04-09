@@ -41,8 +41,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.ref }}
             ${{ runner.os }}-buildx-
       - name: Build Docker images
         uses: docker/bake-action@v6
@@ -58,8 +59,8 @@ jobs:
       - name: save docker cache
         uses: actions/cache@v4
         with:
-          path: /tmp/.buildx-cache-new
-          key: ${{ runner.os }}-buildx-${{ github.ref }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
       - name: Start services
         run: docker compose up --wait --no-build
       - name: Wait for containers to be ready
@@ -172,11 +173,11 @@ jobs:
 
       - name: Generate JWT signing certificates
         run: cd /opt/appRoot && docker compose exec php bin/console lexik:jwt:generate-keypair
-      
+
       #- name: import from exiting data backup
-        #run: |
-        #  cd /opt
-        #  cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
+      #run: |
+      #  cd /opt
+      #  cat backup.sql | docker exec -i approot-database-1 psql -U app -d app
       - name: known good state
         run: |
           cd /opt/appRoot

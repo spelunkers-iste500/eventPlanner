@@ -56,7 +56,7 @@ interface SelectOption {
 const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
-    const [flightResults, setFlightResults] = useState<Offer[]>([]);
+    const [error, setError] = useState<string>("");
 
     if (!session) return null;
     const [formData, setFormData] = useState({
@@ -95,6 +95,29 @@ const FlightSearch: React.FC = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        // check each formdata if it has empty fields
+        if (!formData.origin) {
+            setError("Origin is required");
+            return;
+        }
+
+        if (!formData.destination) {
+            setError("Destination is required");
+            return;
+        }
+
+        if (!formData.departDate) {
+            setError("Departure date is required");
+            return;
+        }
+
+        if (formData.trip === "round-trip" && !formData.returnDate) {
+            setError("Return date is required for round trip");
+            return;
+        }
+
+        setError("");
         fetchFlightOffers();
     };
 
@@ -121,7 +144,6 @@ const FlightSearch: React.FC = () => {
                 }
             )
             .then((response) => {
-                setFlightResults(response.data.flightOffers);
                 setBookingData({
                     ...bookingData,
                     trip: formData.trip,
@@ -179,8 +201,13 @@ const FlightSearch: React.FC = () => {
         }, 120);
     };
 
+    useEffect(() => {
+        console.log("formData", formData);
+    }, [formData]);
+
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
+            {error && <div className="error-msg">{error}</div>}
             <div className="input-container">
                 <label className="input-label">Trip Type</label>
                 <Select
@@ -223,18 +250,20 @@ const FlightSearch: React.FC = () => {
                         size="md"
                         className={`select-menu`}
                         classNamePrefix={"select"}
-                        onChange={(value: any) =>
-                            setFormData({
-                                ...formData,
-                                origin: value?.value || "",
-                            })
-                        }
-                        onInputChange={(inputValue) =>
-                            setFormData({
-                                ...formData,
+                        onChange={(value: SelectOption | null) => {
+                            if (value) {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    origin: value.value,
+                                }));
+                            }
+                        }}
+                        onInputChange={(inputValue) => {
+                            setFormData((prev) => ({
+                                ...prev,
                                 originInput: inputValue,
-                            })
-                        }
+                            }));
+                        }}
                         value={
                             formData.origin
                                 ? {
@@ -243,6 +272,11 @@ const FlightSearch: React.FC = () => {
                                   }
                                 : null
                         }
+                        menuPortalTarget={document.body} // Render the dropdown in a portal
+                        menuPosition="fixed" // Ensure proper positioning
+                        styles={{
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure dropdown appears above other elements
+                        }}
                     />
                 </div>
 
@@ -259,18 +293,20 @@ const FlightSearch: React.FC = () => {
                         size="md"
                         className={`select-menu`}
                         classNamePrefix={"select"}
-                        onChange={(value: any) =>
-                            setFormData({
-                                ...formData,
-                                destination: value?.value || "",
-                            })
-                        }
-                        onInputChange={(inputValue) =>
-                            setFormData({
-                                ...formData,
+                        onChange={(value: SelectOption | null) => {
+                            if (value) {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    destination: value.value,
+                                }));
+                            }
+                        }}
+                        onInputChange={(inputValue) => {
+                            setFormData((prev) => ({
+                                ...prev,
                                 destinationInput: inputValue,
-                            })
-                        }
+                            }));
+                        }}
                         value={
                             formData.destination
                                 ? {
@@ -279,6 +315,11 @@ const FlightSearch: React.FC = () => {
                                   }
                                 : null
                         }
+                        menuPortalTarget={document.body} // Render the dropdown in a portal
+                        menuPosition="fixed" // Ensure proper positioning
+                        styles={{
+                            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Ensure dropdown appears above other elements
+                        }}
                     />
                 </div>
             </div>

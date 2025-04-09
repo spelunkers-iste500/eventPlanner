@@ -20,6 +20,7 @@ import { toaster } from "Components/ui/toaster";
 import { setDefaultResultOrder } from "dns";
 import { set } from "date-fns";
 import { UserEvent } from "Types/userEvent";
+import { UserEvent } from "Types/userEvent";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -144,7 +145,24 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     };
 
+    const handleSave = () => {
+        // update UserEvent for person to be cancelled
+        if (createdEvent && session?.apiToken) {
+            deletedEmails.forEach((email) => {
+                // get the UserEvent associated with the email
+                const userEvent = createdEvent.attendees?.find(
+                    (attendee) => attendee.user.email === email
+                );
+                if (userEvent) {
+                    userEvent.status = "cancelled";
+                }
+            });
+            createdEvent.persist(session.apiToken); // persist the change
+        }
+    };
+
     const handleSubmit = () => {
+        console.info("Submitted emails:", emails);
         console.info("Submitted emails:", emails);
         // send invites out to the emails
         if (createdEvent && emails.length > 0) {
@@ -165,6 +183,27 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 return;
             }
             if (session) {
+                axios
+                    .post(
+                        `/user_invites`,
+                        {
+                            event: `/events/${createdEvent.id}`,
+                            emails: validEmails,
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${session.apiToken}`,
+                                "Content-Type": "application/ld+json",
+                            },
+                        }
+                    )
+                    .then((response) => {
+                        console.log("Invite sent:", response.data);
+                        inviteSuccess();
+                    })
+                    .catch((error) => {
+                        console.error("Error sending invite:", error);
+                    });
                 axios
                     .post(
                         `/user_invites`,
@@ -245,7 +284,11 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         p={2}
                         borderRadius="md"
                     >
-                        <Flex alignItems="center" justifyContent="space-between" width="100%">
+                        <Flex
+                            alignItems="center"
+                            justifyContent="space-between"
+                            width="100%"
+                        >
                             <Box className="email-box">
                                 <span>{email.email}</span>
                             </Box>
@@ -256,7 +299,9 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => handleDeleteEmail(email.email)}
+                                    onClick={() =>
+                                        handleDeleteEmail(email.email)
+                                    }
                                 >
                                     <X size={16} />
                                 </Button>
@@ -265,6 +310,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Flex>
                 ))}
             </Box>
+            {isEditing && (
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
+                    <Button className="outline-btn" onClick={handleSave}>
+                        Save
+                    </Button>
+                    <Button onClick={handleSubmit}>Send Invites</Button>
+                </div>
+            )}
             {isEditing && (
                 <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <Button className="outline-btn" onClick={handleSave}>

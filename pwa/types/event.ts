@@ -190,6 +190,10 @@ export class Event {
                 response.data["hydra:view"]["hydra:last"]
                     ? response.data["hydra:view"]["hydra:last"].split("=")[1]
                     : 1;
+            response.data["hydra:view"] &&
+            response.data["hydra:view"]["hydra:last"]
+                ? response.data["hydra:view"]["hydra:last"].split("=")[1]
+                : 1;
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
                 if (item.budget) {
@@ -325,6 +329,9 @@ export class Event {
                             },
                         }
                     );
+                    // set the id of the event to the generated ID
+                    this.id = response.data.id;
+                    this.iri = response.data["@id"];
                     // set the id of the event to the generated ID
                     this.id = response.data.id;
                     this.iri = response.data["@id"];
