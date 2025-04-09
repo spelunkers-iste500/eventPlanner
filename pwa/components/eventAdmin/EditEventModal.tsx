@@ -51,10 +51,8 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
             console.error("API token is not available.");
             return;
         }
-        flight.fetch(session?.apiToken).then(() => {
-            setSelectedFlight(flight);
-            setIsApprovalOpen(true);
-        });
+        setSelectedFlight(flight);
+        setIsApprovalOpen(true);
     };
 
     const handleApprovalClose = () => {
@@ -240,7 +238,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                                 { key: "flightCost", label: "Flight Cost" },
                                 { key: "approvalStatus", label: "Status" },
                             ]}
-                            renderItem={handleApprovalOpen}
+                            renderItem={(flight) => handleApprovalOpen(flight)}
                         />
                         <FlightApproval
                             flight={selectedFlight}

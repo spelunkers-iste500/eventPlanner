@@ -108,7 +108,7 @@ button.chakra-tabs__trigger[aria-selected=true] {
     border: 2px solid var(--red-400);
 }
 
-.outline-btn:hover {
+.outline-btn.red:hover {
     background-color: var(--red-400);
     color: var(--white);
 }
