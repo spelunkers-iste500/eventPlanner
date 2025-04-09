@@ -94,9 +94,9 @@
     }
 }
 
-.profile-icon {
-    /* border: 2px solid var(--blue-300); */
-    border-radius: 50%;
+.nav-header-icon.active::before {
+    background-color: var(--blue-600);
+    border-radius: 4px 4px 0 0;
 }
 
 .nav-body {
@@ -165,10 +165,6 @@
     display: none;
 }
 
-/* .nav-link.active svg {
-    fill: var(--blue-300);
-} */
-
 .nav-footer {
     width: 100%;
 }
@@ -206,6 +202,35 @@
     &::before {
         background-color: var(--blue-600)
     }
+}
+
+.popup {
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: -0.25rem;
+    padding: 0.5rem;
+    width: 200px;
+    background: var(--white);
+    border: 1px solid var(--blue-600);
+    border-radius: 0 0.5rem 0.5rem;
+    z-index: 1000;
+    cursor: default;
+    color: var(--black);
+}
+
+.user-info {
+    font-size: 0.8rem;
+}
+
+.user-info span {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.no-results {
+	font-style: italic;
+	color: var(--gray-400);
+    font-size: 0.8rem;
 }
 
 .mobile-nav {
