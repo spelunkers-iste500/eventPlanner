@@ -32,7 +32,7 @@ export class Budget {
 
     async persist(apiToken: string): Promise<void> {
         // two cases: creating a budget (id = "notPersisted") or updating an existing one (id != "notPersisted")
-        if (this.id === "notPersisted") {
+        if (this.id === "notPersisted" || this.id === "pendingApproval") {
             // check if the required fields are set: organization, perUserTotal, overage, event
             if (!this.organization) {
                 throw new Error("Organization is required");
