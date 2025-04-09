@@ -165,14 +165,13 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Export CSV</DialogTitle>
+                <DialogTitle>Export Budget CSV</DialogTitle>
                 <button className={styles.dialogClose} onClick={handleClose}>
                     <X />
                 </button>
             </DialogHeader>
             <DialogBody className={styles.dialogBody}>
                 <div className={styles.exportCSVContainer}>
-                    <h3>Export Budget CSV</h3>
                     <div className={styles.exportCsvForm}>
                         <div>
                             <Input
@@ -240,14 +239,11 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                                 </button>
                             </div>
                         )}
-                        <button
-                            className={styles.exportButton}
-                            onClick={() => {
-                                handleSubmit();
-                            }}
+                        <div
+                            className={`input-container ${styles.dialogSubmitBtn}`}
                         >
-                            Export CSV
-                        </button>
+                            <button onClick={handleSubmit}>Export CSV</button>
+                        </div>
                     </div>
                 </div>
             </DialogBody>

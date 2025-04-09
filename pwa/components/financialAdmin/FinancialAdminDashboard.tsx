@@ -1,28 +1,12 @@
 // Importing necessary libraries and components
 import React, { useEffect, useState } from "react";
-import EventList from "../common/EventList";
 import styles from "./FinancialAdminDashboard.module.css";
-import dialogStyles from "../common/Dialog.module.css";
 import CreateBudgetModal from "./CreateBudgetModal";
 import { useSession } from "next-auth/react";
 import { useUser } from "Utils/UserProvider";
 import { Event } from "Types/event";
 import { Organization } from "Types/organization";
-import {
-    Button,
-    Dialog,
-    DialogBackdrop,
-    DialogBody,
-    DialogContent,
-    DialogHeader,
-    DialogRoot,
-    DialogTitle,
-    Stack,
-    Text,
-    Select,
-    Portal,
-    createListCollection,
-} from "@chakra-ui/react";
+import { Stack, Select, Portal, createListCollection } from "@chakra-ui/react";
 import {
     AccordionItem,
     AccordionItemContent,
@@ -56,6 +40,7 @@ const FinancialAdminDashboard: React.FC = () => {
             events: Event[];
         }[]
     >([]); // State for items in the accordion
+
     useEffect(() => {
         if (!session) return;
         const fetchOrganizations = async () => {
@@ -101,119 +86,10 @@ const FinancialAdminDashboard: React.FC = () => {
             });
         }
     }, [organizations, user, session]);
-    // have to get the organization objects from the API
-    // organizations.forEach((org) => {
-    //     axios.get(org).then((response) => {
-    //         orgObjects.push(response.data);
-    //     });
-    // });
+
     const orgCollection = createListCollection({
         items: orgObjects,
     });
-
-    // const handleOrganizationChange = (
-    //     event: React.ChangeEvent<HTMLSelectElement>
-    // ) => {
-    //     setSelectedOrganization(event.target.value);
-    // };
-
-    // const filteredEvents = events.filter(
-    //     (event) =>
-    //         !selectedOrganization ||
-    //         event.organization?.id === selectedOrganization
-    // );
-
-    // const filteredItems = [
-    //     {
-    //         value: "pending-events",
-    //         title: "Events Pending Approval",
-    //         events: filteredEvents.filter(
-    //             (event) => event.budget.id == "pendingApproval"
-    //         ),
-    //     },
-    //     {
-    //         value: "approved-events",
-    //         title: "Approved Events",
-    //         events: filteredEvents.filter(
-    //             (event) => event.budget.id != "pendingApproval"
-    //         ),
-    //     },
-    // ];
-
-    // filter events based on whether a budget exists or not
-    // const pendingEvents = events.filter((event) => !event.budget);
-    // const approvedEvents = events.filter((event) => event.budget);
-    // const apiUrl = `/my/organizations/events/financeAdmin`;
-    // // get the events from the API
-    // const getEvents = async () => {
-    //     if (user && session) {
-    //         try {
-    //             // setup event array to eventually pass into setEvents()
-    //             Event.allFromApiResponse(session.apiToken, "financeAdmin").then(
-    //                 (events) => {
-    //                     console.debug("Fetched events:", events);
-    //                     const items = orgObjects.map((org) => {
-    //                         return {
-    //                             value: org.id,
-    //                             title: org.getName(),
-    //                             organization: org,
-    //                             events: events.filter(
-    //                                 (event) => event.organization.id === org.id
-    //                             ),
-    //                         };
-    //                     });
-    //                     console.debug("Mapped items:", items);
-    //                     setEvents(events);
-    //                 }
-    //             );
-    //             // const events = [];
-    //             // while (hasNextPage) {
-    //             //     response = await axios.get(`${apiUrl}?page=${pageNumber}`, {
-    //             //         headers: {
-    //             //             Authorization: `Bearer ${session.apiToken}`,
-    //             //         },
-    //             //     });
-    //             //     if (response.status === 200) {
-    //             //         // if the current page is the last page, set hasNextPage to false
-    //             //         if (
-    //             //             response.data["hydra:view"] &&
-    //             //             response.data["hydra:view"]["hydra:last"] !==
-    //             //                 `${apiUrl}?page=${pageNumber}`
-    //             //         ) {
-    //             //             // increment page number
-    //             //             pageNumber++;
-    //             //         } else {
-    //             //             hasNextPage = false;
-    //             //         }
-    //             //         // push the events from the next page into the events array
-    //             //         events.push(...response.data["hydra:member"]);
-    //             //     }
-    //             // }
-    //             // set the events to the state
-    //             setEvents(events);
-    //         } catch (error) {
-    //             console.error("Error:", error);
-    //         }
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     getEvents();
-    // }, [user]);
-
-    // Defining accordion items for current events and past events
-    // const items = [
-    //     {
-    //         value: "pending-events",
-    //         title: "Events Pending Approval",
-    //         events: mapEventsToUserEvents(pendingEvents),
-    //     },
-    //     {
-    //         value: "approved-events",
-    //         title: "Approved Events",
-    //         events: mapEventsToUserEvents(approvedEvents),
-    //     },
-    // ];
 
     const handleOpenBudgetModal = (event: Event) => {
         setSelectedEvent(event);
@@ -241,98 +117,7 @@ const FinancialAdminDashboard: React.FC = () => {
     return (
         <>
             <div className={styles.plannerDashboardContainer}>
-                <h1>Welcome, {session?.user?.name}!</h1>
-
-                {/* Organization Filter Dropdown */}
-                <div className={styles.filterContainer}>
-                    <Select.Root
-                        onValueChange={(d) => {
-                            console.debug(d);
-                        }}
-                        collection={orgCollection}
-                    >
-                        <Select.HiddenSelect />
-                        <Select.Label>Organization</Select.Label>
-                        <Select.Control>
-                            <Select.Trigger>
-                                <Select.ValueText placeholder="All Organizations" />
-                            </Select.Trigger>
-                            <Select.IndicatorGroup>
-                                <Select.Indicator />
-                            </Select.IndicatorGroup>
-                        </Select.Control>
-                        <Portal>
-                            <Select.Positioner>
-                                <Select.Content>
-                                    {orgObjects.map((org) => (
-                                        <Select.Item item={org} key={org.id}>
-                                            {org.name}
-                                        </Select.Item>
-                                    ))}
-                                </Select.Content>
-                            </Select.Positioner>
-                        </Portal>
-                    </Select.Root>
-                </div>
-
-                {/* Organization and Budget Info Section */}
-                <div className={styles.infoContainer}>
-                    {/* Organization Info */}
-                    <div className={styles.orgInfoBox}>
-                        <div className={styles.orgImageWrapper}>
-                            <img
-                                src="/media/placeholder-event.jpg"
-                                alt="Organization Logo"
-                                className={styles.orgImage}
-                            />
-                        </div>
-                        <div className={styles.orgDetails}>
-                            <h2 className={styles.orgName}>
-                                Organization Name
-                            </h2>
-                            <p className={styles.orgType}>
-                                Financial Management Organization
-                            </p>
-                        </div>
-                        {/* Export CSV Button */}
-                        <div className={styles.exportButtonContainer}>
-                            <button
-                                className={styles.exportButton}
-                                onClick={handleOpenExportDialog}
-                            >
-                                Export CSV
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Budget Summary */}
-                    <div className={styles.statsBox}>
-                        <div className={styles.statItem}>
-                            <span className={styles.statLabel}>
-                                Allocated Budget:{" "}
-                            </span>
-                            <span className={styles.statValue}>
-                                {allocatedBudget}
-                            </span>
-                        </div>
-                        <div className={styles.statItem}>
-                            <span className={styles.statLabel}>
-                                Budget Spent:{" "}
-                            </span>
-                            <span className={styles.statValue}>
-                                {budgetSpent}
-                            </span>
-                        </div>
-                        <div className={styles.statItem}>
-                            <span className={styles.statLabel}>
-                                Remaining Budget:{" "}
-                            </span>
-                            <span className={styles.statValue}>
-                                {remainingBudget}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
 
                 <Stack gap="4">
                     <AccordionRoot
@@ -342,63 +127,102 @@ const FinancialAdminDashboard: React.FC = () => {
                     >
                         {items.map((item, index) => (
                             <AccordionItem key={index} value={item.value}>
-                                <AccordionItemTrigger>
+                                <AccordionItemTrigger
+                                    className={styles.accordionTrigger}
+                                >
                                     {item.title +
                                         `: ${item.events.length} Events`}
                                 </AccordionItemTrigger>
                                 <AccordionItemContent>
                                     <div className={styles.infoContainer}>
+                                        {/* Organization Info */}
                                         <div className={styles.orgInfoBox}>
                                             <div
                                                 className={
-                                                    styles.orgImageWrapper
+                                                    styles.orgInfoWrapper
                                                 }
                                             >
-                                                <img
-                                                    src="/media/event_image.jpg"
-                                                    alt="Organization Logo"
-                                                    className={styles.orgImage}
-                                                />
+                                                <div
+                                                    className={
+                                                        styles.orgImageWrapper
+                                                    }
+                                                >
+                                                    <img
+                                                        src="/media/placeholder-event.jpg"
+                                                        alt="Organization Logo"
+                                                        className={
+                                                            styles.orgImage
+                                                        }
+                                                    />
+                                                </div>
+                                                <div
+                                                    className={
+                                                        styles.orgDetails
+                                                    }
+                                                >
+                                                    <h2
+                                                        className={
+                                                            styles.orgName
+                                                        }
+                                                    >
+                                                        Organization Name
+                                                    </h2>
+                                                    <p
+                                                        className={
+                                                            styles.orgType
+                                                        }
+                                                    >
+                                                        Financial Management
+                                                        Organization
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className={styles.orgDetails}>
-                                                <h2 className={styles.orgName}>
-                                                    {item.organization.name}
-                                                </h2>
-                                                <p className={styles.orgType}>
-                                                    Event Planning Organization
-                                                </p>
-                                            </div>
+
+                                            {/* Export CSV Button */}
+                                            <button
+                                                className={styles.exportButton}
+                                                onClick={handleOpenExportDialog}
+                                            >
+                                                Export CSV
+                                            </button>
                                         </div>
 
+                                        {/* Budget Summary */}
                                         <div className={styles.statsBox}>
                                             <div className={styles.statItem}>
                                                 <span
                                                     className={styles.statLabel}
                                                 >
-                                                    Approved Events:{" "}
+                                                    Allocated Budget:
                                                 </span>
                                                 <span
                                                     className={styles.statValue}
                                                 >
-                                                    {
-                                                        item.events.filter(
-                                                            (event) =>
-                                                                event.status ===
-                                                                "approved"
-                                                        ).length
-                                                    }
+                                                    {allocatedBudget}
                                                 </span>
                                             </div>
                                             <div className={styles.statItem}>
                                                 <span
                                                     className={styles.statLabel}
                                                 >
-                                                    All Events:{" "}
+                                                    Budget Spent:
                                                 </span>
                                                 <span
                                                     className={styles.statValue}
                                                 >
-                                                    {item.events.length}
+                                                    {budgetSpent}
+                                                </span>
+                                            </div>
+                                            <div className={styles.statItem}>
+                                                <span
+                                                    className={styles.statLabel}
+                                                >
+                                                    Remaining Budget:
+                                                </span>
+                                                <span
+                                                    className={styles.statValue}
+                                                >
+                                                    {remainingBudget}
                                                 </span>
                                             </div>
                                         </div>
