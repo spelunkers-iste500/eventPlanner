@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { toaster } from "Components/ui/toaster";
 import Input from "Components/common/Input";
 import { Organization } from "Types/organization";
+import { Box, Flex, Button } from "@chakra-ui/react";
+import { X } from "lucide-react";
 
 interface InviteAdminExtProps {
     org: Organization;
@@ -96,7 +98,7 @@ const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ org }) => {
 
     return (
         <div className={styles.formContainer}>
-            {error && <div className={styles.errorMsg}>{error}</div>}
+            {error && <div className={`error-msg`}>{error}</div>}
             <Input
                 label="Email Address"
                 placeholder="Enter admin's email address"
@@ -119,33 +121,51 @@ const InviteAdminExt: React.FC<InviteAdminExtProps> = ({ org }) => {
                     </option>
                 </select>
             </div>
-            <button
-                className={styles.fileUploadTrigger}
-                onClick={handleAddEmail}
-            >
+            <button className={`outline-btn`} onClick={handleAddEmail}>
                 Add Email
             </button>
-            <div className={styles.emailList}>
-                <h3>Invites</h3>
-                {invites.map((invite, index) => (
-                    <div key={index} className={styles.emailItem}>
-                        <span>
-                            {invite.email} - {invite.type}
-                        </span>
-                        <button
-                            className={styles.dialogClose}
-                            onClick={() =>
-                                handleDeleteEmail(invite.email, invite.type)
-                            }
-                        >
-                            X
-                        </button>
+
+            {invites.length !== 0 && (
+                <>
+                    <div className={styles.emailList}>
+                        <h3>Invites</h3>
+                        <Box maxH="20vh" overflowY="auto">
+                            {invites.map((invite, index) => (
+                                <Flex
+                                    key={index}
+                                    alignItems="center"
+                                    mb={2}
+                                    borderWidth="1px"
+                                    p={2}
+                                    borderRadius="md"
+                                >
+                                    <Box flex="1">
+                                        {invite.email} - {invite.type}
+                                    </Box>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                            handleDeleteEmail(
+                                                invite.email,
+                                                invite.type
+                                            )
+                                        }
+                                    >
+                                        <X size={16} />
+                                    </Button>
+                                </Flex>
+                            ))}
+                        </Box>
                     </div>
-                ))}
-            </div>
-            <button className={styles.fileUploadTrigger} onClick={handleSubmit}>
-                Send Invites
-            </button>
+                    <button
+                        className={styles.fileUploadTrigger}
+                        onClick={handleSubmit}
+                    >
+                        Send Invites
+                    </button>
+                </>
+            )}
         </div>
     );
 };

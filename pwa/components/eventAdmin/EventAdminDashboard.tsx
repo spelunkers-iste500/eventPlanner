@@ -142,7 +142,9 @@ const Dashboard: React.FC = () => {
                 >
                     {items.map((item, index) => (
                         <AccordionItem key={index} value={item.value}>
-                            <AccordionItemTrigger>
+                            <AccordionItemTrigger
+                                className={styles.accordionTrigger}
+                            >
                                 {item.title + `: ${item.events.length} Events`}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
@@ -197,7 +199,10 @@ const Dashboard: React.FC = () => {
                                             key: "eventTitle",
                                             label: item.title,
                                         },
-                                        { key: "status", label: "Status" },
+                                        {
+                                            key: "status",
+                                            label: "Event Status",
+                                        },
                                     ]}
                                     renderItem={handleOpenViewModal} // Open the view modal on item click
                                 />

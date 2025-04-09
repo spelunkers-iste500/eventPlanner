@@ -22,13 +22,13 @@ import UploadFile from "./UploadFile";
 import ItemList from "Components/itemList/ItemList";
 import { Flight } from "Types/flight";
 
-interface CreateEventModalProps {
+interface EditEventModalProps {
     isOpen: boolean;
     onClose: () => void;
     event: Event | null;
 }
 
-const CreateEventModal: React.FC<CreateEventModalProps> = ({
+const EditEventModal: React.FC<EditEventModalProps> = ({
     isOpen,
     onClose,
     event,
@@ -39,7 +39,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const [location, setLocation] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
-    const [eventImage, setEventImage] = useState<File | null>(null);
     const [maxAttendee, setMaxAttendee] = useState<number>(1);
     const [multiDay, setMultiDay] = useState(false);
 
@@ -52,7 +51,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 event.startDateTime ? new Date(event.startDateTime) : null
             );
             setEndDate(event.endDateTime ? new Date(event.endDateTime) : null);
-            setEventImage(event.imageBlob || null);
             setMaxAttendee(event.maxAttendees || 1);
             setMultiDay(event.startDateTime !== event.endDateTime);
         }
@@ -99,9 +97,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                     <X />
                 </button>
             </DialogHeader>
-            <DialogBody
-                className={`${styles.dialogBody} ${styles.eventDialog}`}
-            >
+            <DialogBody className={`${styles.dialogBody}`}>
                 <Tabs.Root defaultValue="info">
                     <Tabs.List justifyContent={"center"}>
                         <Tabs.Trigger value="info">
@@ -117,16 +113,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                             Flights
                         </Tabs.Trigger>
                     </Tabs.List>
-                    <Tabs.Content className={styles.eventDialog} value="info">
-                        {/* Event Image */}
-                        <div className="input-container">
-                            <label className="input-label">Event Image</label>
-                            <UploadFile
-                                eventImage={eventImage}
-                                setEventImage={setEventImage}
-                            />
-                        </div>
-
+                    <Tabs.Content
+                        className={`${styles.eventDialog} ${styles.isEditing}`}
+                        value="info"
+                    >
                         {/* Event Title */}
                         <Input
                             label="Event Title"
@@ -207,7 +197,10 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         </div>
                     </Tabs.Content>
 
-                    <Tabs.Content value="attendees">
+                    <Tabs.Content
+                        value="attendees"
+                        className={styles.isEditing}
+                    >
                         <InviteAttendantExt
                             createdEvent={event}
                             isEditing={true}
@@ -234,4 +227,4 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     );
 };
 
-export default CreateEventModal;
+export default EditEventModal;
