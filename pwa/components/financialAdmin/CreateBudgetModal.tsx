@@ -20,6 +20,7 @@ import { Event } from "Types/event";
 import { Organization } from "Types/organization";
 import Input from "Components/common/Input";
 import { set } from "date-fns";
+
 interface CreateBudgetModalProps {
     event: Event;
     isOpen: boolean;
@@ -90,6 +91,13 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         }
     };
 
+    const formatCurrency = (value: number): string =>
+        new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+            maximumFractionDigits: 0,
+        }).format(Math.round(value));
+
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
@@ -106,19 +114,25 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 <Input
                     label={`Budget per user, for up to ${event.maxAttendees} users`}
                     placeholder="Enter budget per user"
-                    type="number"
-                    defaultValue={perUserTotal}
+                    type="text"
+                    defaultValue={formatCurrency(perUserTotal)}
                     onChange={(value) => {
-                        setPerUserTotal(value === "" ? 0 : Number(value));
+                        const numericValue = value.replace(/[^0-9.]/g, "");
+                        setPerUserTotal(
+                            numericValue === "" ? 0 : Number(numericValue)
+                        );
                     }}
                 />
                 <Input
                     label="Total Overage"
                     placeholder="Enter overage"
-                    type="number"
-                    defaultValue={overage}
+                    type="text"
+                    defaultValue={formatCurrency(overage)}
                     onChange={(value) => {
-                        setOverage(value === "" ? 0 : Number(value));
+                        const numericValue = value.replace(/[^0-9.]/g, "");
+                        setOverage(
+                            numericValue === "" ? 0 : Number(numericValue)
+                        );
                     }}
                 />
                 <button onClick={handleSubmit}>Submit</button>
