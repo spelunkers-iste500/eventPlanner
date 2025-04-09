@@ -32,8 +32,8 @@
 
 // Finally, the `Input` component is exported as the default export of the module.
 
-import React, { useState } from 'react';
-import { parsePhoneNumberFromString, AsYouType } from 'libphonenumber-js';
+import React, { useState } from "react";
+import { parsePhoneNumberFromString, AsYouType } from "libphonenumber-js";
 
 interface InputProps {
     isRadio?: boolean;
@@ -48,13 +48,21 @@ interface InputProps {
     maxlength?: number;
     defaultValue?: string;
     disabled?: boolean;
-    inputMode?: 'email' | 'text' | 'search' | 'tel' | 'url' | 'none' | 'numeric' | 'decimal';
+    inputMode?:
+        | "email"
+        | "text"
+        | "search"
+        | "tel"
+        | "url"
+        | "none"
+        | "numeric"
+        | "decimal";
     onChange: (value: string) => void;
 }
 
 /**
  * A reusable input component that can be used as a text input or a radio button.
- * 
+ *
  * @param {boolean} [props.isRadio] - Determines if the input is a radio button.
  * @param {string} props.label - The label for the input field.
  * @param {string} [props.type='text'] - The type of the input field.
@@ -71,35 +79,58 @@ interface InputProps {
  * @param {React.ReactNode} [props.children] - Additional children to be rendered inside the input container.
  * @returns {JSX.Element} The rendered input component.
  */
-const Input: React.FC<InputProps> = ({ label, type = 'text', id, name, placeholder, classes, isRadio, isPhoneNumber, children, onChange, maxlength, inputMode, defaultValue, disabled }) => {
-    const [value, setValue] = useState('');
-    const [error, setError] = useState('');
+const Input: React.FC<InputProps> = ({
+    label,
+    type = "text",
+    id,
+    name,
+    placeholder,
+    classes,
+    isRadio,
+    isPhoneNumber,
+    children,
+    onChange,
+    maxlength,
+    inputMode,
+    defaultValue,
+    disabled,
+}) => {
+    const [value, setValue] = useState("");
+    const [error, setError] = useState("");
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         let inputValue = e.target.value;
         if (isPhoneNumber) {
-            const asYouType = new AsYouType('US');
+            const asYouType = new AsYouType("US");
             inputValue = asYouType.input(inputValue);
-            const phoneNumber = parsePhoneNumberFromString(inputValue, 'US');
+            const phoneNumber = parsePhoneNumberFromString(inputValue, "US");
             if (phoneNumber && phoneNumber.isValid()) {
-                inputValue = phoneNumber.format('E.164');
-                setError('');
+                inputValue = phoneNumber.format("E.164");
+                setError("");
             } else {
-                setError('Invalid phone number');
+                setError("Invalid phone number");
             }
         }
         setValue(inputValue);
         onChange(inputValue);
     }
-    
+
     return (
-        <div className={`input-container ${classes ? classes : ''} ${isRadio ? 'radio' : ''}`}>
-            <label className='input-label' htmlFor={id ? id : label}>{label}</label>
-            {error && <span className='error-msg'>{error}</span>}
-            {children ? children : (
+        <div
+            className={`input-container ${classes ? classes : ""} ${
+                isRadio ? "radio" : ""
+            }`}
+        >
+            <label className="input-label" htmlFor={id ? id : label}>
+                {label}
+            </label>
+            {error && <span className="error-msg">{error}</span>}
+            {children ? (
+                children
+            ) : (
                 <input
-                    className='input-field'
-                    type={isRadio ? 'radio' : type}
+                    className="input-field"
+                    type={isRadio ? "radio" : type}
                     id={id ? id : label}
                     name={name ? name : label}
                     placeholder={placeholder}

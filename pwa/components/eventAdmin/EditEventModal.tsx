@@ -8,7 +8,7 @@ import {
 } from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar, Info, Users, Plane } from "lucide-react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import styles from "../common/Dialog.module.css";
@@ -34,24 +34,30 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     event,
 }) => {
     const { data: session } = useSession();
+    console.log("selected event", event);
 
-    const [eventTitle, setEventTitle] = useState(event?.eventTitle || "");
-    const [location, setLocation] = useState(event?.location || "");
-    const [startDate, setStartDate] = useState<Date | null>(
-        event?.startDateTime ? new Date(event.startDateTime) : null
-    );
-    const [endDate, setEndDate] = useState<Date | null>(
-        event?.endDateTime ? new Date(event.endDateTime) : null
-    );
-    const [eventImage, setEventImage] = useState<File | null>(
-        event?.imageBlob || null
-    );
-    const [maxAttendee, setMaxAttendee] = useState<number>(
-        event?.maxAttendees || 1
-    );
-    const [multiDay, setMultiDay] = useState(
-        event?.startDateTime !== event?.endDateTime
-    );
+    const [eventTitle, setEventTitle] = useState("");
+    const [location, setLocation] = useState("");
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [eventImage, setEventImage] = useState<File | null>(null);
+    const [maxAttendee, setMaxAttendee] = useState<number>(1);
+    const [multiDay, setMultiDay] = useState(false);
+
+    // Update state when the `event` prop changes
+    useEffect(() => {
+        if (event) {
+            setEventTitle(event.eventTitle || "");
+            setLocation(event.location || "");
+            setStartDate(
+                event.startDateTime ? new Date(event.startDateTime) : null
+            );
+            setEndDate(event.endDateTime ? new Date(event.endDateTime) : null);
+            setEventImage(event.imageBlob || null);
+            setMaxAttendee(event.maxAttendees || 1);
+            setMultiDay(event.startDateTime !== event.endDateTime);
+        }
+    }, [event]);
 
     const handleSubmit = () => {
         if (
@@ -124,14 +130,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         {/* Event Title */}
                         <Input
                             label="Event Title"
-                            defaultValue={event?.eventTitle}
+                            defaultValue={eventTitle}
                             onChange={(value) => setEventTitle(value)}
                         />
 
                         {/* Event Location */}
                         <Input
                             label="Location"
-                            defaultValue={event?.location}
+                            defaultValue={location}
                             onChange={(value) => setLocation(value)}
                         />
 
@@ -139,7 +145,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Input
                             label="Max Attendees"
                             type="number"
-                            defaultValue={`${event?.maxAttendees}`}
+                            defaultValue={`${maxAttendee}`}
                             onChange={(value) => setMaxAttendee(Number(value))}
                         />
 
