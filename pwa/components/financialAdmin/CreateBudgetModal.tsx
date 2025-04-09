@@ -52,47 +52,8 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
 
                 createSuccess();
                 handleClose();
-
-                // .post(
-                //     `/budgets`,
-                //     {
-                //         perUserTotal: perUserTotal,
-                //         overage: perUserOverage,
-                //         event: `/events/${userEvent.event.id}`,
-                //         organization: `${user?.financeAdminOfOrg}`,
-                //     },
-                //     {
-                //         headers: {
-                //             Authorization: `Bearer ${session?.apiToken}`,
-                //             "Content-Type": "application/ld+json",
-                //             accept: "application/ld+json",
-                //         },
-                //     }
-                // )
-                // .then((response) => {
-                //     console.log("Budget created:", response);
-                //     //onClose();
-                //     userEvent.event.budget = response.data; // Update the budget in the userEvent object
-                //     createSuccess();
-                //     handleClose();
-                // })
-                // .catch((error) => {
-                //     console.error(
-                //         "Error occurred during budget creation:",
-                //         error
-                //     );
-                //     setContent(<Dashboard />, "Dashboard");
-                //     toaster.create({
-                //         title: "An error occurred",
-                //         description:
-                //             "An error occurred while creating the budget.",
-                //         type: "error",
-                //         duration: 3000,
-                //     });
-                // });
             }
         } else {
-            setContent(<Dashboard />, "Dashboard");
             toaster.create({
                 title: "An error occurred",
                 description: "Please enter a valid budget and overage.",
@@ -126,7 +87,9 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                     <X />
                 </button>
             </DialogHeader>
-            <DialogBody className={styles.dialogBody}>
+            <DialogBody
+                className={`${styles.dialogBody} ${styles.formContainer}`}
+            >
                 <div className="input-container">
                     <label className="input-label">
                         Budget Allocated Per User
@@ -173,8 +136,7 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                         placeholder="Enter overage per user"
                     />
                 </div>
-                <br />
-                <Button onClick={handleSubmit}>Submit</Button>
+                <button onClick={handleSubmit}>Submit</button>
             </DialogBody>
         </BaseDialog>
     );
