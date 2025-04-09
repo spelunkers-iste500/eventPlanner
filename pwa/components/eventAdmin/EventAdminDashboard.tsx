@@ -30,7 +30,12 @@ const Dashboard: React.FC = () => {
     const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
-        useState<Organization | null>(null);
+        useState<Organization>(new Organization()); // State for the selected organization
+    if (organizations && organizations.length > 0) {
+        organizations[0].fetch(session.apiToken).then((org) => {
+            setSelectedOrganization(organizations[0]); // State for the selected organization
+        });
+    }
 
     useEffect(() => {
         if (!session) return;
@@ -99,29 +104,27 @@ const Dashboard: React.FC = () => {
     if (loading) {
         return <h2 className="loading">Loading...</h2>;
     }
+    const items = organizations.map((org) => {
+        return {
+            value: org.id,
+            title: org.getName(),
+            organization: org,
+            events: events.filter((event) => event.organization.id === org.id),
+        };
+    });
 
-    // Filtering events into current and past events based on the current date
-    const currentEvents = events.filter(
-        (event) => event.budget.id == "pendingApproval"
-    );
-    const pastEvents = events.filter(
-        (event) => event.budget.id != "pendingApproval"
-    );
-
-    // Defining items for the accordion, including current events, past events, and members list
-    const items = [
-        {
-            value: "pending-events",
-            title: "Events Pending Approval",
-            events: currentEvents,
-        },
-        {
-            value: "approved-events",
-            title: "Approved Events",
-            events: pastEvents,
-        },
-        { value: "members-list", title: "Members List", events: [] },
-    ];
+    // const items = [
+    //     {
+    //         value: "pending-events",
+    //         title: "Events Pending Approval",
+    //         events: currentEvents,
+    //     },
+    //     {
+    //         value: "approved-events",
+    //         title: "Approved Events",
+    //         events: pastEvents,
+    //     },
+    // ];
 
     return (
         <div className={styles.plannerDashboardContainer}>
@@ -173,22 +176,31 @@ const Dashboard: React.FC = () => {
             <div className={styles.filterContainer}>
                 <Select
                     options={organizationOptions}
-                    placeholder="Select Organization"
                     size="md"
                     isSearchable={false}
+                    defaultValue={
+                        organizationOptions.length > 0
+                            ? {
+                                  label: organizationOptions[0].label,
+                                  value: organizationOptions[0].value,
+                              }
+                            : undefined
+                    }
                     value={
                         selectedOrganization
-                            ? organizationOptions.find(
-                                  (option) =>
-                                      option.value === selectedOrganization?.id
-                              )
-                            : null
+                            ? {
+                                  label: selectedOrganization.name,
+                                  value: selectedOrganization.id,
+                              }
+                            : undefined
                     }
                     onChange={(option) => {
                         const selectedOrg = organizations?.find(
                             (org) => org.id === option?.value
                         );
-                        setSelectedOrganization(selectedOrg || null);
+                        if (selectedOrg) {
+                            setSelectedOrganization(selectedOrg);
+                        }
                     }}
                     className={`select-menu`}
                     classNamePrefix={"select"}

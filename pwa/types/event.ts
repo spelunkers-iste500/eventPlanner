@@ -191,11 +191,12 @@ export class Event {
             const events = response.data["hydra:member"].map((item: any) => {
                 const event = new Event(item.id);
                 if (item.budget) {
-                    event.setBudget(new Budget(item.budget.id));
-                    event.budget.perUserTotal = item.budget.perUserTotal;
+                    event.setBudget(new Budget(item.budget.split("/").pop()));
+                    event.status = "approved";
                 } else {
                     event.budget = new Budget("pendingApproval");
                     event.budget.perUserTotal = 0;
+                    event.status = "pendingApproval";
                 }
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);
@@ -230,14 +231,16 @@ export class Event {
                     const data = response.data["hydra:member"];
                     data.forEach((item: any) => {
                         const event = new Event(item.id);
-                        item.budget
-                            ? event.setBudget(
-                                  new Budget(
-                                      item.budget.id,
-                                      item.budget.perUserTotal
-                                  )
-                              )
-                            : event.setBudget(new Budget());
+                        if (item.budget) {
+                            event.setBudget(
+                                new Budget(item.budget.split("/").pop())
+                            );
+                            event.status = "approved";
+                        } else {
+                            event.budget = new Budget("pendingApproval");
+                            event.budget.perUserTotal = 0;
+                            event.status = "pendingApproval";
+                        }
                         event.setEventTitle(item.eventTitle);
                         event.setStartDateTime(item.startDateTime);
                         event.setEndDateTime(item.endDateTime);
@@ -247,7 +250,8 @@ export class Event {
                         event.setOrganization(
                             new Organization(item.organization.id)
                         );
-                        url === "/my/organizations/events/eventAdmin"
+                        event.maxAttendees = item.maxAttendees;
+                        context == "eventAdmin"
                             ? (event.attendees = item.attendees.map(
                                   (attendee: any) => {
                                       const userEvent = new UserEvent(
