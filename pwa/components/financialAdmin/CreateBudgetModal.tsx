@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import BaseDialog from "Components/common/BaseDialog";
 import {
     DialogHeader,
@@ -32,13 +32,16 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     event,
 }) => {
     const { data: session } = useSession();
-    const [perUserTotal, setPerUserTotal] = useState<number>(
-        event.budget.perUserTotal || 0
-    );
-    const [perUserOverage, setPerUserOverage] = useState<number>(
-        event.budget.overage || 0
-    );
+    const [perUserTotal, setPerUserTotal] = useState<number>(0);
+    const [perUserOverage, setPerUserOverage] = useState<number>(0);
     const { user } = useUser();
+
+    useEffect(() => {
+        if (event.budget) {
+            setPerUserTotal(event.budget.perUserTotal);
+            setPerUserOverage(event.budget.overage ?? 0);
+        }
+    }, [event]);
 
     const handleSubmit = async () => {
         console.debug("Event Object: ", event);
