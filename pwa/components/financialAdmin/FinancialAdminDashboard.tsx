@@ -195,7 +195,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                             styles.orgName
                                                         }
                                                     >
-                                                        Organization Name
+                                                        {item.organization.name}
                                                     </h2>
                                                     <p
                                                         className={
@@ -269,10 +269,6 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 label: "Event Date",
                                             },
                                             {
-                                                key: "status",
-                                                label: "Status",
-                                            },
-                                            {
                                                 key: "budget.perUserTotal",
                                                 label: "Total Budget",
                                                 valueFn: (event: Event) => {
@@ -285,6 +281,10 @@ const FinancialAdminDashboard: React.FC = () => {
                                                         event.maxAttendees;
                                                     return `$${totalBudget.toLocaleString()}`;
                                                 },
+                                            },
+                                            {
+                                                key: "status",
+                                                label: "Status",
                                             },
                                         ]}
                                         renderItem={handleOpenBudgetModal} // Open the view modal on item click
