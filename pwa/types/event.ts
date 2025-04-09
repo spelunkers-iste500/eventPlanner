@@ -416,7 +416,9 @@ export class Event {
     };
     getEventTotal(): number {
         if (this.budget.perUserTotal && this.maxAttendees) {
-            return this.budget.perUserTotal * this.maxAttendees;
+            var total = this.budget.perUserTotal * this.maxAttendees;
+            total += this.budget.overage;
+            return total;
         }
         return 0;
     }

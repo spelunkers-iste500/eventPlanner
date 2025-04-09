@@ -255,7 +255,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 label: "Event Date",
                                             },
                                             {
-                                                key: "budget.perUserTotal",
+                                                key: "getEventTotal",
                                                 label: "Total Budget",
                                                 valueFn: (event: Event) => {
                                                     // return the per user total of the budget multiplied by the number of users
