@@ -34,7 +34,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     event,
 }) => {
     const { data: session } = useSession();
-    console.log("selected event", event);
 
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
