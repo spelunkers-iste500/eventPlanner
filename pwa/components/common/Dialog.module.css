@@ -270,6 +270,7 @@
 .dialog-submit-btn {
 	justify-content: flex-end;
 	flex-direction: row;
+    align-items: center;
 }
 
 .is-editing .dialog-submit-btn {

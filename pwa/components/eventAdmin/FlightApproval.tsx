@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     DialogHeader,
     DialogBody,
@@ -27,18 +27,35 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
     onClose,
 }) => {
     const { data: session } = useSession();
+    const [flightData, setFlightData] = useState<Flight>();
 
-    if (!flight) return null; // shouldnt occur
+    useEffect(() => {
+        const fetchFlightData = async () => {
+            if (!flight) return; // shouldnt occur
+            if (!session?.apiToken) {
+                console.error("API token is not available.");
+                return;
+            }
+            await flight.fetch(session.apiToken).then(() => {
+                setFlightData(flight);
+                console.log("Flight data fetched: ", flight);
+            });
+        };
+
+        fetchFlightData();
+    }, [flight]);
 
     const handleApprove = () => {
         if (!session?.apiToken) return;
-        flight.approve(session?.apiToken);
+        if (!flightData) return;
+        flightData.approve(session?.apiToken);
         onClose();
     };
 
     const handleDeny = () => {
         if (!session?.apiToken) return;
-        flight.reject(session?.apiToken);
+        if (!flightData) return;
+        flightData.reject(session?.apiToken);
         onClose();
     };
 
@@ -56,27 +73,30 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
                 >
                     <h3 className="h4">Flight Information</h3>
                     <p>
-                        <strong>User Booking:</strong> {flight.user?.firstName}{" "}
-                        {flight.user?.lastName}
+                        <strong>User Booking:</strong> {flightData?.user?.email}
                     </p>
                     <p>
-                        <strong>Flight Cost:</strong> ${flight.flightCost}
+                        <strong>Flight Cost:</strong> $
+                        {(
+                            (flightData?.flightCost ?? 0) / 100
+                        )?.toLocaleString()}
                     </p>
                     <p>
-                        <strong>Origin:</strong> {flight.departureLocation}
+                        <strong>Origin:</strong> {flightData?.departureLocation}
                     </p>
                     <p>
                         <strong>Departure:</strong>{" "}
-                        {formatDateDisplay(flight.departureDateTime)} •{" "}
-                        {formatTime(flight.departureDateTime)}
+                        {formatDateDisplay(flightData?.departureDateTime)} •{" "}
+                        {formatTime(flightData?.departureDateTime)}
                     </p>
                     <p>
-                        <strong>Destination:</strong> {flight.arrivalLocation}
+                        <strong>Destination:</strong>{" "}
+                        {flightData?.arrivalLocation}
                     </p>
                     <p>
                         <strong>Arrival:</strong>{" "}
-                        {formatDateDisplay(flight.arrivalDateTime)} •{" "}
-                        {formatTime(flight.arrivalDateTime)}
+                        {formatDateDisplay(flightData?.arrivalDateTime)} •{" "}
+                        {formatTime(flightData?.arrivalDateTime)}
                     </p>
                     <div
                         className={`input-container ${styles.dialogSubmitBtn}`}
