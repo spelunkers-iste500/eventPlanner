@@ -31,19 +31,22 @@ const Dashboard: React.FC = () => {
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
         useState<Organization>(new Organization()); // State for the selected organization
-    if (organizations && organizations.length > 0) {
-        organizations[0].fetch(session.apiToken).then((org) => {
-            setSelectedOrganization(organizations[0]); // State for the selected organization
-        });
-    }
-
+    const [items, setItems] = useState<
+        {
+            value: string;
+            title: string;
+            organization: Organization;
+            events: Event[];
+        }[]
+    >([]); // State for items in the accordion
     useEffect(() => {
         if (!session) return;
         const fetchOrganizations = async () => {
             try {
-                console.debug(organizations);
-                await organizations.forEach(async (org) => {
-                    await org.fetch(session.apiToken);
+                organizations.forEach((org) => {
+                    org.fetch(session.apiToken).then(() => {
+                        return org;
+                    });
                 });
                 setOrgObjects(organizations);
             } catch (error) {
@@ -52,14 +55,35 @@ const Dashboard: React.FC = () => {
         };
 
         if (organizations.length > 0) {
-            fetchOrganizations();
-            const mappedOptions = organizations.map((org) => ({
-                label: org.name || "Unnamed Organization",
-                value: org.id,
-            }));
-            setOrganizationOptions(mappedOptions);
+            fetchOrganizations().then(() => {
+                const mappedOptions = organizations.map((org) => ({
+                    label: org.name || "Unnamed Organization",
+                    value: org.id,
+                }));
+                setSelectedOrganization(organizations[0]);
+                setOrganizationOptions(mappedOptions);
+                Event.allFromApiResponse(session.apiToken, "eventAdmin").then(
+                    (events) => {
+                        console.debug("Fetched events:", events);
+                        const items = organizations.map((org) => {
+                            return {
+                                value: org.id,
+                                title: org.getName(),
+                                organization: org,
+                                events: events.filter(
+                                    (event) => event.organization.id === org.id
+                                ),
+                            };
+                        });
+                        console.debug("Mapped items:", items);
+                        setItems(items);
+                        setEvents(events);
+                        setLoading(false);
+                    }
+                );
+            });
         }
-    }, [organizations]);
+    }, [organizations, user, session]);
 
     const [organizationOptions, setOrganizationOptions] = useState<
         { label: string; value: string }[]
@@ -97,127 +121,75 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        getEvents();
-    }, [user]);
-
     if (loading) {
         return <h2 className="loading">Loading...</h2>;
     }
-    const items = organizations.map((org) => {
-        return {
-            value: org.id,
-            title: org.getName(),
-            organization: org,
-            events: events.filter((event) => event.organization.id === org.id),
-        };
-    });
-
-    // const items = [
-    //     {
-    //         value: "pending-events",
-    //         title: "Events Pending Approval",
-    //         events: currentEvents,
-    //     },
-    //     {
-    //         value: "approved-events",
-    //         title: "Approved Events",
-    //         events: pastEvents,
-    //     },
-    // ];
 
     return (
         <div className={styles.plannerDashboardContainer}>
             <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
-
-            <div className={styles.infoContainer}>
-                <div className={styles.orgInfoBox}>
-                    <div className={styles.orgImageWrapper}>
-                        <img
-                            src="/media/event_image.jpg"
-                            alt="Organization Logo"
-                            className={styles.orgImage}
-                        />
-                    </div>
-                    <div className={styles.orgDetails}>
-                        <h2 className={styles.orgName}>Organization Name</h2>
-                        <p className={styles.orgType}>
-                            Event Planning Organization
-                        </p>
-                    </div>
-                </div>
-
-                <div className={styles.statsBox}>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Organization Members:{" "}
-                        </span>
-                        <span className={styles.statValue}>157</span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Upcoming Events:{" "}
-                        </span>
-                        <span className={styles.statValue}>12</span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>All Events: </span>
-                        <span className={styles.statValue}>489</span>
-                    </div>
-                </div>
-            </div>
 
             {/* Add Event Button */}
             <Button onClick={handleOpenCreateModal} colorScheme="blue" mb={4}>
                 Add Event
             </Button>
 
-            {/* Organization Filter Dropdown */}
-            <div className={styles.filterContainer}>
-                <Select
-                    options={organizationOptions}
-                    size="md"
-                    isSearchable={false}
-                    defaultValue={
-                        organizationOptions.length > 0
-                            ? {
-                                  label: organizationOptions[0].label,
-                                  value: organizationOptions[0].value,
-                              }
-                            : undefined
-                    }
-                    value={
-                        selectedOrganization
-                            ? {
-                                  label: selectedOrganization.name,
-                                  value: selectedOrganization.id,
-                              }
-                            : undefined
-                    }
-                    onChange={(option) => {
-                        const selectedOrg = organizations?.find(
-                            (org) => org.id === option?.value
-                        );
-                        if (selectedOrg) {
-                            setSelectedOrganization(selectedOrg);
-                        }
-                    }}
-                    className={`select-menu`}
-                    classNamePrefix={"select"}
-                />
-            </div>
-
             <Stack gap="4">
                 <AccordionRoot
+                    multiple
                     value={value}
                     onValueChange={(e) => setValue(e.value)}
                 >
                     {items.map((item, index) => (
                         <AccordionItem key={index} value={item.value}>
                             <AccordionItemTrigger>
-                                {item.title}
+                                {item.title + `: ${item.events.length} Events`}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
+                                <div className={styles.infoContainer}>
+                                    <div className={styles.orgInfoBox}>
+                                        <div className={styles.orgImageWrapper}>
+                                            <img
+                                                src="/media/event_image.jpg"
+                                                alt="Organization Logo"
+                                                className={styles.orgImage}
+                                            />
+                                        </div>
+                                        <div className={styles.orgDetails}>
+                                            <h2 className={styles.orgName}>
+                                                {item.organization.name}
+                                            </h2>
+                                            <p className={styles.orgType}>
+                                                Event Planning Organization
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.statsBox}>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                Approved Events:{" "}
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {
+                                                    item.events.filter(
+                                                        (event) =>
+                                                            event.status ===
+                                                            "approved"
+                                                    ).length
+                                                }
+                                            </span>
+                                        </div>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                All Events:{" "}
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {item.events.length}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <ItemList
                                     items={item.events}
                                     fields={[
