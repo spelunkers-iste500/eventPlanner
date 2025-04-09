@@ -241,7 +241,6 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             isOpen={isApprovalOpen}
                             onClose={handleApprovalClose}
                         />
-                        ;
                     </Tabs.Content>
                 </Tabs.Root>
             </DialogBody>
