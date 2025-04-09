@@ -10,12 +10,16 @@ interface ItemListProps<T> {
     items: T[];
     fields: FieldConfig[]; // Array of field configurations
     renderItem?: (item: T) => void; // Correctly typed renderItem
+    headerClassName?: string; // Optional class name for the header
+    itemClassName?: string; // Optional class name for the items
 }
 
 const ItemList = <T,>({
     items,
     fields,
     renderItem = () => {}, // Default to a no-op function
+    headerClassName = "", // Default to an empty string
+    itemClassName = "", // Default to an empty string
 }: ItemListProps<T>): JSX.Element => {
     const handleRowClick = (item: T) => {
         console.debug("Row clicked:", item);
@@ -30,7 +34,7 @@ const ItemList = <T,>({
 
     return (
         <div className={styles.itemListContainer}>
-            <div className={styles.listHeader}>
+            <div className={`${styles.listHeader} ${headerClassName}`}>
                 {fields.map((field) => (
                     <div className={styles.listHeaderField} key={field.key}>
                         {field.label}
@@ -39,7 +43,7 @@ const ItemList = <T,>({
             </div>
             {items.map((item, index) => (
                 <div
-                    className={styles.listItem}
+                    className={`${styles.listItem} ${itemClassName}`}
                     key={index}
                     onClick={() => handleRowClick(item)}
                     style={{ cursor: "pointer" }} // Add pointer cursor for better UX
