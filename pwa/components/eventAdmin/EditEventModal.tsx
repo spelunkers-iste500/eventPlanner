@@ -34,7 +34,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     event,
 }) => {
     const { data: session } = useSession();
-    console.log("selected event", event);
 
     const [eventTitle, setEventTitle] = useState(event?.eventTitle || "");
     const [location, setLocation] = useState(event?.location || "");
@@ -126,14 +125,14 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         {/* Event Title */}
                         <Input
                             label="Event Title"
-                            defaultValue={eventTitle}
+                            defaultValue={event?.eventTitle}
                             onChange={(value) => setEventTitle(value)}
                         />
 
                         {/* Event Location */}
                         <Input
                             label="Location"
-                            defaultValue={location}
+                            defaultValue={event?.location}
                             onChange={(value) => setLocation(value)}
                             inputMode="text"
                         />
@@ -142,7 +141,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Input
                             label="Max Attendees"
                             type="number"
-                            defaultValue={`${maxAttendee}`}
+                            defaultValue={`${event?.maxAttendees}`}
                             onChange={(value) => setMaxAttendee(Number(value))}
                         />
 
