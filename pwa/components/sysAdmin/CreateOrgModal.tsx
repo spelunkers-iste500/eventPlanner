@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import BaseDialog from "Components/common/BaseDialog";
 import { toaster } from "Components/ui/toaster";
+import { X } from "lucide-react";
 import styles from "Components/common/Dialog.module.css";
+import { Switch } from "@chakra-ui/react";
+import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
+import { useContent } from "Utils/ContentProvider";
+import axios from "axios";
+import { Organization } from "Types/organization";
+import { useSession } from "next-auth/react";
 
 interface CreateOrgModalProps {
     isOpen: boolean;
@@ -9,33 +16,134 @@ interface CreateOrgModalProps {
 }
 
 const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
+    const { setContent } = useContent();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [address, setAddress] = useState("");
     const [industry, setIndustry] = useState("");
+    const [inviteAdmins, setInviteAdmins] = useState(false);
+    const [adminEmails, setAdminEmails] = useState<string[]>([]);
+    const [eventAdminEmails, setEventAdminEmails] = useState<string[]>([]);
+    const [financeAdminEmails, setFinanceAdminEmails] = useState<string[]>([]);
+    const [emailInput, setEmailInput] = useState("");
+    const [selectedRole, setSelectedRole] = useState("");
+    const [error, setError] = useState("");
+    const { data: session } = useSession();
+    if (!session) return null;
+    const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
+
+    const handleAddEmail = () => {
+        if (!emailInput || !validateEmail(emailInput)) {
+            setError("Invalid email address format.");
+            return;
+        }
+
+        if (!selectedRole) {
+            setError("Please select a role for the admin.");
+            return;
+        }
+
+        if (selectedRole === "admin") {
+            setAdminEmails([...adminEmails, emailInput]);
+        } else if (selectedRole === "eventAdmin") {
+            setEventAdminEmails([...eventAdminEmails, emailInput]);
+        } else if (selectedRole === "financeAdmin") {
+            setFinanceAdminEmails([...financeAdminEmails, emailInput]);
+        }
+
+        setEmailInput("");
+        setSelectedRole("");
+        setError("");
+    };
+
+    const handleDeleteEmail = (email: string, role: string) => {
+        if (role === "admin") {
+            setAdminEmails(adminEmails.filter((e) => e !== email));
+        } else if (role === "eventAdmin") {
+            setEventAdminEmails(eventAdminEmails.filter((e) => e !== email));
+        } else if (role === "financeAdmin") {
+            setFinanceAdminEmails(
+                financeAdminEmails.filter((e) => e !== email)
+            );
+        }
+    };
+
+    const createSuccess = () => {
+        setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
+        toaster.create({
+            title: "Organization Created",
+            description: "Your organization has been created successfully.",
+            type: "success",
+            duration: 5000,
+        });
+        clearInputs();
+        onClose();
+    };
 
     const handleSubmit = () => {
         if (name && description && address && industry) {
-            const newOrganization = {
-                name,
-                description,
-                address,
-                industry,
-            };
+            const org = new Organization();
+            org.setName(name);
+            org.setDescription(description);
+            org.setAddress(address);
+            org.setIndustry(industry);
+            org.persist(session.apiToken)
+                .then(() => {
+                    const invites = [
+                        ...adminEmails.map((email) => ({
+                            organization: org.getIri(),
+                            expectedEmail: email,
+                            inviteType: "admin",
+                        })),
+                        ...eventAdminEmails.map((email) => ({
+                            organization: org.getIri(),
+                            expectedEmail: email,
+                            inviteType: "eventAdmin",
+                        })),
+                        ...financeAdminEmails.map((email) => ({
+                            organization: org.getIri(),
+                            expectedEmail: email,
+                            inviteType: "financeAdmin",
+                        })),
+                    ];
 
-            console.debug("New Organization:", newOrganization);
-
-            setTimeout(() => {
-                toaster.create({
-                    title: "Organization Created",
-                    description:
-                        "Your organization has been created successfully.",
-                    type: "success",
-                    duration: 5000,
+                    invites.forEach((invite) => {
+                        axios
+                            .post("/organizationInvite", invite, {
+                                headers: {
+                                    "Content-Type": "application/ld+json",
+                                    Authorization: `Bearer ${session.apiToken}`,
+                                },
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                                setContent(
+                                    <OrgAdminDashboard />,
+                                    "OrgAdminDashboard"
+                                );
+                                toaster.create({
+                                    title: "Error",
+                                    description: `Failed to send invite to ${invite.expectedEmail}`,
+                                    type: "error",
+                                    duration: 5000,
+                                });
+                            });
+                    });
+                    clearInputs();
+                    createSuccess();
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
+                    toaster.create({
+                        title: "Error",
+                        description: "Failed to create organization.",
+                        type: "error",
+                        duration: 5000,
+                    });
                 });
-                onClose();
-            }, 1000);
         } else {
+            setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
             toaster.create({
                 title: "Error",
                 description: "Please fill in all fields.",
@@ -45,16 +153,34 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
         }
     };
 
+    const clearInputs = () => {
+        setName("");
+        setDescription("");
+        setAddress("");
+        setIndustry("");
+        setAdminEmails([]);
+        setEventAdminEmails([]);
+        setFinanceAdminEmails([]);
+        setEmailInput("");
+        setSelectedRole("");
+        setError("");
+    };
+
+    const handleClose = () => {
+        clearInputs();
+        onClose();
+    };
+
     return (
-        <BaseDialog isOpen={isOpen} onClose={onClose}>
+        <BaseDialog isOpen={isOpen} onClose={handleClose}>
             <div className={styles.dialogHeader}>
                 <h2 className={styles.dialogTitle}>Create Organization</h2>
-                <button className={styles.dialogClose} onClick={onClose}>
-                    &times;
+                <button className={styles.dialogClose} onClick={handleClose}>
+                    <X />
                 </button>
             </div>
             <div className={styles.dialogBody}>
-                {/* Name Input */}
+                {/* Organization Details */}
                 <div className="input-container">
                     <label className="input-label">Name</label>
                     <input
@@ -65,8 +191,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         className="input-field"
                     />
                 </div>
-
-                {/* Description Input */}
                 <div className="input-container">
                     <label className="input-label">Description</label>
                     <textarea
@@ -76,8 +200,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         className="input-field"
                     />
                 </div>
-
-                {/* Address Input */}
                 <div className="input-container">
                     <label className="input-label">Address</label>
                     <input
@@ -88,8 +210,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         className="input-field"
                     />
                 </div>
-
-                {/* Industry Input */}
                 <div className="input-container">
                     <label className="input-label">Industry</label>
                     <input
@@ -101,8 +221,119 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                     />
                 </div>
                 <br></br>
+
+                {/* Switch to toggle admin invitation */}
+                <Switch.Root checked={inviteAdmins}>
+                    <Switch.HiddenInput
+                        onChange={(e) => setInviteAdmins(e.target.checked)}
+                    />
+                    <Switch.Label>Invite admins now?</Switch.Label>
+                    <Switch.Control />
+                </Switch.Root>
+
+                {/* Admin Invitation Section */}
+                {inviteAdmins && (
+                    <div>
+                        <div className="input-container">
+                            <label className="input-label">Admin Email</label>
+                            <input
+                                type="text"
+                                value={emailInput}
+                                onChange={(e) => setEmailInput(e.target.value)}
+                                placeholder="Enter admin's email address"
+                                className="input-field"
+                            />
+                        </div>
+                        <div className="input-container">
+                            <label className="input-label">Admin Role</label>
+                            <select
+                                value={selectedRole}
+                                onChange={(e) =>
+                                    setSelectedRole(e.target.value)
+                                }
+                                className="input-field"
+                            >
+                                <option value="" disabled>
+                                    Select Role
+                                </option>
+                                <option value="admin">
+                                    Organization Admin
+                                </option>
+                                <option value="eventAdmin">Event Admin</option>
+                                <option value="financeAdmin">
+                                    Finance Admin
+                                </option>
+                            </select>
+                        </div>
+                        <br></br>
+                        <div
+                            className={`input-container ${styles.dialogSubmitBtn}`}
+                        >
+                            <button
+                                className="dialog-button"
+                                onClick={handleAddEmail}
+                            >
+                                Add Admin
+                            </button>
+                        </div>
+                        {error && (
+                            <div className={styles.errorMsg}>{error}</div>
+                        )}
+
+                        {/* Display Added Admins */}
+                        <div className={styles.emailList}>
+                            <h3>Admins</h3>
+                            {adminEmails.map((email, index) => (
+                                <div key={index} className={styles.emailItem}>
+                                    <span>{email} - Organization Admin</span>
+                                    <button
+                                        className={styles.dialogClose}
+                                        onClick={() =>
+                                            handleDeleteEmail(email, "admin")
+                                        }
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                            {eventAdminEmails.map((email, index) => (
+                                <div key={index} className={styles.emailItem}>
+                                    <span>{email} - Event Admin</span>
+                                    <button
+                                        className={styles.dialogClose}
+                                        onClick={() =>
+                                            handleDeleteEmail(
+                                                email,
+                                                "eventAdmin"
+                                            )
+                                        }
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                            {financeAdminEmails.map((email, index) => (
+                                <div key={index} className={styles.emailItem}>
+                                    <span>{email} - Finance Admin</span>
+                                    <button
+                                        className={styles.dialogClose}
+                                        onClick={() =>
+                                            handleDeleteEmail(
+                                                email,
+                                                "financeAdmin"
+                                            )
+                                        }
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Submit Button */}
-                <div className="input-container">
+                <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <button className="dialog-button" onClick={handleSubmit}>
                         Create Organization
                     </button>

@@ -74,21 +74,22 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 console.error("API token is not available.");
                 return;
             }
-            event.persist(session?.apiToken);
-            toaster.create({
-                title: "Event Created",
-                description: "Your event has been created successfully.",
-                type: "success",
-                duration: 5000,
+            event.persist(session?.apiToken).then(() => {
+                toaster.create({
+                    title: "Event Created",
+                    description: "Your event has been created successfully.",
+                    type: "success",
+                    duration: 5000,
+                });
+                console.debug("Event created:", event);
             });
-            console.debug("Event created:", event);
         }
     };
 
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Create Event</DialogTitle>
+                <DialogTitle>Edit Event</DialogTitle>
                 <button className={styles.dialogClose} onClick={onClose}>
                     <X />
                 </button>
@@ -132,7 +133,8 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         <Input
                             label="Location"
                             defaultValue={event?.location}
-                            onChange={(value) => setLocation(value)}
+                            onChange={(value) => event?.setLocation(value)}
+                            inputMode="text"
                         />
 
                         {/* Event Max Attendees */}

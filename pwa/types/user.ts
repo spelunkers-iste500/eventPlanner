@@ -16,6 +16,7 @@ export class User {
     gender?: string;
     eventAdminOfOrg: Organization[] = [];
     financeAdminOfOrg: Organization[] = [];
+    adminOfOrg: Organization[] = [];
     superAdmin?: boolean;
     passengerId?: string;
     plainPassword?: string;
@@ -29,6 +30,8 @@ export class User {
 
     setName(name: string): void {
         this.name = name;
+        this.firstName = name.split(" ")[0];
+        this.lastName = name.split(" ")[1];
     }
 
     setEmail(email: string): void {
@@ -70,6 +73,9 @@ export class User {
     setPassengerId(passengerId: string): void {
         this.passengerId = passengerId;
     }
+    setAdminOfOrg(adminOfOrg: Organization[]): void {
+        this.adminOfOrg = adminOfOrg;
+    }
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "" && id !== "notPersisted") {
@@ -96,9 +102,7 @@ export class User {
             const data = response.data;
             // create a new User object using the data from the API response
             const user = new User(data.id, apiToken);
-            user.firstName = data.firstName;
-            user.lastName = data.lastName;
-            user.name = data.name;
+            user.setName(data.name);
             user.email = data.email;
             user.emailVerified = data.emailVerified;
             user.phoneNumber = data.phoneNumber;
@@ -106,9 +110,21 @@ export class User {
             user.title = data.title;
             user.gender = data.gender;
             user.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org.id);
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             user.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            user.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            user.adminOfOrg = data.AdminOfOrg.map((org: any) => {
                 return new Organization(org.id);
             });
             user.superAdmin = data.superAdmin;
@@ -195,9 +211,7 @@ export class User {
             const data = response.data;
             // Update the instance properties with the fetched data
             this.id = data.id;
-            this.firstName = data.firstName;
-            this.lastName = data.lastName;
-            this.name = data.name;
+            this.setName(data.name);
             this.email = data.email;
             this.emailVerified = data.emailVerified;
             this.phoneNumber = data.phoneNumber;
@@ -205,9 +219,21 @@ export class User {
             this.title = data.title;
             this.gender = data.gender;
             this.eventAdminOfOrg = data.eventAdminOfOrg.map((org: any) => {
-                return new Organization(org["@id"].split("/").pop());
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
             });
             this.financeAdminOfOrg = data.financeAdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            this.adminOfOrg = data.AdminOfOrg.map((org: any) => {
+                const orgObj = new Organization(org["@id"].split("/").pop());
+                orgObj.name = org.name;
+                return orgObj;
+            });
+            this.adminOfOrg = data.AdminOfOrg.map((org: any) => {
                 return new Organization(org["@id"].split("/").pop());
             });
             this.superAdmin = data.superAdmin;
@@ -220,5 +246,8 @@ export class User {
     }
     getIri(): string {
         return `/users/${this.id}`;
+    }
+    getEmail(): string {
+        return this.email || "";
     }
 }
