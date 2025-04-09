@@ -29,7 +29,7 @@ final class FlightVoter extends Voter
         // ... (check conditions and return true to grant permission) ...
         switch ($attribute) {
             case self::VIEW:
-                if ($subject->getUser() === $user) {
+                if ($subject->getUser() === $user || $subject->getEvent()->getOrganization()->getEventAdmins()->contains($user) || $subject->getEvent()->getOrganization()->getAdmins()->contains($user)) {
                     return true;
                 }
         }

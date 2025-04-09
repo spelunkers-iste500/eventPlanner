@@ -47,8 +47,14 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
     const [isApprovalOpen, setIsApprovalOpen] = useState(false);
 
     const handleApprovalOpen = (flight: Flight) => {
-        setSelectedFlight(flight);
-        setIsApprovalOpen(true);
+        if (!session?.apiToken) {
+            console.error("API token is not available.");
+            return;
+        }
+        flight.fetch(session?.apiToken).then(() => {
+            setSelectedFlight(flight);
+            setIsApprovalOpen(true);
+        });
     };
 
     const handleApprovalClose = () => {
