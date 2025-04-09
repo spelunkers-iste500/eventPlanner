@@ -168,7 +168,7 @@ export class User {
                 await axios.patch(`/user/${this.id}`, {
                     headers: {
                         Authorization: "Bearer " + apiToken,
-                        "Content-Type": "application/ld+json",
+                        "Content-Type": "application/merge-patch+json",
                     },
                     data: {
                         name: this.name,

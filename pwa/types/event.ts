@@ -321,6 +321,7 @@ export class Event {
                         {
                             headers: {
                                 Authorization: `Bearer ${apiToken}`,
+                                "Content-Type": "application/merge-patch+json",
                             },
                         }
                     );

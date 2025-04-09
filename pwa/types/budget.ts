@@ -73,7 +73,10 @@ export class Budget {
                     overage: this.overage,
                 },
                 {
-                    headers: { Authorization: `Bearer ${apiToken}` },
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        "Content-Type": "application/merge-patch+json",
+                    },
                 }
             );
         }
