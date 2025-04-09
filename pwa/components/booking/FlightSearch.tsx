@@ -46,7 +46,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import { Calendar } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { formatDateSubmit } from "Types/events";
-import { Spinner } from "@chakra-ui/react";
 
 interface SelectOption {
     label: string;
@@ -57,7 +56,6 @@ const FlightSearch: React.FC = () => {
     const { bookingData, setBookingData } = useBooking();
     const { data: session } = useSession();
     const [error, setError] = useState<string>("");
-    const [loading, setLoading] = useState(false);
 
     if (!session) return null;
     const [formData, setFormData] = useState({
@@ -119,7 +117,6 @@ const FlightSearch: React.FC = () => {
         }
 
         setError("");
-        setLoading(true);
         fetchFlightOffers();
     };
 
@@ -157,7 +154,6 @@ const FlightSearch: React.FC = () => {
                     flightOffers: response.data.flightOffers,
                     content: <FlightResults />,
                 });
-                setLoading(false);
             })
             .catch((error) => {
                 console.error("Error fetching flight offers:", error);
@@ -210,15 +206,6 @@ const FlightSearch: React.FC = () => {
 
     return (
         <form className={styles.flightSearchForm} onSubmit={handleSubmit}>
-            {loading && (
-                <div className={styles.loadingContainer}>
-                    <Spinner
-                        size="xl"
-                        className={styles.spinner}
-                        color="var(--blue-500)"
-                    />
-                </div>
-            )}
             {error && <div className="error-msg">{error}</div>}
             <div className="input-container">
                 <label className="input-label">Trip Type</label>
