@@ -4,7 +4,7 @@ import { Event } from "./event";
 
 export class Flight {
     id: string;
-    flightCost?: number;
+    flightCost: number = 0;
     event?: Event;
     user?: User;
     departureLocation?: string;
@@ -77,7 +77,7 @@ export class Flight {
         await this.persist(apiToken);
     }
 
-    setFlightCost(value: number | undefined) {
+    setFlightCost(value: number) {
         this.flightCost = value;
     }
 
