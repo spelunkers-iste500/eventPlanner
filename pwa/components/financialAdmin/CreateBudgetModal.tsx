@@ -48,6 +48,8 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 await budget.persist(session.apiToken);
                 console.debug("Persisted budget: ", budget);
                 event.budget = budget; // Update the budget in the event object
+                event.status = "approved";
+
                 createSuccess();
                 handleClose();
 
