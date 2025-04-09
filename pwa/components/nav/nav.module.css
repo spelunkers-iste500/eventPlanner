@@ -219,6 +219,16 @@
     border-radius: 0 0.5rem 0.5rem;
     z-index: 1000;
     cursor: default;
+    color: var(--black);
+}
+
+.user-info {
+    font-size: 0.8rem;
+}
+
+.user-info span {
+    font-weight: 600;
+    font-size: 1rem;
 }
 
 .no-results {

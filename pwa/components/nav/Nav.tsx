@@ -48,38 +48,16 @@ import FinancialAdminDashboard from "Components/financialAdmin/FinancialAdminDas
 import { useUser } from "Utils/UserProvider";
 import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
 const Nav: React.FC = () => {
+    const { state, setContent } = useContent();
+    const { user } = useUser();
+
     const [navCollapsed, setNavCollapsed] = useState<boolean>(true);
     const [notifsOpen, setNotifsOpen] = useState<boolean>(false);
     const [userOpen, setUserOpen] = useState<boolean>(false);
 
-    const popupRef = useRef<HTMLDivElement | null>(null);
+    const notifsPopupRef = useRef<HTMLDivElement | null>(null);
+    const userPopupRef = useRef<HTMLDivElement | null>(null);
 
-    const handleOutsideClick = (event: MouseEvent) => {
-        if (
-            popupRef.current &&
-            !popupRef.current.contains(event.target as Node)
-        ) {
-            setNotifsOpen(false); // Close the popup if the click is outside
-        }
-    };
-
-    useEffect(() => {
-        if (notifsOpen) {
-            document.addEventListener("click", handleOutsideClick);
-        } else {
-            document.removeEventListener("click", handleOutsideClick);
-        }
-
-        // Cleanup the event listener on component unmount
-        return () => {
-            document.removeEventListener("click", handleOutsideClick);
-        };
-    }, [notifsOpen]);
-
-    const [imageError, setImageError] = useState<boolean>(false);
-    const { data: session } = useSession();
-    const { state, setContent } = useContent();
-    const { user } = useUser();
     const navLinks = [
         {
             name: "Dashboard",
@@ -129,6 +107,51 @@ const Nav: React.FC = () => {
         }
     }, []);
 
+    const handleOutsideClick = (event: MouseEvent) => {
+        // Close notifications popup if the click is outside
+        if (
+            notifsPopupRef.current &&
+            !notifsPopupRef.current.contains(event.target as Node)
+        ) {
+            setNotifsOpen(false);
+        }
+
+        // Close user popup if the click is outside
+        if (
+            userPopupRef.current &&
+            !userPopupRef.current.contains(event.target as Node)
+        ) {
+            setUserOpen(false);
+        }
+    };
+
+    useEffect(() => {
+        if (notifsOpen || userOpen) {
+            document.addEventListener("click", handleOutsideClick);
+        } else {
+            document.removeEventListener("click", handleOutsideClick);
+        }
+
+        // Cleanup the event listener on component unmount
+        return () => {
+            document.removeEventListener("click", handleOutsideClick);
+        };
+    }, [notifsOpen, userOpen]);
+
+    const toggleNotifs = () => {
+        setNotifsOpen((prev) => {
+            if (!prev) setUserOpen(false); // Close user popup if notifications popup is opened
+            return !prev;
+        });
+    };
+
+    const toggleUser = () => {
+        setUserOpen((prev) => {
+            if (!prev) setNotifsOpen(false); // Close notifications popup if user popup is opened
+            return !prev;
+        });
+    };
+
     return (
         <>
             <div
@@ -163,31 +186,29 @@ const Nav: React.FC = () => {
                     </div>
                     <div className={styles.navHeaderRight}>
                         <div className={styles.navHeaderIcon}>
-                            <Bell
-                                size={28}
-                                onClick={() => setNotifsOpen(!notifsOpen)}
-                            />
+                            <Bell size={28} onClick={toggleNotifs} />
                             {notifsOpen && (
-                                <div className={styles.popup} ref={popupRef}>
+                                <div
+                                    className={styles.popup}
+                                    ref={notifsPopupRef}
+                                >
                                     <p className={styles.noResults}>
                                         No new notifications
                                     </p>
                                 </div>
                             )}
                         </div>
-                        <div
-                            className={styles.navHeaderIcon}
-                            onClick={() => setUserOpen(!userOpen)}
-                        >
-                            {session?.user?.image && !imageError ? (
-                                <img
-                                    className={styles.profileIcon}
-                                    src={session.user.image}
-                                    alt="profile"
-                                    onError={() => setImageError(true)}
-                                />
-                            ) : (
-                                <CircleUserRound size={28} />
+                        <div className={styles.navHeaderIcon}>
+                            <CircleUserRound size={28} onClick={toggleUser} />
+                            {userOpen && (
+                                <div
+                                    className={styles.popup}
+                                    ref={userPopupRef}
+                                >
+                                    <p className={styles.userInfo}>
+                                        Signed in as: <span>{user?.email}</span>
+                                    </p>
+                                </div>
                             )}
                         </div>
                         <div
