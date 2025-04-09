@@ -304,11 +304,18 @@
 }
 
 .email-box {
-    flex: 1; /* Ensures the email takes up available space */
+    flex: 1;
     text-align: left;
 }
 
+.email-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
 .status-box {
-    text-align: right; /* Aligns the status to the right */
-    min-width: 100px; /* Optional: Ensures consistent spacing */
+    text-align: right;
+    min-width: 100px;
 }
