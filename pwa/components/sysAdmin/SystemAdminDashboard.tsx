@@ -59,11 +59,14 @@ const SystemAdminDashboard: React.FC = () => {
             <div className={styles.systemAdminSection}>
                 <h1 className={styles.sectionTitle}>System Administrator</h1>
                 <div className={styles.optionCard}>
+                    <p className={styles.optionDescription}>
+                        Create an organization on the platform.
+                    </p>
                     <button
                         className={styles.actionButton}
                         onClick={handleOpenCreateOrgModal}
                     >
-                        Create an Organization
+                        Create Organization
                     </button>
                 </div>
 

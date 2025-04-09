@@ -282,6 +282,11 @@
 	gap: 1rem;
 }
 
+.form-container button:first-of-type {
+    margin-left: auto;
+    width: fit-content;
+}
+
 @media (max-width: 600px) {
 	.dialog-content {
 		max-height: 80vh;
