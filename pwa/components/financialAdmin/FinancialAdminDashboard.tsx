@@ -76,10 +76,7 @@ const FinancialAdminDashboard: React.FC = () => {
                             );
                             // total budget is each events budget per user total multiplied by the number of users
                             const totalBudget = orgEvents.reduce(
-                                (acc, event) =>
-                                    acc +
-                                    (event.budget?.perUserTotal *
-                                        event.maxAttendees || 0),
+                                (acc, event) => acc + event.getEventTotal(),
                                 0
                             );
                             // add up every flights flightCost
@@ -115,10 +112,6 @@ const FinancialAdminDashboard: React.FC = () => {
         }
     }, [organizations, user, session]);
 
-    const orgCollection = createListCollection({
-        items: orgObjects,
-    });
-
     const handleOpenBudgetModal = (event: Event) => {
         setSelectedEvent(event);
         setIsBudgetModalOpen(true);
@@ -128,13 +121,6 @@ const FinancialAdminDashboard: React.FC = () => {
         setSelectedEvent(new Event());
         setIsBudgetModalOpen(false);
     };
-
-    // Dummy budget information - replace with API call results later
-    // const allocatedBudget = "$100,000";
-    // allocatedBudget should be the sum of all the budgets of the events in the organization
-
-    const budgetSpent = "$45,000";
-    const remainingBudget = "$55,000";
 
     const handleOpenExportDialog = () => {
         setIsExportDialogOpen(true);
@@ -275,30 +261,18 @@ const FinancialAdminDashboard: React.FC = () => {
                                                     // return the per user total of the budget multiplied by the number of users
                                                     if (!event.budget)
                                                         return "$0";
-                                                    const totalBudget =
+                                                    var totalBudget =
                                                         event.budget
                                                             .perUserTotal *
                                                         event.maxAttendees;
+                                                    totalBudget +=
+                                                        event.budget.overage;
                                                     return `$${totalBudget.toLocaleString()}`;
                                                 },
                                             },
                                             {
                                                 key: "status",
                                                 label: "Status",
-                                            },
-                                            {
-                                                key: "budget.perUserTotal",
-                                                label: "Total Budget",
-                                                valueFn: (event: Event) => {
-                                                    // return the per user total of the budget multiplied by the number of users
-                                                    if (!event.budget)
-                                                        return "$0";
-                                                    const totalBudget =
-                                                        event.budget
-                                                            .perUserTotal *
-                                                        event.maxAttendees;
-                                                    return `$${totalBudget.toLocaleString()}`;
-                                                },
                                             },
                                         ]}
                                         renderItem={handleOpenBudgetModal} // Open the view modal on item click

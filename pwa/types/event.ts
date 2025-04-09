@@ -213,6 +213,7 @@ export class Event {
                 if (item.budget) {
                     event.setBudget(new Budget(item.budget.id));
                     event.budget.perUserTotal = item.budget.perUserTotal;
+                    event.budget.overage = item.budget.overage;
                     event.status = "approved";
                 } else {
                     event.budget = new Budget("pendingApproval");
@@ -413,4 +414,10 @@ export class Event {
             options
         );
     };
+    getEventTotal(): number {
+        if (this.budget.perUserTotal && this.maxAttendees) {
+            return this.budget.perUserTotal * this.maxAttendees;
+        }
+        return 0;
+    }
 }
