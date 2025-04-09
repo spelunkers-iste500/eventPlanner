@@ -185,7 +185,11 @@ const Nav: React.FC = () => {
                         <House size={28} />
                     </div>
                     <div className={styles.navHeaderRight}>
-                        <div className={styles.navHeaderIcon}>
+                        <div
+                            className={`${styles.navHeaderIcon} ${
+                                notifsOpen ? styles.active : ""
+                            }`}
+                        >
                             <Bell size={28} onClick={toggleNotifs} />
                             {notifsOpen && (
                                 <div
@@ -198,7 +202,11 @@ const Nav: React.FC = () => {
                                 </div>
                             )}
                         </div>
-                        <div className={styles.navHeaderIcon}>
+                        <div
+                            className={`${styles.navHeaderIcon} ${
+                                userOpen ? styles.active : ""
+                            }`}
+                        >
                             <CircleUserRound size={28} onClick={toggleUser} />
                             {userOpen && (
                                 <div
