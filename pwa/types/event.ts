@@ -24,7 +24,7 @@ export class Event {
     inviteCode: string;
     maxAttendees: number;
     attendees: UserEvent[];
-    status: string;
+    status: string = "pendingApproval"; // default status
     /**
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
@@ -44,7 +44,6 @@ export class Event {
         this.budget = new Budget();
         this.attendees = [];
         this.iri = `/events/${id}`; // construct IRI if not provided
-        this.status = "pendingApproval"; // default status
         if (apiToken !== "") {
             this.fetch(apiToken);
         }
@@ -190,11 +189,26 @@ export class Event {
                 response.data["hydra:view"]["hydra:last"]
                     ? response.data["hydra:view"]["hydra:last"].split("=")[1]
                     : 1;
-            response.data["hydra:view"] &&
-            response.data["hydra:view"]["hydra:last"]
-                ? response.data["hydra:view"]["hydra:last"].split("=")[1]
-                : 1;
-            const events = response.data["hydra:member"].map((item: any) => {
+            var totalEvents = response.data["hydra:member"];
+            // if there are more pages, fetch them
+            // fetch the next n - 1 pages and apped to the events array
+            if (lastPage > 1) {
+                for (let index = 2; index <= lastPage; index++) {
+                    const nextResponse = await axios.get(
+                        url + `?page=${index}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${apiToken}`,
+                            },
+                        }
+                    );
+                    totalEvents = [
+                        ...totalEvents,
+                        ...nextResponse.data["hydra:member"],
+                    ];
+                }
+            }
+            const events = totalEvents.map((item: any) => {
                 const event = new Event(item.id);
                 if (item.budget) {
                     event.setBudget(new Budget(item.budget.split("/").pop()));
@@ -211,11 +225,10 @@ export class Event {
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.setLocation(item.location);
                 event.setOrganization(
-                    new Organization(item.organization["@id"].split("/").pop())
+                    new Organization(item.organization["@id"])
                 );
-                event.maxAttendees = item.maxAttendees;
                 event.organization.setName(item.organization.name);
-                context == "eventAdmin"
+                context === "eventAdmin"
                     ? (event.attendees = item.attendees.map((attendee: any) => {
                           const userEvent = new UserEvent(attendee.id);
                           userEvent.setUser(new User(attendee.user.id));
@@ -229,57 +242,6 @@ export class Event {
                 return event;
                 // event.setFlights() // dont set flights yet
             });
-            // if there are more pages, fetch them
-            // fetch the next n - 1 pages and apped to the events array
-            if (lastPage > 1) {
-                for (let index = 2; index <= lastPage; index++) {
-                    const response = await axios.get(url + `?page=${index}`, {
-                        headers: {
-                            Authorization: `Bearer ${apiToken}`,
-                        },
-                    });
-                    const data = response.data["hydra:member"];
-                    data.forEach((item: any) => {
-                        const event = new Event(item.id);
-                        if (item.budget) {
-                            event.setBudget(
-                                new Budget(item.budget.split("/").pop())
-                            );
-                            event.status = "approved";
-                        } else {
-                            event.budget = new Budget("pendingApproval");
-                            event.budget.perUserTotal = 0;
-                            event.status = "pendingApproval";
-                        }
-                        event.setEventTitle(item.eventTitle);
-                        event.setStartDateTime(item.startDateTime);
-                        event.setEndDateTime(item.endDateTime);
-                        event.setStartFlightBooking(item.startFlightBooking);
-                        event.setEndFlightBooking(item.endFlightBooking);
-                        event.setLocation(item.location);
-                        event.setOrganization(
-                            new Organization(item.organization.id)
-                        );
-                        event.maxAttendees = item.maxAttendees;
-                        context == "eventAdmin"
-                            ? (event.attendees = item.attendees.map(
-                                  (attendee: any) => {
-                                      const userEvent = new UserEvent(
-                                          attendee.id
-                                      );
-                                      userEvent.setUser(
-                                          new User(attendee.user.id)
-                                      );
-                                      userEvent.user.name = attendee.user.name;
-                                      userEvent.setEvent(event);
-                                      userEvent.status = attendee.status;
-                                      return userEvent;
-                                  }
-                              ))
-                            : (event.attendees = []);
-                    });
-                }
-            }
             return events;
         } catch (error) {
             console.error("Error fetching events data:", error);
@@ -332,9 +294,6 @@ export class Event {
                     // set the id of the event to the generated ID
                     this.id = response.data.id;
                     this.iri = response.data["@id"];
-                    // set the id of the event to the generated ID
-                    this.id = response.data.id;
-                    this.iri = response.data["@id"];
                 } catch (error) {
                     console.error("Error creating event:", error);
                     throw error;
@@ -362,7 +321,6 @@ export class Event {
                         {
                             headers: {
                                 Authorization: `Bearer ${apiToken}`,
-                                "Content-Type": "application/merge-patch+json",
                             },
                         }
                     );

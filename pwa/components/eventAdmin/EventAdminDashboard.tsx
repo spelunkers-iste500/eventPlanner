@@ -22,7 +22,6 @@ const Dashboard: React.FC = () => {
     // Using the useSession hook to get the current session data
     const { user } = useUser();
     const { data: session } = useSession();
-    if (!session) return;
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
@@ -32,19 +31,22 @@ const Dashboard: React.FC = () => {
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
         useState<Organization>(new Organization()); // State for the selected organization
-    if (organizations && organizations.length > 0) {
-        organizations[0].fetch(session.apiToken).then((org) => {
-            setSelectedOrganization(organizations[0]); // State for the selected organization
-        });
-    }
-
+    const [items, setItems] = useState<
+        {
+            value: string;
+            title: string;
+            organization: Organization;
+            events: Event[];
+        }[]
+    >([]); // State for items in the accordion
     useEffect(() => {
+        if (!session) return;
         const fetchOrganizations = async () => {
             try {
-                console.debug(organizations);
-                console.debug(organizations);
-                await organizations.forEach(async (org) => {
-                    await org.fetch(session.apiToken);
+                organizations.forEach((org) => {
+                    org.fetch(session.apiToken).then(() => {
+                        return org;
+                    });
                 });
                 setOrgObjects(organizations);
             } catch (error) {
@@ -55,13 +57,33 @@ const Dashboard: React.FC = () => {
         if (organizations.length > 0) {
             fetchOrganizations().then(() => {
                 const mappedOptions = organizations.map((org) => ({
-                    label: org.getName(),
+                    label: org.name || "Unnamed Organization",
                     value: org.id,
                 }));
+                setSelectedOrganization(organizations[0]);
                 setOrganizationOptions(mappedOptions);
+                Event.allFromApiResponse(session.apiToken, "eventAdmin").then(
+                    (events) => {
+                        console.debug("Fetched events:", events);
+                        const items = organizations.map((org) => {
+                            return {
+                                value: org.id,
+                                title: org.getName(),
+                                organization: org,
+                                events: events.filter(
+                                    (event) => event.organization.id === org.id
+                                ),
+                            };
+                        });
+                        console.debug("Mapped items:", items);
+                        setItems(items);
+                        setEvents(events);
+                        setLoading(false);
+                    }
+                );
             });
         }
-    }, [organizations]);
+    }, [organizations, user, session]);
 
     const [organizationOptions, setOrganizationOptions] = useState<
         { label: string; value: string }[]
@@ -85,6 +107,7 @@ const Dashboard: React.FC = () => {
         setIsCreateModalOpen(false);
     };
 
+    // Defining a state variable to manage the accordion's value
     const [value, setValue] = useState(["pending-events"]);
 
     const getEvents = async () => {
@@ -93,44 +116,14 @@ const Dashboard: React.FC = () => {
                 session.apiToken,
                 "eventAdmin"
             );
-            return events;
-        }
-    };
-
-    useEffect(() => {
-        getEvents().then((events) => {
-            if (!events) {
-                return;
-            }
             setEvents(events);
             setLoading(false);
-        });
-    }, [user]);
+        }
+    };
 
     if (loading) {
         return <h2 className="loading">Loading...</h2>;
     }
-    const items = organizations.map((org) => {
-        return {
-            value: org.id,
-            title: org.getName(),
-            organization: org,
-            events: events.filter((event) => event.organization.id === org.id),
-        };
-    });
-
-    // const items = [
-    //     {
-    //         value: "pending-events",
-    //         title: "Events Pending Approval",
-    //         events: currentEvents,
-    //     },
-    //     {
-    //         value: "approved-events",
-    //         title: "Approved Events",
-    //         events: pastEvents,
-    //     },
-    // ];
 
     return (
         <div className={styles.plannerDashboardContainer}>
@@ -141,41 +134,6 @@ const Dashboard: React.FC = () => {
                 Add Event
             </Button>
 
-            {/* Organization Filter Dropdown */}
-            <div className={styles.filterContainer}>
-                <Select
-                    options={organizationOptions}
-                    size="md"
-                    isSearchable={false}
-                    defaultValue={
-                        organizationOptions.length > 0
-                            ? {
-                                  label: organizationOptions[0].label,
-                                  value: organizationOptions[0].value,
-                              }
-                            : undefined
-                    }
-                    value={
-                        selectedOrganization
-                            ? {
-                                  label: selectedOrganization.name,
-                                  value: selectedOrganization.id,
-                              }
-                            : undefined
-                    }
-                    onChange={(option) => {
-                        const selectedOrg = organizations?.find(
-                            (org) => org.id === option?.value
-                        );
-                        if (selectedOrg) {
-                            setSelectedOrganization(selectedOrg);
-                        }
-                    }}
-                    className={`select-menu`}
-                    classNamePrefix={"select"}
-                />
-            </div>
-
             <Stack gap="4">
                 <AccordionRoot
                     multiple
@@ -183,12 +141,9 @@ const Dashboard: React.FC = () => {
                     onValueChange={(e) => setValue(e.value)}
                 >
                     {items.map((item, index) => (
-                        <AccordionItem
-                            key={index}
-                            value={item.organization.getName()}
-                        >
+                        <AccordionItem key={index} value={item.value}>
                             <AccordionItemTrigger>
-                                {item.title}
+                                {item.title + `: ${item.events.length} Events`}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
                                 <div className={styles.infoContainer}>
@@ -196,16 +151,16 @@ const Dashboard: React.FC = () => {
                                         <div className={styles.orgImageWrapper}>
                                             <img
                                                 src="/media/event_image.jpg"
-                                                alt={`${item.organization.getName()} Logo Image.`}
+                                                alt="Organization Logo"
                                                 className={styles.orgImage}
                                             />
                                         </div>
                                         <div className={styles.orgDetails}>
                                             <h2 className={styles.orgName}>
-                                                {item.organization.getName()}
+                                                {item.organization.name}
                                             </h2>
                                             <p className={styles.orgType}>
-                                                {item.organization.description}
+                                                Event Planning Organization
                                             </p>
                                         </div>
                                     </div>
@@ -213,36 +168,24 @@ const Dashboard: React.FC = () => {
                                     <div className={styles.statsBox}>
                                         <div className={styles.statItem}>
                                             <span className={styles.statLabel}>
-                                                Pending Events:
+                                                Approved Events:{" "}
                                             </span>
                                             <span className={styles.statValue}>
                                                 {
                                                     item.events.filter(
-                                                        (event) => {
-                                                            return (
-                                                                event.status ===
-                                                                "pendingApproval"
-                                                            );
-                                                        }
+                                                        (event) =>
+                                                            event.status ===
+                                                            "approved"
                                                     ).length
                                                 }
                                             </span>
                                         </div>
                                         <div className={styles.statItem}>
                                             <span className={styles.statLabel}>
-                                                Approved Events:
+                                                All Events:{" "}
                                             </span>
                                             <span className={styles.statValue}>
-                                                {
-                                                    item.events.filter(
-                                                        (event) => {
-                                                            return (
-                                                                event.status !==
-                                                                "pendingApproval"
-                                                            );
-                                                        }
-                                                    ).length
-                                                }
+                                                {item.events.length}
                                             </span>
                                         </div>
                                     </div>
