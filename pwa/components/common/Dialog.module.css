@@ -286,3 +286,13 @@
 		border: none;
 	}
 }
+
+.email-box {
+    flex: 1; /* Ensures the email takes up available space */
+    text-align: left;
+}
+
+.status-box {
+    text-align: right; /* Aligns the status to the right */
+    min-width: 100px; /* Optional: Ensures consistent spacing */
+}

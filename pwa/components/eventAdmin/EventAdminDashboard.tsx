@@ -22,6 +22,7 @@ const Dashboard: React.FC = () => {
     // Using the useSession hook to get the current session data
     const { user } = useUser();
     const { data: session } = useSession();
+    if (!session) return;
     const [loading, setLoading] = useState(true);
     const [events, setEvents] = useState<Event[]>([]);
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null); // State for the selected event
@@ -30,12 +31,17 @@ const Dashboard: React.FC = () => {
     const organizations = user?.eventAdminOfOrg || []; // Assuming user.eventAdminOfOrg contains organization IRIs
     const [orgObjects, setOrgObjects] = useState<Organization[]>([]); // State for organization objects
     const [selectedOrganization, setSelectedOrganization] =
-        useState<Organization | null>(null);
+        useState<Organization>(new Organization()); // State for the selected organization
+    if (organizations && organizations.length > 0) {
+        organizations[0].fetch(session.apiToken).then((org) => {
+            setSelectedOrganization(organizations[0]); // State for the selected organization
+        });
+    }
 
     useEffect(() => {
-        if (!session) return;
         const fetchOrganizations = async () => {
             try {
+                console.debug(organizations);
                 console.debug(organizations);
                 await organizations.forEach(async (org) => {
                     await org.fetch(session.apiToken);
@@ -47,12 +53,13 @@ const Dashboard: React.FC = () => {
         };
 
         if (organizations.length > 0) {
-            fetchOrganizations();
-            const mappedOptions = organizations.map((org) => ({
-                label: org.name || "Unnamed Organization",
-                value: org.id,
-            }));
-            setOrganizationOptions(mappedOptions);
+            fetchOrganizations().then(() => {
+                const mappedOptions = organizations.map((org) => ({
+                    label: org.getName(),
+                    value: org.id,
+                }));
+                setOrganizationOptions(mappedOptions);
+            });
         }
     }, [organizations]);
 
@@ -78,7 +85,6 @@ const Dashboard: React.FC = () => {
         setIsCreateModalOpen(false);
     };
 
-    // Defining a state variable to manage the accordion's value
     const [value, setValue] = useState(["pending-events"]);
 
     const getEvents = async () => {
@@ -87,82 +93,48 @@ const Dashboard: React.FC = () => {
                 session.apiToken,
                 "eventAdmin"
             );
-            setEvents(events);
-            setLoading(false);
+            return events;
         }
     };
 
     useEffect(() => {
-        getEvents();
+        getEvents().then((events) => {
+            if (!events) {
+                return;
+            }
+            setEvents(events);
+            setLoading(false);
+        });
     }, [user]);
 
     if (loading) {
         return <h2 className="loading">Loading...</h2>;
     }
+    const items = organizations.map((org) => {
+        return {
+            value: org.id,
+            title: org.getName(),
+            organization: org,
+            events: events.filter((event) => event.organization.id === org.id),
+        };
+    });
 
-    // Filtering events into current and past events based on the current date
-    const currentEvents = events.filter(
-        (event) => event.budget.id == "pendingApproval"
-    );
-    const pastEvents = events.filter(
-        (event) => event.budget.id != "pendingApproval"
-    );
-
-    // Defining items for the accordion, including current events, past events, and members list
-    const items = [
-        {
-            value: "pending-events",
-            title: "Events Pending Approval",
-            events: currentEvents,
-        },
-        {
-            value: "approved-events",
-            title: "Approved Events",
-            events: pastEvents,
-        },
-        { value: "members-list", title: "Members List", events: [] },
-    ];
+    // const items = [
+    //     {
+    //         value: "pending-events",
+    //         title: "Events Pending Approval",
+    //         events: currentEvents,
+    //     },
+    //     {
+    //         value: "approved-events",
+    //         title: "Approved Events",
+    //         events: pastEvents,
+    //     },
+    // ];
 
     return (
         <div className={styles.plannerDashboardContainer}>
             <h1 className={styles.heading}>Welcome, {user?.name}!</h1>
-
-            <div className={styles.infoContainer}>
-                <div className={styles.orgInfoBox}>
-                    <div className={styles.orgImageWrapper}>
-                        <img
-                            src="/media/event_image.jpg"
-                            alt="Organization Logo"
-                            className={styles.orgImage}
-                        />
-                    </div>
-                    <div className={styles.orgDetails}>
-                        <h2 className={styles.orgName}>Organization Name</h2>
-                        <p className={styles.orgType}>
-                            Event Planning Organization
-                        </p>
-                    </div>
-                </div>
-
-                <div className={styles.statsBox}>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Organization Members:{" "}
-                        </span>
-                        <span className={styles.statValue}>157</span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>
-                            Upcoming Events:{" "}
-                        </span>
-                        <span className={styles.statValue}>12</span>
-                    </div>
-                    <div className={styles.statItem}>
-                        <span className={styles.statLabel}>All Events: </span>
-                        <span className={styles.statValue}>489</span>
-                    </div>
-                </div>
-            </div>
 
             {/* Add Event Button */}
             <Button onClick={handleOpenCreateModal} colorScheme="blue" mb={4}>
@@ -173,22 +145,31 @@ const Dashboard: React.FC = () => {
             <div className={styles.filterContainer}>
                 <Select
                     options={organizationOptions}
-                    placeholder="Select Organization"
                     size="md"
                     isSearchable={false}
+                    defaultValue={
+                        organizationOptions.length > 0
+                            ? {
+                                  label: organizationOptions[0].label,
+                                  value: organizationOptions[0].value,
+                              }
+                            : undefined
+                    }
                     value={
                         selectedOrganization
-                            ? organizationOptions.find(
-                                  (option) =>
-                                      option.value === selectedOrganization?.id
-                              )
-                            : null
+                            ? {
+                                  label: selectedOrganization.name,
+                                  value: selectedOrganization.id,
+                              }
+                            : undefined
                     }
                     onChange={(option) => {
                         const selectedOrg = organizations?.find(
                             (org) => org.id === option?.value
                         );
-                        setSelectedOrganization(selectedOrg || null);
+                        if (selectedOrg) {
+                            setSelectedOrganization(selectedOrg);
+                        }
                     }}
                     className={`select-menu`}
                     classNamePrefix={"select"}
@@ -197,15 +178,75 @@ const Dashboard: React.FC = () => {
 
             <Stack gap="4">
                 <AccordionRoot
+                    multiple
                     value={value}
                     onValueChange={(e) => setValue(e.value)}
                 >
                     {items.map((item, index) => (
-                        <AccordionItem key={index} value={item.value}>
+                        <AccordionItem
+                            key={index}
+                            value={item.organization.getName()}
+                        >
                             <AccordionItemTrigger>
                                 {item.title}
                             </AccordionItemTrigger>
                             <AccordionItemContent>
+                                <div className={styles.infoContainer}>
+                                    <div className={styles.orgInfoBox}>
+                                        <div className={styles.orgImageWrapper}>
+                                            <img
+                                                src="/media/event_image.jpg"
+                                                alt={`${item.organization.getName()} Logo Image.`}
+                                                className={styles.orgImage}
+                                            />
+                                        </div>
+                                        <div className={styles.orgDetails}>
+                                            <h2 className={styles.orgName}>
+                                                {item.organization.getName()}
+                                            </h2>
+                                            <p className={styles.orgType}>
+                                                {item.organization.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.statsBox}>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                Pending Events:
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {
+                                                    item.events.filter(
+                                                        (event) => {
+                                                            return (
+                                                                event.status ===
+                                                                "pendingApproval"
+                                                            );
+                                                        }
+                                                    ).length
+                                                }
+                                            </span>
+                                        </div>
+                                        <div className={styles.statItem}>
+                                            <span className={styles.statLabel}>
+                                                Approved Events:
+                                            </span>
+                                            <span className={styles.statValue}>
+                                                {
+                                                    item.events.filter(
+                                                        (event) => {
+                                                            return (
+                                                                event.status !==
+                                                                "pendingApproval"
+                                                            );
+                                                        }
+                                                    ).length
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
                                 <ItemList
                                     items={item.events}
                                     fields={[
