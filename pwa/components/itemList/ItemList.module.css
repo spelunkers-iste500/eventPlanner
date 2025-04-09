@@ -30,6 +30,7 @@
     padding: 0.5rem 1rem;
     background-color: #ffffff;
     border-bottom: 2px solid var(--gray-100);
+    transition: background-color 0.3s ease;
 }
 
 .list-item:last-child {
