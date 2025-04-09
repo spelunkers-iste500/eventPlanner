@@ -27,7 +27,8 @@ class Flight
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'uuid')]
     #[Groups([
-        'read:myEvents'
+        'read:myEvents',
+        'read:event:collection'
     ])]
     private $id;
     public function getId(): UuidInterface | LazyUuidFromString
@@ -42,7 +43,8 @@ class Flight
     #[ORM\Column]
     #[Groups([
         'read:myEvents',
-        'event:csv:export'
+        'event:csv:export',
+        'read:event:collection'
     ])]
     public int $flightCost;
 

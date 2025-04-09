@@ -38,6 +38,7 @@ const FinancialAdminDashboard: React.FC = () => {
             title: string;
             organization: Organization;
             events: Event[];
+            budgetInfo: { total: number; spent: number; remaining: number };
         }[]
     >([]); // State for items in the accordion
 
@@ -69,13 +70,40 @@ const FinancialAdminDashboard: React.FC = () => {
                         console.debug("Fetched events:", events);
                         console.debug("Organizations:", organizations);
                         const items = organizations.map((org) => {
+                            // calculate the budget info for each organization
+                            const orgEvents = events.filter(
+                                (event) => event.organization.id === org.id
+                            );
+                            // total budget is each events budget per user total multiplied by the number of users
+                            const totalBudget = orgEvents.reduce(
+                                (acc, event) =>
+                                    acc +
+                                    (event.budget?.perUserTotal *
+                                        event.maxAttendees || 0),
+                                0
+                            );
+                            // add up every flights flightCost
+                            const spentBudget = orgEvents.reduce(
+                                (acc, event) =>
+                                    acc +
+                                    (event.flights?.reduce(
+                                        (acc, flight) =>
+                                            acc + flight.flightCost,
+                                        0
+                                    ) || 0),
+                                0
+                            );
+
                             return {
                                 value: org.id,
                                 title: org.getName(),
                                 organization: org,
-                                events: events.filter(
-                                    (event) => event.organization.id === org.id
-                                ),
+                                events: orgEvents,
+                                budgetInfo: {
+                                    total: totalBudget,
+                                    spent: spentBudget,
+                                    remaining: totalBudget - spentBudget,
+                                },
                             };
                         });
                         console.debug("Mapped items:", items);
@@ -102,7 +130,9 @@ const FinancialAdminDashboard: React.FC = () => {
     };
 
     // Dummy budget information - replace with API call results later
-    const allocatedBudget = "$100,000";
+    // const allocatedBudget = "$100,000";
+    // allocatedBudget should be the sum of all the budgets of the events in the organization
+
     const budgetSpent = "$45,000";
     const remainingBudget = "$55,000";
 
@@ -198,7 +228,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 <span
                                                     className={styles.statValue}
                                                 >
-                                                    {allocatedBudget}
+                                                    {`$${item.budgetInfo.total.toLocaleString()}`}
                                                 </span>
                                             </div>
                                             <div className={styles.statItem}>
@@ -210,7 +240,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 <span
                                                     className={styles.statValue}
                                                 >
-                                                    {budgetSpent}
+                                                    {`$${item.budgetInfo.spent.toLocaleString()}`}
                                                 </span>
                                             </div>
                                             <div className={styles.statItem}>
@@ -222,7 +252,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                                 <span
                                                     className={styles.statValue}
                                                 >
-                                                    {remainingBudget}
+                                                    {`$${item.budgetInfo.remaining.toLocaleString()}`}
                                                 </span>
                                             </div>
                                         </div>
@@ -240,7 +270,17 @@ const FinancialAdminDashboard: React.FC = () => {
                                             },
                                             {
                                                 key: "budget.perUserTotal",
-                                                label: "Per User Total",
+                                                label: "Total Budget",
+                                                valueFn: (event: Event) => {
+                                                    // return the per user total of the budget multiplied by the number of users
+                                                    if (!event.budget)
+                                                        return "$0";
+                                                    const totalBudget =
+                                                        event.budget
+                                                            .perUserTotal *
+                                                        event.maxAttendees;
+                                                    return `$${totalBudget.toLocaleString()}`;
+                                                },
                                             },
                                             {
                                                 key: "status",
