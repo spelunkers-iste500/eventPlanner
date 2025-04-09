@@ -33,36 +33,49 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
 }) => {
     const { data: session } = useSession();
     const [perUserTotal, setPerUserTotal] = useState<number>(0);
-    const [perUserOverage, setPerUserOverage] = useState<number>(0);
+    const [overage, setOverage] = useState<number>(0);
     const { user } = useUser();
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        if (event.budget) {
+        if (event.budget.perUserTotal > 0) {
             setPerUserTotal(event.budget.perUserTotal);
-            setPerUserOverage(event.budget.overage ?? 0);
+            setOverage(event.budget.overage);
+            setIsEditing(true);
         }
     }, [event]);
 
     const handleSubmit = async () => {
-        console.debug("Event Object: ", event);
-        if (perUserTotal && perUserOverage) {
+        if (perUserTotal && overage) {
             if (session && user) {
-                const budget = new Budget();
-                budget.perUserTotal = perUserTotal;
-                budget.overage = perUserOverage; // change to total overage
-                budget.event = event;
-                budget.organization = user.financeAdminOfOrg[0];
-                await budget.persist(session.apiToken);
-                event.budget = budget; // Update the budget in the event object
-                event.status = "approved";
-                await event.persist(session.apiToken);
-
-                toaster.create({
-                    title: "Budget Created",
-                    description: "Your budget has been successfully set.",
-                    type: "success",
-                    duration: 3000,
-                });
+                // if the event has a budget, update it
+                if (event.budget) {
+                    event.budget.perUserTotal = perUserTotal;
+                    event.budget.overage = overage;
+                    await event.budget.persist(session.apiToken);
+                    toaster.create({
+                        title: "Budget Updated",
+                        description: "Your budget has been successfully set.",
+                        type: "success",
+                        duration: 3000,
+                    });
+                } else {
+                    const budget = new Budget();
+                    budget.perUserTotal = perUserTotal;
+                    budget.overage = overage; // change to total overage
+                    budget.event = event;
+                    budget.organization = user.financeAdminOfOrg[0];
+                    await budget.persist(session.apiToken);
+                    event.budget = budget; // Update the budget in the event object
+                    event.status = "approved";
+                    await event.persist(session.apiToken);
+                    toaster.create({
+                        title: "Budget Created",
+                        description: "Your budget has been successfully set.",
+                        type: "success",
+                        duration: 3000,
+                    });
+                }
                 onClose();
             }
         } else {
@@ -78,7 +91,9 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
     return (
         <BaseDialog isOpen={isOpen} onClose={onClose}>
             <DialogHeader className={styles.dialogHeader}>
-                <DialogTitle>Create Budget</DialogTitle>
+                <DialogTitle>
+                    {isEditing ? "Edit Budget" : "Create Budget"}
+                </DialogTitle>
                 <button className={styles.dialogClose} onClick={onClose}>
                     <X />
                 </button>
@@ -87,7 +102,7 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 className={`${styles.dialogBody} ${styles.formContainer}`}
             >
                 <Input
-                    label="Budget Allocated Per User"
+                    label={`Budget per user, for up to ${event.maxAttendees} users`}
                     placeholder="Enter budget per user"
                     type="number"
                     defaultValue={perUserTotal}
@@ -96,12 +111,12 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                     }}
                 />
                 <Input
-                    label="User Overage"
-                    placeholder="Enter user overage"
+                    label="Total Overage"
+                    placeholder="Enter overage"
                     type="number"
-                    defaultValue={perUserOverage}
+                    defaultValue={overage}
                     onChange={(value) => {
-                        setPerUserOverage(value === "" ? 0 : Number(value));
+                        setOverage(value === "" ? 0 : Number(value));
                     }}
                 />
                 <button onClick={handleSubmit}>Submit</button>

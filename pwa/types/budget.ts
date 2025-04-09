@@ -7,7 +7,7 @@ export class Budget {
     perUserTotal: number = 0;
     organization?: Organization;
     event?: Event;
-    overage?: number;
+    overage: number = 0;
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "" && id == "notPersisted") {
@@ -29,6 +29,7 @@ export class Budget {
         this.event = new Event(data.event.split("/").pop()!); // pop returns the last element of the array, which is the UUID
         this.overage = data.overage;
     }
+
     async persist(apiToken: string): Promise<void> {
         // two cases: creating a budget (id = "notPersisted") or updating an existing one (id != "notPersisted")
         if (this.id === "notPersisted") {
@@ -66,7 +67,7 @@ export class Budget {
             this.id = response.data.id;
         } else {
             // Update an existing budget
-            await axios.put(
+            await axios.patch(
                 `/budgets/${this.id}`,
                 {
                     perUserTotal: this.perUserTotal,
