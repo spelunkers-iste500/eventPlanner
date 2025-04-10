@@ -439,31 +439,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     }
 
     /**
-     * @var Collection $flights The flights the user has booked/held
-     * @todo change to ManyToOne, since a flight can only be related to one user
-     */
-    #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'user')]
-    #[Groups([
-        'read:myEvents',
-        'user:read'
-    ])]
-    private Collection $flights;
-    /**
-     * @param Collection $flights The flights the user has booked/held
-     * @return Collection
-     */
-
-    public function getFlights(): Collection
-    {
-        return $this->flights;
-    }
-
-    public function setFlights(Collection $flights): void
-    {
-        $this->flights = $flights;
-    }
-
-    /**
      * @var Collection $eventsAttending The events the user is attending
      */
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'user')]
@@ -718,7 +693,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         ?string $plainPassword = null,
         ?\DateTimeInterface $createdOn = null,
         ?Collection $AdminOfOrg = new ArrayCollection(),
-        ?Collection $flights = new ArrayCollection(),
         ?Collection $eventsAttending = new ArrayCollection(),
         ?Collection $financeAdminOfOrg = new ArrayCollection(),
         ?Collection $OrgMembership = new ArrayCollection(),
@@ -738,7 +712,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->plainPassword = $plainPassword;
         // set the collections to empty if not provided
         $this->AdminOfOrg = $AdminOfOrg;
-        $this->flights = $flights;
         $this->eventsAttending = $eventsAttending;
         $this->financeAdminOfOrg = $financeAdminOfOrg;
         $this->organizationInvites = new ArrayCollection();

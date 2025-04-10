@@ -34,7 +34,7 @@ class FlightOrder
     public ?string $phone_number;
     public ?array $data;
     #[Groups(['write:flightOrder'])]
-    public ?Event $event = null;
+    public ?UserEvent $userEvent = null;
 
     public function __construct(string $offerId, ?string $order_id = null, ?string $passenger_id = null, ?string $first_name = null, ?string $family_name = null, ?string $title = null, ?string $gender = null, ?string $email = null, ?string $birthday = null, ?string $phone_number = null)
     {

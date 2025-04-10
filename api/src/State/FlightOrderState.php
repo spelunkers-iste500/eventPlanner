@@ -201,8 +201,7 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         // before return value, should persist a Flight object as well so that the budget gets updated
         $flight = new Flight();
         $flight->setFlightCost($responseData['total_amount']);
-        $flight->setEvent($data->event);
-        $flight->setUser($user);
+        $flight->setUserEvent($data->userEvent);
         $flight->setDepartureDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['departing_at']));
         $flight->setArrivalDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['arriving_at']));
         $flight->setDepartureLocation($responseData['slices'][0]['segments'][0]['origin']['iata_code']);

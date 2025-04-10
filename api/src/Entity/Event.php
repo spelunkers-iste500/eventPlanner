@@ -170,7 +170,7 @@ class Event
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event', 'read:myEvents','read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents', 'read:event:collection'])]
     public string $location;
 
     #[ORM\Column(type: 'integer')]
@@ -267,26 +267,6 @@ class Event
     {
         $this->inviteCode = $inviteCode;
     }
-
-    //Event -> Flight
-    #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'read:event:collection', 'event:csv:export'])]
-    private Collection $flights;
-
-    public function getFlights(): Collection
-    {
-        return $this->flights;
-    }
-
-    public function addFlight(Flight $flight): self
-    {
-        if (!$this->flights->contains($flight)) {
-            $this->flights[] = $flight;
-            $flight->setEvent($this);
-        }
-        return $this;
-    }
-
 
     public function __construct()
     {

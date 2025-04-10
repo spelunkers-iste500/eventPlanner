@@ -63,8 +63,8 @@ final readonly class UserPasswordHasher implements ProcessorInterface
             if ($event) {
                 // if the user is already set, don't overwrite it
                 // make a new userEvent object and set the user to the processed user
-                $userEvent = new UserEvent();
-                $userEvent->setEvent($event);
+                $userEvent = $this->userEventRepository->findOneBy(['event' => $event, 'email' => $processedUser->getEmail()]);
+                // $userEvent->setEvent($event);
                 $userEvent->setUser($processedUser);
                 $this->userEventRepository->save($userEvent, true);
             }
