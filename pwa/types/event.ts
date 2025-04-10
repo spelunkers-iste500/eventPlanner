@@ -227,7 +227,7 @@ export class Event {
                 event.setEndFlightBooking(item.endFlightBooking);
                 event.flights = item.flights.map((flight: any) => {
                     const flightObj = new Flight(flight.id);
-                    flightObj.flightCost = flight.flightCost / 100;
+                    flightObj.flightCost = flight.flightCost;
                     flightObj.approvalStatus = flight.approvalStatus;
                     flightObj.bookingReference = flight.bookingReference;
                     return flightObj;

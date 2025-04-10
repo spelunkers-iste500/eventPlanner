@@ -85,7 +85,7 @@ const FinancialAdminDashboard: React.FC = () => {
                                     acc +
                                     (event.flights?.reduce(
                                         (acc, flight) =>
-                                            acc + flight.flightCost*100,
+                                            acc + flight.flightCost,
                                         0
                                     ) || 0),
                                 0
