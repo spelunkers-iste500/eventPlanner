@@ -59,7 +59,7 @@ class Flight
 
     public function getFlightCost(): int
     {
-        return $this->flightCost;
+        return $this->flightCost/100;
     }
 
     public function setFlightCost(int $flightCost): self
