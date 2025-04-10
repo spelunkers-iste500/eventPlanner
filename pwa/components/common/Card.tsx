@@ -35,7 +35,7 @@
 
 // Finally, the `FlightSearch` component is exported as the default export of the module.
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../dashboard/Dashboard.module.css";
 import { formatDateDisplay, formatTime } from "Types/events";
 import { UserEvent } from "Types/userEvent";
@@ -63,6 +63,14 @@ const Card: React.FC<CardProps> = ({
     onClick,
 }) => {
     const event = userEvent.getEvent();
+    const [multiDay, setMultiDay] = useState<boolean>(false);
+
+    useEffect(() => {
+        if (event.startDateTime !== event.endDateTime) {
+            setMultiDay(true);
+        }
+    }, [event]);
+
     return (
         <div className={styles.card}>
             <img
@@ -83,11 +91,17 @@ const Card: React.FC<CardProps> = ({
                     <div className={styles.cardDetails}>
                         <div className={styles.cardRow}>
                             <Calendar size={16} />
-                            {formatDateDisplay(event.startDateTime)} •{" "}
-                            {formatTime(event.startDateTime)}{" "}
-                            {event.endDateTime
-                                ? `- ${formatTime(event.endDateTime)}`
-                                : ""}
+                            {!multiDay ? (
+                                <>{formatDateDisplay(event.startDateTime)}</>
+                            ) : (
+                                <>
+                                    {formatDateDisplay(event.startDateTime)} •{" "}
+                                    {formatTime(event.startDateTime)}{" "}
+                                    {event.endDateTime
+                                        ? `- ${formatTime(event.endDateTime)}`
+                                        : ""}
+                                </>
+                            )}
                         </div>
 
                         {isFinance ? (
