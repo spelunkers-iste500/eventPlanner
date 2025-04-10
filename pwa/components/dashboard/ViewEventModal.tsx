@@ -95,32 +95,29 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({
                     </div>
                     <div className={styles.dialogDetails}>
                         <h3>Your Details</h3>
-                        {userEvent?.getFlights()[0] ? (
+                        {userEvent?.getFlight() ? (
                             <>
                                 <div>
                                     <TowerControl size={16} />
                                     <span className={styles.dialogAirports}>
                                         {
-                                            userEvent?.getFlights()[0]
+                                            userEvent?.getFlight()
                                                 .departureLocation
                                         }
                                         <ArrowRight size={16} />
-                                        {
-                                            userEvent?.getFlights()[0]
-                                                .arrivalLocation
-                                        }
+                                        {userEvent?.getFlight().arrivalLocation}
                                     </span>
                                 </div>
                                 <div>
                                     <PlaneTakeoff size={16} />
                                     <span>
                                         {formatDateDisplay(
-                                            userEvent.getFlights()[0]
+                                            userEvent.getFlight()
                                                 .departureDateTime
                                         )}{" "}
                                         •{" "}
                                         {formatTime(
-                                            userEvent.getFlights()[0]
+                                            userEvent.getFlight()
                                                 .departureDateTime
                                         )}
                                     </span>
@@ -129,12 +126,12 @@ const ViewEventModal: React.FC<ViewEventModalProps> = ({
                                     <PlaneLanding size={16} />
                                     <span>
                                         {formatDateDisplay(
-                                            userEvent.getFlights()[0]
+                                            userEvent.getFlight()
                                                 .arrivalDateTime
                                         )}{" "}
                                         •{" "}
                                         {formatTime(
-                                            userEvent.getFlights()[0]
+                                            userEvent.getFlight()
                                                 .arrivalDateTime
                                         )}
                                     </span>
