@@ -271,6 +271,12 @@ export class Event {
                               userEvent.flight.setApprovalStatus(
                                   attendee.flight.approvalStatus
                               );
+                              userEvent.flight.setBookingReference(
+                                  attendee.flight.bookingReference
+                              );
+                              userEvent.flight.setFlightCost(
+                                  attendee.flight.flightCost
+                              );
                           }
                           return userEvent;
                       }))

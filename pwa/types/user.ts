@@ -3,6 +3,7 @@ import { Organization } from "./organization";
 import { UserEvent } from "./userEvent";
 import { headers } from "next/headers";
 import { Router } from "lucide-react";
+import { signOut } from "next-auth/react";
 export class User {
     static url = "/my/user";
     id: string;
@@ -92,12 +93,14 @@ export class User {
     ): Promise<User> {
         try {
             const uri = id === "" ? `/my/user` : `/users/${id}`;
+
             const response = await axios.get(uri, {
                 headers: {
                     "Content-Type": "application/ld+json",
                     Authorization: "Bearer " + apiToken,
                 },
             });
+
             const data = response.data;
             // create a new User object using the data from the API response
             const user = new User(data.id, apiToken);
@@ -129,6 +132,11 @@ export class User {
             user.passengerId = data.passengerId;
             return user;
         } catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.status === 401) {
+                    signOut();
+                }
+            }
             console.error("Error fetching user data:", error);
             throw new Error("Failed to fetch user data");
         }

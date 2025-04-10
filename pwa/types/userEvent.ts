@@ -122,25 +122,25 @@ export class UserEvent {
                         userEvent.event.budget.perUserTotal;
                 }
                 userEventInstance.user = new User(userEvent.user.id);
-                if (response.data.flight) {
-                    userEventInstance.flight.id = response.data.flight.id;
+                if (userEvent.flight) {
+                    userEventInstance.flight.id = userEvent.flight.id;
                     userEventInstance.flight.setDepartureDateTime(
-                        response.data.flight.departureDateTime
+                        userEvent.flight.departureDateTime
                     );
                     userEventInstance.flight.setArrivalDateTime(
-                        response.data.flight.arrivalDateTime
+                        userEvent.flight.arrivalDateTime
                     );
                     userEventInstance.flight.setDepartureLocation(
-                        response.data.flight.departureLocation
+                        userEvent.flight.departureLocation
                     );
                     userEventInstance.flight.setArrivalLocation(
-                        response.data.flight.arrivalLocation
+                        userEvent.flight.arrivalLocation
                     );
                     userEventInstance.flight.setFlightNumber(
-                        response.data.flight.flightNumber
+                        userEvent.flight.flightNumber
                     );
                     userEventInstance.flight.setApprovalStatus(
-                        response.data.flight.approvalStatus
+                        userEvent.flight.approvalStatus
                     );
                 }
                 userEventInstance.status = userEvent.status;

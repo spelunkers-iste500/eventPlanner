@@ -108,33 +108,31 @@ const Card: React.FC<CardProps> = ({
                             </>
                         ) : (
                             <>
-                                {userEvent.flights.length > 0 &&
+                                {userEvent.flight.id !== "notPersisted" &&
                                     buttonText !== "Book Now" && (
                                         <div className={styles.cardRow}>
                                             <PlaneTakeoff size={16} />
                                             {formatDateDisplay(
-                                                userEvent.flights[0]
+                                                userEvent.flight
                                                     .departureDateTime
                                             )}{" "}
                                             •{" "}
                                             {formatTime(
-                                                userEvent.flights[0]
+                                                userEvent.flight
                                                     .departureDateTime
                                             )}
                                         </div>
                                     )}
-                                {userEvent.flights.length > 0 &&
+                                {userEvent.flight.id !== "notPersisted" &&
                                     buttonText !== "Book Now" && (
                                         <div className={styles.cardRow}>
                                             <PlaneLanding size={16} />
                                             {formatDateDisplay(
-                                                userEvent.flights[0]
-                                                    .arrivalDateTime
+                                                userEvent.flight.arrivalDateTime
                                             )}{" "}
                                             •{" "}
                                             {formatTime(
-                                                userEvent.flights[0]
-                                                    .arrivalDateTime
+                                                userEvent.flight.arrivalDateTime
                                             )}
                                         </div>
                                     )}

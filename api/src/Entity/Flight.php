@@ -45,8 +45,6 @@ class Flight
     // inverse side
     #[ORM\OneToOne(targetEntity: UserEvent::class, mappedBy: 'flight', cascade: ['persist', 'remove'])]
     #[Groups([
-        'read:myEvents',
-        'read:event:collection',
         'read:flight'
     ])]
     private ?UserEvent $userEvent = null;
