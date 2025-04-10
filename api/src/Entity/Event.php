@@ -170,7 +170,7 @@ class Event
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event', 'read:myEvents'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents','read:event:collection'])]
     public string $location;
 
     #[ORM\Column(type: 'integer')]
