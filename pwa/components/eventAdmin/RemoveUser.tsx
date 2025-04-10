@@ -57,7 +57,7 @@ const RemoveUser: React.FC<RemoveUserProps> = ({
                 >
                     <p>
                         Are you sure you want to remove{" "}
-                        <strong>{userEvent?.user.email}</strong> from the event?
+                        <strong>{userEvent?.email}</strong> from the event?
                     </p>
                     <div
                         className={`input-container ${styles.dialogSubmitBtn}`}
