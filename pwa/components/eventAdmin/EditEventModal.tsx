@@ -235,9 +235,15 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                         <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
                             <ItemList<Flight>
                                 items={
-                                    event?.attendees.map(
-                                        (userEvent) => userEvent.flight
-                                    ) || []
+                                    event?.attendees
+                                        .filter((userEvent) => {
+                                            return (
+                                                userEvent.flight &&
+                                                userEvent.flight.flightCost
+                                            );
+                                        })
+                                        .map((userEvent) => userEvent.flight) ||
+                                    []
                                 }
                                 fields={[
                                     {
@@ -246,7 +252,18 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                                         // valueFn: (flight) =>
                                         //     flight.id.split("-").pop(),
                                     },
-                                    { key: "flightCost", label: "Flight Cost" },
+                                    {
+                                        key: "flightCost",
+                                        label: "Flight Cost",
+                                        valueFn: (flight) =>
+                                            flight.flightCost.toLocaleString(
+                                                "en-US",
+                                                {
+                                                    style: "currency",
+                                                    currency: "USD",
+                                                }
+                                            ),
+                                    },
                                     { key: "approvalStatus", label: "Status" },
                                 ]}
                                 renderItem={(flight) =>

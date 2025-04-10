@@ -53,8 +53,12 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 
     const handleAddEmail = () => {
         if (emailInput && validateEmail(emailInput)) {
-            if (!emails.includes(emailInput)) {
-                setEmails([emailInput, ...emails]);
+            const newEmail = new UserEvent();
+            newEmail.email = emailInput;
+            newEmail.status = "Not Sent";
+            if (!createdEvent?.attendees.includes(newEmail)) {
+                createdEvent?.attendees.push(newEmail);
+                // setEmails([emailInput, ...emails]);
             }
             setEmailInput("");
             setError("");
@@ -63,9 +67,15 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     };
 
-    const handleDeleteEmail = (email: string) => {
-        setEmails(emails.filter((e) => e !== email));
-    };
+    // const handleDeleteEmail = (email: UserEvent) => {
+    //     if (!createdEvent) return;
+    //     createdEvent.attendees = createdEvent.attendees.filter(
+    //         (e) => e !== email
+    //     );
+    //     // setEmails(updatedEmails);
+    //     // setDeletedEmails((prev) => [...prev, email]);
+    //     setError("");
+    // };
 
     const handleCSVImport = (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files && event.target.files[0];
@@ -102,15 +112,16 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     useEffect(() => {
         // if not editing, submit the invites
         console.log("Attendees loaded:", createdEvent?.attendees);
-        if (createdEvent && !isEditing) {
+        if (createdEvent) {
+            console.log("Sending invites");
             setEmails(
                 createdEvent.attendees
                     ?.map((attendee) => attendee.email)
                     .filter((email): email is string => email !== undefined) ||
                     []
             );
-            handleSubmit();
         }
+        !isEditing && handleSubmit();
     }, [createdEvent]);
 
     const handleSubmit = () => {
@@ -135,9 +146,10 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             // check if email has already been invited and exits in createdEvents.attendees and set error if so
             const existingEmails =
                 createdEvent.attendees
-                    ?.map((attendee) => attendee.email)
-                    .filter((email): email is string => email !== undefined) ||
-                [];
+                    ?.map((attendee) => attendee.status)
+                    .filter(
+                        (status): status is string => status !== "Not Sent"
+                    ) || [];
 
             const alreadyInvitedEmails = validEmails.filter((email) =>
                 existingEmails.includes(email)
@@ -189,9 +201,13 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     };
 
-    const handleConfirmOpen = (userEvent: UserEvent) => {
+    const handleConfirmOpen = (
+        userEvent: UserEvent | { email: string; status: string }
+    ) => {
         setIsConfirmOpen(true);
-        setSelectedUserEvent(userEvent);
+        if ("user" in userEvent) {
+            setSelectedUserEvent(userEvent);
+        }
     };
 
     const handleConfirmClose = () => {
@@ -247,42 +263,17 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Button>
                 </Flex>
 
-                {/* Display list of added emails with delete button */}
-                <Box maxH="20vh" overflowY="auto">
-                    {emails.map((email, index) => (
-                        <Flex
-                            key={index}
-                            alignItems="center"
-                            mb={2}
-                            borderWidth="1px"
-                            p={2}
-                            borderRadius="md"
-                        >
-                            <Box flex="1">{email}</Box>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleDeleteEmail(email)}
-                            >
-                                <X size={16} />
-                            </Button>
-                        </Flex>
-                    ))}
-                </Box>
-
-                {isEditing && (
-                    <ItemList<UserEvent>
-                        items={createdEvent?.attendees || []}
-                        fields={[
-                            {
-                                key: "email",
-                                label: "Invited Email",
-                            },
-                            { key: "status", label: "Invite Status" },
-                        ]}
-                        renderItem={(userEvent) => handleConfirmOpen(userEvent)}
-                    />
-                )}
+                <ItemList<UserEvent>
+                    items={createdEvent?.attendees || []}
+                    fields={[
+                        {
+                            key: "email",
+                            label: "Invited Email",
+                        },
+                        { key: "status", label: "Invite Status" },
+                    ]}
+                    renderItem={(userEvent) => handleConfirmOpen(userEvent)}
+                />
 
                 {isEditing && (
                     <div

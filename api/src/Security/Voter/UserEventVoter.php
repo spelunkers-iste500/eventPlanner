@@ -2,6 +2,7 @@
 
 namespace App\Security\Voter;
 
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -18,6 +19,8 @@ final class UserEventVoter extends Voter
         return in_array($attribute, [self::EDIT, self::USEREDIT])
             && $subject instanceof \App\Entity\UserEvent;
     }
+
+    public function __construct(private Security $security) {}
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
     {
@@ -46,8 +49,10 @@ final class UserEventVoter extends Voter
                 $org = $event->getOrganization();
                 // get the user from the UserEvent object
                 $user = $subject->getUser();
+
+                $actor = $token->getUser();
                 // check if the user is in either group from the org
-                if ($org->getEventAdmins()->contains($user)) {
+                if ($org->getEventAdmins()->contains($user) || $org->getEventAdmins()->contains($actor)) {
                     return true;
                 }
                 break;

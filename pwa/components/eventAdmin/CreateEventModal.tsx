@@ -36,7 +36,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const { data: session } = useSession();
     const { user } = useUser();
     const { setContent } = useContent();
-
+    const [event, setEvent] = useState<Event>(new Event());
     const [error, setError] = useState("");
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
@@ -117,7 +117,6 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             location &&
             selectedOrganization
         ) {
-            const event = new Event();
             event.eventTitle = eventTitle;
             event.startDateTime = startDate.toISOString();
             event.endDateTime = endDate.toISOString();
@@ -133,7 +132,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             }
             event.persist(session?.apiToken).then(
                 () => {
-                    setCreatedEvent(event);
+                    setEvent(event);
                     toaster.create({
                         title: "Event Created",
                         description:
@@ -291,9 +290,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                 </Switch.Root>
 
                 {/* Conditionally render the InviteAttendantsExt component */}
-                {inviteUsers && (
-                    <InviteAttendantExt createdEvent={createdEvent} />
-                )}
+                {inviteUsers && <InviteAttendantExt createdEvent={event} />}
 
                 <div className={`input-container ${styles.dialogSubmitBtn}`}>
                     <Button onClick={handleSubmit}>Create Event</Button>
