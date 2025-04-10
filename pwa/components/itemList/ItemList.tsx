@@ -49,6 +49,11 @@ const ItemList = <T,>({
                     </div>
                 ))}
             </div>
+            {items.length === 0 && (
+                <div className={`${styles.listItem} ${styles.noResults}`}>
+                    No items available
+                </div>
+            )}
             {items.map((item, index) => (
                 <div
                     className={`${styles.listItem} ${itemClassName}`}
