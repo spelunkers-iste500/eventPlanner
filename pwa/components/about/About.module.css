@@ -1,0 +1,51 @@
+.aboutPage {
+    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.blurb {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.teamTitle {
+    font-size: 1.8rem;
+    color: #444;
+    margin-bottom: 30px;
+}
+
+.teamSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.teamMember {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.name {
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.info {
+    color: #555;
+    flex: 1;
+}
