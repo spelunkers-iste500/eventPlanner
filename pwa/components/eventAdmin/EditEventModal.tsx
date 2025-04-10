@@ -226,10 +226,10 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                             items={event?.flights || []}
                             fields={[
                                 {
-                                    key: "id",
-                                    label: "Flight Number",
-                                    valueFn: (flight) =>
-                                        flight.id.split("-").pop(),
+                                    key: "bookingReference",
+                                    label: "Booking Reference",
+                                    // valueFn: (flight) =>
+                                    //     flight.id.split("-").pop(),
                                 },
                                 { key: "flightCost", label: "Flight Cost" },
                                 { key: "approvalStatus", label: "Status" },

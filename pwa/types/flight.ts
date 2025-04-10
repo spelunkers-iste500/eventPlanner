@@ -40,6 +40,8 @@ export class Flight {
         this.returnDateTime = (
             data.returnDateTime ? data.returnDateTime : undefined
         ) as string;
+        this.duffelOrderID = data.duffelOrderID;
+        this.bookingReference = data.bookingReference;
         this.flightNumber = data.flightNumber;
         this.flightCost = data.flightCost;
         this.approvalStatus = data.approvalStatus;
