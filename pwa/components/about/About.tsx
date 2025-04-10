@@ -9,9 +9,9 @@ type TeamMember = {
 
 const teamMembers: TeamMember[] = [
     { name: "Casey Malley", info: "Project Manager" },
-    { name: "Gavin Hunsinger", info: "Vice Project Manager" },
-    { name: "Ethan Logue", info: "Front End Developer" },
-    { name: "Steffen Barr", info: "Front End Developer" },
+    { name: "Gavin Hunsinger", info: "Backend Developer" },
+    { name: "Ethan Logue", info: "Frontend Developer" },
+    { name: "Steffen Barr", info: "Frontend Developer" },
     { name: "Eddie Brotz", info: "Quality Assurance" },
     { name: "George Gabro", info: "Database Administrator" },
     { name: "Noelle Voelkel", info: "Developer" },
