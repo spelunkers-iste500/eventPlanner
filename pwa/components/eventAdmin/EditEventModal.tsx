@@ -5,6 +5,7 @@ import {
     Button,
     Tabs,
     Switch,
+    Box,
 } from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X, Calendar, Info, Users, Plane } from "lucide-react";
@@ -130,84 +131,94 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                         className={`${styles.eventDialog} ${styles.isEditing}`}
                         value="info"
                     >
-                        {/* Event Title */}
-                        <Input
-                            label="Event Title"
-                            defaultValue={eventTitle}
-                            onChange={(value) => setEventTitle(value)}
-                        />
-
-                        {/* Event Location */}
-                        <Input
-                            label="Location"
-                            defaultValue={location}
-                            onChange={(value) => setLocation(value)}
-                        />
-
-                        {/* Event Max Attendees */}
-                        <Input
-                            label="Max Attendees"
-                            type="number"
-                            defaultValue={`${maxAttendee}`}
-                            onChange={(value) => setMaxAttendee(Number(value))}
-                        />
-
-                        {/* Multi-Day Event Selector */}
-                        <Switch.Root checked={multiDay}>
-                            <Switch.HiddenInput
-                                onChange={(e) => setMultiDay(e.target.checked)}
+                        <Box p={4} borderWidth="1px" borderRadius="md">
+                            {/* Event Title */}
+                            <Input
+                                label="Event Title"
+                                defaultValue={eventTitle}
+                                onChange={(value) => setEventTitle(value)}
                             />
-                            <Switch.Label>Multi-Day Event?</Switch.Label>
-                            <Switch.Control />
-                        </Switch.Root>
 
-                        <div className="input-container">
-                            <label className="input-label">Event Dates</label>
-                            {/* Conditionally render the date range picker */}
-                            {multiDay ? (
-                                <DatePicker
-                                    selected={startDate}
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    minDate={new Date()}
-                                    onChange={(dates) => {
-                                        const [start, end] = dates;
-                                        setStartDate(start);
-                                        setEndDate(end);
-                                    }}
-                                    selectsRange
-                                    showMonthDropdown
-                                    placeholderText="Select date range"
-                                    dateFormat="MM/dd/yyyy"
-                                    className="input-field"
-                                    showIcon
-                                    icon={<Calendar size={32} />}
-                                />
-                            ) : (
-                                <DatePicker
-                                    selected={startDate}
-                                    startDate={startDate}
-                                    minDate={new Date()}
-                                    onChange={(date) => {
-                                        setStartDate(date);
-                                        setEndDate(date); // For single day, end date is the same as start date
-                                    }}
-                                    showMonthDropdown
-                                    showTimeSelect
-                                    placeholderText="Select a date"
-                                    dateFormat="MM/dd/yyyy h:mm aa"
-                                    className="input-field"
-                                    showIcon
-                                    icon={<Calendar size={32} />}
-                                />
-                            )}
-                        </div>
+                            {/* Event Location */}
+                            <Input
+                                label="Location"
+                                defaultValue={location}
+                                onChange={(value) => setLocation(value)}
+                            />
 
-                        <div
-                            className={`input-container ${styles.dialogSubmitBtn}`}
-                        >
-                            <Button onClick={handleSubmit}>Update Event</Button>
-                        </div>
+                            {/* Event Max Attendees */}
+                            <Input
+                                label="Max Attendees"
+                                type="number"
+                                defaultValue={`${maxAttendee}`}
+                                onChange={(value) =>
+                                    setMaxAttendee(Number(value))
+                                }
+                            />
+
+                            {/* Multi-Day Event Selector */}
+                            <Switch.Root checked={multiDay}>
+                                <Switch.HiddenInput
+                                    onChange={(e) =>
+                                        setMultiDay(e.target.checked)
+                                    }
+                                />
+                                <Switch.Label>Multi-Day Event?</Switch.Label>
+                                <Switch.Control />
+                            </Switch.Root>
+
+                            <div className="input-container">
+                                <label className="input-label">
+                                    Event Dates
+                                </label>
+                                {/* Conditionally render the date range picker */}
+                                {multiDay ? (
+                                    <DatePicker
+                                        selected={startDate}
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        minDate={new Date()}
+                                        onChange={(dates) => {
+                                            const [start, end] = dates;
+                                            setStartDate(start);
+                                            setEndDate(end);
+                                        }}
+                                        selectsRange
+                                        showMonthDropdown
+                                        placeholderText="Select date range"
+                                        dateFormat="MM/dd/yyyy"
+                                        className="input-field"
+                                        showIcon
+                                        icon={<Calendar size={32} />}
+                                    />
+                                ) : (
+                                    <DatePicker
+                                        selected={startDate}
+                                        startDate={startDate}
+                                        minDate={new Date()}
+                                        onChange={(date) => {
+                                            setStartDate(date);
+                                            setEndDate(date); // For single day, end date is the same as start date
+                                        }}
+                                        showMonthDropdown
+                                        showTimeSelect
+                                        placeholderText="Select a date"
+                                        dateFormat="MM/dd/yyyy h:mm aa"
+                                        className="input-field"
+                                        showIcon
+                                        icon={<Calendar size={32} />}
+                                    />
+                                )}
+                            </div>
+
+                            <div
+                                className={`input-container ${styles.dialogSubmitBtn}`}
+                            >
+                                <Button onClick={handleSubmit}>
+                                    Update Event
+                                </Button>
+                            </div>
+                        </Box>
                     </Tabs.Content>
 
                     <Tabs.Content
@@ -221,26 +232,29 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     </Tabs.Content>
 
                     <Tabs.Content value="flights">
-                        {/* Add flight tracking in here */}
-                        <ItemList<Flight>
-                            items={event?.flights || []}
-                            fields={[
-                                {
-                                    key: "bookingReference",
-                                    label: "Booking Reference",
-                                    // valueFn: (flight) =>
-                                    //     flight.id.split("-").pop(),
-                                },
-                                { key: "flightCost", label: "Flight Cost" },
-                                { key: "approvalStatus", label: "Status" },
-                            ]}
-                            renderItem={(flight) => handleApprovalOpen(flight)}
-                        />
-                        <FlightApproval
-                            flight={selectedFlight}
-                            isOpen={isApprovalOpen}
-                            onClose={handleApprovalClose}
-                        />
+                        <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
+                            <ItemList<Flight>
+                                items={event?.flights || []}
+                                fields={[
+                                    {
+                                        key: "bookingReference",
+                                        label: "Booking Reference",
+                                        // valueFn: (flight) =>
+                                        //     flight.id.split("-").pop(),
+                                    },
+                                    { key: "flightCost", label: "Flight Cost" },
+                                    { key: "approvalStatus", label: "Status" },
+                                ]}
+                                renderItem={(flight) =>
+                                    handleApprovalOpen(flight)
+                                }
+                            />
+                            <FlightApproval
+                                flight={selectedFlight}
+                                isOpen={isApprovalOpen}
+                                onClose={handleApprovalClose}
+                            />
+                        </Box>
                     </Tabs.Content>
                 </Tabs.Root>
             </DialogBody>

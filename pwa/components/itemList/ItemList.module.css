@@ -38,7 +38,7 @@
     border-radius: 0 0 0.5rem 0.5rem;
 }
 
-.list-item:hover {
+.list-item:hover:not(.no-results) {
     background-color: var(--blue-300);
 }
 
@@ -49,6 +49,11 @@
 
 .list-item-field:first-child {
     text-align: left;
+}
+
+.no-results {
+	font-style: italic;
+	color: var(--gray-400);
 }
 
 @media (max-width: 600px) {
