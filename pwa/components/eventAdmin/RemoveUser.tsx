@@ -58,6 +58,18 @@ const RemoveUser: React.FC<RemoveUserProps> = ({
                         });
                         onClose();
                     });
+            } else {
+                createdEvent.attendees = createdEvent.attendees.filter(
+                    (event) => event.email !== userEvent.email
+                );
+                toaster.create({
+                    title: "User Removed",
+                    description:
+                        "Selected user has been removed from the event.",
+                    type: "success",
+                    duration: 5000,
+                });
+                onClose();
             }
         }
     };

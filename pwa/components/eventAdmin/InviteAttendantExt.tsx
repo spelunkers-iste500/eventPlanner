@@ -263,19 +263,17 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     </Button>
                 </Flex>
 
-                {isEditing && (
-                    <ItemList<UserEvent>
-                        items={createdEvent?.attendees || []}
-                        fields={[
-                            {
-                                key: "email",
-                                label: "Invited Email",
-                            },
-                            { key: "status", label: "Invite Status" },
-                        ]}
-                        renderItem={(userEvent) => handleConfirmOpen(userEvent)}
-                    />
-                )}
+                <ItemList<UserEvent>
+                    items={createdEvent?.attendees || []}
+                    fields={[
+                        {
+                            key: "email",
+                            label: "Invited Email",
+                        },
+                        { key: "status", label: "Invite Status" },
+                    ]}
+                    renderItem={(userEvent) => handleConfirmOpen(userEvent)}
+                />
 
                 {isEditing && (
                     <div

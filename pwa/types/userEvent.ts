@@ -28,7 +28,7 @@ export class UserEvent {
     async persist(apiToken: string) {
         try {
             const response = await axios.patch(
-                `/user_event/${this.id}`,
+                `/user_events/${this.id}`,
                 {
                     status: this.status,
                 },
