@@ -140,7 +140,7 @@ use Zenstruck\Foundry\Test\ResetDatabase;
         $this->assertResponseIsSuccessful();
         $this->assertJsonContains([
             '@id' => $flightIri,
-            'flightCost' => 10000,
+            'flightCost' => 100,
             'departureDateTime' => '2023-10-01T10:00:00+00:00',
             'arrivalDateTime' => '2023-10-01T12:00:00+00:00',
             'departureLocation' => 'New York',
