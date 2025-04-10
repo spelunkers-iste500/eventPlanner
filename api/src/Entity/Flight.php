@@ -59,7 +59,7 @@ class Flight
 
     public function getFlightCost(): int
     {
-        return $this->flightCost;
+        return $this->flightCost/100;
     }
 
     public function setFlightCost(int $flightCost): self
@@ -208,14 +208,14 @@ class Flight
         'read:event:collection',
         'read:flight'
     ])]
-    private ?string $bookingRefernce = null;
-    public function getBookingRefernce(): ?string
+    private ?string $bookingReference = null;
+    public function getbookingReference(): ?string
     {
-        return $this->bookingRefernce;
+        return $this->bookingReference;
     }
-    public function setBookingRefernce(string $bookingRefernce): self
+    public function setbookingReference(string $bookingReference): self
     {
-        $this->bookingRefernce = $bookingRefernce;
+        $this->bookingReference = $bookingReference;
         return $this;
     }
 

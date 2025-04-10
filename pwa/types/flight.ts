@@ -40,11 +40,13 @@ export class Flight {
         this.returnDateTime = (
             data.returnDateTime ? data.returnDateTime : undefined
         ) as string;
+        this.duffelOrderID = data.duffelOrderID;
+        this.bookingReference = data.bookingReference;
         this.flightNumber = data.flightNumber;
         this.flightCost = data.flightCost;
         this.approvalStatus = data.approvalStatus;
-        this.user = new User(data.user.split("/").pop()!); // pop returns the last element of the array, which is the UUID
-        this.event = new Event(data.event.split("/").pop()!); // pop returns the last element of the array, which is the UUID
+        this.user = new User(data.user["@id"].split("/").pop()!); // pop returns the last element of the array, which is the UUID
+        this.user.email = data.user.email;
     }
     /**
      *

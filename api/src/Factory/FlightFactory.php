@@ -15,9 +15,7 @@ final class FlightFactory extends PersistentProxyObjectFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public static function class(): string
     {
@@ -38,7 +36,7 @@ final class FlightFactory extends PersistentProxyObjectFactory
             'departureLocation' => self::faker()->city(), // Nullable departure location
             'arrivalLocation' => self::faker()->city(), // Nullable arrival location
             'duffelOrderID' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable flight number,
-            'bookingRefernce' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable booking reference
+            'bookingReference' => self::faker()->regexify('[A-Z]{2}[0-9]{3,4}'), // Nullable booking reference
         ];
     }
 

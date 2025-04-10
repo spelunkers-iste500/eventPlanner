@@ -81,6 +81,8 @@ export class UserEvent {
             return response.data["hydra:member"].map((userEvent: any) => {
                 const userEventInstance = new UserEvent(userEvent.id);
                 userEventInstance.event = new Event(userEvent.event.id);
+                userEventInstance.event.maxAttendees =
+                    userEvent.event.maxAttendees;
                 const organization = new Organization(
                     userEvent.event.organization.id
                 );
