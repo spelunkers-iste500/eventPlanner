@@ -8,6 +8,9 @@ import {
     Input,
     CloseButton,
     InputGroup,
+    DialogBody,
+    DialogHeader,
+    DialogTitle,
 } from "@chakra-ui/react";
 import { X } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -20,6 +23,9 @@ import { toaster } from "Components/ui/toaster";
 import { setDefaultResultOrder } from "dns";
 import { set } from "date-fns";
 import { UserEvent } from "Types/userEvent";
+import ItemList from "Components/itemList/ItemList";
+import BaseDialog from "Components/common/BaseDialog";
+import RemoveUser from "./RemoveUser";
 
 interface InviteAttendantExtProps {
     createdEvent: Event | null;
@@ -34,6 +40,9 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     const [error, setError] = useState("");
     const [emails, setEmails] = useState<string[]>([]);
     const [deletedEmails, setDeletedEmails] = useState<string[]>([]);
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [selectedUserEvent, setSelectedUserEvent] =
+        useState<UserEvent | null>(null);
     const { data: session } = useSession();
     const { setContent } = useContent();
 
@@ -90,45 +99,19 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         return validEmails;
     };
 
-    const inviteSuccess = () => {
-        setContent(<Dashboard />, "Dashboard");
-        toaster.create({
-            title: "Invites Sent",
-            description: "Selected attendants have been invited.",
-            type: "success",
-            duration: 5000,
-        });
-    };
-
     useEffect(() => {
-        // grab attendee list if event already exits
-        if (createdEvent) {
-            console.log("Attendees loaded:", createdEvent.attendees);
+        // if not editing, submit the invites
+        console.log("Attendees loaded:", createdEvent?.attendees);
+        if (createdEvent && !isEditing) {
             setEmails(
                 createdEvent.attendees
                     ?.map((attendee) => attendee.user.email)
                     .filter((email): email is string => email !== undefined) ||
                     []
             );
-            !isEditing && handleSubmit(); // if not editing, submit the invites
+            handleSubmit();
         }
     }, [createdEvent]);
-
-    const handleSave = () => {
-        // update UserEvent for person to be cancelled
-        if (createdEvent && session?.apiToken) {
-            deletedEmails.forEach((email) => {
-                // get the UserEvent associated with the email
-                const userEvent = createdEvent.attendees?.find(
-                    (attendee) => attendee.user.email === email
-                );
-                if (userEvent) {
-                    userEvent.status = "cancelled";
-                }
-            });
-            createdEvent.persist(session.apiToken); // persist the change
-        }
-    };
 
     const handleSubmit = () => {
         console.info("Submitted emails:", emails);
@@ -163,9 +146,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                             },
                         }
                     )
-                    .then((response) => {
-                        console.log("Invite sent:", response.data);
-                        inviteSuccess();
+                    .then(() => {
+                        toaster.create({
+                            title: "Invites Sent",
+                            description:
+                                "Selected attendants have been invited.",
+                            type: "success",
+                            duration: 5000,
+                        });
                     })
                     .catch((error) => {
                         console.error("Error sending invite:", error);
@@ -174,88 +162,115 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     };
 
+    const handleConfirmOpen = (userEvent: UserEvent) => {
+        setIsConfirmOpen(true);
+        setSelectedUserEvent(userEvent);
+    };
+
+    const handleConfirmClose = () => {
+        setIsConfirmOpen(false);
+        setSelectedUserEvent(null);
+    };
+
     return (
-        <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
-            {/* Top buttons: CSV Import and Submit */}
-            <Flex justifyContent="space-between" mb={4}>
-                <FileUpload.Root
-                    className={styles.fileUpload}
-                    gap="1"
-                    maxWidth="300px"
-                    maxFiles={1}
-                >
-                    <FileUpload.HiddenInput
-                        onChange={handleCSVImport}
-                        accept=".csv"
-                    />
-                    <InputGroup startElement={<LuFileUp />}>
-                        <Input asChild>
-                            <FileUpload.Trigger
-                                className={styles.fileUploadTrigger}
-                                asChild
-                            >
-                                <button>Upload CSV</button>
-                            </FileUpload.Trigger>
-                        </Input>
-                    </InputGroup>
-                </FileUpload.Root>
-            </Flex>
-
-            {/* Input field and Add button for manual entry */}
-            {error && (
-                <div className="error-msg">
-                    <p>{error}</p>
-                </div>
-            )}
-            <Flex mb={4} alignItems="end">
-                <div className={`input-container`}>
-                    <label className="input-label">
-                        Attendant's Email Address
-                    </label>
-                    <input
-                        className="input-field"
-                        type="text"
-                        value={emailInput}
-                        onChange={(e) => setEmailInput(e.target.value)}
-                        placeholder="Enter email address"
-                    />
-                </div>
-                <Button ml={2} onClick={handleAddEmail}>
-                    Add
-                </Button>
-            </Flex>
-
-            {/* Display list of added emails with delete button */}
-            <Box maxH="20vh" overflowY="auto">
-                {emails.map((email, index) => (
-                    <Flex
-                        key={index}
-                        alignItems="center"
-                        mb={2}
-                        borderWidth="1px"
-                        p={2}
-                        borderRadius="md"
+        <>
+            <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
+                {/* Top buttons: CSV Import and Submit */}
+                <Flex justifyContent="space-between" mb={4}>
+                    <FileUpload.Root
+                        className={styles.fileUpload}
+                        gap="1"
+                        maxWidth="300px"
+                        maxFiles={1}
                     >
-                        <Box flex="1">{email}</Box>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteEmail(email)}
-                        >
-                            <X size={16} />
-                        </Button>
-                    </Flex>
-                ))}
-            </Box>
-            {isEditing && (
-                <div className={`input-container ${styles.dialogSubmitBtn}`}>
-                    <Button className="outline-btn" onClick={handleSave}>
-                        Save
+                        <FileUpload.HiddenInput
+                            onChange={handleCSVImport}
+                            accept=".csv"
+                        />
+                        <InputGroup startElement={<LuFileUp />}>
+                            <Input asChild>
+                                <FileUpload.Trigger
+                                    className={styles.fileUploadTrigger}
+                                    asChild
+                                >
+                                    <button>Upload CSV</button>
+                                </FileUpload.Trigger>
+                            </Input>
+                        </InputGroup>
+                    </FileUpload.Root>
+                </Flex>
+
+                {/* Input field and Add button for manual entry */}
+                {error && <p className="error-msg">{error}</p>}
+                <Flex mb={4} alignItems="end">
+                    <div className={`input-container`}>
+                        <label className="input-label">
+                            Attendant's Email Address
+                        </label>
+                        <input
+                            className="input-field"
+                            type="text"
+                            value={emailInput}
+                            onChange={(e) => setEmailInput(e.target.value)}
+                            placeholder="Enter email address"
+                        />
+                    </div>
+                    <Button ml={2} onClick={handleAddEmail}>
+                        Add
                     </Button>
-                    <Button onClick={handleSubmit}>Send Invites</Button>
-                </div>
-            )}
-        </Box>
+                </Flex>
+
+                {/* Display list of added emails with delete button */}
+                <Box maxH="20vh" overflowY="auto">
+                    {emails.map((email, index) => (
+                        <Flex
+                            key={index}
+                            alignItems="center"
+                            mb={2}
+                            borderWidth="1px"
+                            p={2}
+                            borderRadius="md"
+                        >
+                            <Box flex="1">{email}</Box>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteEmail(email)}
+                            >
+                                <X size={16} />
+                            </Button>
+                        </Flex>
+                    ))}
+                </Box>
+
+                <ItemList<UserEvent>
+                    items={createdEvent?.attendees || []}
+                    fields={[
+                        {
+                            key: "user.email",
+                            label: "Invited Email",
+                        },
+                        { key: "status", label: "Invite Status" },
+                    ]}
+                    renderItem={(userEvent) => handleConfirmOpen(userEvent)}
+                />
+
+                {isEditing && (
+                    <div
+                        className={`input-container ${styles.dialogSubmitBtn}`}
+                    >
+                        <Button onClick={handleSubmit}>Send Invites</Button>
+                    </div>
+                )}
+            </Box>
+
+            <RemoveUser
+                isOpen={isConfirmOpen}
+                onClose={handleConfirmClose}
+                userEvent={selectedUserEvent}
+                createdEvent={createdEvent}
+            />
+        </>
     );
 };
 
