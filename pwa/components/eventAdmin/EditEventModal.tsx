@@ -232,7 +232,7 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     </Tabs.Content>
 
                     <Tabs.Content value="flights">
-                        <Box p={4} borderWidth="1px" borderRadius="md">
+                        <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
                             <ItemList<Flight>
                                 items={event?.flights || []}
                                 fields={[
