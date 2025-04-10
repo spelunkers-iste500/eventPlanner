@@ -65,11 +65,11 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
                 } else {
                     const budget = new Budget();
                     budget.perUserTotal = perUserTotal;
-                    budget.overage = overage; // change to total overage
+                    budget.overage = overage;
                     budget.event = event;
                     budget.organization = user.financeAdminOfOrg[0];
                     await budget.persist(session.apiToken);
-                    event.budget = budget; // Update the budget in the event object
+                    event.budget = budget;
                     event.status = "approved";
                     await event.persist(session.apiToken);
                     toaster.create({
