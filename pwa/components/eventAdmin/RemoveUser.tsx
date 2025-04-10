@@ -31,15 +31,46 @@ const RemoveUser: React.FC<RemoveUserProps> = ({
     const handleSubmit = () => {
         if (userEvent && createdEvent && session?.apiToken) {
             console.log("Removing user event:", userEvent);
-            userEvent.status = "cancelled";
-            createdEvent.persist(session.apiToken);
-            toaster.create({
-                title: "User Removed",
-                description: "Selected user has been removed from the event.",
-                type: "success",
-                duration: 5000,
-            });
-            onClose();
+            if (userEvent.status !== "Not Sent") {
+                userEvent.status = "cancelled";
+                userEvent
+                    .persist(session.apiToken)
+                    .then(() => {
+                        createdEvent.attendees = createdEvent.attendees.filter(
+                            (event) => event.email !== userEvent.email
+                        );
+                        toaster.create({
+                            title: "User Removed",
+                            description:
+                                "Selected user has been removed from the event.",
+                            type: "success",
+                            duration: 5000,
+                        });
+                        onClose();
+                    })
+                    .catch((error) => {
+                        console.error("Error removing user event:", error);
+                        toaster.create({
+                            title: "Error",
+                            description: "Failed to remove user from event.",
+                            type: "error",
+                            duration: 5000,
+                        });
+                        onClose();
+                    });
+            } else {
+                createdEvent.attendees = createdEvent.attendees.filter(
+                    (event) => event.email !== userEvent.email
+                );
+                toaster.create({
+                    title: "User Removed",
+                    description:
+                        "Selected user has been removed from the event.",
+                    type: "success",
+                    duration: 5000,
+                });
+                onClose();
+            }
         }
     };
 
@@ -57,7 +88,7 @@ const RemoveUser: React.FC<RemoveUserProps> = ({
                 >
                     <p>
                         Are you sure you want to remove{" "}
-                        <strong>{userEvent?.user.email}</strong> from the event?
+                        <strong>{userEvent?.email}</strong> from the event?
                     </p>
                     <div
                         className={`input-container ${styles.dialogSubmitBtn}`}

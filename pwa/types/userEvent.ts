@@ -25,6 +25,26 @@ export class UserEvent {
         }
     }
 
+    async persist(apiToken: string) {
+        try {
+            const response = await axios.patch(
+                `/user_events/${this.id}`,
+                {
+                    status: this.status,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        "Content-Type": "application/merge-patch+json",
+                    },
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Error persisting user event data:", error);
+        }
+    }
+
     async fetch(apiToken: string) {
         try {
             const response = await axios.get(`/user_event/${this.id}`, {
