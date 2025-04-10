@@ -45,7 +45,6 @@ export class Flight {
         this.approvalStatus = data.approvalStatus;
         this.user = new User(data.user["@id"].split("/").pop()!); // pop returns the last element of the array, which is the UUID
         this.user.email = data.user.email;
-        this.event = new Event(data.event.split("/").pop()!); // pop returns the last element of the array, which is the UUID
     }
     /**
      *
