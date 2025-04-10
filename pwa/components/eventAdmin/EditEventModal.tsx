@@ -235,9 +235,16 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                         <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
                             <ItemList<Flight>
                                 items={
-                                    event?.attendees.map(
-                                        (userEvent) => userEvent.flight
-                                    ) || []
+                                    event?.attendees
+                                        .filter((userEvent) => {
+                                            return (
+                                                userEvent.flight &&
+                                                userEvent.flight.id !==
+                                                    "notPersisted"
+                                            );
+                                        })
+                                        .map((userEvent) => userEvent.flight) ||
+                                    []
                                 }
                                 fields={[
                                     {
