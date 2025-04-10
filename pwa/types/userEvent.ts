@@ -106,8 +106,11 @@ export class UserEvent {
                         userEvent.event.budget.perUserTotal;
                 }
                 userEventInstance.user = new User(userEvent.user.id);
-                userEventInstance.flights = userEvent.flights.map(
-                    (flight: any) => {
+                userEventInstance.flights = userEvent.flights
+                    .filter(
+                        (flight: any) => flight.event.id == userEvent.event.id
+                    )
+                    .map((flight: any) => {
                         const flightInstance = new Flight(flight.id);
                         flightInstance.setDepartureDateTime(
                             flight.departureDateTime
@@ -122,8 +125,7 @@ export class UserEvent {
                             flight.arrivalLocation
                         );
                         return flightInstance;
-                    }
-                );
+                    });
                 userEventInstance.status = userEvent.status;
                 return userEventInstance;
             });
