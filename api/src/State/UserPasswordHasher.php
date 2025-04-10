@@ -12,6 +12,7 @@ use App\Entity\UserEvent;
 use App\Repository\EventRepository;
 use App\Repository\OrganizationInviteRepository;
 use App\Repository\UserEventRepository;
+use Psr\Log\LoggerInterface;
 
 /**
  * @implements ProcessorInterface<User, User|void>
@@ -25,7 +26,8 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         private UserEventRepository $userEventRepository,
         private OrganizationInviteState $orgInviteState,
         private OrganizationInviteRepository $orgInviteRepository,
-        private EventRepository $eventRepository
+        private EventRepository $eventRepository,
+        private LoggerInterface $logger
     ) {}
 
     /**
@@ -50,7 +52,7 @@ final readonly class UserPasswordHasher implements ProcessorInterface
         $inviteCode = $data->getEventCode();
         // get optional event code
         $orgInvite = $data->getUserOrgInviteId();
-        $orgInviteObject = $this->orgInviteRepository->findOneBy(['id' => $orgInvite]);
+        $orgInviteObject = $this->orgInviteRepository->findOneBy(['id' => $orgInvite]); // doesn't get found
         if ($orgInvite && $orgInviteObject) {
             // check to see if orgInvite is in the allowedOrganizationInvites
             if ($orgInviteObject->getExpectedEmail() === $data->getEmail()) {
