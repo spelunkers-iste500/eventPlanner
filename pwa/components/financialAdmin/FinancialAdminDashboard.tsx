@@ -83,9 +83,9 @@ const FinancialAdminDashboard: React.FC = () => {
                             const spentBudget = orgEvents.reduce(
                                 (acc, event) =>
                                     acc +
-                                    (event.flights?.reduce(
-                                        (acc, flight) =>
-                                            acc + flight.flightCost,
+                                    (event.attendees?.reduce(
+                                        (acc, attendee) =>
+                                            acc + attendee.flight.flightCost,
                                         0
                                     ) || 0),
                                 0

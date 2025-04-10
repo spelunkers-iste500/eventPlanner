@@ -106,7 +106,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             console.log("Attendees loaded:", createdEvent.attendees);
             setEmails(
                 createdEvent.attendees
-                    ?.map((attendee) => attendee.user.email)
+                    ?.map((attendee) => attendee.email)
                     .filter((email): email is string => email !== undefined) ||
                     []
             );
@@ -120,7 +120,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             deletedEmails.forEach((email) => {
                 // get the UserEvent associated with the email
                 const userEvent = createdEvent.attendees?.find(
-                    (attendee) => attendee.user.email === email
+                    (attendee) => attendee.email === email
                 );
                 if (userEvent) {
                     userEvent.status = "cancelled";
