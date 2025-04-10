@@ -89,11 +89,11 @@ const Nav: React.FC = () => {
         });
     }
     navLinks.push(
-        {
-            name: "Preferences",
-            content: <Preferences />,
-            icon: <Settings2 size={28} />,
-        },
+        // {
+        //     name: "Preferences",
+        //     content: <Preferences />,
+        //     icon: <Settings2 size={28} />,
+        // },
         {
             name: "About Us",
             content: <About />,
