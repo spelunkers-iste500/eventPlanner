@@ -85,25 +85,27 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         const csvRows = [];
 
         csvRows.push(
-            "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight IDs,Flight Costs"
+            "Event Title,Max Attendees,Per User Total,Overage,Total Budget,Flight ID,Flight Cost"
         );
 
         const totalBudget =
             (item.budget?.perUserTotal || 0) * (item.maxAttendees || 0);
 
-        const flightIds = item.flights.map((flight) => flight.id).join(" | ");
-        const flightCosts =
-            item.flights
-                ?.map((flight) => (flight.flightCost || 0).toFixed(2))
-                .join(" | ") || "0.00";
-
         csvRows.push(
             `"${item.eventTitle || ""}","${item.maxAttendees || 0}","${
                 item.budget?.perUserTotal || 0
-            }","${
-                item.budget?.overage || 0
-            }","${totalBudget}","${flightIds}","${flightCosts}"`
+            }","${item.budget?.overage || 0}","${totalBudget}","",""`
         );
+
+        item.attendees.forEach((attendee) => {
+            if (attendee.flight) {
+                csvRows.push(
+                    `,,,,,"${attendee.flight.id || ""}","${(
+                        attendee.flight.flightCost || 0
+                    ).toFixed(2)}"`
+                );
+            }
+        });
 
         const csvString = csvRows.join("\n");
         const blob = new Blob([csvString], { type: "text/csv" });

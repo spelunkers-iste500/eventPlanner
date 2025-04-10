@@ -1,12 +1,10 @@
 import axios from "axios";
-import { User } from "./user";
-import { Event } from "./event";
+import { UserEvent } from "./userEvent";
 
 export class Flight {
     id: string;
     flightCost: number = 0;
-    event?: Event;
-    user?: User;
+    userEvent?: UserEvent;
     departureLocation?: string;
     arrivalLocation?: string;
     departureDateTime?: string;
@@ -20,7 +18,7 @@ export class Flight {
      * @param id the flights UUID
      * @param apiToken the api token to use for authentication
      */
-    constructor(id: string, apiToken: string = "") {
+    constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         if (apiToken !== "") {
             // Fetch the flight data from the API
@@ -40,11 +38,12 @@ export class Flight {
         this.returnDateTime = (
             data.returnDateTime ? data.returnDateTime : undefined
         ) as string;
+        this.duffelOrderID = data.duffelOrderID;
+        this.bookingReference = data.bookingReference;
         this.flightNumber = data.flightNumber;
         this.flightCost = data.flightCost;
         this.approvalStatus = data.approvalStatus;
-        this.user = new User(data.user.split("/").pop()!); // pop returns the last element of the array, which is the UUID
-        this.event = new Event(data.event.split("/").pop()!); // pop returns the last element of the array, which is the UUID
+        this.userEvent = new UserEvent(data.userEvent.id); // pop returns the last element of the array, which is the UUID
     }
     /**
      *
@@ -60,7 +59,10 @@ export class Flight {
                     approvalStatus: this.approvalStatus,
                 },
                 {
-                    headers: { Authorization: `Bearer ${apiToken}` },
+                    headers: {
+                        Authorization: `Bearer ${apiToken}`,
+                        "Content-Type": "application/merge-patch+json",
+                    },
                 }
             );
         } catch (error) {
@@ -81,12 +83,8 @@ export class Flight {
         this.flightCost = value;
     }
 
-    setEvent(value: Event | undefined) {
-        this.event = value;
-    }
-
-    setUser(value: User | undefined) {
-        this.user = value;
+    setUserEvent(value: UserEvent | undefined) {
+        this.userEvent = value;
     }
 
     setDepartureLocation(value: string | undefined) {

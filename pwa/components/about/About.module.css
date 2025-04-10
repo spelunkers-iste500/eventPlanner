@@ -1,0 +1,55 @@
+.about-page {
+    text-align: center;
+    padding: 20px;
+}
+
+.title {
+    /* color: #333; */
+    margin-bottom: 1rem;
+}
+
+.blurb {
+    /* color: #666; */
+    margin-bottom: 1rem;
+}
+
+.team-title {
+    /* color: #444; */
+    margin-bottom: 0.5rem;
+}
+
+.team-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.team-member {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 10px;
+    border: 1px solid var(--gray-200);
+    border-radius: 5px;
+    background-color: var(--gray-100);
+}
+
+.name {
+    font-weight: bold;
+    color: #333;
+    flex: 1;
+}
+
+.info {
+    color: #555;
+    flex: 1;
+}
+
+@media (max-width: 480px) {
+    .team-member {
+        flex-direction: column;
+    }
+}

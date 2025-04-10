@@ -3,8 +3,8 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     z-index: 1000;
 
@@ -270,6 +270,7 @@
 .dialog-submit-btn {
 	justify-content: flex-end;
 	flex-direction: row;
+    align-items: center;
 }
 
 .is-editing .dialog-submit-btn {
@@ -303,11 +304,18 @@
 }
 
 .email-box {
-    flex: 1; /* Ensures the email takes up available space */
+    flex: 1;
     text-align: left;
 }
 
+.email-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
 .status-box {
-    text-align: right; /* Aligns the status to the right */
-    min-width: 100px; /* Optional: Ensures consistent spacing */
+    text-align: right;
+    min-width: 100px;
 }

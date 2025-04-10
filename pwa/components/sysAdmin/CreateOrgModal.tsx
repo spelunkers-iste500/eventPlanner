@@ -3,7 +3,7 @@ import BaseDialog from "Components/common/BaseDialog";
 import { toaster } from "Components/ui/toaster";
 import { X } from "lucide-react";
 import styles from "Components/common/Dialog.module.css";
-import { Switch } from "@chakra-ui/react";
+import { Switch, Button } from "@chakra-ui/react";
 import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
 import { useContent } from "Utils/ContentProvider";
 import axios from "axios";
@@ -72,12 +72,22 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
         setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
         toaster.create({
             title: "Organization Created",
-            description: "Your organization has been created successfully.",
+            description: "Your organization has been created.",
             type: "success",
             duration: 5000,
         });
         clearInputs();
         onClose();
+    };
+
+    const inviteSuccess = () => {
+        setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
+        toaster.create({
+            title: "Invitations Sent",
+            description: "All invitations have been sent.",
+            type: "success",
+            duration: 5000,
+        });
     };
 
     const handleSubmit = () => {
@@ -87,6 +97,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
             org.setDescription(description);
             org.setAddress(address);
             org.setIndustry(industry);
+            console.log(org);
             org.persist(session.apiToken)
                 .then(() => {
                     const invites = [
@@ -107,34 +118,36 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         })),
                     ];
 
-                    invites.forEach((invite) => {
-                        axios
-                            .post("/organizationInvite", invite, {
-                                headers: {
-                                    "Content-Type": "application/ld+json",
-                                    Authorization: `Bearer ${session.apiToken}`,
-                                },
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                                setContent(
-                                    <OrgAdminDashboard />,
-                                    "OrgAdminDashboard"
-                                );
-                                toaster.create({
-                                    title: "Error",
-                                    description: `Failed to send invite to ${invite.expectedEmail}`,
-                                    type: "error",
-                                    duration: 5000,
-                                });
+                    const invitePromises = invites.map((invite) =>
+                        axios.post("/organizationInvite", invite, {
+                            headers: {
+                                "Content-Type": "application/ld+json",
+                                Authorization: `Bearer ${session.apiToken}`,
+                            },
+                        })
+                    );
+
+                    Promise.all(invitePromises)
+                        .then(() => {
+                            inviteSuccess();
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                            toaster.create({
+                                title: "Error",
+                                description:
+                                    "Failed to send one or more invitations.",
+                                type: "error",
+                                duration: 5000,
                             });
-                    });
-                    clearInputs();
-                    createSuccess();
+                        })
+                        .finally(() => {
+                            clearInputs();
+                            createSuccess();
+                        });
                 })
                 .catch((err) => {
                     console.error(err);
-                    setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
                     toaster.create({
                         title: "Error",
                         description: "Failed to create organization.",
@@ -143,7 +156,6 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                     });
                 });
         } else {
-            setContent(<OrgAdminDashboard />, "OrgAdminDashboard");
             toaster.create({
                 title: "Error",
                 description: "Please fill in all fields.",
@@ -189,6 +201,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         onChange={(e) => setName(e.target.value)}
                         placeholder="Enter organization name"
                         className="input-field"
+                        maxLength={55}
                     />
                 </div>
                 <div className="input-container">
@@ -198,6 +211,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Enter organization description"
                         className="input-field"
+                        maxLength={255}
                     />
                 </div>
                 <div className="input-container">
@@ -208,6 +222,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="Enter organization address"
                         className="input-field"
+                        maxLength={255}
                     />
                 </div>
                 <div className="input-container">
@@ -218,6 +233,7 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         onChange={(e) => setIndustry(e.target.value)}
                         placeholder="Enter organization industry"
                         className="input-field"
+                        maxLength={55}
                     />
                 </div>
 
@@ -282,22 +298,24 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                         <div className={styles.emailList}>
                             {adminEmails.map((email, index) => (
                                 <div key={index} className={styles.emailItem}>
-                                    <span>{email} - Organization Admin</span>
-                                    <button
-                                        className={styles.dialogClose}
+                                    <span>{email} - Organization Admin </span>
+                                    <Button
+                                        variant="ghost"
+                                        size="2xs"
                                         onClick={() =>
                                             handleDeleteEmail(email, "admin")
                                         }
                                     >
-                                        X
-                                    </button>
+                                        <X size={16} />
+                                    </Button>
                                 </div>
                             ))}
                             {eventAdminEmails.map((email, index) => (
                                 <div key={index} className={styles.emailItem}>
-                                    <span>{email} - Event Admin</span>
-                                    <button
-                                        className={styles.dialogClose}
+                                    <span>{email} - Event Admin </span>
+                                    <Button
+                                        variant="ghost"
+                                        size="2xs"
                                         onClick={() =>
                                             handleDeleteEmail(
                                                 email,
@@ -305,15 +323,16 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                                             )
                                         }
                                     >
-                                        X
-                                    </button>
+                                        <X size={16} />
+                                    </Button>
                                 </div>
                             ))}
                             {financeAdminEmails.map((email, index) => (
                                 <div key={index} className={styles.emailItem}>
-                                    <span>{email} - Finance Admin</span>
-                                    <button
-                                        className={styles.dialogClose}
+                                    <span>{email} - Finance Admin </span>
+                                    <Button
+                                        variant="ghost"
+                                        size="2xs"
                                         onClick={() =>
                                             handleDeleteEmail(
                                                 email,
@@ -321,8 +340,8 @@ const CreateOrgModal: React.FC<CreateOrgModalProps> = ({ isOpen, onClose }) => {
                                             )
                                         }
                                     >
-                                        X
-                                    </button>
+                                        <X size={16} />
+                                    </Button>
                                 </div>
                             ))}
                         </div>

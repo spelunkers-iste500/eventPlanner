@@ -51,7 +51,7 @@ class OrganizationInviteState implements ProcessorInterface
                         ->html('<p>Placeholder text</p>');
                     break;
                 case 'financeAdmin':
-                    $data->getOrganization()->addFinanceAdmin($user);
+                    $data->getOrganization()->addFinanceAdmins($user);
                     // persist the organization, as well as the OrganizationInvite then send email notifying user
                     $this->changeLogger->process($data, $operation, $uriVariables, $context);
                     $this->userRepository->save($user, true);
@@ -68,7 +68,8 @@ class OrganizationInviteState implements ProcessorInterface
             // send email to user that they have been invited to the organization
             // as role, then persist the OrganizationInvite
             $this->processor->process($data, $operation, $uriVariables, $context);
-            $inviteLink = 'https://localhost/register?orgInviteId=' . $data->getId() . '&email=' . $data->getExpectedEmail();
+            $inviteLinkBase = ($_ENV['APP_ENV'] === 'dev') ? 'https://localhost/register' : 'https://staging.spelunkers.xeanto.us/register';
+            $inviteLink = $inviteLinkBase . '?orgInviteId=' . $data->getId() . '&email=' . $data->getExpectedEmail();
             $email = (new Email())
                 ->to($data->getExpectedEmail())
                 ->subject('You have been invited to join an organization')

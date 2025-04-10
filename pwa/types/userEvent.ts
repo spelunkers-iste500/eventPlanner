@@ -9,13 +9,14 @@ export class UserEvent {
     id: string;
     event: Event;
     user: User;
-    flights: Flight[];
+    flight: Flight;
     status: string = "";
+    email: string = "";
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         this.event = new Event();
         this.user = new User();
-        this.flights = [];
+        this.flight = new Flight();
         if (apiToken !== "" && id == "notPersisted") {
             throw new Error("Cannot fetch user event data without an ID");
         } else if (apiToken !== "" && id !== "notPersisted") {
@@ -41,9 +42,25 @@ export class UserEvent {
             this.event.setStartDateTime(response.data.event.startDateTime);
             this.event.setEndDateTime(response.data.event.endDateTime);
             this.user = new User(response.data.user.id);
-            this.flights = response.data.flights.map(
-                (flight: any) => new Flight(flight.id)
-            );
+            if (response.data.flight) {
+                this.flight.id = response.data.flight.id;
+                this.flight.setDepartureDateTime(
+                    response.data.flight.departureDateTime
+                );
+                this.flight.setArrivalDateTime(
+                    response.data.flight.arrivalDateTime
+                );
+                this.flight.setDepartureLocation(
+                    response.data.flight.departureLocation
+                );
+                this.flight.setArrivalLocation(
+                    response.data.flight.arrivalLocation
+                );
+                this.flight.setFlightNumber(response.data.flight.flightNumber);
+                this.flight.setApprovalStatus(
+                    response.data.flight.approvalStatus
+                );
+            }
             this.status = response.data.status;
         } catch (error) {
             console.error("Error fetching user event data:", error);
@@ -81,6 +98,8 @@ export class UserEvent {
             return response.data["hydra:member"].map((userEvent: any) => {
                 const userEventInstance = new UserEvent(userEvent.id);
                 userEventInstance.event = new Event(userEvent.event.id);
+                userEventInstance.event.maxAttendees =
+                    userEvent.event.maxAttendees;
                 const organization = new Organization(
                     userEvent.event.organization.id
                 );
@@ -96,6 +115,7 @@ export class UserEvent {
                 userEventInstance.event.setEventTitle(
                     userEvent.event.eventTitle
                 );
+                userEventInstance.setEmail(userEvent.email);
                 if (userEvent.event.budget) {
                     userEventInstance.event.budget = new Budget(
                         userEvent.event.budget.id
@@ -103,25 +123,30 @@ export class UserEvent {
                     userEventInstance.event.budget.perUserTotal =
                         userEvent.event.budget.perUserTotal;
                 }
-                userEventInstance.user = new User(userEvent.user.id);
-                userEventInstance.flights = userEvent.flights.map(
-                    (flight: any) => {
-                        const flightInstance = new Flight(flight.id);
-                        flightInstance.setDepartureDateTime(
-                            flight.departureDateTime
-                        );
-                        flightInstance.setArrivalDateTime(
-                            flight.arrivalDateTime
-                        );
-                        flightInstance.setDepartureLocation(
-                            flight.departureLocation
-                        );
-                        flightInstance.setArrivalLocation(
-                            flight.arrivalLocation
-                        );
-                        return flightInstance;
-                    }
-                );
+                if (userEvent.user) {
+                    userEventInstance.user = new User(userEvent.user.id);
+                }
+                if (userEvent.flight) {
+                    userEventInstance.flight.id = userEvent.flight.id;
+                    userEventInstance.flight.setDepartureDateTime(
+                        userEvent.flight.departureDateTime
+                    );
+                    userEventInstance.flight.setArrivalDateTime(
+                        userEvent.flight.arrivalDateTime
+                    );
+                    userEventInstance.flight.setDepartureLocation(
+                        userEvent.flight.departureLocation
+                    );
+                    userEventInstance.flight.setArrivalLocation(
+                        userEvent.flight.arrivalLocation
+                    );
+                    userEventInstance.flight.setFlightNumber(
+                        userEvent.flight.flightNumber
+                    );
+                    userEventInstance.flight.setApprovalStatus(
+                        userEvent.flight.approvalStatus
+                    );
+                }
                 userEventInstance.status = userEvent.status;
                 return userEventInstance;
             });
@@ -143,8 +168,8 @@ export class UserEvent {
         this.user = user;
     }
 
-    setFlights(flights: Flight[]) {
-        this.flights = flights;
+    setFlights(flight: Flight) {
+        this.flight = flight;
     }
     getEvent(): Event {
         if (!this.event) {
@@ -152,10 +177,13 @@ export class UserEvent {
         }
         return this.event;
     }
-    getFlights(): Flight[] {
-        if (!this.flights) {
-            throw new Error("Flights are not set");
+    getFlight(): Flight {
+        if (!this.flight) {
+            throw new Error("Flight is not set");
         }
-        return this.flights;
+        return this.flight;
+    }
+    setEmail(email: string) {
+        this.email = email;
     }
 }

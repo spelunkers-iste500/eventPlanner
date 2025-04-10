@@ -209,6 +209,7 @@ class Organization
     {
         if (!$this->eventadmins->contains($user)) {
             $this->eventadmins[] = $user;
+            $user->addEventAdminOfOrg($this);
         }
         return $this;
     }

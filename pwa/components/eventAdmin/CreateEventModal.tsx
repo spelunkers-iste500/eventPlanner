@@ -37,6 +37,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     const { user } = useUser();
     const { setContent } = useContent();
 
+    const [error, setError] = useState("");
     const [eventTitle, setEventTitle] = useState("");
     const [location, setLocation] = useState("");
     const [startDate, setStartDate] = useState<Date | null>(null);
@@ -79,6 +80,36 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
     };
 
     const handleSubmit = () => {
+        if (!eventTitle) {
+            setError("Please enter an event title.");
+            return;
+        }
+
+        if (!startDate) {
+            setError("Please select a start date.");
+            return;
+        }
+
+        if (!endDate && multiDay) {
+            setError("Please select an end date.");
+            return;
+        }
+
+        if (endDate && startDate > endDate) {
+            setError("End date must be after the start date.");
+            return;
+        }
+
+        if (!location) {
+            setError("Please enter a location.");
+            return;
+        }
+
+        if (!selectedOrganization) {
+            setError("Please select an organization.");
+            return;
+        }
+
         if (
             eventTitle &&
             startDate &&
@@ -141,6 +172,7 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             <DialogBody
                 className={`${styles.dialogBody} ${styles.eventDialog}`}
             >
+                {error && <div className={`error-msg`}>{error}</div>}
                 {/* Event Image */}
                 <div className="input-container">
                     <label className="input-label">Event Image</label>
