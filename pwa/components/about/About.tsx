@@ -22,10 +22,11 @@ const FAQ: React.FC = () => {
         <Container>
             <div className={styles.aboutPage}>
                 <h1 className={styles.title}>About Us</h1>
-                <h3 className={styles.teamTitle}>Team Spelunkers</h3>
-                <h2 className={styles.blurb}>
+                <br></br>
+                <h2 className={styles.teamTitle}>Team Spelunkers</h2>
+                <h3 className={styles.blurb}>
                     Developers of this Event-Based Travel Planning System.
-                </h2>
+                </h3>
                 <div className={styles.teamSection}>
                     {teamMembers.map((member, index) => (
                         <div key={index} className={styles.teamMember}>
