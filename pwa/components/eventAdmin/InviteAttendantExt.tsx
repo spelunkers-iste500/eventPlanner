@@ -102,15 +102,16 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     useEffect(() => {
         // if not editing, submit the invites
         console.log("Attendees loaded:", createdEvent?.attendees);
-        if (createdEvent && !isEditing) {
+        if (createdEvent) {
+            console.log("Sending invites");
             setEmails(
                 createdEvent.attendees
                     ?.map((attendee) => attendee.email)
                     .filter((email): email is string => email !== undefined) ||
                     []
             );
-            handleSubmit();
         }
+        !isEditing && handleSubmit();
     }, [createdEvent]);
 
     const handleSubmit = () => {
