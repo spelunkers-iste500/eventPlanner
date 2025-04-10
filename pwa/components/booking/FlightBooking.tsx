@@ -97,7 +97,7 @@ const FlightBooking = () => {
                 `/flight_orders`,
                 {
                     offerId: bookingData.selectedOffer.id,
-                    event: `/events/${bookingData.event.id}`,
+                    userEvent: `/user_events/${bookingData.userEventId}`,
                 },
                 {
                     headers: {

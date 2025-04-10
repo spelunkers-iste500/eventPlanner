@@ -17,6 +17,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
+#[ORM\Table(
+    name: 'user_event',
+    uniqueConstraints: [
+        new ORM\UniqueConstraint(name: 'user_event_unique', columns: ['userID', 'eventID']),
+    ],
+)]
 #[ApiResource]
 #[GetCollection(
     uriTemplate: '/my/events.{_format}',
@@ -69,6 +75,53 @@ class UserEvent
     #[Groups(['read:myEvents', 'write:myEvents', 'user:read'])]
     private Event $event;
 
+    // Owning side of the relation.
+    #[ORM\OneToOne(targetEntity: Flight::class, inversedBy: 'userEvent', cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'id', nullable: true)]
+    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    private ?Flight $flight = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    #[Assert\Email]
+    private ?string $email;
+
+    public function getEmail(): ?string
+    {
+        // return users email if user exists
+        if (isset($this->user)) {
+            return $this->getUser()->getEmail();
+        }
+        return $this->email;
+    }
+    public function setEmail(?string $email): self
+    {
+        $this->email = $email;
+        return $this;
+    }
+
+
+    public function getFlight(): ?Flight
+    {
+        return $this->flight;
+    }
+    public function setFlight(?Flight $flight): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($flight === null && $this->flight !== null) {
+            $this->flight->setUserEvent(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($flight !== null && $flight->getUserEvent() !== $this) {
+            $flight->setUserEvent($this);
+        }
+
+        $this->flight = $flight;
+
+        return $this;
+    }
+
     public function getUser(): User
     {
         return $this->user;
@@ -87,12 +140,6 @@ class UserEvent
     {
         $this->event = $event;
         return $this;
-    }
-
-    #[Groups(['read:myEvents'])]
-    public function getFlights(): ?Collection
-    {
-        return $this->user->getFlights();
     }
 
     #[ORM\Column]

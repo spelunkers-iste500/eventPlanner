@@ -16,6 +16,7 @@ use App\Entity\Event;
 use App\Repository\UserRepository;
 use App\Entity\Flight;
 use App\Repository\FlightRepository;
+use App\Repository\UserEventRepository;
 use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 /**
@@ -31,7 +32,8 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         private Security $security,
         private Logger $logger,
         private UserRepository $uRepo,
-        private FlightRepository $fRepo
+        private FlightRepository $fRepo,
+        private UserEventRepository $userEventRepo,
     ) {
         $this->token = $_ENV['DUFFEL_BEARER'];
     }
@@ -201,14 +203,15 @@ final class FlightOrderState implements ProcessorInterface, ProviderInterface
         // before return value, should persist a Flight object as well so that the budget gets updated
         $flight = new Flight();
         $flight->setFlightCost($responseData['total_amount']);
-        $flight->setEvent($data->event);
-        $flight->setUser($user);
+        $flight->setUserEvent($data->userEvent);
         $flight->setDepartureDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['departing_at']));
         $flight->setArrivalDateTime(new \DateTime($responseData['slices'][0]['segments'][0]['arriving_at']));
         $flight->setDepartureLocation($responseData['slices'][0]['segments'][0]['origin']['iata_code']);
         $flight->setArrivalLocation($responseData['slices'][0]['segments'][0]['destination']['iata_code']);
         $flight->setBookingReference($responseData['booking_reference']);
         $flight->setDuffelOrderID($responseData['id']);
+        $data->userEvent->setFlight($flight);
+        $this->userEventRepo->save($data->userEvent, true);
         $this->fRepo->save($flight, true);
 
         // Example: Budget validation and updating

@@ -234,7 +234,11 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     <Tabs.Content value="flights">
                         <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
                             <ItemList<Flight>
-                                items={event?.flights || []}
+                                items={
+                                    event?.attendees.map(
+                                        (userEvent) => userEvent.flight
+                                    ) || []
+                                }
                                 fields={[
                                     {
                                         key: "bookingReference",
