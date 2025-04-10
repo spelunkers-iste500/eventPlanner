@@ -232,31 +232,33 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                     </Tabs.Content>
 
                     <Tabs.Content value="flights">
-                        {/* Add flight tracking in here */}
-                        {}
-                        <ItemList<Flight>
-                            items={
-                                event?.attendees.map(
-                                    (userEvent) => userEvent.flight
-                                ) || []
-                            }
-                            fields={[
-                                {
-                                    key: "bookingReference",
-                                    label: "Booking Reference",
-                                    // valueFn: (flight) =>
-                                    //     flight.id.split("-").pop(),
-                                },
-                                { key: "flightCost", label: "Flight Cost" },
-                                { key: "approvalStatus", label: "Status" },
-                            ]}
-                            renderItem={(flight) => handleApprovalOpen(flight)}
-                        />
-                        <FlightApproval
-                            flight={selectedFlight}
-                            isOpen={isApprovalOpen}
-                            onClose={handleApprovalClose}
-                        />
+                        <Box mt={4} p={4} borderWidth="1px" borderRadius="md">
+                            <ItemList<Flight>
+                                items={
+                                    event?.attendees.map(
+                                        (userEvent) => userEvent.flight
+                                    ) || []
+                                }
+                                fields={[
+                                    {
+                                        key: "bookingReference",
+                                        label: "Booking Reference",
+                                        // valueFn: (flight) =>
+                                        //     flight.id.split("-").pop(),
+                                    },
+                                    { key: "flightCost", label: "Flight Cost" },
+                                    { key: "approvalStatus", label: "Status" },
+                                ]}
+                                renderItem={(flight) =>
+                                    handleApprovalOpen(flight)
+                                }
+                            />
+                            <FlightApproval
+                                flight={selectedFlight}
+                                isOpen={isApprovalOpen}
+                                onClose={handleApprovalClose}
+                            />
+                        </Box>
                     </Tabs.Content>
                 </Tabs.Root>
             </DialogBody>
