@@ -73,13 +73,12 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
                 >
                     <h3 className="h4">Flight Information</h3>
                     <p>
-                        <strong>User Booking:</strong> {flightData?.user?.email}
+                        <strong>User Booking:</strong>{" "}
+                        {flightData?.userEvent?.user?.email}
                     </p>
                     <p>
                         <strong>Flight Cost:</strong> $
-                        {(
-                            (flightData?.flightCost ?? 0)
-                        )?.toLocaleString()}
+                        {(flightData?.flightCost ?? 0)?.toLocaleString()}
                     </p>
                     <p>
                         <strong>Origin:</strong> {flightData?.departureLocation}
