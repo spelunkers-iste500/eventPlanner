@@ -184,8 +184,12 @@ class Budget
     {
         // will sum the total spent on flights for the event
         $spent = 0;
-        foreach ($this->event->getFlights() as $flight) {
-            $spent += $flight->getFlightCost();
+        $userEvents = $this->event->getAttendees();
+        foreach ($userEvents as $userEvent) {
+            if (!$userEvent->getFlight()) {
+                continue;
+            }
+            $spent += $userEvent->getFlight()->getFlightCost();
         }
         return $spent;
     }

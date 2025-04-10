@@ -39,14 +39,16 @@ class Flight
         'read:flight'
     ])]
     private $id;
-    public function getId(): UuidInterface | LazyUuidFromString
-    {
-        return $this->id;
-    }
-    public function setId(UuidInterface $id): void
-    {
-        $this->id = $id;
-    }
+
+
+    // One UserEvent per Flight
+    // inverse side
+    #[ORM\OneToOne(targetEntity: UserEvent::class, mappedBy: 'flight', cascade: ['persist', 'remove'])]
+    #[Groups([
+        'read:flight'
+    ])]
+    private ?UserEvent $userEvent = null;
+
 
     #[ORM\Column]
     #[Groups([
@@ -57,52 +59,6 @@ class Flight
     ])]
     public int $flightCost;
 
-    public function getFlightCost(): int
-    {
-        return $this->flightCost/100;
-    }
-
-    public function setFlightCost(int $flightCost): self
-    {
-        $this->flightCost = (int) $flightCost * 100;
-        return $this;
-    }
-
-    //Relationships
-
-    //Flight <-> Event
-    #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'flights')]
-
-    private Event $event;
-
-    public function getEvent(): Event
-    {
-        return $this->event;
-    }
-    public function setEvent(Event $event): self
-    {
-        $this->event = $event;
-        return $this;
-    }
-
-    // One flight per user, per event
-    // Flight <-> User
-    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'flights')]
-    #[Groups([
-        'read:flight'
-    ])]
-    private User $user; // this should be updated to be a single user
-
-    public function getUser(): User
-    {
-        return $this->user;
-    }
-
-    public function setUser(User $user): self
-    {
-        $this->user = $user;
-        return $this;
-    }
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups([
@@ -111,15 +67,7 @@ class Flight
     ])]
     private ?DateTimeInterface $departureDateTime = null;
 
-    public function getDepartureDateTime(): ?DateTimeInterface
-    {
-        return $this->departureDateTime;
-    }
-    public function setDepartureDateTime(DateTimeInterface $departureDateTime): self
-    {
-        $this->departureDateTime = $departureDateTime;
-        return $this;
-    }
+
     #[ORM\Column(type: 'datetime', nullable: true)]
     #[Groups([
         'read:myEvents',
@@ -127,15 +75,6 @@ class Flight
     ])]
     private ?DateTimeInterface $arrivalDateTime = null;
 
-    public function getArrivalDateTime(): ?DateTimeInterface
-    {
-        return $this->arrivalDateTime;
-    }
-    public function setArrivalDateTime(DateTimeInterface $arrivalDateTime): self
-    {
-        $this->arrivalDateTime = $arrivalDateTime;
-        return $this;
-    }
 
     #[ORM\Column(nullable: true)]
     #[Groups([
@@ -144,15 +83,6 @@ class Flight
     ])]
     private ?string $departureLocation = null;
 
-    public function getDepartureLocation(): ?string
-    {
-        return $this->departureLocation;
-    }
-    public function setDepartureLocation(string $departureLocation): self
-    {
-        $this->departureLocation = $departureLocation;
-        return $this;
-    }
 
     #[ORM\Column(nullable: true)]
     #[Groups([
@@ -161,29 +91,11 @@ class Flight
     ])]
     private ?string $arrivalLocation = null;
 
-    public function getArrivalLocation(): ?string
-    {
-        return $this->arrivalLocation;
-    }
-    public function setArrivalLocation(string $arrivalLocation): self
-    {
-        $this->arrivalLocation = $arrivalLocation;
-        return $this;
-    }
 
     #[ORM\Column(nullable: true)]
     #[Groups(['event:csv:export'])]
     private ?string $flightNumber = null;
 
-    public function getFlightNumber(): ?string
-    {
-        return $this->flightNumber;
-    }
-    public function setFlightNumber(string $flightNumber): self
-    {
-        $this->flightNumber = $flightNumber;
-        return $this;
-    }
 
     #[ORM\Column]
     #[Groups([
@@ -191,16 +103,7 @@ class Flight
         'read:flight'
     ])]
     private ?string $duffelOrderID = null;
-    public function getDuffelOrderID(): ?string
-    {
-        return $this->duffelOrderID;
-    }
 
-    public function setDuffelOrderID(string $duffelOrderID): self
-    {
-        $this->duffelOrderID = $duffelOrderID;
-        return $this;
-    }
 
     #[ORM\Column]
     #[Groups([
@@ -209,15 +112,7 @@ class Flight
         'read:flight'
     ])]
     private ?string $bookingReference = null;
-    public function getbookingReference(): ?string
-    {
-        return $this->bookingReference;
-    }
-    public function setbookingReference(string $bookingReference): self
-    {
-        $this->bookingReference = $bookingReference;
-        return $this;
-    }
+
 
     #[ORM\Column()]
     #[Groups([
@@ -229,6 +124,36 @@ class Flight
     #[Assert\Choice(choices: ['pending', 'approved', 'rejected'])]
     private ?string $approvalStatus = null;
 
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public \DateTimeInterface $lastModified;
+
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    public \DateTimeInterface $createdDate;
+
+
+    public function __construct()
+    {
+        $this->id = Uuid::uuid4();
+        $this->approvalStatus = 'pending';
+        $this->lastModified = new \DateTime();
+        $this->createdDate = new \DateTime();
+    }
+    public function getUserEvent(): ?UserEvent
+    {
+        return $this->userEvent;
+    }
+    public function setUserEvent(?UserEvent $userEvent): self
+    {
+        $this->userEvent = $userEvent;
+        // set (or unset) the owning side of the relation if necessary
+        $newFlight = null === $userEvent ? null : $this;
+        if ($userEvent->getFlight() !== $newFlight) {
+            $userEvent->setFlight($newFlight);
+        }
+        return $this;
+    }
     public function getApprovalStatus(): ?string
     {
         return $this->approvalStatus;
@@ -238,18 +163,86 @@ class Flight
         $this->approvalStatus = $approvalStatus;
         return $this;
     }
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $lastModified;
-
-    #[ORM\Column(type: 'datetime', nullable: true)]
-    public \DateTimeInterface $createdDate;
-
-    public function __construct()
+    public function getbookingReference(): ?string
     {
-        $this->id = Uuid::uuid4();
-        $this->approvalStatus = 'pending';
-        $this->lastModified = new \DateTime();
-        $this->createdDate = new \DateTime();
+        return $this->bookingReference;
+    }
+    public function setbookingReference(string $bookingReference): self
+    {
+        $this->bookingReference = $bookingReference;
+        return $this;
+    }
+    public function getDuffelOrderID(): ?string
+    {
+        return $this->duffelOrderID;
+    }
+
+    public function setDuffelOrderID(string $duffelOrderID): self
+    {
+        $this->duffelOrderID = $duffelOrderID;
+        return $this;
+    }
+    public function getFlightNumber(): ?string
+    {
+        return $this->flightNumber;
+    }
+    public function setFlightNumber(string $flightNumber): self
+    {
+        $this->flightNumber = $flightNumber;
+        return $this;
+    }
+    public function getArrivalLocation(): ?string
+    {
+        return $this->arrivalLocation;
+    }
+    public function setArrivalLocation(string $arrivalLocation): self
+    {
+        $this->arrivalLocation = $arrivalLocation;
+        return $this;
+    }
+    public function getDepartureLocation(): ?string
+    {
+        return $this->departureLocation;
+    }
+    public function setDepartureLocation(string $departureLocation): self
+    {
+        $this->departureLocation = $departureLocation;
+        return $this;
+    }
+    public function getArrivalDateTime(): ?DateTimeInterface
+    {
+        return $this->arrivalDateTime;
+    }
+    public function setArrivalDateTime(DateTimeInterface $arrivalDateTime): self
+    {
+        $this->arrivalDateTime = $arrivalDateTime;
+        return $this;
+    }
+    public function getDepartureDateTime(): ?DateTimeInterface
+    {
+        return $this->departureDateTime;
+    }
+    public function setDepartureDateTime(DateTimeInterface $departureDateTime): self
+    {
+        $this->departureDateTime = $departureDateTime;
+        return $this;
+    }
+    public function getId(): UuidInterface | LazyUuidFromString
+    {
+        return $this->id;
+    }
+    public function setId(UuidInterface $id): void
+    {
+        $this->id = $id;
+    }
+    public function getFlightCost(): int
+    {
+        return $this->flightCost / 100;
+    }
+
+    public function setFlightCost(int $flightCost): self
+    {
+        $this->flightCost = (int) $flightCost * 100;
+        return $this;
     }
 }

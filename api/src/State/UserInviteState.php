@@ -61,6 +61,10 @@ class UserInviteState implements ProcessorInterface, ProviderInterface, LoggerAw
                 try {
                     // User does not exist, so we can send them an email with a link to register
                     // and create a UserEvent object without a user but with an expected email
+                    $userEvent = new UserEvent();
+                    $userEvent->setEvent($data->getEvent());
+                    $userEvent->setEmail($email);
+                    $this->uEventRepo->save($userEvent, true);
                     $inviteLink = $inviteLinkBase . '?eventCode=' . $data->getEventInviteCode() . '&email=' . $email;
                     $emailMessage = (new Email())
                         ->to($email)

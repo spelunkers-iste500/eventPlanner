@@ -97,12 +97,14 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
             }","${item.budget?.overage || 0}","${totalBudget}","",""`
         );
 
-        item.flights.forEach((flight) => {
-            csvRows.push(
-                `,,,,,"${flight.id || ""}","${(flight.flightCost || 0).toFixed(
-                    2
-                )}"`
-            );
+        item.attendees.forEach((attendee) => {
+            if (attendee.flight) {
+                csvRows.push(
+                    `,,,,,"${attendee.flight.id || ""}","${(
+                        attendee.flight.flightCost || 0
+                    ).toFixed(2)}"`
+                );
+            }
         });
 
         const csvString = csvRows.join("\n");

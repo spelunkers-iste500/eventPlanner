@@ -20,7 +20,6 @@ export class Event {
     endFlightBooking: string; // date-time
     location: string;
     organization: Organization;
-    flights: Flight[];
     inviteCode: string;
     maxAttendees: number;
     attendees: UserEvent[];
@@ -38,7 +37,6 @@ export class Event {
         this.endFlightBooking = "";
         this.location = "";
         this.organization = new Organization();
-        this.flights = [];
         this.inviteCode = "";
         this.maxAttendees = 0;
         this.budget = new Budget();
@@ -85,15 +83,31 @@ export class Event {
             this.location = data.location;
             this.organization = new Organization(data.organization.id);
             this.organization.setName(data.organization.name);
-            this.flights = data.flights.map(
-                (flight: any) => new Flight(flight.id)
-            );
             this.attendees = data.attendees.map((attendee: any) => {
                 const userEvent = new UserEvent(attendee.id);
                 userEvent.setUser(new User(attendee.user.id));
                 userEvent.user.name = attendee.user.name;
                 userEvent.setEvent(this);
                 userEvent.status = attendee.status;
+                if (attendee.flight) {
+                    userEvent.flight = new Flight(attendee.flight.id);
+                    userEvent.flight.setDepartureDateTime(
+                        attendee.flight.departureDateTime
+                    );
+                    userEvent.flight.setArrivalDateTime(
+                        attendee.flight.arrivalDateTime
+                    );
+                    userEvent.flight.setDepartureLocation(
+                        attendee.flight.departureLocation
+                    );
+                    userEvent.flight.setArrivalLocation(
+                        attendee.flight.arrivalLocation
+                    );
+                    userEvent.flight.setApprovalStatus(
+                        attendee.flight.approvalStatus
+                    );
+                }
+
                 return userEvent;
             });
         } catch (error) {
@@ -225,13 +239,6 @@ export class Event {
                 event.setEndDateTime(item.endDateTime);
                 event.setStartFlightBooking(item.startFlightBooking);
                 event.setEndFlightBooking(item.endFlightBooking);
-                event.flights = item.flights.map((flight: any) => {
-                    const flightObj = new Flight(flight.id);
-                    flightObj.flightCost = flight.flightCost;
-                    flightObj.approvalStatus = flight.approvalStatus;
-                    flightObj.bookingReference = flight.bookingReference;
-                    return flightObj;
-                });
                 event.setLocation(item.location);
                 event.setOrganization(
                     new Organization(item.organization["@id"])
@@ -239,17 +246,42 @@ export class Event {
                 event.maxAttendees = item.maxAttendees;
                 event.location = item.location;
                 event.organization.setName(item.organization.name);
-                context === "eventAdmin"
-                    ? (event.attendees = item.attendees.map((attendee: any) => {
-                          const userEvent = new UserEvent(attendee.id);
-                          userEvent.setUser(new User(attendee.user.id));
-                          userEvent.user.name = attendee.user.name;
-                          userEvent.user.email = attendee.user.email;
-                          userEvent.setEvent(event);
-                          userEvent.status = attendee.status;
-                          return userEvent;
-                      }))
-                    : (event.attendees = []);
+                event.attendees = item.attendees.map((attendee: any) => {
+                    const userEvent = new UserEvent(attendee.id);
+                    if (attendee.user) {
+                        userEvent.setUser(new User(attendee.user.id));
+                        userEvent.user.name = attendee.user.name;
+                        userEvent.user.email = attendee.user.email;
+                    }
+                    userEvent.setEmail(attendee.email);
+                    userEvent.setEvent(event);
+                    userEvent.status = attendee.status;
+                    if (attendee.flight) {
+                        userEvent.flight = new Flight(attendee.flight.id);
+                        userEvent.flight.setDepartureDateTime(
+                            attendee.flight.departureDateTime
+                        );
+                        userEvent.flight.setArrivalDateTime(
+                            attendee.flight.arrivalDateTime
+                        );
+                        userEvent.flight.setDepartureLocation(
+                            attendee.flight.departureLocation
+                        );
+                        userEvent.flight.setArrivalLocation(
+                            attendee.flight.arrivalLocation
+                        );
+                        userEvent.flight.setApprovalStatus(
+                            attendee.flight.approvalStatus
+                        );
+                        userEvent.flight.setBookingReference(
+                            attendee.flight.bookingReference
+                        );
+                        userEvent.flight.setFlightCost(
+                            attendee.flight.flightCost
+                        );
+                    }
+                    return userEvent;
+                });
                 return event;
                 // event.setFlights() // dont set flights yet
             });
@@ -374,10 +406,6 @@ export class Event {
 
     setOrganization(organization: Organization): void {
         this.organization = organization;
-    }
-
-    setFlights(flights: Flight[]): void {
-        this.flights = flights;
     }
     getIri(): string {
         return this.iri;

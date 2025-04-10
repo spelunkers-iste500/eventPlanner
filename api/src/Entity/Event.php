@@ -46,7 +46,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/financeAdmin.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']],
+    normalizationContext: ['groups' => ['read:event:collection', 'read:event:financeAdmin']],
 )]
 
 #[GetCollection(
@@ -170,7 +170,7 @@ class Event
     public \DateTimeInterface $endFlightBooking;
 
     #[ORM\Column(length: 55)]
-    #[Groups(['read:event', 'write:event', 'read:myEvents','read:event:collection'])]
+    #[Groups(['read:event', 'write:event', 'read:myEvents', 'read:event:collection'])]
     public string $location;
 
     #[ORM\Column(type: 'integer')]
@@ -215,7 +215,7 @@ class Event
 
     //Event -> User (attendees)
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin'])]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin', 'read:event:financeAdmin'])]
     // #[MaxDepth(1)]
     private Collection $attendees;
 
@@ -267,26 +267,6 @@ class Event
     {
         $this->inviteCode = $inviteCode;
     }
-
-    //Event -> Flight
-    #[ORM\OneToMany(targetEntity: Flight::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'read:event:collection', 'event:csv:export'])]
-    private Collection $flights;
-
-    public function getFlights(): Collection
-    {
-        return $this->flights;
-    }
-
-    public function addFlight(Flight $flight): self
-    {
-        if (!$this->flights->contains($flight)) {
-            $this->flights[] = $flight;
-            $flight->setEvent($this);
-        }
-        return $this;
-    }
-
 
     public function __construct()
     {
