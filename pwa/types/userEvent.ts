@@ -11,6 +11,7 @@ export class UserEvent {
     user: User;
     flight: Flight;
     status: string = "";
+    email: string = "";
     constructor(id: string = "notPersisted", apiToken: string = "") {
         this.id = id;
         this.event = new Event();
@@ -114,6 +115,7 @@ export class UserEvent {
                 userEventInstance.event.setEventTitle(
                     userEvent.event.eventTitle
                 );
+                userEventInstance.setEmail(userEvent.email);
                 if (userEvent.event.budget) {
                     userEventInstance.event.budget = new Budget(
                         userEvent.event.budget.id
@@ -121,7 +123,9 @@ export class UserEvent {
                     userEventInstance.event.budget.perUserTotal =
                         userEvent.event.budget.perUserTotal;
                 }
-                userEventInstance.user = new User(userEvent.user.id);
+                if (userEvent.user) {
+                    userEventInstance.user = new User(userEvent.user.id);
+                }
                 if (userEvent.flight) {
                     userEventInstance.flight.id = userEvent.flight.id;
                     userEventInstance.flight.setDepartureDateTime(
@@ -178,5 +182,8 @@ export class UserEvent {
             throw new Error("Flight is not set");
         }
         return this.flight;
+    }
+    setEmail(email: string) {
+        this.email = email;
     }
 }

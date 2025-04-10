@@ -105,7 +105,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         if (createdEvent && !isEditing) {
             setEmails(
                 createdEvent.attendees
-                    ?.map((attendee) => attendee.user.email)
+                    ?.map((attendee) => attendee.email)
                     .filter((email): email is string => email !== undefined) ||
                     []
             );

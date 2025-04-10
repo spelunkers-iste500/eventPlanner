@@ -48,7 +48,7 @@ class UserEvent
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
-    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin', 'read:event:financeAdmin'])]
     private $id;
     /**
      * @return UuidInterface The mapping ID
@@ -78,7 +78,7 @@ class UserEvent
     // Owning side of the relation.
     #[ORM\OneToOne(targetEntity: Flight::class, inversedBy: 'userEvent', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(name: 'flightID', referencedColumnName: 'id', nullable: true)]
-    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    #[Groups(['read:myEvents', 'read:event', 'read:event:eventAdmin', 'read:event:financeAdmin'])]
     private ?Flight $flight = null;
 
     #[ORM\Column(nullable: true)]
@@ -143,7 +143,7 @@ class UserEvent
     }
 
     #[ORM\Column]
-    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin', 'read:event:financeAdmin'])]
     #[Assert\Choice(choices: ['pending', 'accepted', 'declined', 'cancelled'])]
     private string $status = 'pending';
 

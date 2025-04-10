@@ -46,7 +46,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/financeAdmin.{_format}',
-    normalizationContext: ['groups' => ['read:event:collection']],
+    normalizationContext: ['groups' => ['read:event:collection', 'read:event:financeAdmin']],
 )]
 
 #[GetCollection(
@@ -215,7 +215,7 @@ class Event
 
     //Event -> User (attendees)
     #[ORM\OneToMany(targetEntity: UserEvent::class, mappedBy: 'event', cascade: ['all'])]
-    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin'])]
+    #[Groups(['read:event', 'write:event', 'add:event:attendees', 'test:attendees', 'read:event:eventAdmin', 'read:event:financeAdmin'])]
     // #[MaxDepth(1)]
     private Collection $attendees;
 
