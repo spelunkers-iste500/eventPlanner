@@ -78,7 +78,7 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
                     <p>
                         <strong>Flight Cost:</strong> $
                         {(
-                            (flightData?.flightCost ?? 0) / 100
+                            (flightData?.flightCost ?? 0)
                         )?.toLocaleString()}
                     </p>
                     <p>
