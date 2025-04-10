@@ -113,22 +113,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         }
     }, [createdEvent]);
 
-    const handleSave = () => {
-        // update UserEvent for person to be cancelled
-        if (createdEvent && session?.apiToken) {
-            deletedEmails.forEach((email) => {
-                // get the UserEvent associated with the email
-                const userEvent = createdEvent.attendees?.find(
-                    (attendee) => attendee.email === email
-                );
-                if (userEvent) {
-                    userEvent.status = "cancelled";
-                }
-            });
-            createdEvent.persist(session.apiToken); // persist the change
-        }
-    };
-
     const handleSubmit = () => {
         console.info("Submitted emails:", emails);
         // send invites out to the emails
@@ -147,13 +131,40 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 setError("No valid email addresses to send invites to.");
                 return;
             }
+
+            // check if email has already been invited and exits in createdEvents.attendees and set error if so
+            const existingEmails =
+                createdEvent.attendees
+                    ?.map((attendee) => attendee.email)
+                    .filter((email): email is string => email !== undefined) ||
+                [];
+
+            const alreadyInvitedEmails = validEmails.filter((email) =>
+                existingEmails.includes(email)
+            );
+            if (alreadyInvitedEmails.length > 0) {
+                setError(
+                    `The following email addresses have already been invited: ${alreadyInvitedEmails.join(
+                        ", "
+                    )}`
+                );
+            }
+            const goodEmails = validEmails.filter(
+                (email) => !existingEmails.includes(email)
+            );
+
+            if (goodEmails.length === 0) {
+                // let one of the above error msgs display
+                return;
+            }
+
             if (session) {
                 axios
                     .post(
                         `/user_invites`,
                         {
                             event: `/events/${createdEvent.id}`,
-                            emails: validEmails,
+                            emails: goodEmails,
                         },
                         {
                             headers: {
@@ -264,7 +275,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         items={createdEvent?.attendees || []}
                         fields={[
                             {
-                                key: "user.email",
+                                key: "email",
                                 label: "Invited Email",
                             },
                             { key: "status", label: "Invite Status" },
