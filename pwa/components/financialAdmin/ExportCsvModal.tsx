@@ -99,8 +99,8 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
 
         item.flights.forEach((flight) => {
             csvRows.push(
-                `,,,,,"${flight.id || ""}","${(flight.flightCost || 0).toFixed(
-                    0
+                `,,,,,"${flight.id || ""}","${(flight.flightCost*100 || 0).toFixed(
+                    2
                 )}"`
             );
         });
