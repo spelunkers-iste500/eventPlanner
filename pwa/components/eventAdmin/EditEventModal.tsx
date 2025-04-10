@@ -131,7 +131,12 @@ const EditEventModal: React.FC<EditEventModalProps> = ({
                         className={`${styles.eventDialog} ${styles.isEditing}`}
                         value="info"
                     >
-                        <Box p={4} borderWidth="1px" borderRadius="md">
+                        <Box
+                            p={4}
+                            borderWidth="1px"
+                            borderRadius="md"
+                            className={styles.eventDialog}
+                        >
                             {/* Event Title */}
                             <Input
                                 label="Event Title"
