@@ -38,8 +38,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
 }) => {
     const [emailInput, setEmailInput] = useState("");
     const [error, setError] = useState("");
-    const [emails, setEmails] = useState<string[]>([]);
-    const [deletedEmails, setDeletedEmails] = useState<string[]>([]);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [selectedUserEvent, setSelectedUserEvent] =
         useState<UserEvent | null>(null);
@@ -130,12 +128,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
         console.log("Attendees loaded:", createdEvent?.attendees);
         if (createdEvent) {
             console.log("Sending invites");
-            setEmails(
-                createdEvent.attendees
-                    ?.map((attendee) => attendee.email)
-                    .filter((email): email is string => email !== undefined) ||
-                    []
-            );
         }
         console.log("Invite on create output: ", !isEditing);
         !isEditing && handleSubmit();
@@ -170,11 +162,14 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         }
                     )
                     .then(() => {
-                        createdEvent.attendees.forEach((attendee) => {
-                            if (attendee.status === "Not Sent") {
-                                attendee.status = "Pending";
+                        createdEvent.attendees = createdEvent.attendees.map(
+                            (attendee) => {
+                                if (goodEmails.includes(attendee.email)) {
+                                    attendee.status = "pending";
+                                }
+                                return attendee;
                             }
-                        });
+                        );
                         toaster.create({
                             title: "Invites Sent",
                             description:
