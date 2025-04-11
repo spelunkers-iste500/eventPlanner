@@ -23,7 +23,7 @@ export class Event {
     inviteCode: string;
     maxAttendees: number;
     attendees: UserEvent[];
-    status: string = "pendingApproval"; // default status
+    status: string = "Pending Approval"; // default status
     /**
      * @param id the ID of the event
      * @param fetch whether the event data should be fetched from the API
@@ -136,8 +136,8 @@ export class Event {
                 },
             });
             const data = response.data;
-            // budget could be null for an event. These are unapproved.
-            // If the event is unapproved, we need to set the budget to null.
+            // budget could be null for an event. These are unA.
+            // If the event is unA, we need to set the budget to null.
             const budget = data.budget
                 ? new Budget(data.budget.id, data.budget.perUserTotal)
                 : new Budget();
@@ -228,11 +228,11 @@ export class Event {
                     event.setBudget(new Budget(item.budget.id));
                     event.budget.perUserTotal = item.budget.perUserTotal;
                     event.budget.overage = item.budget.overage;
-                    event.status = "approved";
+                    event.status = "Approved";
                 } else {
                     event.budget = new Budget("pendingApproval");
                     event.budget.perUserTotal = 0;
-                    event.status = "pendingApproval";
+                    event.status = "Pending Approval";
                 }
                 event.setEventTitle(item.eventTitle);
                 event.setStartDateTime(item.startDateTime);

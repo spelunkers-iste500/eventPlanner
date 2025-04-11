@@ -121,54 +121,22 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     []
             );
         }
+        console.log("Invite on create output: ", !isEditing);
         !isEditing && handleSubmit();
     }, [createdEvent]);
 
     const handleSubmit = () => {
-        console.info("Submitted emails:", emails);
         // send invites out to the emails
-        if (createdEvent && emails.length > 0) {
-            // check if all the emails are valid and send invites to valid ones and setError to ones that arent valid
-            const validEmails = emails.filter((email) => validateEmail(email));
-            const invalidEmails = emails.filter(
-                (email) => !validateEmail(email)
-            );
-            if (invalidEmails.length > 0) {
-                setError(
-                    `Invalid email addresses: ${invalidEmails.join(", ")}`
-                );
-            }
-            if (validEmails.length === 0) {
-                setError("No valid email addresses to send invites to.");
-                return;
-            }
-
+        if (createdEvent && createdEvent.attendees.length > 0) {
             // check if email has already been invited and exits in createdEvents.attendees and set error if so
-            const existingEmails =
-                createdEvent.attendees
-                    ?.map((attendee) => attendee.status)
-                    .filter(
-                        (status): status is string => status !== "Not Sent"
-                    ) || [];
-
-            const alreadyInvitedEmails = validEmails.filter((email) =>
-                existingEmails.includes(email)
-            );
-            if (alreadyInvitedEmails.length > 0) {
-                setError(
-                    `The following email addresses have already been invited: ${alreadyInvitedEmails.join(
-                        ", "
-                    )}`
-                );
-            }
-            const goodEmails = validEmails.filter(
-                (email) => !existingEmails.includes(email)
-            );
-
-            if (goodEmails.length === 0) {
-                // let one of the above error msgs display
-                return;
-            }
+            const goodEmails = createdEvent.attendees
+                .filter((attendee) => {
+                    return (
+                        attendee.status === "Not Sent" &&
+                        validateEmail(attendee.email)
+                    );
+                })
+                .map((attendee) => attendee.email);
 
             if (session) {
                 axios
@@ -186,6 +154,11 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                         }
                     )
                     .then(() => {
+                        createdEvent.attendees.forEach((attendee) => {
+                            if (attendee.status === "Not Sent") {
+                                attendee.status = "Pending";
+                            }
+                        });
                         toaster.create({
                             title: "Invites Sent",
                             description:
@@ -255,6 +228,11 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                             type="text"
                             value={emailInput}
                             onChange={(e) => setEmailInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleAddEmail();
+                                }
+                            }}
                             placeholder="Enter email address"
                         />
                     </div>
@@ -270,7 +248,17 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                             key: "email",
                             label: "Invited Email",
                         },
-                        { key: "status", label: "Invite Status" },
+                        {
+                            key: "status",
+                            label: "Invite Status",
+                            valueFn: (userEvent) => {
+                                // capitalize the status
+                                return (
+                                    userEvent.status.charAt(0).toUpperCase() +
+                                    userEvent.status.slice(1)
+                                );
+                            },
+                        },
                     ]}
                     renderItem={(userEvent) => handleConfirmOpen(userEvent)}
                 />

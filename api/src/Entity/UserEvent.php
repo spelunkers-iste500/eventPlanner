@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     name: 'user_event',
     uniqueConstraints: [
         new ORM\UniqueConstraint(name: 'user_event_unique', columns: ['userID', 'eventID']),
+        new ORM\UniqueConstraint(name: 'email_event_unique', columns: ['email', 'eventID']),
     ],
 )]
 #[ApiResource]
@@ -36,7 +37,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     denormalizationContext: ['groups' => ['write:myEvents']],
 )]
 #[Patch(
-    security: "is_granted('userEdit', object)",
+    securityPostDenormalize: "is_granted('userEdit', object)",
     denormalizationContext: ['groups' => ['update:myEvents']],
 )]
 /**
@@ -68,7 +69,7 @@ class UserEvent
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'eventsAttending', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'userID', referencedColumnName: 'id')]
     #[Groups(['write:myEvents', 'read:myEvents', 'read:event', 'read:event:eventAdmin'])]
-    private User $user;
+    private ?User $user = null;
 
     #[ORM\ManyToOne(targetEntity: Event::class, inversedBy: 'attendees', cascade: ['all'])]
     #[ORM\JoinColumn(name: 'eventID', referencedColumnName: 'id', nullable: false)]
@@ -122,7 +123,7 @@ class UserEvent
         return $this;
     }
 
-    public function getUser(): User
+    public function getUser(): ?User
     {
         return $this->user;
     }
