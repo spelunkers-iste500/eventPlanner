@@ -52,13 +52,24 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
     };
 
     const handleAddEmail = () => {
+        console.log("Adding email:", emailInput);
+
         if (emailInput && validateEmail(emailInput)) {
             const newEmail = new UserEvent();
             newEmail.email = emailInput;
             newEmail.status = "Not Sent";
-            if (!createdEvent?.attendees.includes(newEmail)) {
+            const alreadyExists = createdEvent?.attendees.filter((uE) => {
+                return uE.email == newEmail.email;
+            });
+            if (!(alreadyExists && alreadyExists.length > 0)) {
                 createdEvent?.attendees.push(newEmail);
                 // setEmails([emailInput, ...emails]);
+            } else {
+                setError(
+                    `The following email addresses have already been invited: ${alreadyExists.join(
+                        ", "
+                    )}`
+                );
             }
             setEmailInput("");
             setError("");
@@ -85,12 +96,16 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                 const text = e.target?.result;
                 if (typeof text === "string") {
                     const importedEmails = parseCSVEmails(text);
-                    setEmails((prev) => [
-                        ...importedEmails.filter(
-                            (email) => !prev.includes(email)
-                        ),
-                        ...prev,
-                    ]);
+                    if (importedEmails.length > 0) {
+                        importedEmails.forEach((email) => {
+                            const newEmail = new UserEvent();
+                            newEmail.email = email;
+                            newEmail.status = "Not Sent";
+                            if (!createdEvent?.attendees.includes(newEmail)) {
+                                createdEvent?.attendees.push(newEmail);
+                            }
+                        });
+                    }
                 }
             };
             reader.readAsText(file);
