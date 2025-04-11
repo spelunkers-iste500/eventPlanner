@@ -83,7 +83,7 @@ class UserEvent
     private ?Flight $flight = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin'])]
+    #[Groups(['read:myEvents', 'update:myEvents', 'read:event', 'read:event:eventAdmin', 'read:flight'])]
     #[Assert\Email]
     private ?string $email;
 

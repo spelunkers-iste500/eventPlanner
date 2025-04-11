@@ -74,7 +74,7 @@ const FlightApproval: React.FC<FlightApprovalProps> = ({
                     <h3 className="h4">Flight Information</h3>
                     <p>
                         <strong>User Booking:</strong>{" "}
-                        {flightData?.userEvent?.user?.email}
+                        {flightData?.userEvent?.email}
                     </p>
                     <p>
                         <strong>Flight Cost:</strong> $
