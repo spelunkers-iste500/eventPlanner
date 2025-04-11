@@ -58,21 +58,22 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             const newEmail = new UserEvent();
             newEmail.email = emailInput;
             newEmail.status = "Not Sent";
-            const alreadyExists = createdEvent?.attendees.filter((uE) => {
-                return uE.email == newEmail.email;
-            });
-            if (!(alreadyExists && alreadyExists.length > 0)) {
+            const alreadyExists =
+                createdEvent?.attendees.filter((uE) => {
+                    return uE.email == newEmail.email;
+                }) || [];
+            if (alreadyExists.length === 0) {
                 createdEvent?.attendees.push(newEmail);
                 // setEmails([emailInput, ...emails]);
+                setError("");
             } else {
                 setError(
-                    `The following email addresses have already been invited: ${alreadyExists.join(
-                        ", "
-                    )}`
+                    `The following email addresses have already been invited: ${alreadyExists
+                        .map((userEvent) => userEvent.email)
+                        .join(", ")}`
                 );
             }
             setEmailInput("");
-            setError("");
         } else {
             setError("Invalid email address format.");
         }
