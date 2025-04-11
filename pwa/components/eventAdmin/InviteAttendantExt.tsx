@@ -130,7 +130,7 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
             console.log("Sending invites");
         }
         console.log("Invite on create output: ", !isEditing);
-        !isEditing && handleSubmit();
+        // !isEditing && handleSubmit();
     }, [createdEvent]);
 
     const handleSubmit = () => {
@@ -145,7 +145,6 @@ const InviteAttendantExt: React.FC<InviteAttendantExtProps> = ({
                     );
                 })
                 .map((attendee) => attendee.email);
-
             if (session) {
                 axios
                     .post(

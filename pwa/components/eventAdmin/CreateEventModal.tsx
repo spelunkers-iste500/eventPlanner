@@ -20,6 +20,7 @@ import { Organization } from "Types/organization";
 import { useContent } from "Utils/ContentProvider";
 import Input from "Components/common/Input";
 import UploadFile from "./UploadFile";
+import axios from "axios";
 import { Select } from "chakra-react-select";
 
 interface CreateEventModalProps {
@@ -65,6 +66,11 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
             setOrganizationOptions(mappedOptions);
         }
     }, [organizations]);
+
+    const validateEmail = (email: string) => {
+        const re = /\S+@\S+\.\S+/;
+        return re.test(email);
+    };
 
     const generateRandomString = (length: number) => {
         const characters =
@@ -141,6 +147,53 @@ const CreateEventModal: React.FC<CreateEventModalProps> = ({
                         duration: 5000,
                     });
                     console.debug("Event created:", event);
+                    if (event && event.attendees.length > 0) {
+                        // check if email has already been invited and exits in events.attendees and set error if so
+                        const goodEmails = event.attendees
+                            .filter((attendee) => {
+                                return (
+                                    attendee.status === "Not Sent" &&
+                                    validateEmail(attendee.email)
+                                );
+                            })
+                            .map((attendee) => attendee.email);
+                        axios
+                            .post(
+                                `/user_invites`,
+                                {
+                                    event: `/events/${event.id}`,
+                                    emails: goodEmails,
+                                },
+                                {
+                                    headers: {
+                                        Authorization: `Bearer ${session.apiToken}`,
+                                        "Content-Type": "application/ld+json",
+                                    },
+                                }
+                            )
+                            .then(() => {
+                                event.attendees = event.attendees.map(
+                                    (attendee) => {
+                                        if (
+                                            goodEmails.includes(attendee.email)
+                                        ) {
+                                            attendee.status = "pending";
+                                        }
+                                        return attendee;
+                                    }
+                                );
+                                toaster.create({
+                                    title: "Invites Sent",
+                                    description:
+                                        "Selected attendants have been invited.",
+                                    type: "success",
+                                    duration: 5000,
+                                });
+                            })
+                            .catch((error) => {
+                                console.error("Error sending invite:", error);
+                            });
+                    }
                 },
                 () => {
                     toaster.create({
