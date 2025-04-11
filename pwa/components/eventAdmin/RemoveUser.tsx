@@ -36,8 +36,13 @@ const RemoveUser: React.FC<RemoveUserProps> = ({
                 userEvent
                     .persist(session.apiToken)
                     .then(() => {
-                        createdEvent.attendees = createdEvent.attendees.filter(
-                            (event) => event.email !== userEvent.email
+                        createdEvent.attendees = createdEvent.attendees.map(
+                            (event) => {
+                                if (event.email === userEvent.email) {
+                                    event.status = "cancelled";
+                                }
+                                return event;
+                            }
                         );
                         toaster.create({
                             title: "User Removed",

@@ -43,7 +43,8 @@ export class Flight {
         this.flightNumber = data.flightNumber;
         this.flightCost = data.flightCost;
         this.approvalStatus = data.approvalStatus;
-        this.userEvent = new UserEvent(data.userEvent.id); // pop returns the last element of the array, which is the UUID
+        this.userEvent = new UserEvent(data.userEvent["@id"].split("/").pop()!); // pop returns the last element of the array, which is the UUID
+        this.userEvent.email = data.userEvent.email;
     }
     /**
      *

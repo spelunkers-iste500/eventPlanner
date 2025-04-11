@@ -37,7 +37,16 @@ class UserInviteState implements ProcessorInterface, ProviderInterface, LoggerAw
         foreach ($data->getEmails() as $email) {
             // Send an email to the user informing them they are invited to join the event, if they don't exist
             $user = $this->uRepo->findOneBy(['email' => $email]);
-            if ($user) {
+            $userEvent = $this->uEventRepo->findOneBy(['email' => $email, 'event' => $data->getEvent()]);
+            if ($userEvent) {
+                // User already exists and is already invited to the event
+                // if invite is cancelled, set to pending again
+                if ($userEvent->getStatus() === 'cancelled') {
+                    $userEvent->setStatus('pending');
+                    $this->uEventRepo->save($userEvent, true);
+                }
+                continue;
+            } else if ($user) {
                 try {
                     // User exists, so we can add them to the user event object and persist it
                     $userEvent = new UserEvent();
