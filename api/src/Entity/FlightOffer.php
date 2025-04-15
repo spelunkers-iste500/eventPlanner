@@ -15,12 +15,14 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[Get(
     provider: FlightOfferState::class,
     // security: "is_granted('view', object)"
+    description: 'Retrieve a specific flight offer. Returns the details of the requested flight offer.',
 )]
 #[Post(
     processor: FlightOfferState::class,
     securityPostDenormalize: "is_granted('book', object)",
     normalizationContext: ['groups' => ['read:flightOffer']],
-    denormalizationContext: ['groups' => ['write:flightOffer']]
+    denormalizationContext: ['groups' => ['write:flightOffer']],
+    description: 'Create a new flight offer booking. Requires the "book" permission, which is granted to users with current events or users with the ROLE_ADMIN role. Returns the created flight offer object.',
 )]
 
 class FlightOffer

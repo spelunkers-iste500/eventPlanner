@@ -24,21 +24,27 @@ use Symfony\Component\Validator\Constraints as Assert;
         new ORM\UniqueConstraint(name: 'email_event_unique', columns: ['email', 'eventID']),
     ],
 )]
-#[ApiResource]
+#[ApiResource(
+    description: 'Manages the relationship between users and events, including event invitations and their statuses.'
+)]
 #[GetCollection(
     uriTemplate: '/my/events.{_format}',
     normalizationContext: ['groups' => ['read:myEvents']],
+    description: 'Retrieves a collection of events associated with the authenticated user.'
 )]
 #[Get(
     normalizationContext: ['groups' => ['read:myEvents']],
+    description: 'Retrieves a specific event associated with the authenticated user.'
 )]
 #[Post(
     securityPostDenormalize: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:myEvents']],
+    description: 'Creates a new user-event relationship, such as inviting a user to an event. Requires the "edit" permission, which is granted to users with ROLE_ADMIN or event/organization admins for the event\'s organization.'
 )]
 #[Patch(
     securityPostDenormalize: "is_granted('userEdit', object)",
     denormalizationContext: ['groups' => ['update:myEvents']],
+    description: 'Updates an existing user-event relationship, such as changing the status of an event invitation. Requires the "userEdit" permission, which is granted to the user associated with the UserEvent object.'
 )]
 /**
  * User <-> Event relationship, also functions as an event invite, with a status of accepted or declined

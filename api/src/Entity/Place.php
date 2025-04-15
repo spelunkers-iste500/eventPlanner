@@ -9,11 +9,13 @@ use App\State\DuffelPlaceProvider;
 
 #[ApiResource]
 #[GetCollection(
+    description: 'The /places/search/{query}.{_format} is used to search for places/aitports using the Duffel API. The query parameter is the search term.',
     provider: DuffelPlaceProvider::class,
     uriTemplate: '/places/search/{query}.{_format}',
     uriVariables: ['query'],
 )]
 #[Get(
+    description: 'The /places/{id}.{_format} is used to get a singular place/airport by its ID using the Duffel API.',
     provider: DuffelPlaceProvider::class,
 )]
 class Place

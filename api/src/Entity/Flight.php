@@ -18,16 +18,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource]
 #[GetCollection(
     uriTemplate: '/my/flights.{_format}',
+    description: 'Retrieve a collection of flights.',
 )]
 #[Get(
     uriTemplate: '/flights/{id}.{_format}',
     security: "is_granted('view', object)",
     normalizationContext: ['groups' => ['read:flight']],
+    description: 'Retrieve a specific flight. Requires the "view" permission, which is granted to the user associated with the flight, event admins of the organization, or organization admins. Returns the details of the requested flight.',
 )]
 #[Patch(
     uriTemplate: '/flights/{id}.{_format}',
     security: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['write:flights']],
+    description: 'Update an existing flight. Requires the "edit" permission, which is granted to event admins of the organization or organization admins. Returns the updated flight object.',
 )]
 class Flight
 {

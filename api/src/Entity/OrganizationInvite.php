@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource]
 
 #[Post(
+    description: 'The /organizationInvite.{_format} is used by the organization admin or super admin to invite a user to the organization. This POST request returns the organization, expected email, and invite type. Requires the "edit" permission, which is granted to organization admins or users with the ROLE_ADMIN role.',
     securityPostDenormalize: "is_granted('edit', object)",
     // security: "is_granted('edit', object)",
     uriTemplate: '/organizationInvite.{_format}',
@@ -26,13 +27,18 @@ use Symfony\Component\Validator\Constraints as Assert;
     //processor:  LoggerStateProcessor::class
 )]
 
-#[Get()]
-#[GetCollection()]
+#[Get(
+    description: 'The /organizationInvite/{id}.{_format} is used by the organization admin or super admin to retrieve an organization invite. This GET request returns the organization, expected email, and invite type. Requires the "view" permission, which is granted to organization admins or users with the ROLE_ADMIN role.',
+)]
+
+#[GetCollection(
+    description: 'Retrieve flight offer requests. Returns the details of each requested flight offer.'
+)]
+
 class OrganizationInvite
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
-    #[Groups(['org:read'])]
     private ?UuidInterface $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'organizationInvites')]
@@ -44,16 +50,15 @@ class OrganizationInvite
     private ?Organization $organization = null;
 
     #[ORM\Column]
-    #[Groups(['org:read'])]
     private bool $accepted = false;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['invite:organization', 'org:read'])]
+    #[Groups(['invite:organization'])]
     private ?string $expectedEmail = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ['admin', 'eventAdmin', 'financeAdmin'])]
-    #[Groups(['invite:organization', 'org:read'])]
+    #[Groups(['invite:organization'])]
     private ?string $inviteType = null;
 
     public function getId(): ?UuidInterface

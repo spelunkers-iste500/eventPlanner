@@ -34,25 +34,29 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     // security: "is_granted('edit', object)",
     uriTemplate: '/events.{_format}',
     denormalizationContext: ['groups' => ['write:event']],
-    processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class,
+    description: 'Creates a new event. Only users with edit permissions (event admins, organization admins, or platform admins) can create events. Returns the created Event resource.',
 )]
 //Event.Admin.View (WORKS)
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/eventAdmin.{_format}',
     normalizationContext: ['groups' => ['read:event:collection', 'read:event:eventAdmin']],
+    description: 'Retrieves a collection of events where the user is an event admin. Only accessible to event admins. Returns a list of Event resources.',
 )]
 
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/financeAdmin.{_format}',
     normalizationContext: ['groups' => ['read:event:collection', 'read:event:financeAdmin']],
+    description: 'Retrieves a collection of events where the user has finance admin permissions. Only accessible to finance admins. Returns a list of Event resources.',
 )]
 
 #[GetCollection(
     //FIX WITH EXTENSION filtering see \Doctrine\OrgAdminOfExtension
     uriTemplate: '/my/organizations/events/fullAdmin.{_format}',
     normalizationContext: ['groups' => ['read:event:collection']],
+    description: 'Retrieves a collection of all events the user has full admin access to. Only accessible to organization admins or platform admins. Returns a list of Event resources.',
 )]
 
 //Event.Admin.Changes (WORKS FOR EVERYTHING EXCEPT BUDGET)
@@ -60,26 +64,30 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
     denormalizationContext: ['groups' => ['write:event:changes']],
-    processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class,
+    description: 'Updates an event\'s details. Only users with edit permissions (event admins, organization admins, or platform admins) can update events. Returns the updated Event resource.',
 )]
 //Event.Admin.AddAttendees (WORKS)
 #[Patch(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}/addAttendees.{_format}',
     denormalizationContext: ['groups' => ['add:event:attendees']],
-    processor: EventStateProcessor::class
+    processor: EventStateProcessor::class,
+    description: 'Adds attendees to an event. Only users with edit permissions (event admins, organization admins, or platform admins) can add attendees. Returns the updated Event resource.',
 )]
 //Event.Admin.delete (WORKS)
 #[Delete(
     security: "is_granted('edit', object)",
     uriTemplate: '/events/{id}.{_format}',
-    processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class,
+    description: 'Deletes an event. Only users with edit permissions (event admins, organization admins, or platform admins) can delete events. Returns a confirmation of deletion.',
 )]
 
 #[Get(
     security: "is_granted('view', object)",
     uriTemplate: '/events/{id}.{_format}',
-    normalizationContext: ['groups' => ['test:attendees', 'read:event']]
+    normalizationContext: ['groups' => ['test:attendees', 'read:event']],
+    description: 'Retrieves the details of a specific event. Only users with view permissions (attendees, event admins, organization admins, or platform admins) can view events. Returns the Event resource.',
 )]
 
 //grabs per user total, max attendees, flights (id and cost), overage (once added), budget id, total budget, event title
@@ -87,7 +95,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     Get(
         //security: "is_granted('view', object)",
         uriTemplate: '/csv/events/{id}.{_format}',
-        normalizationContext: ['groups' => ['event:csv:export']]
+        normalizationContext: ['groups' => ['event:csv:export']],
+        description: 'Exports event details to a CSV file. Only accessible to users with appropriate permissions. Returns the CSV export of the event.',
     )
 ]
 
@@ -95,7 +104,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     Get(
         security: "is_granted('view', object)",
         uriTemplate: '/image/get/events/{id}.{_format}',
-        normalizationContext: ['groups' => ['event:image:read']]
+        normalizationContext: ['groups' => ['event:image:read']],
+        description: 'Retrieves the image associated with a specific event. Only users with view permissions (attendees, event admins, organization admins, or platform admins) can access event images. Returns the image resource.',
     )
 ]
 
@@ -104,7 +114,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     // security: "is_granted('edit', object)",
     uriTemplate: '/image/post/events/{id}.{_format}',
     denormalizationContext: ['groups' => ['event:image:write']],
-    processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class,
+    description: 'Uploads or updates the image for a specific event. Only users with edit permissions (event admins, organization admins, or platform admins) can manage event images. Returns the updated Event resource.',
 )]
 //ADD IMAGES HERE
 

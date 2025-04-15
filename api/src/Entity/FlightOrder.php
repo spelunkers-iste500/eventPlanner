@@ -11,11 +11,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource]
 #[Get(
     provider: FlightOrderState::class,
-    security: "is_granted('view', object)"
+    security: "is_granted('view', object)",
+    description: 'Retrieves flight order details for users with view permissions.'
 )]
 #[Post(
     processor: FlightOrderState::class,
-    denormalizationContext: ['groups' => ['write:flightOrder']]
+    denormalizationContext: ['groups' => ['write:flightOrder']],
+    description: 'Creates a new flight order with passenger and event data, returning the FlightOrder resource.'
 )]
 
 class FlightOrder

@@ -32,13 +32,15 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 //User.Get.Info
 #[Get(
     security: "is_granted('view', object)",
-    normalizationContext: ['groups' => ['user:test:read']]
+    normalizationContext: ['groups' => ['user:test:read']],
+    description: 'Retrieves test user details. Users can view their own profile or, if they have the ROLE_ADMIN role, view any user profile. Returns the User resource.',
 )]
 #[Get(
     uriTemplate: '/my/user.{_format}',
     security: "is_granted('view', object)",
     normalizationContext: ['groups' => ['user:read']],
-    provider: CurrentUserProvider::class
+    provider: CurrentUserProvider::class,
+    description: 'Retrieves the current authenticated user\'s details. Users can only view their own profile. Returns the User resource.',
 )]
 //User.Create --This is working how I expect so far
 #[Post(
@@ -58,19 +60,21 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
             description: 'The ID of the organization that owns the users'
         )
     ],
-    normalizationContext: ['groups' => ['user:org:read']]
+    normalizationContext: ['groups' => ['user:org:read']],
+    description: 'Retrieves a collection of users belonging to a specific organization. Only accessible to organization admins. Returns a list of User resources.'
 )]
 //User.Change --This is working how I expect so far
 #[Patch(
     uriTemplate: '/users/{id}.{_format}',
     security: "is_granted('edit', object)", // Checks edit permission for the specific user
     denormalizationContext: ['groups' => ['edit:user:limited']],
-    processor: LoggerStateProcessor::class
+    processor: LoggerStateProcessor::class,
+    description: 'Updates the details of a specific user. Users can only edit their own profile. Returns the updated User resource.',
 )]
 //User.Admin.delete
 #[Delete(
     security: "is_granted('ROLE_ADMIN')",
-    description: "Deletes a User. Users can only delete if they're a platform admin",
+    description: 'Deletes a user. Only platform admins can delete users. Returns a confirmation of deletion.',
     processor: LoggerStateProcessor::class
 )]
 
@@ -79,7 +83,8 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
     security: "is_granted('view', object)",
     uriTemplate: '/my/event/{id}.{_format}',
     #requirements: ['id' => '\d+'],
-    normalizationContext: ['groups' => ['read:event:booking']]
+    normalizationContext: ['groups' => ['read:event:booking']],
+    description: 'Retrieves details of a specific event booking for the current user. Users can only view their own event bookings. Returns the Event resource.',
 )]
 
 //Event.User.Dashbaord will be handled when a User Object is collected and then calling eventsAttended() method to pull events attended

@@ -30,6 +30,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 //User.Get.Budget
 #[Get(
+    description: 'Retrieve a specific budget for an organization. Requires the "view" permission, which is granted to finance admins of the organization, finance admins of the event, finance admins of the budget, event admins, or users with the ROLE_ADMIN role. Returns the details of the requested budget.',
     uriTemplate: '/budgets/{id}',
     normalizationContext: ['groups' => ['user:read:budget']],
     security: "is_granted('view', object)"
@@ -37,6 +38,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 //financial.admin.create
 #[Post(
+    description: 'Create a new budget for an organization. Requires the "edit" permission, which is granted to finance admins of the organization, finance admins of the event, finance admins of the budget, or users with the ROLE_ADMIN role. Returns the created budget object.',
     securityPostDenormalize: "is_granted('edit', object)",
     uriTemplate: '/budgets.{_format}',
     denormalizationContext: ['groups' => ['write:budget']],
@@ -45,7 +47,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 //financial.admin.patch
 #[Patch(
-    description: 'update a budget for an organization',
+    description: 'Update an existing budget for an organization. Requires the "edit" permission, which is granted to finance admins of the organization, finance admins of the event, finance admins of the budget, or users with the ROLE_ADMIN role. Returns the updated budget object.',
     uriTemplate: '/budgets/{id}.{_format}',
     security: "is_granted('edit', object)",
     denormalizationContext: ['groups' => ['replace:budget']],
@@ -59,7 +61,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 
 //Fincial.Admin.View
 #[GetCollection(
-    description: 'Get all budgets for an organization',
+    description: 'Retrieve a collection of budgets for an organization. Requires the "view" permission for each budget, which is granted to finance admins of the organization, finance admins of the event, finance admins of the budget, event admins, or users with the ROLE_ADMIN role. Returns an array of budget objects.',
     uriTemplate: '/organizations/{orgId}/budgets.{_format}',
     uriVariables: [
         'orgId' => new Link(
@@ -75,6 +77,7 @@ use Symfony\Component\Serializer\Annotation\MaxDepth;
 )]
 
 #[Delete(
+    description: 'Delete a budget for an organization. Requires the "edit" permission, which is granted to finance admins of the organization, finance admins of the event, finance admins of the budget, or users with the ROLE_ADMIN role. Returns a confirmation of the deletion.',
     security: "is_granted('edit', object)",
     uriTemplate: '/budgets/{id}.{_format}',
     processor: LoggerStateProcessor::class

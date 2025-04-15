@@ -12,7 +12,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ApiResource]
 #[Get(
     // provider: FlightOfferRequestState::class,
-    normalizationContext: ['groups' => ['read:flightOffer']]
+    normalizationContext: ['groups' => ['read:flightOffer']],
+    description: 'Retrieve a specific flight offer request. Returns the details of the requested flight offer request.'
 )]
 class FlightOfferRequest
 {
