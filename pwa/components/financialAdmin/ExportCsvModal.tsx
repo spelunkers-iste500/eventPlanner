@@ -7,6 +7,8 @@ import {
     Button,
 } from "@chakra-ui/react";
 import { X } from "lucide-react";
+// Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). 
+// All other copyright (c) for Lucide are held by Lucide Contributors 2022.
 import Input from "Components/common/Input";
 import styles from "../common/Dialog.module.css";
 import { Event } from "Types/event";
@@ -94,11 +96,15 @@ const CreateBudgetModal: React.FC<CreateBudgetModalProps> = ({
         csvRows.push(
             `"${item.eventTitle || ""}","${item.maxAttendees || 0}","${
                 item.budget?.perUserTotal || 0
-            }","${item.budget?.overage || 0}","${totalBudget}","",""`
+            }","${item.budget?.overage || 0}","${totalBudget}"`
         );
 
         item.attendees.forEach((attendee) => {
-            if (attendee.flight) {
+            if (
+                attendee.flight &&
+                attendee.flight.id !== "notPersisted" &&
+                attendee.flight.flightCost > 0
+            ) {
                 csvRows.push(
                     `,,,,,"${attendee.flight.id || ""}","${(
                         attendee.flight.flightCost || 0

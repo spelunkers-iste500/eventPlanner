@@ -9,6 +9,8 @@ import {
 } from "@chakra-ui/react";
 import BaseDialog from "Components/common/BaseDialog";
 import { X } from "lucide-react";
+// Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). 
+// All other copyright (c) for Lucide are held by Lucide Contributors 2022.
 import InviteAttendantExt from "./InviteAttendantExt";
 import { Flight } from "Types/flight";
 import styles from "../common/Dialog.module.css";
