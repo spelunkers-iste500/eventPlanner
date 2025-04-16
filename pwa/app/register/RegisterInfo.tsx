@@ -4,6 +4,8 @@ import styles from "../login/login.module.css";
 import Input from "Components/common/Input";
 import DatePicker from "react-datepicker";
 import { Calendar } from "lucide-react";
+// Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). 
+// All other copyright (c) for Lucide are held by Lucide Contributors 2022.
 import { PasswordInput } from "Components/ui/password-input";
 import axios from "axios";
 import { signIn } from "next-auth/react";

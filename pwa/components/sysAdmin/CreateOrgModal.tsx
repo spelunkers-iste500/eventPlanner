@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import BaseDialog from "Components/common/BaseDialog";
 import { toaster } from "Components/ui/toaster";
 import { X } from "lucide-react";
+// Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2022 as part of Feather (MIT). 
+// All other copyright (c) for Lucide are held by Lucide Contributors 2022.
 import styles from "Components/common/Dialog.module.css";
 import { Switch, Button } from "@chakra-ui/react";
 import OrgAdminDashboard from "Components/orgAdmin/OrgAdminDashboard";
