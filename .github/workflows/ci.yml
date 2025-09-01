@@ -32,7 +32,7 @@ jobs:
       JWT_PASSPHRASE: ${{ secrets.JWT_PASSPHRASE }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Stop existing services
@@ -129,7 +129,7 @@ jobs:
       MAILER_DSN: ${{ secrets.MAILER_DSN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Clean Disk
         run: docker system prune -af --filter "until=1h"
       - name: Backup Database
